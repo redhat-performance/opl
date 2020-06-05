@@ -1,0 +1,18 @@
+- name: parameters.cluster.pods.upload-service.count
+  command: oc -n qa get pods -l app=upload-service -o name | wc -l
+- name: parameters.cluster.pods.insights-puptoo.count
+  command: oc -n qa get pods -l app=insights-puptoo -o name | wc -l
+- name: parameters.cluster.pods.insights-storage-broker.count
+  command: oc -n qa get pods -l app=insights-storage-broker -o name | wc -l
+
+# TODO: We should query deployment config here I think
+- name: parameters.cluster.pods.vulnerability-engine-listener.resources
+  command: oc -n qa get pods -l deploymentconfig=vulnerability-engine-listener -o json | python3 -c "import sys, json; print(json.dumps(json.load(sys.stdin)['items'][0]['spec']['containers'][0]['resources']))"
+  output: json
+
+- name: measurements.insights-inventory-mq-service.cpu
+  monitoring_query: sum(pod_name:container_cpu_usage:sum{pod_name=~'insights-inventory-mq-service-.*',namespace='qa'})
+  monitoring_step: 60
+
+- name: measurements.satellite.load
+  grafana_target: $Cloud.$Node.load.load.shortterm

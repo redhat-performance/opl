@@ -1,0 +1,306 @@
+import logging
+import argparse
+import yaml
+import json
+import subprocess
+import requests
+import os
+import jinja2
+
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+from . import data
+from . import date
+
+
+def execute(command):
+    try:
+        p = subprocess.run(
+            command,
+            shell=True,
+            check=True,
+            capture_output=True)
+        assert len(p.stderr) == 0
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Failed to execute '{command}': {e}")
+        result = None
+    except Exception as e:
+        logging.error(f"Failed to execute '{command}' with '{p.stderr}': {e}")
+        result = None
+    else:
+        result = p.stdout.decode().strip()
+
+    return result
+
+
+class PrometheusMeasurementsPlugin():
+
+    def __init__(self, args):
+        self._token = None
+
+    def _get_token(self):
+        if self._token is None:
+            self._token = execute('oc whoami -t')
+            if self._token is None:
+                raise Exception("Failsed to get token")
+        return self._token
+
+    def measure(self, start, end, name, monitoring_query, monitoring_step):
+        assert start is not None and end is not None, \
+            "We need timerange to approach Prometheus"
+        # Get data from Prometheus
+        url = 'https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query_range'
+        headers = {
+            'Authorization': f'Bearer {self._get_token()}',
+            'Content-Type': 'application/json',
+        }
+        params = {
+            'query': monitoring_query,
+            'step': monitoring_step,
+            'start': start.strftime('%s'),
+            'end': end.strftime('%s'),
+        }
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        response = requests.get(url, headers=headers, params=params, verify=False)
+
+        # Check that what we got back seems OK
+        response.raise_for_status()
+        json_response = response.json()
+        assert json_response['status'] == 'success'
+        assert 'data' in json_response
+        assert 'result' in json_response['data']
+        assert len(json_response['data']['result']) == 1
+        assert 'values' in json_response['data']['result'][0]
+
+        points = [float(i[1]) for i in json_response['data']['result'][0]['values']]
+        stats = data.data_stats(points)
+        return name, stats
+
+    @staticmethod
+    def add_args(parser):
+        pass
+
+
+class GrafanaMeasurementsPlugin():
+
+    def __init__(self, args):
+        self.host = args.grafana_host
+        self.port = args.grafana_port
+        self.token = args.grafana_token
+        self.datasource = args.grafana_datasource
+        self.chunk_size = args.grafana_chunk_size
+        self.variables = {
+            '$Node': args.grafana_node,
+            '$Interface': args.grafana_interface,
+            '$Cloud': args.grafana_prefix
+        }
+
+    def _sanitize_target(self, target):
+        for k, v in self.variables.items():
+            target = target.replace(k, v)
+        return target
+
+    def measure(self, start, end, name, grafana_target):
+        assert start is not None and end is not None, \
+            "We need timerange to approach Grafana"
+        if start.strftime('%s') == end.strftime('%s'):
+            return name, None
+
+        # Metadata for the request
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+        }
+        if self.token is not None:
+            headers['Authorization'] = 'Bearer %s' % self.token
+        params = {
+            'target': [self._sanitize_target(grafana_target)],
+            'from': int(start.timestamp()),
+            'until': round(end.timestamp()),
+            'format': 'json',
+        }
+        url = "http://%s:%s/api/datasources/proxy/%s/render" % (self.host, self.port, self.datasource)
+
+        r = requests.post(url=url, headers=headers, params=params)
+        if not r.ok or r.headers['Content-Type'] != 'application/json':
+            logging.error("URL = %s" % r.url)
+            logging.error("Request headers = %s" % headers)
+            logging.error("Request params = %s" % params)
+            logging.error("Response headers = %s" % r.headers)
+            logging.error("Response status code = %s" % r.status_code)
+            logging.error("Response content = %s" % r.content)
+            raise Exception("Request failed")
+        logging.debug("Response: %s" % r.json())
+
+        points = [float(i[0]) for i in r.json()[0]['datapoints'] if i[0] is not None]
+        stats = data.data_stats(points)
+        return name, stats
+
+    @staticmethod
+    def add_args(parser):
+        parser.add_argument('--grafana-host', default='',
+                            help='Grafana server to talk to')
+        parser.add_argument('--grafana-chunk-size', type=int, default=10,
+                            help='How many metrices to obtain from Grafana at one request')
+        parser.add_argument('--grafana-port', type=int, default=11202,
+                            help='Port Grafana is listening on')
+        parser.add_argument('--grafana-prefix', default='satellite62',
+                            help='Prefix for data in Graphite')
+        parser.add_argument('--grafana-datasource', type=int, default=1,
+                            help='Datasource ID in Grafana')
+        parser.add_argument('--grafana-token', default=None,
+                            help='Authorization token without the "Bearer: " part')
+        parser.add_argument('--grafana-node', default='satellite_satperf_local',
+                            help='Monitored host node name in Graphite')
+        parser.add_argument('--grafana-interface', default='interface-em1',
+                            help='Monitored host network interface name in Graphite')
+
+
+PLUGINS = {
+    'monitoring_query': PrometheusMeasurementsPlugin,
+    'grafana_target': GrafanaMeasurementsPlugin,
+}
+
+
+def config_stuff(config):
+    """
+    "config" is yaml loadable stuff - either opened file object, or string
+        containing yaml formated data. First of all we will run it through
+        Jinja2 as a template with env variables to expand
+    """
+    if not isinstance(config, str):
+        config = config.read()
+    env = jinja2.Environment(
+        loader=jinja2.DictLoader({'config': config}))
+    template = env.get_template('config')
+    config_rendered = template.render(os.environ)
+    return yaml.load(config_rendered, Loader=yaml.SafeLoader)
+
+
+class RequestedInfo():
+
+    def __init__(self, config, start=None, end=None):
+        """
+        "config" is input for config_stuff function
+        "start" and "end" are datetimes needed if config file contains some
+            monitoring items to limit from and to time of returned monitoring
+            data
+        """
+        self.config = config_stuff(config)
+        self.start = start
+        self.end = end
+
+        self._index = 0   # which config item are we processing?
+        self._token = None   # OCP token - we will take it from `oc whoami -t` if needed
+        self.measurement_plugins = {}   # objects to use for measurements (it's 'measure()' method) by key in config
+
+    def register_measurement_plugin(self, key, instance):
+        self.measurement_plugins[key] = instance
+
+    def get_config(self):
+        return self.config
+
+    def __iter__(self):
+        return self
+
+    def _command(self, config):
+        """
+        Execute command "command" and return result as per its "output" configuration
+        """
+        # Execute the command
+        result = execute(config['command'])
+
+        # Sanitize command respose
+        if 'output' in config and result is not None:
+            if config['output'] == 'text':
+                pass
+            elif config['output'] == 'json':
+                result = json.loads(result)
+            elif config['output'] == 'yaml':
+                result = yaml.load(result, Loader=yaml.SafeLoader)
+            else:
+                raise Exception(f"Unexpected output type '{config['output']}' for '{config['name']}'")
+
+        return config['name'], result
+
+    def _find_plugin(self, keys):
+        for key in keys:
+            if key in self.measurement_plugins:
+                return self.measurement_plugins[key]
+        return False
+
+    def __next__(self):
+        """
+        Gives tuple of key and value for every item in the config file
+        """
+        i = self._index
+        self._index += 1
+        if i < len(self.config):
+            if 'command' in self.config[i]:
+                return self._command(self.config[i])
+            elif self._find_plugin(self.config[i].keys()):
+                instance = self._find_plugin(self.config[i].keys())
+                try:
+                    return instance.measure(self.start, self.end, **self.config[i])
+                except Exception as e:
+                    logging.error(f"Failed to measure: {e}")
+                    return None, None
+            else:
+                raise Exception(f"Unknown config '{self.config[i]}'")
+        else:
+            raise StopIteration
+
+
+def doit(args):
+    if args.requested_info_string:
+        string = f"""
+            - name: requested-info-string
+              command: {args.requested_info_string}
+              output: {args.requested_info_outputtype}
+        """
+        requested_info = RequestedInfo(string)
+    else:
+        requested_info = RequestedInfo(
+            args.requested_info_config,
+            args.monitoring_start,
+            args.monitoring_end)
+        for name, plugin in PLUGINS.items():
+            requested_info.register_measurement_plugin(name, plugin(args))
+
+    if args.render_config:
+        print(yaml.dump(requested_info.get_config(), width=float("inf")))
+    else:
+        for k, v in requested_info:
+            print(f"{k}: {v}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Run commands defined in a config file and show output',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument('--requested-info-config', required=True,
+                        type=argparse.FileType('r'),
+                        help='File with list of commands to run (also use env variable REQUESTED_INFO_CONFIG)')
+    parser.add_argument('--requested-info-string',
+                        help='Ad-hoc command you want to run')
+    parser.add_argument('--requested-info-outputtype', default='text',
+                        choices=['text', 'json', 'yaml'],
+                        help='Ad-hoc command output type, default to "text"')
+    parser.add_argument('--monitoring-start', type=date.my_fromisoformat,
+                        help='Start of monitoring interval in ISO 8601 format in UTC with seconds precision')
+    parser.add_argument('--monitoring-end', type=date.my_fromisoformat,
+                        help='End of monitoring interval in ISO 8601 format in UTC with seconds precision')
+    parser.add_argument('--render-config', action='store_true',
+                        help='Just render config')
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Show debug output')
+    for name, plugin in PLUGINS.items():
+        plugin.add_args(parser)
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug(f"Args: {args}")
+
+    doit(args)

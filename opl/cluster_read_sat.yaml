@@ -1,0 +1,56 @@
+# Minimal set of values (generally relevant on any host)
+- name: measurements.satellite.load.load.shortterm
+  grafana_target: $Cloud.$Node.load.load.shortterm
+- name: measurements.satellite.memory.memory-used
+  grafana_target: $Cloud.$Node.memory.memory-used
+- name: measurements.satellite.swap.swap-used
+  grafana_target: $Cloud.$Node.swap.swap-used
+- name: measurements.satellite.disk_octets.read
+  grafana_target: scale(sum($Cloud.$Node.*.disk_octets.read), 8)
+- name: measurements.satellite.disk_octets.write
+  grafana_target: scale(sum($Cloud.$Node.*.disk_octets.write), 8)
+- name: measurements.satellite.eth1.if_octets.tx
+  grafana_target: scale($Cloud.$Node.$Interface.if_octets.tx, 8)
+- name: measurements.satellite.eth1.if_octets.rx
+  grafana_target: scale($Cloud.$Node.$Interface.if_octets.rx, 8)
+# Extra values specifically for Satellite 6
+- name: measurements.satellite.processes-httpd.ps_rss
+  grafana_target: $Cloud.$Node.processes-httpd.ps_rss
+- name: measurements.satellite.processes-ruby.ps_rss
+  grafana_target: $Cloud.$Node.processes-ruby.ps_rss
+- name: measurements.satellite.processes-dynflow_executor.ps_rss
+  grafana_target: $Cloud.$Node.processes-dynflow_executor.ps_rss
+- name: measurements.satellite.processes-postgres.ps_rss
+  grafana_target: $Cloud.$Node.processes-postgres.ps_rss
+- name: measurements.satellite.processes-Tomcat.ps_rss
+  grafana_target: $Cloud.$Node.processes-Tomcat.ps_rss
+- name: measurements.satellite.processes-qpidd.ps_rss
+  grafana_target: $Cloud.$Node.processes-qpidd.ps_rss
+- name: measurements.satellite.processes-qdrouterd.ps_rss
+  grafana_target: $Cloud.$Node.processes-qdrouterd.ps_rss
+- name: measurements.satellite.processes-httpd.ps_cputime.user
+  grafana_target: scale($Cloud.$Node.processes-httpd.ps_cputime.user, 0.0001)
+- name: measurements.satellite.processes-ruby.ps_cputime.user
+  grafana_target: scale($Cloud.$Node.processes-ruby.ps_cputime.user, 0.0001)
+- name: measurements.satellite.processes-dynflow_executor.ps_cputime.user
+  grafana_target: scale($Cloud.$Node.processes-dynflow_executor.ps_cputime.user, 0.0001)
+- name: measurements.satellite.processes-postgres.ps_cputime.user
+  grafana_target: scale($Cloud.$Node.processes-postgres.ps_cputime.user, 0.0001)
+- name: measurements.satellite.processes-Tomcat.ps_cputime.user
+  grafana_target: scale($Cloud.$Node.processes-Tomcat.ps_cputime.user, 0.0001)
+- name: measurements.satellite.processes-qpidd.ps_cputime.user
+  grafana_target: scale($Cloud.$Node.processes-qpidd.ps_cputime.user, 0.0001)
+- name: measurements.satellite.processes-qdrouterd.ps_cputime.user
+  grafana_target: scale($Cloud.$Node.processes-qdrouterd.ps_cputime.user, 0.0001)
+- name: measurements.satellite.postgresql-candlepin.pg_n_tup_c-del
+  grafana_target: $Cloud.$Node.postgresql-candlepin.pg_n_tup_c-del
+- name: measurements.satellite.postgresql-candlepin.pg_n_tup_c-ins
+  grafana_target: $Cloud.$Node.postgresql-candlepin.pg_n_tup_c-ins
+- name: measurements.satellite.postgresql-candlepin.pg_n_tup_c-upd
+  grafana_target: $Cloud.$Node.postgresql-candlepin.pg_n_tup_c-upd
+- name: measurements.satellite.postgresql-foreman.pg_n_tup_c-del
+  grafana_target: $Cloud.$Node.postgresql-foreman.pg_n_tup_c-del
+- name: measurements.satellite.postgresql-foreman.pg_n_tup_c-ins
+  grafana_target: $Cloud.$Node.postgresql-foreman.pg_n_tup_c-ins
+- name: measurements.satellite.postgresql-foreman.pg_n_tup_c-upd
+  grafana_target: $Cloud.$Node.postgresql-foreman.pg_n_tup_c-upd
