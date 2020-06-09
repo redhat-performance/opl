@@ -33,23 +33,39 @@ def execute(command):
     return result
 
 
+def _debug_response(r):
+    """
+    Print various info about the requests response. Should be called when
+    request failed
+    """
+    logging.error("URL = %s" % r.url)
+    logging.error("Request headers = %s" % headers)
+    logging.error("Request params = %s" % params)
+    logging.error("Response headers = %s" % r.headers)
+    logging.error("Response status code = %s" % r.status_code)
+    logging.error("Response content = %s" % r.content)
+    raise Exception("Request failed")
+
+
 class PrometheusMeasurementsPlugin():
 
     def __init__(self, args):
-        self._token = None
+        self.host = args.prometheus_host
+        self.port = args.prometheus_port
+        self.token = args.prometheus_token
 
     def _get_token(self):
-        if self._token is None:
-            self._token = execute('oc whoami -t')
-            if self._token is None:
+        if self.token is None:
+            self.token = execute('oc whoami -t')
+            if self.token is None:
                 raise Exception("Failsed to get token")
-        return self._token
+        return self.token
 
     def measure(self, start, end, name, monitoring_query, monitoring_step):
         assert start is not None and end is not None, \
             "We need timerange to approach Prometheus"
         # Get data from Prometheus
-        url = 'https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query_range'
+        url = f'{self.host}:{self.port}/api/v1/query_range'
         headers = {
             'Authorization': f'Bearer {self._get_token()}',
             'Content-Type': 'application/json',
@@ -62,15 +78,22 @@ class PrometheusMeasurementsPlugin():
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         response = requests.get(url, headers=headers, params=params, verify=False)
+        if not response.ok or response.headers['Content-Type'] != 'application/json':
+            _debug_response(response)
 
         # Check that what we got back seems OK
-        response.raise_for_status()
         json_response = response.json()
-        assert json_response['status'] == 'success'
-        assert 'data' in json_response
-        assert 'result' in json_response['data']
-        assert len(json_response['data']['result']) == 1
-        assert 'values' in json_response['data']['result'][0]
+        logging.debug("Response: %s" % json_response)
+        assert json_response['status'] == 'success', \
+            "'status' needs to be 'success'"
+        assert 'data' in json_response, \
+            "'data' needs to be in response"
+        assert 'result' in json_response['data'], \
+            "'result' needs to be in response's 'data'"
+        assert len(json_response['data']['result']) == 1, \
+            "we need exactly one 'response' in response's 'data'"
+        assert 'values' in json_response['data']['result'][0], \
+            "we need expected form of response"
 
         points = [float(i[1]) for i in json_response['data']['result'][0]['values']]
         stats = data.data_stats(points)
@@ -78,7 +101,13 @@ class PrometheusMeasurementsPlugin():
 
     @staticmethod
     def add_args(parser):
-        pass
+        parser.add_argument('--prometheus-host',
+                            default='https://prometheus-k8s.openshift-monitoring.svc',
+                            help='Prometheus server to talk to')
+        parser.add_argument('--prometheus-port', type=int, default=9091,
+                            help='Port Prometheus is listening on')
+        parser.add_argument('--prometheus-token', default=None,
+                            help='Authorization token without the "Bearer: " part. If not provided, we will try to get one with "oc whoami -t"')
 
 
 class GrafanaMeasurementsPlugin():
@@ -122,13 +151,7 @@ class GrafanaMeasurementsPlugin():
 
         r = requests.post(url=url, headers=headers, params=params)
         if not r.ok or r.headers['Content-Type'] != 'application/json':
-            logging.error("URL = %s" % r.url)
-            logging.error("Request headers = %s" % headers)
-            logging.error("Request params = %s" % params)
-            logging.error("Response headers = %s" % r.headers)
-            logging.error("Response status code = %s" % r.status_code)
-            logging.error("Response content = %s" % r.content)
-            raise Exception("Request failed")
+            _debug_response(r)
         logging.debug("Response: %s" % r.json())
 
         points = [float(i[0]) for i in r.json()[0]['datapoints'] if i[0] is not None]
@@ -278,9 +301,8 @@ def main():
         description='Run commands defined in a config file and show output',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument('--requested-info-config', required=True,
-                        type=argparse.FileType('r'),
-                        help='File with list of commands to run (also use env variable REQUESTED_INFO_CONFIG)')
+    parser.add_argument('--requested-info-config', type=argparse.FileType('r'),
+                        help='File with list of commands to run')
     parser.add_argument('--requested-info-string',
                         help='Ad-hoc command you want to run')
     parser.add_argument('--requested-info-outputtype', default='text',
@@ -300,6 +322,13 @@ def main():
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
+
+    if args.requested_info_config is None and args.requested_info_string is None:
+        logging.error("At least one of '--requested-info-config' or '--requested-info-string' needs to be set")
+        return 1
+    if args.requested_info_config is not None and args.requested_info_string is not None:
+        logging.error("Only one of '--requested-info-config' or '--requested-info-string' can be set")
+        return 1
 
     logging.debug(f"Args: {args}")
 
