@@ -35,6 +35,7 @@ setuptools.setup(
         "requests",
         "scipy",
         "tabulate",
+        "deepdiff",
     ],
     entry_points={
         "console_scripts": [
