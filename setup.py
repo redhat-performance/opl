@@ -37,6 +37,17 @@ setuptools.setup(
         "tabulate",
         "deepdiff",
     ],
+    package_data={
+        "opl": [
+            "status_data_report.txt",
+            "cluster_read_example.yaml",
+            "cluster_read_sat.yaml",
+        ],
+        "opl.generators": [
+            "inventory_egress_data.json",
+            "inventory_egress_template.json.j2",
+        ],
+    },
     entry_points={
         "console_scripts": [
             "cluster_read.py = opl.cluster_read:main",
