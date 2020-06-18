@@ -141,7 +141,7 @@ def main():
                         help='Put NULL to column in table specified by tables')
     parser.add_argument('tables', nargs='*', default=[],
                         help='Which tables to work with, all by default')
-    opls.args.add_storage_db_opts(parser)
+    opl.args.add_storage_db_opts(parser)
 
     with opl.skelet.test_setup(parser) as (args, status_data):
         doit(args, status_data)
