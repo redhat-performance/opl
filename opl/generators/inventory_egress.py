@@ -8,16 +8,21 @@ import opl.gen
 
 
 class EgressHostsGenerator:
-    def __init__(self, expected=1):
+    def __init__(self, expected=1, n_packages=300):
         assert expected >= 1   # how many hosts to generate
         self.expected = expected
         self.generated = 0   # how many we have already generated
+        self.n_packages = n_packages   # how many packages to put into profile
 
         # Load data file
         data_dirname = os.path.dirname(__file__)
         data_file = os.path.join(data_dirname, 'inventory_egress_data.json')
         with open(data_file, 'r') as fp:
             self.data = json.load(fp)
+
+        # Check parameters sanity
+        assert len(self.data['PACKAGES']) >= self.n_packages, \
+            "Number of requested packages needs to be lower than available packages"
 
         # Load Jinja2 stuff
         self.env = jinja2.Environment(
@@ -42,7 +47,7 @@ class EgressHostsGenerator:
             'INSTALLED_PACKAGES': random.sample(
                 [random.choice(pkg_list) for
                     pkg_list in self.data['PACKAGES'].values()],
-                300),
+                self.n_packages),
             'YUM_REPOS': self.data['ENABLED_REPOS']
                 + random.sample(self.data['AVAILABLE_REPOS'], 10),   # noqa: W503
             'B64_IDENTITY': opl.gen.get_auth_header(account, 'tester')
