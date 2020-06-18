@@ -7,7 +7,8 @@ import os
 import yaml
 import time
 
-import opl.skelet
+from . import args
+from . import skelet
 
 
 def count_table(connection, table):
@@ -141,7 +142,7 @@ def main():
                         help='Put NULL to column in table specified by tables')
     parser.add_argument('tables', nargs='*', default=[],
                         help='Which tables to work with, all by default')
-    opl.args.add_storage_db_opts(parser)
+    args.add_storage_db_opts(parser)
 
-    with opl.skelet.test_setup(parser) as (args, status_data):
-        doit(args, status_data)
+    with skelet.test_setup(parser) as (params, status_data):
+        doit(params, status_data)

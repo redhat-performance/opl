@@ -6,8 +6,8 @@ import socket
 
 from kafka import KafkaConsumer
 
-import opl.args
-import opl.skelet
+from . import args
+from . import skelet
 
 
 KAFKA_GROUP = f"perf-test-{socket.gethostname()}"
@@ -56,7 +56,7 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--kafka-topic',
                         help='Topic for which to skip to end')
-    opl.args.add_kafka_opts(parser)
+    args.add_kafka_opts(parser)
 
-    with opl.skelet.test_setup(parser) as (args, status_data):
-        doit(args, status_data)
+    with skelet.test_setup(parser) as (params, status_data):
+        doit(params, status_data)
