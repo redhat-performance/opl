@@ -39,8 +39,7 @@ def _debug_response(r):
     request failed
     """
     logging.error("URL = %s" % r.url)
-    logging.error("Request headers = %s" % headers)
-    logging.error("Request params = %s" % params)
+    logging.error("Request headers = %s" % r.request.headers)
     logging.error("Response headers = %s" % r.headers)
     logging.error("Response status code = %s" % r.status_code)
     logging.error("Response content = %s" % r.content)

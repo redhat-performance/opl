@@ -1,5 +1,4 @@
 import logging
-import sys
 import os
 import argparse
 import requests
