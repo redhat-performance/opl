@@ -1,5 +1,6 @@
 import logging
 import argparse
+import datetime
 import yaml
 import json
 import subprocess
@@ -72,8 +73,8 @@ class PrometheusMeasurementsPlugin():
         params = {
             'query': monitoring_query,
             'step': monitoring_step,
-            'start': start.strftime('%s'),
-            'end': end.strftime('%s'),
+            'start': start.timestamp(),
+            'end': end.timestamp(),
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         response = requests.get(url, headers=headers, params=params, verify=False)
