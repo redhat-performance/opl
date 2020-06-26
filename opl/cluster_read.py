@@ -7,6 +7,7 @@ import subprocess
 import requests
 import os
 import jinja2
+import traceback
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
@@ -266,6 +267,7 @@ class RequestedInfo():
                     return instance.measure(self.start, self.end, **self.config[i])
                 except Exception as e:
                     logging.error(f"Failed to measure: {e}")
+                    traceback.print_exc()
                     return None, None
             else:
                 raise Exception(f"Unknown config '{self.config[i]}'")
