@@ -23,6 +23,10 @@ def _add_generic_db_opts(parser, name):
                         help=f'{name_camel} DB password (also use env variable {name_upper}_DB_PASS)')
 
 
+def add_cyndi_db_opts(parser):
+    _add_generic_db_opts(parser, 'cyndi')
+
+
 def add_storage_db_opts(parser):
     _add_generic_db_opts(parser, 'storage')
 
