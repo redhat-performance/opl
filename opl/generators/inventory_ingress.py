@@ -101,7 +101,7 @@ class PayloadRHSMGenerator:
         """
         Generate message and its ID
         """
-        template_name = 'inventory_ingress_RBAC_template.json.j2'
+        template_name = 'inventory_ingress_RHSM_template.json.j2'
         template = self.env.get_template(template_name)
         data = {
             'subscription_manager_id': self._get_uuid(),
