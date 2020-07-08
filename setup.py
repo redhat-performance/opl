@@ -46,6 +46,7 @@ setuptools.setup(
         "opl.generators": [
             "inventory_egress_data.json",
             "inventory_egress_template.json.j2",
+            "inventory_ingress_RBAC_template.json.j2",
         ],
     },
     entry_points={
