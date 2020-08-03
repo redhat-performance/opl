@@ -154,6 +154,8 @@ def data_stats(data):
     if len(data) == 0:
         return {'samples': 0}
     non_zero_data = [i for i in data if i != 0]
+    q25 = numpy.percentile(data, 25)
+    q75 = numpy.percentile(data, 75)
     return {
         'samples': len(data),
         'min': min(data),
@@ -163,8 +165,11 @@ def data_stats(data):
         'non_zero_mean': statistics.mean(non_zero_data) if len(non_zero_data) > 0 else 0.0,
         'median': statistics.median(data),
         'non_zero_median': statistics.median(non_zero_data) if len(non_zero_data) > 0 else 0.0,
-        'stdev': statistics.stdev(data) if len(data) > 1 else 0.0,
-        'diff': max(data) - min(data),
+        'stdev': statistics.stdev(data),
+        'range': max(data) - min(data),
+        'percentile25': q25,
+        'percentile75': q75,
+        'iqr': q75 - q25,
     }
 
 
