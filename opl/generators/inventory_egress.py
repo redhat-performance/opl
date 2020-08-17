@@ -8,11 +8,12 @@ import opl.gen
 
 
 class EgressHostsGenerator:
-    def __init__(self, expected=1, n_packages=300):
+    def __init__(self, expected=1, n_packages=300, msg_type='created'):
         assert expected >= 1   # how many hosts to generate
         self.expected = expected
         self.generated = 0   # how many we have already generated
         self.n_packages = n_packages   # how many packages to put into profile
+        self.msg_type = msg_type
 
         # Load data file
         data_dirname = os.path.dirname(__file__)
@@ -50,7 +51,8 @@ class EgressHostsGenerator:
                 self.n_packages),
             'YUM_REPOS': self.data['ENABLED_REPOS']
                 + random.sample(self.data['AVAILABLE_REPOS'], 10),   # noqa: W503
-            'B64_IDENTITY': opl.gen.get_auth_header(account, 'tester')
+            'B64_IDENTITY': opl.gen.get_auth_header(account, 'tester'),
+            'MSG_TYPE': self.msg_type,
         }
 
         self.generated += 1
