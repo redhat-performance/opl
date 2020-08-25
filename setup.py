@@ -52,7 +52,7 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "cluster_read.py = opl.cluster_read:main",
-            "data_investogator.py = opl.data_investogator:main",
+            "data_investigator.py = opl.data_investigator:main",
             "junit_cli.py = opl.junit_cli:main",
             "status_data_diff.py = opl.status_data:main_diff",
             "status_data.py = opl.status_data:main",
