@@ -45,4 +45,12 @@ These tools are only used by tests:
 Installation
 ------------
 
-TODO
+Install with:
+
+    virtualenv venv
+    source venv/bin/activate
+    pip install git+https://github.com/redhat-performance/opl.git
+
+If you have cloned the git and want to develop locally, replace last step with:
+
+    pip install --editable .
