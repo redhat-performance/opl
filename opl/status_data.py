@@ -39,6 +39,16 @@ class StatusData():
         logging.debug(f"Setting item {key} from {self._filename}")
         self._data[key] = value
 
+    def __repr__(self):
+        return f"<StatusData instance version={self.get('version')} id={self.get('id')} started={self.get_date('started')}>"
+
+    def __eq__(self, other):
+        return self._data == other._data
+
+    def __gt__(self, other):
+        logging.info(f"Comparing {self} to {other}")
+        return self.get_date('started') > other.get_date('started')
+
     def _split_mutlikey(self, multikey):
         """
         Dots delimits path in the nested dict.
