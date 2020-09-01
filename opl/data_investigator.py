@@ -89,6 +89,7 @@ class DataInvestigator():
                 tolerance = 1
             lower_boundary = trim_mean - 2 * tolerance
             upper_boundary = trim_mean + 2 * tolerance
+            logging.debug(f"Processing {key} which have trim_mean={trim_mean} and pstdev={pstdev}, i.e. tolerance={tolerance} and boundaries={lower_boundary}--{upper_boundary}")
             if not (lower_boundary <= test_data[key] <= upper_boundary):
                 logging.warning(f"Result for {key}: FAIL   {lower_boundary:.03f} < {test_data[key]:.03f} < {upper_boundary:.03f}")
                 fails.append(key)
@@ -117,12 +118,20 @@ class DataInvestigator():
             out.append(get_info_value('Is usable', is_usable))
 
             try:
+                mean = statistics.mean(data)
+            except TypeError:
+                out.append(get_info_value('Does not compute', True))
+                return "\n".join(out)
+            stdev = statistics.stdev(data)
+            out.append(get_info_bar('mean vs stdev', ['mean', 'stdev'], [mean, stdev]))
+
+            try:
                 trim_mean = scipy.stats.trim_mean(data, 0.1)
             except TypeError:
                 out.append(get_info_value('Does not compute', True))
                 return "\n".join(out)
             pstdev = statistics.pstdev(data)
-            out.append(get_info_bar('mean vs pstdev', ['trim_mean', 'pstdev'], [trim_mean, pstdev]))
+            out.append(get_info_bar('trim_mean vs pstdev', ['trim_mean', 'pstdev'], [trim_mean, pstdev]))
 
             trim_min = min(scipy.stats.trimboth(data, 0.1))
             trim_max = max(scipy.stats.trimboth(data, 0.1))
