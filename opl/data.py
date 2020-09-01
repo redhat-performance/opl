@@ -165,7 +165,7 @@ def data_stats(data):
         'non_zero_mean': statistics.mean(non_zero_data) if len(non_zero_data) > 0 else 0.0,
         'median': statistics.median(data),
         'non_zero_median': statistics.median(non_zero_data) if len(non_zero_data) > 0 else 0.0,
-        'stdev': statistics.stdev(data),
+        'stdev': statistics.stdev(data) if len(data) > 1 else 0.0,
         'range': max(data) - min(data),
         'percentile25': q25,
         'percentile75': q75,

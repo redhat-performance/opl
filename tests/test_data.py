@@ -23,6 +23,11 @@ class TestSkelet(unittest.TestCase):
         self.assertEqual(stats['samples'], 0)
         self.assertEqual(len(stats), 1)
 
+    def test_data_stats_short(self):
+        stats = opl.data.data_stats([1])
+        self.assertEqual(stats['samples'], 1)
+        self.assertEqual(stats['stdev'], 0.0)
+
     def test_get_rps(self):
         rps_vals = opl.data.get_rps([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         self.assertEqual(len(rps_vals), 10)
