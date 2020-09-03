@@ -30,6 +30,7 @@ def run_locust(args, status_data, test_set):
     status_data.set('parameters.locust.step_load', args.step_load)
     status_data.set('parameters.locust.stop_timeout', args.stop_timeout)
     status_data.set('parameters.test.duration', args.test_duration)
+    status_data.set('parameters.test.requests', args.test_requests)
     if 'test_selection' in args:
         status_data.set('parameters.test.test_selection', args.test_selection)
     print(f"Running with host = {args.host}, num_clients = {args.num_clients}, hatch_rate = {args.hatch_rate}, duration = {args.test_duration}")
@@ -45,7 +46,20 @@ def run_locust(args, status_data, test_set):
         locust_runner.start_hatching(locust_count=args.num_clients,
                                      hatch_rate=args.hatch_rate,
                                      wait=False)
-        time.sleep(args.test_duration)
+
+        # Wait for the test to finish
+        if args.test_requests > 0:
+            while True:
+                num_requests = locust_runner.stats.num_requests
+                if num_requests >= args.test_requests:
+                    logging.debug(f"Finished {num_requests} requests while requested number was {args.test_requests}")
+                    break
+                logging.debug(f"Still waiting for test requests count ({num_requests} out of {args.test_requests})")
+                time.sleep(1)
+        else:
+            time.sleep(args.test_duration)
+            logging.debug(f"Waited for {args.test_duration} seconds")
+
         locust_runner.quit()
         status_data.set_now('results.end')
         logging.info("Local Locust run finished")

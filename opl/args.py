@@ -107,6 +107,9 @@ def add_locust_opts(parser):
     parser.add_argument('--test-duration', type=int,
                         default=os.getenv('TEST_DURATION', 100),
                         help='Test duration (also use env variable TEST_DURATION)')
+    parser.add_argument('--test-requests', type=int,
+                        default=os.getenv('TEST_REQUESTS', 0),
+                        help='Number of requests - if non-0, this overrides test duration (also use env variable TEST_REQUESTS)')
     parser.add_argument('--test-url-suffix',
                         default=os.getenv('TEST_URL_SUFFIX', '/api/rbac/v1'),
                         help='Test host URL suffix (also use env variable TEST_URL_SUFFIX)')
