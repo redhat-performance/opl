@@ -21,7 +21,8 @@ def execute(command):
             command,
             shell=True,
             check=True,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         assert len(p.stderr) == 0
     except subprocess.CalledProcessError as e:
         logging.error(f"Failed to execute '{command}': {e}")
