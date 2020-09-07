@@ -14,15 +14,16 @@ class PayloadRHSMGenerator:
 
     installed_packages = []
 
-    def __init__(self, count, fraction=1, relatives=100, addresses=3, packages=500):   # noqa: E501
+    def __init__(self, count, fraction=1, relatives=100, addresses=3, packages=500, template='inventory_ingress_RHSM_template.json.j2'):   # noqa: E501
         self.count = count   # how many payloads to produce
         self.counter = 0   # how many payloads we have produced already
         self.sent = []   # track IDs of profiles we have sent already
         assert fraction > 0
         self.fraction = fraction   # how often we should be returning new system
-        self.relatives = [{'account': self._get_account(), 'orgid': self._get_orgid()} for i in range(relatives)]   # list of accounts/... to choose from
+        self.relatives = self._get_relatives(relatives)   # list of accounts/... to choose from
         self.addresses = addresses   # how many IP and MAC addresses should the host have
         self.packages = packages   # how many packages should be in RHSM package profile
+        self.template = template
 
         assert fraction == 1, "'fraction' handling not yet implemented, please just use 1"
         assert addresses == 3, "'addresses' handling not yet implemented, please just use 3"
@@ -37,6 +38,14 @@ class PayloadRHSMGenerator:
 
     def __iter__(self):
         return self
+
+    def _get_relatives(self, count):
+        return [{
+            'account': self._get_account(),
+            'orgid': self._get_orgid(),
+            'satellite_id': self._get_uuid(),
+            'satellite_instance_id': self._get_uuid(),
+        } for i in range(count)]
 
     def _get_uuid(self):
         return str(uuid.uuid4())
@@ -101,8 +110,7 @@ class PayloadRHSMGenerator:
         """
         Generate message and its ID
         """
-        template_name = 'inventory_ingress_RHSM_template.json.j2'
-        template = self.env.get_template(template_name)
+        template = self.env.get_template(self.template)
         data = {
             'subscription_manager_id': self._get_uuid(),
             'bios_uuid': self._get_bios_uuid(),
