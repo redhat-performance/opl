@@ -8,6 +8,8 @@ import datetime
 import uuid
 import os
 
+import opl.generators.packages
+
 
 class PayloadRHSMGenerator:
     """Iterator that creates payloads with RHSM formated messages"""
@@ -27,7 +29,10 @@ class PayloadRHSMGenerator:
 
         assert fraction == 1, "'fraction' handling not yet implemented, please just use 1"
         assert addresses == 3, "'addresses' handling not yet implemented, please just use 3"
-        assert packages == 500, "'packages' handling not yet implemented, please just use 500"
+
+        # This will be used to generate list of packages
+        self.packages = packages
+        self.pg = opl.generators.packages.PackagesGenerator()
 
         # Load Jinja2 stuff
         data_dirname = os.path.dirname(__file__)
@@ -120,6 +125,7 @@ class PayloadRHSMGenerator:
             'fqdn': self._get_hostname(),
             'nowz': self._get_now_iso_z(),   # well, this is in nano-seconds, but should be in mili-seconds
             'tommorowz': self._get_tommorow_iso_z(),
+            'packages': self.pg.generate(self.packages),
         }
         data.update(random.choice(self.relatives))   # add account and orgid
         msg = json.loads(template.render(**data))

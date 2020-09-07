@@ -23,3 +23,13 @@ class TestPayloadGenerator(unittest.TestCase):
         self.assertIsInstance(msg, dict)
         with self.assertRaises(StopIteration):
             mid, msg = next(pg)
+
+    def test_templates(self):
+        pg = opl.generators.inventory_ingress.PayloadRHSMGenerator(
+            count=1,
+            template='inventory_ingress_RHSM_template.json.j2')
+        mid, msg = next(pg)
+        pg = opl.generators.inventory_ingress.PayloadRHSMGenerator(
+            count=1,
+            template='inventory_ingress_yupana_template.json.j2')
+        mid, msg = next(pg)
