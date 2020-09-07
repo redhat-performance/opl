@@ -5,6 +5,7 @@ import jinja2
 import jinja2.meta
 
 import opl.gen
+import opl.generators.packages
 
 
 class EgressHostsGenerator:
@@ -15,6 +16,9 @@ class EgressHostsGenerator:
         self.n_packages = n_packages   # how many packages to put into profile
         self.msg_type = msg_type
 
+        # Load package profile generator
+        self.pg = opl.generators.packages.PackagesGenerator()
+
         # Load data file
         data_dirname = os.path.dirname(__file__)
         data_file = os.path.join(data_dirname, 'inventory_egress_data.json')
@@ -22,7 +26,7 @@ class EgressHostsGenerator:
             self.data = json.load(fp)
 
         # Check parameters sanity
-        assert len(self.data['PACKAGES']) >= self.n_packages, \
+        assert self.pg.count() >= self.n_packages, \
             "Number of requested packages needs to be lower than available packages"
 
         # Load Jinja2 stuff
@@ -45,10 +49,7 @@ class EgressHostsGenerator:
             'INSIGHTS_ID': opl.gen.gen_uuid(),
             'ACCOUNT_ID': account,
             'FQDN': opl.gen.gen_hostname(),
-            'INSTALLED_PACKAGES': random.sample(
-                [random.choice(pkg_list) for
-                    pkg_list in self.data['PACKAGES'].values()],
-                self.n_packages),
+            'INSTALLED_PACKAGES': self.pg.generate(self.n_packages),
             'YUM_REPOS': self.data['ENABLED_REPOS']
                 + random.sample(self.data['AVAILABLE_REPOS'], 10),   # noqa: W503
             'B64_IDENTITY': opl.gen.get_auth_header(account, 'tester'),

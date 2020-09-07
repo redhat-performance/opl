@@ -5,6 +5,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import opl.generators.inventory_ingress   # noqa: E402
+import opl.generators.inventory_egress   # noqa: E402
+import opl.generators.packages   # noqa: E402
 import opl.status_data   # noqa: E402
 import opl.cluster_read   # noqa: E402
 import opl.data_investigator   # noqa: E402
