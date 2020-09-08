@@ -47,7 +47,7 @@ setuptools.setup(
             "inventory_egress_data.json",
             "inventory_egress_template.json.j2",
             "inventory_ingress_RHSM_template.json.j2",
-            "inventory_ingress_yupana_template.json.j2"
+            "inventory_ingress_yupana_template.json.j2",
             "packages_data.json",
         ],
     },
