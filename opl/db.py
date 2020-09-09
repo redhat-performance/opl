@@ -63,18 +63,28 @@ class BatchProcessor():
     to DB only when it accumulated some amount of it (1 DB insert with 100
     rows is far faster than 100 small inserts with 1 row).
     """
-    def __init__(self, db, sql, batch=100):
+    def __init__(self, db, sql, batch=100, lock=None):
         self.db = db
         self.sql = sql
         self.batch = batch
+        self.lock = lock
         self.data = []
 
     def commit(self):
         logging.debug(f"Executing '{self.sql}' with {len(self.data)} rows of data")
         cursor = self.db.cursor()
+
+        if self.lock is not None:
+            self.lock.acquire(True)
+
         psycopg2.extras.execute_values(
             cursor, self.sql, self.data, template=None, page_size=100)
+
         self.data.clear()
+
+        if self.lock is not None:
+            self.lock.release()
+
         self.db.commit()
         cursor.close()
 
