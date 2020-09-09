@@ -118,7 +118,7 @@ class BatchReader():
 
         cursor = self.db.cursor()
         offset = self.limit * self.batch
-        data = (offset,)
+        data = (self.limit, offset)
         cursor.execute(self.sql, data)
 
         logging.debug(f"On batch {self.batch} returning {cursor.rowcount} of rows")
