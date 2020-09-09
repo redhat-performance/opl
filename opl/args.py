@@ -1,5 +1,6 @@
 import os
 import socket
+import argparse
 
 
 def _add_generic_db_opts(parser, name):
@@ -113,3 +114,9 @@ def add_locust_opts(parser):
     parser.add_argument('--test-url-suffix',
                         default=os.getenv('TEST_URL_SUFFIX', '/api/rbac/v1'),
                         help='Test host URL suffix (also use env variable TEST_URL_SUFFIX)')
+
+
+def add_tables_def_opts(parser):
+    parser.add_argument('--tables-definition', type=argparse.FileType('r'),
+                        default=open(os.getenv('TABLES_DEFINITION', 'tables.yaml'), 'r'),
+                        help='File defining tables and SQL to create them (also use env variable TABLES_DEFINITION)')
