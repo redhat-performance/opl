@@ -55,7 +55,8 @@ def main():
         description='Skip to end of the given Kafka topic',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--kafka-topic',
-                        help='Topic for which to skip to end')
+                        default=os.getenv('KAFKA_TOPIC', 'platform.receptor-controller.responses'),
+                        help='Topic for which to skip to end (also use env variable KAFKA_TOPIC)')
     args.add_kafka_opts(parser)
 
     with skelet.test_setup(parser) as (params, status_data):
