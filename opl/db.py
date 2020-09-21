@@ -94,36 +94,18 @@ class BatchProcessor():
             self.commit()
 
 
-class BatchReader():
+def BatchReader(db, sql, limit=100):
     """
-    Acts as iterator when reading batches of data from DB. Provided SQL
-    needs to have limit and offset placeholders. When iterating through
-    it, it returns cursor each time where you need to use `x.fetchall()`
-    or so. Once we return less than batch items, we raise StopIteration
-    on next iteration.
+    Creates named server side cursor (so not all results are fetched to
+    the client when query is executed):
+
+        https://www.psycopg.org/docs/usage.html#server-side-cursors
+
+    Use separate connection when creating this as commits in pther cursor
+    in same connection will invalidate this and I probably do not understand
+    withhold=True good enough to use it correctly.
     """
-    def __init__(self, db, sql, limit=100):
-        self.db = db
-        self.sql = sql
-        self.limit = limit
-        self.batch = 0
-        self.out_of_msgs = False
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.out_of_msgs:
-            raise StopIteration
-
-        cursor = self.db.cursor()
-        offset = self.limit * self.batch
-        data = (self.limit, offset)
-        cursor.execute(self.sql, data)
-
-        logging.debug(f"On batch {self.batch} returning {cursor.rowcount} of rows")
-        if cursor.rowcount < self.limit:
-            self.out_of_msgs = True
-        self.batch += 1
-
-        return cursor
+    cursor = db.cursor(name="OPLBatchReader")
+    cursor.itersize = limit
+    cursor.execute(sql)
+    return cursor
