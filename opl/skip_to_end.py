@@ -3,6 +3,7 @@
 import logging
 import argparse
 import socket
+import os
 
 from kafka import KafkaConsumer
 
