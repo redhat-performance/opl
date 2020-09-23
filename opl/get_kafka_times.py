@@ -38,7 +38,7 @@ class GetKafkaTimes():
         self.update_remaining_count()
 
         # Store into DB in batches this big
-        self.batches_size = 100
+        self.batches_size = 500
         # Maximum seconds before we give up waiting for useful message
         self.max_quiet_period = args.max_quiet_period
 
@@ -94,7 +94,7 @@ class GetKafkaTimes():
         cursor = self.connection.cursor()
         sql = self.queries_definition['store_info']
         psycopg2.extras.execute_values(
-            cursor, sql, self.waiting_items, template=None, page_size=100)
+            cursor, sql, self.waiting_items, template=None, page_size=self.batches_size)
         try:
             updated = cursor.fetchall()
         except psycopg2.ProgrammingError as e:
@@ -135,7 +135,7 @@ class GetKafkaTimes():
         with contextlib.closing(self.create_consumer()) as consumer:
             for message in consumer:
                 value = json.loads(message.value.decode('utf-8'))
-                logging.debug(f"Received {message.timestamp} {message.topic} {message.partition} {message.offset} {value}")
+                logging.debug(f"Received {message.timestamp} {message.topic} {message.partition} {message.offset} {str(value)[:100]}...")
 
                 if self.custom_methods['message_validation'](value):
                     # Construct item to be saved
