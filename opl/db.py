@@ -10,6 +10,7 @@ def get_column(connection, column, include_null=False, table='items'):
     queryfrom = f"SELECT {column} FROM {table}"
     querycondition = f" WHERE {column} IS NOT NULL"
     sql = f"{queryfrom} {querycondition}" if not include_null else queryfrom
+    logging.debug(f"Executing {sql}")
     cursor = connection.cursor()
     cursor.execute(sql)
     results = cursor.fetchall()
@@ -21,6 +22,7 @@ def get_column_min_max(connection, column, table='items'):
     Return min and max from the column
     """
     sql = f"SELECT MIN({column}), MAX({column}) FROM {table} WHERE {column} IS NOT NULL"
+    logging.debug(f"Executing {sql}")
     cursor = connection.cursor()
     cursor.execute(sql)
     result = cursor.fetchone()
@@ -29,6 +31,7 @@ def get_column_min_max(connection, column, table='items'):
 
 def get_timestamps(connection, column, table='items'):
     sql = f"SELECT EXTRACT (EPOCH FROM {column}) as {column} FROM {table} WHERE {column} IS NOT NULL"
+    logging.debug(f"Executing {sql}")
     cursor = connection.cursor()
     cursor.execute(sql)
     results = cursor.fetchall()
@@ -46,6 +49,7 @@ def get_timedelta_between_columns(connection, columns, table='items'):
         queryfrom = f"SELECT EXTRACT (EPOCH FROM({columns[0]} - {columns[1]})) FROM {table}"
         querycondition = f" WHERE {columns[0]} IS NOT NULL AND {columns[1]} IS NOT NULL"
         sql = f"{queryfrom} {querycondition}"
+        logging.debug(f"Executing {sql}")
         cursor = connection.cursor()
         cursor.execute(sql)
         return [i[0] for i in cursor.fetchall()]
