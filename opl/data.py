@@ -188,7 +188,7 @@ def visualize_hist(data):
         print(f"<{i[0][0]:.2f}, {i[0][1]:.2f})\t: {i[1]}")
 
 
-def get_rps(data, bucket_size=10):
+def get_rps(data, bucket_size=None, granularity=None):
     """
     For given list of timestamps "data", count RPS values "bucket_size"
     long interval floating across data (this is set to 10 by default
@@ -200,7 +200,14 @@ def get_rps(data, bucket_size=10):
     out = []
     data_max = max(data)
     bucket_start = min(data)
+    if bucket_size is None:
+        bucket_size = (data_max - bucket_start) / 30
+        bucket_size = max(bucket_size, 10)
+    if granularity is None:
+        granularity = bucket_size / 5
+        granularity = max(granularity, 1)
     bucket_end = bucket_start + bucket_size
+    logging.debug(f"Counting RPS for {len(data)} data points with min {bucket_start} and max {data_max} with bucket_size={bucket_size} and granularity={granularity}")
 
     while bucket_start <= data_max:
         bucket = [i for i in data if bucket_start <= i < bucket_end]
@@ -222,7 +229,7 @@ def get_rps(data, bucket_size=10):
         else:
             out.append(rps)
 
-        bucket_start += 1
-        bucket_end += 1
+        bucket_start += granularity
+        bucket_end += granularity
 
     return out
