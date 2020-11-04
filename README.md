@@ -47,7 +47,7 @@ Installation
 
 Install with:
 
-    virtualenv venv
+    python -m venv venv
     source venv/bin/activate
     pip install git+https://github.com/redhat-performance/opl.git
 
