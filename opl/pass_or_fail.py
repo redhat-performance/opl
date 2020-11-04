@@ -44,12 +44,12 @@ def main():
             results = opl.investigator.check.check(history[var], current[var])
         except Exception as e:
             print(f"Checking {var}: ERROR: {e}")
-            exit_code = 1
+            exit_code = 2
         else:
             result = False not in results
             results_str = ['P' if i else 'F' for i in results]
             print(f"Checking {var}: {'PASS' if result else 'FAIL'} ({','.join(results_str)})")
-            if result:
+            if exit_code == 0 and not result:
                 exit_code = 1
 
     return exit_code
