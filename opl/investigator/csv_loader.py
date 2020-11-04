@@ -1,6 +1,5 @@
-import logging
-
 import csv
+import logging
 
 
 def load(fp, columns):

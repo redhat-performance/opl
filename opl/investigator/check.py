@@ -1,11 +1,11 @@
 import logging
-
 import statistics
+
 import scipy.stats
 
 
 def _check_by_stdev(data, value, trim=0.0):
-    #data = data[-10:]
+    logging.debug(f"data={data} and value={value} and trim={trim}")
     mean = scipy.stats.trim_mean(data, trim)
     stdev = statistics.stdev(scipy.stats.trimboth(data, trim))
     lower_boundary = mean - stdev
@@ -23,7 +23,7 @@ def check_by_trim_stdev(data, value):
 
 
 def _check_by_error(data, value, boost=1.0):
-    #data = data[-10:]
+    logging.debug(f"data={data} and value={value} and boost={boost}")
     mean = statistics.mean(data)
     error = statistics.mean([abs(i - mean) for i in data])
     lower_boundary = mean - error * boost
@@ -41,7 +41,6 @@ def check_by_error_2(data, value):
 
 
 def check(data, value):
-    logging.debug(f"data={data} and value={value}")
     methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
     results = []
     for method in methods:

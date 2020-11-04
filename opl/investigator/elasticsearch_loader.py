@@ -1,10 +1,10 @@
-import logging
-
 import json
-import requests
+import logging
 import tempfile
 
 import opl.status_data
+
+import requests
 
 
 def load(server, index, query, paths):
@@ -22,9 +22,10 @@ def load(server, index, query, paths):
 
     response = requests.get(url, headers=headers, json=data)
     response.raise_for_status()
-    logging.debug(f"Got back this: {response.json()}")
+    # logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
 
     for item in response.json()['hits']['hits']:
+        logging.debug(f"Loading data from document ID {item['_id']} with field id={item['_source']['id'] if 'id' in item['_source'] else None} or parameters.run={item['_source']['parameters']['run'] if 'run' in item['_source']['parameters'] else None}")
         tmpfile = tempfile.NamedTemporaryFile(prefix=item['_id'], delete=False).name
         sd = opl.status_data.StatusData(tmpfile, data=item['_source'])
         for path in paths:

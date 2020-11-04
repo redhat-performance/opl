@@ -1,19 +1,11 @@
-import logging
-import os
 import argparse
-import requests
-import tempfile
-import json
+import logging
 
-import collections
-import statistics
-import scipy.stats
-
-import opl.investigator.config
 import opl.investigator.check
+import opl.investigator.config
 import opl.investigator.csv_loader
-import opl.investigator.status_data_loader
 import opl.investigator.elasticsearch_loader
+import opl.investigator.status_data_loader
 
 
 def main():
@@ -46,6 +38,18 @@ def main():
     else:
         raise Exception("Not supported data source type for current data")
 
+    exit_code = 0
     for var in args.sets:
-        result = opl.investigator.check.check_by_stdev(history[var], current[var])
-        print(f"Checking {var}: {'PASS' if result else 'FAIL'}")
+        try:
+            results = opl.investigator.check.check(history[var], current[var])
+        except Exception as e:
+            print(f"Checking {var}: ERROR: {e}")
+            exit_code = 1
+        else:
+            result = False not in results
+            results_str = ['P' if i else 'F' for i in results]
+            print(f"Checking {var}: {'PASS' if result else 'FAIL'} ({','.join(results_str)})")
+            if result:
+                exit_code = 1
+
+    return exit_code
