@@ -50,11 +50,15 @@ setuptools.setup(
             "inventory_ingress_yupana_template.json.j2",
             "packages_data.json",
         ],
+        "opl.investigator": [
+            "sample_config.yaml",
+        ],
     },
     entry_points={
         "console_scripts": [
             "cluster_read.py = opl.cluster_read:main",
             "data_investigator.py = opl.data_investigator:main",
+            "pass_or_fail.py = opl.pass_or_fail:main",
             "junit_cli.py = opl.junit_cli:main",
             "status_data_diff.py = opl.status_data:main_diff",
             "status_data.py = opl.status_data:main",
