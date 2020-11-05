@@ -12,9 +12,9 @@ def _check_by_stdev(data, value, trim=0.0, boost=1.0):
     stdev = statistics.stdev(scipy.stats.trimboth(data, trim))
     lower_boundary = mean - stdev * boost
     upper_boundary = mean + stdev * boost
-    logging.info(f"{__name__}: value={value}, trim={trim:.03f}, boost={boost:.03f}, data len={len(data)} mean={mean:.03f} stdev={stdev:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
+    logging.info(f"value={value}, trim={trim:.03f}, boost={boost:.03f}, data len={len(data)} mean={mean:.03f} stdev={stdev:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
     info = collections.OrderedDict([
-        ("method", inspect.stack()[0][3]),
+        ("method", inspect.stack()[1][3]),
         ("value", value),
         ("trim", trim),
         ("boost", boost),
@@ -49,9 +49,9 @@ def _check_by_error(data, value, boost=1.0):
     error = statistics.mean([abs(i - mean) for i in data])
     lower_boundary = mean - error * boost
     upper_boundary = mean + error * boost
-    logging.info(f"{__name__}: value={value}, boost={boost}, data len={len(data)} mean={mean:.03f} and error={error:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
+    logging.info(f"value={value}, boost={boost}, data len={len(data)} mean={mean:.03f} and error={error:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
     info = collections.OrderedDict([
-        ("method", inspect.stack()[0][3]),
+        ("method", inspect.stack()[1][3]),
         ("value", value),
         ("boost", boost),
         ("data len", len(data)),
@@ -80,9 +80,9 @@ def _check_by_perc(data, value, perc=20):
     mean = statistics.mean(data)
     lower_boundary = mean - mean * (perc / 100 / 2)
     upper_boundary = mean + mean * (perc / 100 / 2)
-    logging.info(f"{__name__}: value={value}, perc={perc}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
+    logging.info(f"value={value}, perc={perc}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
     info = collections.OrderedDict([
-        ("method", inspect.stack()[0][3]),
+        ("method", inspect.stack()[1][3]),
         ("value", value),
         ("perc", perc),
         ("data len", len(data)),
@@ -111,9 +111,9 @@ def _check_by_min_max(data, value, trim=0, boost=1.0):
     data_trimmed = scipy.stats.trimboth(data, trim)
     lower_boundary = min(data_trimmed)
     upper_boundary = max(data_trimmed)
-    logging.info(f"{__name__}: value={value}, trim={trim}, boost={boost}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
+    logging.info(f"value={value}, trim={trim}, boost={boost}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
     info = collections.OrderedDict([
-        ("method", inspect.stack()[0][3]),
+        ("method", inspect.stack()[1][3]),
         ("value", value),
         ("trim", trim),
         ("boost", boost),
