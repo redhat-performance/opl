@@ -71,6 +71,10 @@ def check_by_error_2(data, value):
     return _check_by_error(data, value, 2)
 
 
+def check_by_error_3(data, value):
+    return _check_by_error(data, value, 3)
+
+
 def _check_by_perc(data, value, perc=20):
     logging.debug(f"data={data} and value={value} and perf={perc}")
     mean = statistics.mean(data)
@@ -95,7 +99,7 @@ def check_by_perc_40(data, value):
 
 def check(data, value, description="N/A", verbose=True):
     ###methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
-    methods = [check_by_trim_stdev_2, check_by_stdev_2, check_by_error_2, check_by_perc_40]
+    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_40]
     results = []
     info_all = []
     for method in methods:
