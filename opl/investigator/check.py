@@ -101,9 +101,37 @@ def check_by_perc_60(data, value):
     return _check_by_perc(data, value, perc=60)
 
 
+def check_by_perc_100(data, value):
+    return _check_by_perc(data, value, perc=60)
+
+
+def _check_by_min_max(data, value, trim=0, boost=1.0):
+    logging.debug(f"data={data} and value={value} and trim={trim} and boost={boost}")
+    mean = statistics.mean(data)
+    data_trimmed = scipy.stats.trimboth(data, trim)
+    lower_boundary = min(data_trimmed)
+    upper_boundary = max(data_trimmed)
+    logging.info(f"{__name__}: value={value}, trim={trim}, boost={boost}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
+    info = collections.OrderedDict([
+        ("method", inspect.stack()[0][3]),
+        ("value", value),
+        ("trim", trim),
+        ("boost", boost),
+        ("data len", len(data)),
+        ("data mean", mean),
+        ("lower_boundary", lower_boundary),
+        ("upper_boundary", upper_boundary),
+    ])
+    return lower_boundary <= value <= upper_boundary, info
+
+
+def check_by_min_max_7_1(data, value):
+    return _check_by_min_max(data, value, trim=0.07, boost=1)
+
+
 def check(data, value, description="N/A", verbose=True):
     ###methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
-    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_60]
+    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_100, check_by_min_max_7_1]
     results = []
     info_all = []
     for method in methods:
