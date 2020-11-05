@@ -41,7 +41,8 @@ def check_by_error_2(data, value):
 
 
 def check(data, value):
-    methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
+    ###methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
+    methods = [check_by_error_2]
     results = []
     for method in methods:
         result = method(data, value)
