@@ -1,4 +1,5 @@
 import argparse
+import collections
 import logging
 
 import opl.investigator.check
@@ -45,18 +46,23 @@ def main():
         try:
             results, info = opl.investigator.check.check(history[var], current[var], description=var)
         except Exception as e:
-            summary.append((f"Checking {var}: ERROR: {e}"))
+            print(f"Checking {var}: ERROR: {e}")
+            summary_this = collections.OrderedDict([("data set", var), ("exception", str(e))])
             exit_code = 2
             raise
         else:
-            print(tabulate.tabulate(info, headers="keys", tablefmt="psql", floatfmt=".3f"))
+            print("\n", tabulate.tabulate(info, headers="keys", tablefmt="simple", floatfmt=".3f"), "\n")
             result_overall = False not in results
             results_str = ['P' if i else 'F' for i in results]
-            summary.append((f"Checking {var}: {'PASS' if result_overall else 'FAIL'} ({','.join(results_str)})"))
+            print(f"Checking {var}: {'PASS' if result_overall else 'FAIL'} ({','.join(results_str)})")
+            summary_this = collections.OrderedDict()
+            summary_this["data set"] = var
+            summary_this.update({i['method']: i['result'] for i in info})
             if exit_code == 0 and not result_overall:
                 exit_code = 1
 
-    for i in summary:
-        print(i)
+        summary.append(summary_this)
+
+    print("\n", tabulate.tabulate(summary, headers="keys", tablefmt="simple"))
 
     return exit_code
