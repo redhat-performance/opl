@@ -40,19 +40,23 @@ def main():
         raise Exception("Not supported data source type for current data")
 
     exit_code = 0
+    summary = []
     for var in args.sets:
         try:
             results, info = opl.investigator.check.check(history[var], current[var], description=var)
         except Exception as e:
-            print(f"Checking {var}: ERROR: {e}")
+            summary.append((f"Checking {var}: ERROR: {e}"))
             exit_code = 2
             raise
         else:
             print(tabulate.tabulate(info, headers="keys", tablefmt="psql", floatfmt=".3f"))
             result_overall = False not in results
             results_str = ['P' if i else 'F' for i in results]
-            print(f"Checking {var}: {'PASS' if result_overall else 'FAIL'} ({','.join(results_str)})")
+            summary.append((f"Checking {var}: {'PASS' if result_overall else 'FAIL'} ({','.join(results_str)})"))
             if exit_code == 0 and not result_overall:
                 exit_code = 1
+
+    for i in summary:
+        print(i)
 
     return exit_code
