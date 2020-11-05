@@ -6,6 +6,7 @@ import opl.investigator.config
 import opl.investigator.csv_loader
 import opl.investigator.elasticsearch_loader
 import opl.investigator.status_data_loader
+import tabulate
 
 
 def main():
@@ -41,15 +42,17 @@ def main():
     exit_code = 0
     for var in args.sets:
         try:
-            results = opl.investigator.check.check(history[var], current[var])
+            results, info = opl.investigator.check.check(history[var], current[var], description=var)
         except Exception as e:
             print(f"Checking {var}: ERROR: {e}")
             exit_code = 2
+            raise
         else:
-            result = False not in results
+            print(tabulate.tabulate(info, headers="keys", tablefmt="psql", floatfmt=".3f"))
+            result_overall = False not in results
             results_str = ['P' if i else 'F' for i in results]
-            print(f"Checking {var}: {'PASS' if result else 'FAIL'} ({','.join(results_str)})")
-            if exit_code == 0 and not result:
+            print(f"Checking {var}: {'PASS' if result_overall else 'FAIL'} ({','.join(results_str)})")
+            if exit_code == 0 and not result_overall:
                 exit_code = 1
 
     return exit_code
