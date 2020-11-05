@@ -97,9 +97,13 @@ def check_by_perc_40(data, value):
     return _check_by_perc(data, value, perc=40)
 
 
+def check_by_perc_60(data, value):
+    return _check_by_perc(data, value, perc=60)
+
+
 def check(data, value, description="N/A", verbose=True):
     ###methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
-    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_40]
+    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_60]
     results = []
     info_all = []
     for method in methods:
