@@ -109,8 +109,8 @@ def _check_by_min_max(data, value, trim=0, boost=1.0):
     logging.debug(f"data={data} and value={value} and trim={trim} and boost={boost}")
     mean = statistics.mean(data)
     data_trimmed = scipy.stats.trimboth(data, trim)
-    lower_boundary = min(data_trimmed)
-    upper_boundary = max(data_trimmed)
+    lower_boundary = mean - (mean - min(data_trimmed)) * boost
+    upper_boundary = mean + (max(data_trimmed) - mean) * boost
     logging.info(f"value={value}, trim={trim}, boost={boost}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
     info = collections.OrderedDict([
         ("method", inspect.stack()[1][3]),
@@ -129,9 +129,13 @@ def check_by_min_max_7_1(data, value):
     return _check_by_min_max(data, value, trim=0.07, boost=1)
 
 
+def check_by_min_max_7_2(data, value):
+    return _check_by_min_max(data, value, trim=0.07, boost=2)
+
+
 def check(data, value, description="N/A", verbose=True):
     ###methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
-    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_100, check_by_min_max_7_1]
+    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_100, check_by_min_max_7_2]
     results = []
     info_all = []
     for method in methods:
