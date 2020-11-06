@@ -134,8 +134,7 @@ def check_by_min_max_7_2(data, value):
 
 
 def check(data, value, description="N/A", verbose=True):
-    ###methods = [check_by_trim_stdev, check_by_stdev, check_by_error_1, check_by_error_2]
-    methods = [check_by_stdev_2, check_by_error_3, check_by_perc_100, check_by_min_max_7_2]
+    methods = [check_by_stdev_2, check_by_error_3, check_by_min_max_7_2]
     results = []
     info_all = []
     for method in methods:
