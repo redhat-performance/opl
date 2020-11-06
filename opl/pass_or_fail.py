@@ -5,6 +5,7 @@ import logging
 import opl.investigator.check
 import opl.investigator.config
 import opl.investigator.csv_loader
+import opl.investigator.elasticsearch_decisions
 import opl.investigator.elasticsearch_loader
 import opl.investigator.status_data_loader
 import tabulate
@@ -64,5 +65,8 @@ def main():
 
     print("\n", tabulate.tabulate(info_all, headers="keys", tablefmt="simple", floatfmt=".3f"))
     print("\n", tabulate.tabulate(summary, headers="keys", tablefmt="simple"))
+
+    if args.decisions_type == 'elasticsearch':
+        opl.investigator.elasticsearch_decisions.store(args.decisions_es_server, args.decisions_es_index, info_all)
 
     return exit_code

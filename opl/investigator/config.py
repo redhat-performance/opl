@@ -12,12 +12,21 @@ def load_config(conf, fp):
     conf.history_type = data['history']['type']
     conf.current_type = data['current']['type']
     conf.sets = data['sets']
+    conf.decisions_type = data['decisions']['type']
+
     if conf.history_type == 'csv':
         conf.history_file = open(data['history']['file'], 'r')
+
     if conf.history_type == 'elasticsearch':
         conf.history_es_server = data['history']['es_server']
         assert not conf.history_es_server.endswith('/')
         conf.history_es_index = data['history']['es_index']
         conf.history_es_query = data['history']['es_query']
+
     if conf.current_type == 'status_data':
         conf.current_file = open(data['current']['file'], 'r')
+
+    if conf.decisions_type == 'elasticsearch':
+        conf.decisions_es_server = data['decisions']['es_server']
+        assert not conf.decisions_es_server.endswith('/')
+        conf.decisions_es_index = data['decisions']['es_index']
