@@ -126,6 +126,11 @@ class GetKafkaTimes():
             self.store_now()
 
     def process_messages(self):
+
+        def verify_async_commit(offsets, response):
+            if isinstance(response, Exception):
+                raise response
+
         # Quit if we have all the data in the DB
         if self.remaining_count == 0:
             logging.info(f"All in, nothing to collect")
@@ -154,8 +159,7 @@ class GetKafkaTimes():
                 offsets = {
                     TopicPartition(message.topic, message.partition): OffsetAndMetadata(message.offset + 1, b''),
                 }
-                consumer.commit(offsets)
-                logging.debug(f"Committed offset {offsets}")
+                consumer.commit_async(offsets, verify_async_commit)
 
                 # Quit if we have not got enough useful data for too long
                 quiet_period = self.dt_now() - self.last_stored_at
