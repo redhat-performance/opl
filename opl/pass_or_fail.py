@@ -51,7 +51,6 @@ def main():
             logging.warning(f"Check on {var} failed with: {e}")
             summary_this = collections.OrderedDict([("data set", var), ("exception", str(e))])
             exit_code = 2
-            raise
         else:
             info_all += info
             result_overall = False not in results
