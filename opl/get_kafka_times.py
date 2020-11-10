@@ -207,7 +207,7 @@ class GetKafkaTimes():
         last = self.get_biggest()
         self.status_data.set(self.custom_methods['biggest_sd_name'](), last)
         if 'start_sd_name' in self.custom_methods:
-            start = self.status_data.get_date(self.custom_methods['start_sd_name'])
+            start = self.status_data.get_date(self.custom_methods['start_sd_name']())
             simple_rps = count / (last - start).total_seconds()
             self.status_data.set('results.simple_rps', simple_rps)
         self.print_stats()
