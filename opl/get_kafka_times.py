@@ -150,12 +150,12 @@ class GetKafkaTimes():
                         logging.info(f"All {self.stored_counter} messages received")
                         break
 
-                # Now when we are done with the message, we can commit it's offset
-                offsets = {
-                    TopicPartition(message.topic, message.partition): OffsetAndMetadata(message.offset + 1, b''),
-                }
-                consumer.commit(offsets)
-                logging.debug(f"Committed offset {offsets}")
+                    # Now when we are done with the message, we can commit it's offset
+                    offsets = {
+                        TopicPartition(message.topic, message.partition): OffsetAndMetadata(message.offset + 1, b''),
+                    }
+                    consumer.commit(offsets)
+                    logging.debug(f"Committed offset {offsets}")
 
                 # Quit if we have not got enough useful data for too long
                 quiet_period = self.dt_now() - self.last_stored_at
