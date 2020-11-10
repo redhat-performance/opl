@@ -1,0 +1,33 @@
+tables:
+    items:
+        - CREATE TABLE IF NOT EXISTS items (
+              subscription_manager_id VARCHAR PRIMARY KEY,
+              ingress_at TIMESTAMP WITH TIME ZONE NULL,
+              inventory_at TIMESTAMP WITH TIME ZONE NULL,
+              egress_at TIMESTAMP WITH TIME ZONE NULL)
+        - CREATE INDEX IF NOT EXISTS items_subscription_manager_id_idx
+              ON items (subscription_manager_id)
+    messages:
+        - CREATE TABLE IF NOT EXISTS messages (
+              id VARCHAR PRIMARY KEY,
+              message BYTEA NOT NULL)
+        - CREATE INDEX IF NOT EXISTS messages_id_idx
+              ON messages (id)
+queries:
+    generate_insert: INSERT INTO messages(id, message) VALUES %s
+    produce_stored_select: SELECT id, message FROM messages ORDER BY id
+    produce_stored_insert: INSERT INTO items(subscription_manager_id, ingress_at) VALUES %s ON CONFLICT (subscription_manager_id) DO UPDATE SET ingress_at = EXCLUDED.ingress_at
+
+    remaining_count: |
+      SELECT COUNT(*)
+      FROM items
+      WHERE ingress_at IS NOT NULL AND egress_at IS NULL
+    store_info: |
+      UPDATE items SET egress_at = data.egress_at
+      FROM (VALUES %s) AS data (subscription_manager_id, egress_at)
+      WHERE items.subscription_manager_id = data.subscription_manager_id
+      RETURNING items.subscription_manager_id
+    get_biggest: |
+      SELECT MAX(egress_at)
+      FROM items
+      WHERE ingress_at IS NOT NULL AND egress_at IS NOT NULL
