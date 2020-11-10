@@ -1,18 +1,20 @@
-import logging
 import argparse
-import os
+import contextlib
 import datetime
 import json
-import yaml
-import contextlib
-import psycopg2
-import psycopg2.extras
+import logging
+import os
 
 from kafka import KafkaConsumer
 from kafka import OffsetAndMetadata
 from kafka import TopicPartition
 
+import psycopg2
+import psycopg2.extras
+
 import utils
+
+import yaml
 
 
 class GetKafkaTimes():
@@ -133,7 +135,7 @@ class GetKafkaTimes():
 
         # Quit if we have all the data in the DB
         if self.remaining_count == 0:
-            logging.info(f"All in, nothing to collect")
+            logging.info("All in, nothing to collect")
             return 0
 
         # Last time when we inserted something into DB
