@@ -10,7 +10,8 @@ def load(fp, paths):
 
     for path in paths:
         out[path] = sd.get(path)
-        assert out[path] is not None, f"Check if {out[path]} is None"
+        if out[path] is None:
+            logging.warning(f"While loading {fp.name}, got None for {path}")
 
     logging.info(f"Loaded file {fp.name} and parsed {len(out.keys())} paths from it")
 

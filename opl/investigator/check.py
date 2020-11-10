@@ -134,6 +134,8 @@ def check_by_min_max_7_2(data, value):
 
 
 def check(data, value, description="N/A", verbose=True):
+    assert value is not None, "Value to check should not be None"
+
     methods = [check_by_stdev_2, check_by_error_3, check_by_min_max_7_2]
     results = []
     info_all = []
