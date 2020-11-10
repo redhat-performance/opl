@@ -9,6 +9,8 @@ import psycopg2
 import psycopg2.extras
 
 from kafka import KafkaConsumer
+from kafka import OffsetAndMetadata
+from kafka import TopicPartition
 
 import utils
 
@@ -76,7 +78,7 @@ class GetKafkaTimes():
             self.kafka_topic,
             bootstrap_servers=self.kafka_hosts,
             auto_offset_reset='earliest',
-            enable_auto_commit=True,
+            enable_auto_commit=False,
             group_id=self.kafka_group,
             max_poll_records=100,
             session_timeout_ms=50000,
@@ -147,6 +149,12 @@ class GetKafkaTimes():
                     if self.remaining_count == 0:
                         logging.info(f"All {self.stored_counter} messages received")
                         break
+
+                # Now when we are done with the message, we can commit it's offset
+                offsets = {
+                    TopicPartition(message.topic, message.partition): OffsetAndMetadata(message.offset + 1, b''),
+                }
+                consumer.commit(offsets)
 
                 # Quit if we have not got enough useful data for too long
                 quiet_period = self.dt_now() - self.last_stored_at
