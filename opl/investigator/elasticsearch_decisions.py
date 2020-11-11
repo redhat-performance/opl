@@ -11,7 +11,6 @@ def store(server, index, decisions):
     # This is our workaround on how to add additional metadata about the decision
     job_name = os.environ.get('JOB_NAME', '')
     build_url = os.environ.get('BUILD_URL', '')
-    print(f"DEBUG: Determined job_name={job_name} and build_url={build_url} from {os.environ}")
 
     url = f"{server}/{index}/decisions"
     headers = {
