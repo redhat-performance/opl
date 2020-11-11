@@ -33,6 +33,7 @@ class GetKafkaTimes():
         self.kafka_group = args.kafka_group
         self.kafka_topic = args.kafka_topic
         self.kafka_timeout = args.kafka_timeout
+        self.kafka_max_poll_records = 100
         self.queries_definition = yaml.load(args.tables_definition,
                                             Loader=yaml.SafeLoader)['queries']
         self.custom_methods = custom_methods
@@ -80,9 +81,9 @@ class GetKafkaTimes():
             self.kafka_topic,
             bootstrap_servers=self.kafka_hosts,
             auto_offset_reset='earliest',
-            enable_auto_commit=False,
+            enable_auto_commit=True,
             group_id=self.kafka_group,
-            max_poll_records=100,
+            max_poll_records=self.kafka_max_poll_records,
             session_timeout_ms=50000,
             heartbeat_interval_ms=10000,
             consumer_timeout_ms=self.kafka_timeout)
@@ -128,11 +129,6 @@ class GetKafkaTimes():
             self.store_now()
 
     def process_messages(self):
-
-        def verify_async_commit(offsets, response):
-            if isinstance(response, Exception):
-                raise response
-
         # Quit if we have all the data in the DB
         if self.remaining_count == 0:
             logging.info("All in, nothing to collect")
@@ -142,26 +138,23 @@ class GetKafkaTimes():
         self.last_stored_at = self.dt_now()
 
         with contextlib.closing(self.create_consumer()) as consumer:
-            for message in consumer:
-                value = json.loads(message.value.decode('utf-8'))
-                logging.debug(f"Received {message.timestamp} {message.topic} {message.partition} {message.offset} {str(value)[:100]}...")
+            while True:
+                msg_pack = consumer.poll(timeout_ms=5000, max_records=self.kafka_max_poll_records, update_offsets=True)
+                for topic, messages in msg_pack.items():
+                    for message in messages:
+                        value = json.loads(message.value.decode('utf-8'))
+                        logging.debug(f"Received {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}...")
 
-                if self.custom_methods['message_validation'](value):
-                    # Construct item to be saved
-                    new_value = self.custom_methods['process_message'](
-                        self.kafka_ts2dt(message.timestamp), value)
-                    self.store_item(new_value)
+                        if self.custom_methods['message_validation'](value):
+                            # Construct item to be saved
+                            new_value = self.custom_methods['process_message'](
+                                self.kafka_ts2dt(message.timestamp), value)
+                            self.store_item(new_value)
 
-                    # Quit if we have all the data in the DB
-                    if self.remaining_count == 0:
-                        logging.info(f"All {self.stored_counter} messages received")
-                        break
-
-                # Now when we are done with the message, we can commit it's offset
-                offsets = {
-                    TopicPartition(message.topic, message.partition): OffsetAndMetadata(message.offset + 1, b''),
-                }
-                consumer.commit_async(offsets, verify_async_commit)
+                # Quit if we have all the data in the DB
+                if self.remaining_count == 0:
+                    logging.info(f"All {self.stored_counter} messages received")
+                    break
 
                 # Quit if we have not got enough useful data for too long
                 quiet_period = self.dt_now() - self.last_stored_at
@@ -214,8 +207,11 @@ class GetKafkaTimes():
         self.status_data.set(self.custom_methods['biggest_sd_name'](), last)
         if 'start_sd_name' in self.custom_methods:
             start = self.status_data.get_date(self.custom_methods['start_sd_name']())
-            simple_rps = count / (last - start).total_seconds()
-            self.status_data.set('results.simple_rps', simple_rps)
+            if start is not None and last is not None:
+                duration = (last - start).total_seconds()
+                self.status_data.set('results.duration', duration)
+                simple_rps = count / duration
+                self.status_data.set('results.simple_rps', simple_rps)
         self.print_stats()
 
 
