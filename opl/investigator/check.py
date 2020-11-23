@@ -8,7 +8,7 @@ import scipy.stats
 
 def _check_by_stdev(data, value, trim=0.0, boost=1.0):
     logging.debug(f"data={data} and value={value} and trim={trim} and boost={boost}")
-    mean = scipy.stats.trim_mean(data, trim)
+    mean = float(scipy.stats.trim_mean(data, trim))
     stdev = statistics.stdev(scipy.stats.trimboth(data, trim))
     lower_boundary = mean - stdev * boost
     upper_boundary = mean + stdev * boost
@@ -109,8 +109,8 @@ def _check_by_min_max(data, value, trim=0, boost=1.0):
     logging.debug(f"data={data} and value={value} and trim={trim} and boost={boost}")
     mean = statistics.mean(data)
     data_trimmed = scipy.stats.trimboth(data, trim)
-    lower_boundary = mean - (mean - min(data_trimmed)) * boost
-    upper_boundary = mean + (max(data_trimmed) - mean) * boost
+    lower_boundary = float(mean - (mean - min(data_trimmed)) * boost)
+    upper_boundary = float(mean + (max(data_trimmed) - mean) * boost)
     logging.info(f"value={value}, trim={trim}, boost={boost}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}")
     info = collections.OrderedDict([
         ("method", inspect.stack()[1][3]),
