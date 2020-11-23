@@ -21,6 +21,8 @@ def store(server, index, decisions):
         decision['build_url'] = build_url
         decision['uploaded'] = datetime.datetime.utcnow().isoformat()
 
+        for k, v in decision.items():
+            print(f"DEBUG: Decision {k} {v} {type(v)}")
         logging.info(f"Storing decision to ES url={url}, headers={headers} and json={json.dumps(decision)}")
 
         response = requests.post(url, headers=headers, json=decision)
