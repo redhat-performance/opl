@@ -16,19 +16,15 @@ from . import date
 
 
 def execute(command):
-    try:
-        p = subprocess.run(
-            command,
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        assert len(p.stderr) == 0
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Failed to execute '{command}': {e}")
-        result = None
-    except Exception as e:
-        logging.error(f"Failed to execute '{command}' with '{p.stderr}': {e}")
+    p = subprocess.run(
+        command,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+    if p.returncode != 0 or len(p.stderr) != 0:
+        stderr = p.stderr.decode().strip().replace('\n', '\t')
+        stdout = p.stdout.decode().strip().replace('\n', '\t')
+        logging.error(f"Failed to execute command '{command}' - returned stdout '{stdout}', stderr '{stderr}' and returncode '{p.returncode}'")
         result = None
     else:
         result = p.stdout.decode().strip()
