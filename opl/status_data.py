@@ -62,6 +62,10 @@ class StatusData():
         if split_key == []:
             return data
 
+        if not isinstance(data, dict):
+            logging.warning(f"Attempted to dive into non-dict. Falling back to return None")
+            return None
+
         try:
             new_data = data[split_key[0]]
         except KeyError:

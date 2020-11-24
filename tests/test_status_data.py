@@ -146,3 +146,17 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd.get('aaa.bbb'), {})
         self.assertEqual(sd.get('aaa.bbb.ddd'), None)
         self.assertEqual(sd.get('aaa.bbb.ddd.eee'), None)
+
+    def test_missing_path_in_none(self):
+        f = tempfile.NamedTemporaryFile().name
+        data = {
+            'aaa': None,
+            'name': '',
+            'started': '',
+            'ended': '',
+            'result': '',
+        }
+        sd = opl.status_data.StatusData(f, data=data)
+        self.assertEqual(sd.get('aaa'), None)
+        self.assertEqual(sd.get('aaa.bbb'), None)
+        self.assertEqual(sd.get('aaa.bbb.ccc'), None)
