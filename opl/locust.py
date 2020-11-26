@@ -7,9 +7,6 @@ import gevent
 import locust.env
 import locust.stats
 import locust.log
-#from locust.env import Environment
-#from locust.stats import stats_printer, stats_history
-#from locust.log import setup_logging
 
 
 def run_locust(args, status_data, test_set):
