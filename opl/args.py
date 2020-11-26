@@ -68,27 +68,27 @@ def add_kafka_opts(parser):
 
 
 def add_locust_opts(parser):
-    # Is this a simple local runner or master or slave?
+    # Is this a simple local runner or master or worker?
     parser.add_argument('--locust-local-runner', action='store_true',
                         default=True if os.getenv('LOCUST_LOCAL_RUNNER', 'true') == 'true' else False,
                         help='Make this a local runner (also use env variable LOCUST_LOCAL_RUNNER)')
     parser.add_argument('--locust-master-runner', action='store_true',
                         default=True if os.getenv('LOCUST_MASTER_RUNNER', 'false') == 'true' else False,
-                        help='Make this a master runner (also use env variable LOCUST_MASTER_RUNNER)')
-    parser.add_argument('--locust-slave-runner', action='store_true',
-                        default=True if os.getenv('LOCUST_SLAVE_RUNNER', 'false') == 'true' else False,
-                        help='Make this a slave runner (also use env variable LOCUST_SLAVE_RUNNER)')
+                        help='Make this a master runner which does not do any requests (also use env variable LOCUST_MASTER_RUNNER)')
+    parser.add_argument('--locust-worker-runner', action='store_true',
+                        default=True if os.getenv('LOCUST_WORKER_RUNNER', 'false') == 'true' else False,
+                        help='Make this a worker runner (also use env variable LOCUST_WORKER_RUNNER)')
 
     # Master specific parameters
-    parser.add_argument('--locust-master-expect-slaves',
-                        dest='expect_slaves', type=int,
-                        default=int(os.getenv('LOCUST_MASTER_EXPECT_SLAVES', 1)),
-                        help='How many slaves to expect before starting the test (also use env variable LOCUST_MASTER_EXPECT_SLAVES)')
+    parser.add_argument('--locust-master-expect-workers',
+                        dest='expect_workers', type=int,
+                        default=int(os.getenv('LOCUST_MASTER_EXPECT_WORKERS', 1)),
+                        help='How many workers to expect before starting the test (also use env variable LOCUST_MASTER_EXPECT_WORKERS)')
 
-    # Slave specific parameters
-    parser.add_argument('--locust-slave-master-host', dest='master_host',
-                        default=os.getenv('LOCUST_SLAVE_MASTER_HOST', 'localhost'),
-                        help='Master host to connect to (also use env variable LOCUST_SLAVE_MASTER_HOST)')
+    # Worker specific parameters
+    parser.add_argument('--locust-worker-master-host', dest='master_host',
+                        default=os.getenv('LOCUST_WORKER_MASTER_HOST', 'localhost'),
+                        help='Master host to connect to port 5557 (also use env variable LOCUST_WORKER_MASTER_HOST)')
 
     # Locust run parameters
     parser.add_argument('--locust-num-clients', dest='num_clients', type=int,

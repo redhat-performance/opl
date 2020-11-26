@@ -2,55 +2,63 @@ import logging
 import time
 import tabulate
 
-import locust
+import gevent
+
+import locust.env
+import locust.stats
+import locust.log
+#from locust.env import Environment
+#from locust.stats import stats_printer, stats_history
+#from locust.log import setup_logging
 
 
 def run_locust(args, status_data, test_set):
     # Local runner is True by default, bot overwrite it if we have selected
-    # master or slave runner
-    assert not (args.locust_master_runner and args.locust_slave_runner), \
-        'Either choose master or slave runner, not both'
-    if args.locust_master_runner or args.locust_slave_runner:
+    # master or worker runner
+    assert not (args.locust_master_runner and args.locust_worker_runner), \
+        'Either choose master or worker runner, not both'
+    if args.locust_master_runner or args.locust_worker_runner:
         args.locust_local_runner = False
 
     # Additional opts, maybe put them into args someday
-    args.step_load = False
-    args.reset_stats = False
     args.master_port = 5557
     args.master_bind_host = '*'
     args.master_bind_port = 5557
-    args.heartbeat_liveness = 3
-    args.heartbeat_interval = 1
+    args.reset_stats = False
 
     # Add parameters to status data file
     status_data.set('parameters.locust.hatch_rate', args.hatch_rate)
     status_data.set('parameters.locust.host', args.host)
     status_data.set('parameters.locust.num_clients', args.num_clients)
     status_data.set('parameters.locust.reset_stats', args.reset_stats)
-    status_data.set('parameters.locust.step_load', args.step_load)
     status_data.set('parameters.locust.stop_timeout', args.stop_timeout)
     status_data.set('parameters.test.duration', args.test_duration)
     status_data.set('parameters.test.requests', args.test_requests)
     if 'test_selection' in args:
         status_data.set('parameters.test.test_selection', args.test_selection)
-    print(f"Running with host = {args.host}, num_clients = {args.num_clients}, hatch_rate = {args.hatch_rate}, duration = {args.test_duration}")
+    print(f"Running with host = {args.host}, num_clients = {args.num_clients}, hatch_rate = {args.hatch_rate}, duration = {args.test_duration} / requests = {args.test_requests}")
+
+    env = locust.env.Environment()
+    env.user_classes = [test_set]
+    env.stop_timeout = args.stop_timeout
+    env.host = args.host
+    env.reset_stats = args.reset_stats
 
     # Create runner and run test
     if args.locust_local_runner:
 
-        locust_runner = locust.runners.LocalLocustRunner([test_set], args)
+        env.create_local_runner()
         status_data.set('parameters.locust.runner', 'local')
 
-        logging.info("Starting local Locust run")
+        # Start the test
+        logging.info("Starting local Locust runner")
         status_data.set_now('parameters.start')
-        locust_runner.start_hatching(locust_count=args.num_clients,
-                                     hatch_rate=args.hatch_rate,
-                                     wait=False)
+        env.runner.start(args.num_clients, spawn_rate=args.hatch_rate)
 
-        # Wait for the test to finish
+        # Wait (in some way) for a good time to quit the test
         if args.test_requests > 0:
             while True:
-                num_requests = locust_runner.stats.num_requests
+                num_requests = env.stats.num_requests
                 if num_requests >= args.test_requests:
                     logging.debug(f"Finished {num_requests} requests while requested number was {args.test_requests}")
                     break
@@ -59,45 +67,63 @@ def run_locust(args, status_data, test_set):
         else:
             time.sleep(args.test_duration)
             logging.debug(f"Waited for {args.test_duration} seconds")
+        gevent.spawn(lambda: env.runner.quit())
 
-        locust_runner.quit()
+        # Wait for the greenlets to finish
+        env.runner.greenlet.join()
         status_data.set_now('results.end')
         logging.info("Local Locust run finished")
 
-        return show_locust_stats(locust_runner.stats, status_data)
+        return show_locust_stats(env.stats, status_data)
 
     elif args.locust_master_runner:
 
-        locust_runner = locust.runners.MasterLocustRunner([test_set], args)
+        env.create_master_runner(
+            master_bind_host=args.master_bind_host,
+            master_bind_port=args.master_bind_port,
+        )
         status_data.set('parameters.locust.runner', 'master')
-        status_data.set('parameters.locust.expect_slaves', args.expect_slaves)
+        status_data.set('parameters.locust.expect_workers', args.expect_workers)
 
-        while len(locust_runner.clients.ready) < args.expect_slaves:
-            logging.info("Waiting for slaves to be ready, %s of %s connected",
-                         len(locust_runner.clients.ready), args.expect_slaves)
+        while len(env.runner.clients.running) < args.expect_workers:
+            logging.info("Waiting for worker to become running, %s of %s connected",
+                         len(env.runner.clients.running), args.expect_workers)
             time.sleep(1)
 
-        logging.info("Starting master Locust run")
+        # Start the test
+        logging.info("Starting master Locust runer")
         status_data.set_now('parameters.start')
-        locust_runner.start_hatching(locust_count=args.num_clients,
-                                     hatch_rate=args.hatch_rate)
+        env.runner.start(args.num_clients, spawn_rate=args.hatch_rate)
+
+        # Wait configured time and quit the test
         time.sleep(args.test_duration)
-        locust_runner.quit()
-        locust.events.quitting.fire(reverse=True)
+        gevent.spawn(lambda: env.runner.quit())
+
+        # Wait for the greenlets to finish
+        env.runner.greenlet.join()
         status_data.set_now('results.end')
-        logging.info("Local Locust run finished")
+        logging.info("Master Locust run finished")
 
-        return show_locust_stats(locust_runner.stats, status_data)
+        return show_locust_stats(env.stats, status_data)
 
-    elif args.locust_slave_runner:
+    elif args.locust_worker_runner:
 
-        locust_runner = locust.runners.SlaveLocustRunner([test_set], args)
-        status_data.set('parameters.locust.runner', 'slave')
+        env.create_worker_runner(
+            master_host = args.master_host,
+            master_port = args.master_port,
+        )
+        status_data.set('parameters.locust.runner', 'worker')
         status_data.set('parameters.locust.master_host', args.master_host)
 
-        logging.info("Starting slave Locust run")
+        # Start the test
+        logging.info("Starting worker Locust runner")
         status_data.set_now('parameters.start')
-        locust_runner.worker()
+        env.runner.start(args.num_clients, spawn_rate=args.hatch_rate)
+
+        # Wait for the greenlets to finish
+        env.runner.greenlet.join()
+        status_data.set_now('results.end')
+        logging.info("Worker Locust run finished")
 
     else:
 

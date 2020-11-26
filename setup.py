@@ -27,7 +27,7 @@ setuptools.setup(
         "Jinja2",
         "junitparser",
         "kafka-python",
-        "locustio==0.14.6",
+        "locust",
         "numpy",
         "psycopg2-binary",
         "pyyaml",
