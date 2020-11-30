@@ -82,6 +82,8 @@ def run_locust(args, status_data, test_set):
         status_data.set('parameters.locust.runner', 'master')
         status_data.set('parameters.locust.expect_workers', args.expect_workers)
 
+        env.runner.spawn_rate = args.hatch_rate
+
         while len(env.runner.clients.ready + env.runner.clients.running + env.runner.clients.spawning) < args.expect_workers:
             logging.info("Waiting for worker to become running, %s of %s connected - %s",
                          len(env.runner.clients.ready + env.runner.clients.running + env.runner.clients.spawning), args.expect_workers, ','.join([i.state for i in env.runner.clients.values()]))
