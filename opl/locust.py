@@ -82,9 +82,9 @@ def run_locust(args, status_data, test_set):
         status_data.set('parameters.locust.runner', 'master')
         status_data.set('parameters.locust.expect_workers', args.expect_workers)
 
-        while len(env.runner.clients.running) < args.expect_workers:
-            logging.info("Waiting for worker to become running, %s of %s connected",
-                         len(env.runner.clients.running), args.expect_workers)
+        while len(env.runner.clients.ready + env.runner.clients.running + env.runner.clients.spawning) < args.expect_workers:
+            logging.info("Waiting for worker to become running, %s of %s connected - %s",
+                         len(env.runner.clients.ready + env.runner.clients.running + env.runner.clients.spawning), args.expect_workers, ','.join([i.state for i in env.runner.clients.values()]))
             time.sleep(1)
 
         # Start the test
@@ -111,11 +111,12 @@ def run_locust(args, status_data, test_set):
         )
         status_data.set('parameters.locust.runner', 'worker')
         status_data.set('parameters.locust.master_host', args.master_host)
+        status_data.set('parameters.locust.master_port', args.master_port)
 
         # Start the test
         logging.info("Starting worker Locust runner")
         status_data.set_now('parameters.start')
-        env.runner.start(args.num_clients, spawn_rate=args.hatch_rate)
+        env.runner.start(0, spawn_rate=1)
 
         # Wait for the greenlets to finish
         env.runner.greenlet.join()
