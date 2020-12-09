@@ -27,3 +27,9 @@ current:
 sets:
   - collumn1
   - collumn2
+
+# Shuld we log our decisions somewhere?
+decisions:
+  type: elasticsearch
+  es_server: http://elasticsearch.example.com:9286
+  es_index: my_aa_decisions

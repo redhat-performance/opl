@@ -8,6 +8,7 @@ import opl.investigator.csv_loader
 import opl.investigator.elasticsearch_decisions
 import opl.investigator.elasticsearch_loader
 import opl.investigator.status_data_loader
+
 import tabulate
 
 
@@ -29,17 +30,18 @@ def main():
 
     opl.investigator.config.load_config(args, args.config)
 
+    if args.current_type == 'status_data':
+        current, current_sd = opl.investigator.status_data_loader.load(args.current_file, args.sets)
+    else:
+        raise Exception("Not supported data source type for current data")
+
     if args.history_type == 'csv':
         history = opl.investigator.csv_loader.load(args.history_file, args.sets)
     if args.history_type == 'elasticsearch':
+        args.history_es_query = opl.investigator.elasticsearch_loader.render_query(args.history_es_query, {'current': current_sd})
         history = opl.investigator.elasticsearch_loader.load(args.history_es_server, args.history_es_index, args.history_es_query, args.sets)
     else:
         raise Exception("Not supported data source type for historical data")
-
-    if args.current_type == 'status_data':
-        current = opl.investigator.status_data_loader.load(args.current_file, args.sets)
-    else:
-        raise Exception("Not supported data source type for current data")
 
     exit_code = 0
     summary = []

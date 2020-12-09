@@ -15,4 +15,4 @@ def load(fp, paths):
 
     logging.info(f"Loaded file {fp.name} and parsed {len(out.keys())} paths from it")
 
-    return out
+    return out, sd

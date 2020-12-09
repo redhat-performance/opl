@@ -9,6 +9,7 @@ def load_config(conf, fp):
     """
     data = yaml.load(fp, Loader=yaml.SafeLoader)
     logging.debug(f"Loaded config from {fp.name}: {data}")
+
     conf.history_type = data['history']['type']
     conf.current_type = data['current']['type']
     conf.sets = data['sets']

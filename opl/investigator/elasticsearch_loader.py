@@ -2,9 +2,21 @@ import json
 import logging
 import tempfile
 
+import jinja2
+
 import opl.status_data
 
 import requests
+
+import yaml
+
+
+def render_query(query, template_data):
+    logging.debug(f"Rendering Jinja2 template query {query} with data {template_data}")
+    env = jinja2.Environment(
+        loader=jinja2.DictLoader({'query': query}))
+    template = env.get_template('query')
+    return yaml.load(template.render(template_data), Loader=yaml.SafeLoader)
 
 
 def load(server, index, query, paths):

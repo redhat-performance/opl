@@ -1,7 +1,7 @@
+import collections
 import inspect
 import logging
 import statistics
-import collections
 
 import scipy.stats
 
