@@ -230,10 +230,11 @@ def doit_print_oneline(status_data, get_this, get_rounding):
         print('\t'.join([str(status_data.get(i)) for i in get_this]))
     else:
         for i in get_this:
-            if isinstance(i,float):
-                print('{:.2f}'.format(i),end='\t')
+            if isinstance(status_data.get(i),float):
+                print('{:.2f}'.format(status_data.get(i)),end='\t')
             else:
-                print('{}'.format(i),end='\t')
+                print('{}'.format(status_data.get(i)),end='\t')
+        print()
 
 
 def doit_additional(status_data, additional, monitoring_start, monitoring_end, args):
