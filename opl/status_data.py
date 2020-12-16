@@ -225,8 +225,15 @@ def doit_set(status_data, set_this):
         status_data.set(key, value)
 
 
-def doit_print_oneline(status_data, get_this):
-    print(' '.join([str(status_data.get(i)) for i in get_this]))
+def doit_print_oneline(status_data, get_this, get_rounding):
+    if not get_rounding:
+        print('\t'.join([str(status_data.get(i)) for i in get_this]))
+    else:
+        for i in get_this:
+            if isinstance(i,float):
+                print('{:.2f}'.format(i),end='\t')
+            else:
+                print('{}'.format(i),end='\t')
 
 
 def doit_additional(status_data, additional, monitoring_start, monitoring_end, args):
@@ -267,6 +274,8 @@ def main():
                         help='"started" is set when the status data file is created, "ended" is set when this is used')
     parser.add_argument('--info', action='store_true',
                         help='Show basic info from status data file')
+    parser.add_argument('--decimal-rounding', action='store_true',
+                         help='Rounding a number to its hundredths, leaving 2 numbers after decimal point')
     for name, plugin in cluster_read.PLUGINS.items():
         plugin.add_args(parser)
 
@@ -276,7 +285,7 @@ def main():
         if len(args.set_now) > 0:
             doit_set(status_data, [k + "=%NOW%" for k in args.set_now])
         if len(args.get) > 0:
-            doit_print_oneline(status_data, args.get)
+            doit_print_oneline(status_data, args.get, args.decimal_rounding)
         if args.additional:
             doit_additional(
                 status_data,
