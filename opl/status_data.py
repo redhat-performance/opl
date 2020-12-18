@@ -225,15 +225,15 @@ def doit_set(status_data, set_this):
         status_data.set(key, value)
 
 
-def doit_print_oneline(status_data, get_this, get_rounding):
+def doit_print_oneline(status_data, get_this, get_rounding, get_delimiter):
     if not get_rounding:
-        print('\t'.join([str(status_data.get(i)) for i in get_this]))
+        print(get_delimiter.join([str(status_data.get(i)) for i in get_this]))
     else:
         for i in get_this:
             if isinstance(status_data.get(i),float):
-                print('{:.2f}'.format(status_data.get(i)),end='\t')
+                print('{:.2f}'.format(status_data.get(i)),end=get_delimiter)
             else:
-                print('{}'.format(status_data.get(i)),end='\t')
+                print('{}'.format(status_data.get(i)),end=get_delimiter)
         print()
 
 
@@ -277,6 +277,8 @@ def main():
                         help='Show basic info from status data file')
     parser.add_argument('--decimal-rounding', action='store_true',
                          help='Rounding a number to its hundredths, leaving 2 numbers after decimal point')
+    parser.add_argument('--delimiter', default='\t',
+                        help='When returning more "--get" fields, delimit them with this (default is tab)')
     for name, plugin in cluster_read.PLUGINS.items():
         plugin.add_args(parser)
 
@@ -286,7 +288,7 @@ def main():
         if len(args.set_now) > 0:
             doit_set(status_data, [k + "=%NOW%" for k in args.set_now])
         if len(args.get) > 0:
-            doit_print_oneline(status_data, args.get, args.decimal_rounding)
+            doit_print_oneline(status_data, args.get, args.decimal_rounding, args.delimiter)
         if args.additional:
             doit_additional(
                 status_data,
