@@ -63,6 +63,7 @@ setuptools.setup(
             "status_data_diff.py = opl.status_data:main_diff",
             "status_data.py = opl.status_data:main",
             "status_data_report.py = opl.status_data:main_report",
+            "status_data_updater.py = opl.status_data_updater:main",
             "script-skip-to-end.py = opl.skip_to_end:main",
             "script-manage-db.py = opl.manage_db:main",
         ],
