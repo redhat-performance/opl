@@ -51,6 +51,7 @@ def main():
             results, info = opl.investigator.check.check(history[var], current[var], description=var)
         except Exception as e:
             logging.warning(f"Check on {var} failed with: {e}")
+            info_all.append({"result": "ERROR", "exception": str(e)})
             summary_this = collections.OrderedDict([("data set", var), ("exception", str(e))])
             exit_code = 2
         else:
