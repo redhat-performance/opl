@@ -16,7 +16,9 @@ def render_query(query, template_data):
     env = jinja2.Environment(
         loader=jinja2.DictLoader({'query': query}))
     template = env.get_template('query')
-    return yaml.load(template.render(template_data), Loader=yaml.SafeLoader)
+    rendered = template.render(template_data)
+    logging.debug(f"Rendered Jinja2 template query {rendered}")
+    return yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
 def load(server, index, query, paths):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import junitparser
 import tempfile
 import unittest
 
@@ -43,6 +44,7 @@ class TestJUnitXmlPlus(unittest.TestCase):
         }
         tc2 = tc1.copy()
         tc2['name'] = 'ccc'
+        tc2['result'] = 'FAIL'
 
         self.junit.add_to_suite('aaa', tc1)
         self.junit.add_to_suite('aaa', tc2)
@@ -54,4 +56,7 @@ class TestJUnitXmlPlus(unittest.TestCase):
         case2 = next(suite_iter)
 
         self.assertEqual(case1.name, 'bbb')
+        self.assertEqual(case1.result, [])
         self.assertEqual(case2.name, 'ccc')
+        self.assertEqual(len(case2.result), 1)
+        self.assertEqual(type(case2.result[0]), junitparser.junitparser.Failure)

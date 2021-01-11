@@ -59,11 +59,11 @@ class JUnitXmlPlus(junitparser.JUnitXml):
             self.add_testsuite(suite)
 
         if new['result'] == 'PASS':
-            case.result = None
+            case.result = []
         elif new['result'] == 'FAIL':
-            case.result = junitparser.Failure(new['message'])
+            case.result = [junitparser.Failure(new['message'])]
         elif new['result'] == 'ERROR':
-            case.result = junitparser.Error(new['message'])
+            case.result = [junitparser.Error(new['message'])]
         else:
             raise Exception(f"Invalid result {new['result']}")
 
