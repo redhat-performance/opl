@@ -6,13 +6,14 @@ import logging
 import os
 
 from kafka import KafkaConsumer
-from kafka import OffsetAndMetadata
-from kafka import TopicPartition
+
+import opl.args
+import opl.data
+import opl.db
+import opl.skelet
 
 import psycopg2
 import psycopg2.extras
-
-import utils
 
 import yaml
 
@@ -182,23 +183,23 @@ class GetKafkaTimes():
         start_column, end_column, table = \
             self.custom_methods['start_end_col_table_name']()
 
-        durations = utils.get_timedelta_between_columns(
+        durations = opl.db.get_timedelta_between_columns(
             self.connection, [end_column, start_column], table=table)
-        end_ats = utils.get_timestamps(
+        end_ats = opl.db.get_timestamps(
             self.connection, end_column, table=table)
-        end_rps = utils.get_rps(end_ats)
+        end_rps = opl.data.get_rps(end_ats)
 
-        print(f"Start -> end duration stats: {utils.data_stats(durations)}")
-        utils.visualize_hist(durations)
+        print(f"Start -> end duration stats: {opl.data.data_stats(durations)}")
+        opl.data.visualize_hist(durations)
         self.status_data.set(
             f"{self.custom_methods['stats_sd_name']()}.duration_stats",
-            utils.data_stats(durations))
+            opl.data.data_stats(durations))
 
-        print(f"End RPS: {utils.data_stats(end_rps)}")
-        utils.visualize_hist(end_rps)
+        print(f"End RPS: {opl.data.data_stats(end_rps)}")
+        opl.data.visualize_hist(end_rps)
         self.status_data.set(
             f"{self.custom_methods['stats_sd_name']()}.rps_stats",
-            utils.data_stats(end_rps))
+            opl.data.data_stats(end_rps))
 
     def work(self):
         count = self.process_messages()
@@ -228,8 +229,8 @@ def get_kafka_times(custom_methods):
     parser.add_argument('--tables-definition', type=argparse.FileType('r'),
                         default=open(os.getenv('TABLES_DEFINITION', 'tables.yaml'), 'r'),
                         help='File defining tables and SQL to create them (also use env variable TABLES_DEFINITION)')
-    utils.add_storage_db_opts(parser)
-    utils.add_kafka_opts(parser)
+    opl.args.add_storage_db_opts(parser)
+    opl.args.add_kafka_opts(parser)
 
     # GetKafkaTimes needs these methods in the custom_methods dict
     assert 'message_validation' in custom_methods
@@ -238,7 +239,7 @@ def get_kafka_times(custom_methods):
     assert 'biggest_sd_name' in custom_methods
     assert 'start_end_col_table_name' in custom_methods
 
-    with utils.test_setup(parser) as (args, status_data):
+    with opl.skelet.test_setup(parser) as (args, status_data):
         args.max_quiet_period = \
             datetime.timedelta(seconds=args.max_quiet_period)
 
