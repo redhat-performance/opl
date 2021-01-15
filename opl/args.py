@@ -61,7 +61,7 @@ def add_kafka_opts(parser):
                         help='Kafka port (also use env variable KAFKA_PORT)')
     parser.add_argument('--kafka-timeout', type=int,
                         default=int(os.getenv('KAFKA_TIMEOUT', 100000)),
-                        help='Kafka timeout (also use env variable KAFKA_TIMEOUT)')
+                        help='Kafka timeout when consuming messages (also use env variable KAFKA_TIMEOUT)')
     parser.add_argument('--kafka-group',
                         default=os.getenv('KAFKA_GROUP', f"perf-test-{socket.gethostname()}"),
                         help='Kafka consumer group (also use env variable KAFKA_GROUP)')
