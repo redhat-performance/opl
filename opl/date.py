@@ -8,6 +8,8 @@ def my_fromisoformat(string):
     accepts one format, only in UTC. Once we are able to run on newer python,
     replace this with said function.
     """
+    if string[-1] == 'Z':
+        string = string[:-1] + '+00:00'
     if string[-6] != '+' and string[-5] != '+':
         logging.warning(f"Date {string} do not have TZ info, assuming '+00:00'")
         string += '+00:00'

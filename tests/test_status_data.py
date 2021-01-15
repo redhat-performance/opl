@@ -82,6 +82,26 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get_date('aaa'), now_plus2)
         self.assertEqual(self.status_data.get_date('bbb'), now_utc)
 
+    def test_datetime(self):
+        refference = datetime.datetime(2020, 12, 2, hour=12, minute=0, second=0, microsecond=0, tzinfo=datetime.timezone.utc)
+        tests = [
+            '2020-12-02T12:00:00+00:00',
+            '2020-12-02T12:00:00Z',
+            '2020-12-02T13:00:00+01:00',
+            '2020-12-02T14:00:00+02:00',
+            '2020-12-02T12:00:00.000+00:00',
+            '2020-12-02T12:00:00.000Z',
+            '2020-12-02T13:00:00.000+01:00',
+            '2020-12-02T14:00:00.000+02:00',
+            '2020-12-02T12:00:00.000000+00:00',
+            '2020-12-02T12:00:00.000000Z',
+            '2020-12-02T13:00:00.000000+01:00',
+            '2020-12-02T14:00:00.000000+02:00',
+        ]
+        for t in tests:
+            self.status_data.set('aaa', t)
+            self.assertEqual(self.status_data.get_date('aaa'), refference)
+
     def test_set_now(self):
         before = datetime.datetime.now(tz=datetime.timezone.utc)
         self.status_data.set_now('aaa')
