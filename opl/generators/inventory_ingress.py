@@ -119,6 +119,8 @@ class PayloadRHSMGenerator:
         data = {
             'subscription_manager_id': self._get_uuid(),
             'bios_uuid': self._get_bios_uuid(),
+            'request_id': self._get_uuid(),
+            'insights_id': self._get_uuid(),
             'ipv4_addr': self._get_ipv4(),
             'ipv6_addr': self._get_ipv6(),
             'mac_addr': self._get_mac(),

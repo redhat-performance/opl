@@ -1,0 +1,130 @@
+{
+  "operation": "add_host",
+  "platform_metadata": {
+    "request_id": "{{ request_id }}",
+    "archive_url": "http://s3.aws.com/redhat/insights/1234567"
+  },
+  "data": {
+    "account": "test",
+    "insights_id": "{{ insights_id }}",
+    "bios_uuid": "{{ bios_uuid }}",
+    "fqdn": "{{ fqdn }}",
+    "display_name": "{{ fqdn }}",
+    "tags": [
+      {
+        "namespace": "SPECIAL",
+        "key": "key",
+        "value": "val"
+      },
+      {
+        "namespace": "NS3",
+        "key": "key3",
+        "value": "val3"
+      },
+      {
+        "namespace": "NS1",
+        "key": "key3",
+        "value": "val3"
+      },
+      {
+        "namespace": "Sat",
+        "key": "prod",
+        "value": null
+      }
+    ],
+    "subscription_manager_id": "044e36dc-4e2b-4e69-8948-9c65a7bf4976",
+    "system_profile": {
+      "owner_id": "1b36b20f-7fa0-4454-a6d2-008294e06378",
+      "number_of_cpus": 1,
+      "number_of_sockets": 2,
+      "cores_per_socket": 4,
+      "system_memory_bytes": 1024,
+      "infrastructure_type": "jingleheimer junction cpu",
+      "infrastructure_vendor": "dell",
+      "network_interfaces": [
+        {
+          "ipv4_addresses": [
+            "10.10.10.1"
+          ],
+          "state": "UP",
+          "ipv6_addresses": [
+            "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+          ],
+          "mtu": 1500,
+          "mac_address": "aa:bb:cc:dd:ee:ff",
+          "type": "loopback",
+          "name": "eth0"
+        }
+      ],
+      "disk_devices": [
+        {
+          "device": "/dev/sdb1",
+          "label": "home drive",
+          "options": {
+            "uid": "0",
+            "ro": true
+          },
+          "mount_point": "/home",
+          "type": "ext3"
+        }
+      ],
+      "bios_vendor": "Turd Ferguson",
+      "bios_version": "1.0.0uhoh",
+      "bios_release_date": "10/31/2013",
+      "cpu_flags": [
+        "flag1",
+        "flag2"
+      ],
+      "os_release": "Red Hat EL 7.0.1",
+      "os_kernel_version": "3.10.0",
+      "arch": "x86-64",
+      "last_boot_time": "12:25 Mar 19, 2019",
+      "kernel_modules": [
+        "i915",
+        "e1000e"
+      ],
+      "running_processes": [
+        "vim",
+        "gcc",
+        "python"
+      ],
+      "subscription_status": "valid",
+      "subscription_auto_attach": "yes",
+      "katello_agent_running": false,
+      "satellite_managed": false,
+      "yum_repos": [
+        {
+          "name": "repo1",
+          "gpgcheck": true,
+          "enabled": true,
+          "base_url": "http://rpms.redhat.com"
+        }
+      ],
+      "installed_products": [
+        {
+          "name": "eap",
+          "id": "123",
+          "status": "UP"
+        },
+        {
+          "name": "jbws",
+          "id": "321",
+          "status": "DOWN"
+        }
+      ],
+      "insights_client_version": "12.0.12",
+      "insights_egg_version": "120.0.1",
+      "captured_date": "2020-02-13T12:16:00Z",
+      "installed_services": [
+        "ndb",
+        "krb5"
+      ],
+      "enabled_services": [
+        "ndb",
+        "krb5"
+      ]
+    },
+    "stale_timestamp": "{{ tommorowz }}",
+    "reporter": "me"
+  }
+}
