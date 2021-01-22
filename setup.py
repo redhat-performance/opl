@@ -25,6 +25,7 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         "Jinja2",
+        "boto3",
         "junitparser",
         "kafka-python",
         "locust",
