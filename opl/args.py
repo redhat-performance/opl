@@ -67,6 +67,24 @@ def add_kafka_opts(parser):
                         help='Kafka consumer group (also use env variable KAFKA_GROUP)')
 
 
+def add_s3_opts(parser):
+    parser.add_argument('--s3-aws-access-key-id',
+                        default=os.getenv('S3_AWS_ACCESS_KEY_ID', 'abcdef'),
+                        help='AWS S3 access key ID (also use env variable S3_AWS_ACCESS_KEY_ID)')
+    parser.add_argument('--s3-aws-region',
+                        default=os.getenv('S3_AWS_REGION', 'us-east-1'),
+                        help='AWS S3 region (also use env variable S3_AWS_REGION)')
+    parser.add_argument('--s3-aws-secret-access-key',
+                        default=os.getenv('S3_AWS_SECRET_ACCESS_KEY', 'abcdef'),
+                        help='AWS S3 secret access key (also use env variable S3_AWS_SECRET_ACCESS_KEY)')
+    parser.add_argument('--s3-bucket',
+                        default=os.getenv('S3_BUCKET', 'abcdef'),
+                        help='AWS S3 bucket (also use env variable S3_BUCKET)')
+    parser.add_argument('--s3-endpoint',
+                        default=os.getenv('S3_ENDPOINT', 'abcdef'),
+                        help='AWS S3 endpoint (also use env variable S3_ENDPOINT)')
+
+
 def add_locust_opts(parser):
     # Is this a simple local runner or master or worker?
     parser.add_argument('--locust-local-runner', action='store_true',
