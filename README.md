@@ -1,4 +1,4 @@
-Our perf&scale library
+MBU products perf&scale library
 ======================
 
 OPL library
