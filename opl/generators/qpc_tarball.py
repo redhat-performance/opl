@@ -124,7 +124,7 @@ class QPCTarball:
             "service": "qpc",
             "size": self.size,
             "url": self.download_url,
-            "b64_identity": opl.gen.get_auth_header(self.account, self.account),
+            "b64_identity": opl.gen.get_auth_header(self.account, self.account).decode('UTF-8'),
             "timestamp": opl.gen.gen_datetime().replace('+00:00', 'Z'),
         }
         return json.dumps(data)
