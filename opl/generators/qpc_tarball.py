@@ -6,6 +6,7 @@ import tarfile
 import tempfile
 
 import boto3
+import botocore.client
 
 import opl.gen
 
@@ -57,6 +58,7 @@ class QPCTarball:
             aws_access_key_id=self.s3_conf['aws_access_key_id'],
             aws_secret_access_key=self.s3_conf['aws_secret_access_key'],
             region_name=self.s3_conf['aws_region'],
+            config=botocore.config.Config(signature_version='s3v4'),
         )
         s3_bucket = s3_resource.Bucket(name=self.s3_conf['bucket'])
         s3_object = s3_bucket.Object(key=self.remotename)
