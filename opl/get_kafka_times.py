@@ -180,26 +180,27 @@ class GetKafkaTimes():
         return last
 
     def print_stats(self):
-        start_column, end_column, table = \
-            self.custom_methods['start_end_col_table_name']()
+        if self.custom_methods['start_end_col_table_name']() is not None:
+            start_column, end_column, table = \
+                self.custom_methods['start_end_col_table_name']()
 
-        durations = opl.db.get_timedelta_between_columns(
-            self.connection, [end_column, start_column], table=table)
-        end_ats = opl.db.get_timestamps(
-            self.connection, end_column, table=table)
-        end_rps = opl.data.get_rps(end_ats)
+            durations = opl.db.get_timedelta_between_columns(
+                self.connection, [end_column, start_column], table=table)
+            end_ats = opl.db.get_timestamps(
+                self.connection, end_column, table=table)
+            end_rps = opl.data.get_rps(end_ats)
 
-        print(f"Start -> end duration stats: {opl.data.data_stats(durations)}")
-        opl.data.visualize_hist(durations)
-        self.status_data.set(
-            f"{self.custom_methods['stats_sd_name']()}.duration_stats",
-            opl.data.data_stats(durations))
+            print(f"Start -> end duration stats: {opl.data.data_stats(durations)}")
+            opl.data.visualize_hist(durations)
+            self.status_data.set(
+                f"{self.custom_methods['stats_sd_name']()}.duration_stats",
+                opl.data.data_stats(durations))
 
-        print(f"End RPS: {opl.data.data_stats(end_rps)}")
-        opl.data.visualize_hist(end_rps)
-        self.status_data.set(
-            f"{self.custom_methods['stats_sd_name']()}.rps_stats",
-            opl.data.data_stats(end_rps))
+            print(f"End RPS: {opl.data.data_stats(end_rps)}")
+            opl.data.visualize_hist(end_rps)
+            self.status_data.set(
+                f"{self.custom_methods['stats_sd_name']()}.rps_stats",
+                opl.data.data_stats(end_rps))
 
     def work(self):
         count = self.process_messages()
