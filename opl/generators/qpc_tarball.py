@@ -45,6 +45,8 @@ class QPCTarball:
         self.s3_conf = s3_conf
         self.tarball_conf = tarball_conf
         self.download_url = None
+        self.size = None
+        self.account = opl.gen.gen_account()
 
     def upload(self):
         self.dump()
@@ -67,6 +69,7 @@ class QPCTarball:
             },
             ExpiresIn=3600 * 3,
         )
+        self.size = s3_object.content_length
         logging.info(f"Uploaded {self.filename} with signed url {self.download_url}")
 
         os.remove(self.filename)
@@ -107,6 +110,23 @@ class QPCTarball:
             logging.info(f"Wrote {self.filename}")
 
             return self.filename
+
+    def dumps_message(self):
+        return {
+            "account": self.account,
+            "category": "tar",
+            "metadata": {
+                "reporter": "",
+                "stale_timestamp": "0001-01-01T00:00:00Z"
+            },
+            "request_id": self.remotename,
+            "principal": self.account,
+            "service": "qpc",
+            "size": self.size,
+            "url": self.download_url,
+            "b64_identity": opl.gen.get_auth_header(self.account, self.account),
+            "timestamp": opl.gen_datetime().isoformat(timespec="microseconds").replace('+00:00', 'Z'),
+        }
 
     def __iter__(self):
         return self
