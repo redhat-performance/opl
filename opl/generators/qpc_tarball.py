@@ -54,9 +54,9 @@ class QPCTarball:
         logging.debug(f"Going to upload {self.filename} to S3")
         s3_resource = boto3.resource(
             's3',
-            aws_access_key_id = self.s3_conf['aws_access_key_id'],
-            aws_secret_access_key = self.s3_conf['aws_secret_access_key'],
-            region_name = self.s3_conf['aws_region'],
+            aws_access_key_id=self.s3_conf['aws_access_key_id'],
+            aws_secret_access_key=self.s3_conf['aws_secret_access_key'],
+            region_name=self.s3_conf['aws_region'],
         )
         s3_bucket = s3_resource.Bucket(name=self.s3_conf['bucket'])
         s3_object = s3_bucket.Object(key=self.remotename)
