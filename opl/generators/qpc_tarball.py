@@ -135,7 +135,7 @@ class QPCTarball:
         return self
 
     def __next__(self):
-        if self.tarball_conf['count_slices'] == len(self.slices):
+        if self.tarball_conf['slices_count'] == len(self.slices):
             raise StopIteration()
 
         new_slice = QPCTarballSlice()
