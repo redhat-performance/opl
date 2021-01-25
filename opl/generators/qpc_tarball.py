@@ -112,7 +112,7 @@ class QPCTarball:
             return self.filename
 
     def dumps_message(self):
-        return {
+        data = {
             "account": self.account,
             "category": "tar",
             "metadata": {
@@ -127,6 +127,7 @@ class QPCTarball:
             "b64_identity": opl.gen.get_auth_header(self.account, self.account),
             "timestamp": opl.gen_datetime().isoformat(timespec="microseconds").replace('+00:00', 'Z'),
         }
+        return json.dumps(data)
 
     def __iter__(self):
         return self
