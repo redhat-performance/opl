@@ -53,6 +53,10 @@ class GetKafkaTimes():
         # Buffer of messages we received and not stored to DB yet
         self.waiting_items = []
 
+        # Which messages to show during processing
+        self.show_processed_messages = args.show_processed_messages
+        self.show_dropped_messages = args.show_dropped_messages
+
     def update_remaining_count(self):
         """
         Number of items that are still missing in the DB
@@ -147,10 +151,16 @@ class GetKafkaTimes():
                         logging.debug(f"Received {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}...")
 
                         if self.custom_methods['message_validation'](value):
+                            if self.show_processed_messages:
+                                print(f"Processing {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}...")
+
                             # Construct item to be saved
                             new_value = self.custom_methods['process_message'](
                                 self.kafka_ts2dt(message.timestamp), value)
                             self.store_item(new_value)
+                        else:
+                            if self.show_dropped_messages:
+                                print(f"Dropping {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}...")
 
                 # Quit if we have all the data in the DB
                 if self.remaining_count == 0:
@@ -227,11 +237,13 @@ def get_kafka_times(custom_methods):
     parser.add_argument('--max-quiet-period', type=int,
                         default=int(os.getenv('MAX_QUIET_PERIOD', 300)),
                         help='Stop waiting for useful messages if none has appeared in this amount of seconds (also use env variable MAX_QUIET_PERIOD)')
-    parser.add_argument('--tables-definition', type=argparse.FileType('r'),
-                        default=open(os.getenv('TABLES_DEFINITION', 'tables.yaml'), 'r'),
-                        help='File defining tables and SQL to create them (also use env variable TABLES_DEFINITION)')
+    parser.add_argument('--show-dropped-messages', action='store_true',
+                        help='Show messages which did not passed validation filter')
+    parser.add_argument('--show-processed-messages', action='store_true',
+                        help='Show messages which passed validation filter and will be processed')
     opl.args.add_storage_db_opts(parser)
     opl.args.add_kafka_opts(parser)
+    opl.args.add_tables_def_opts(parser)
 
     # GetKafkaTimes needs these methods in the custom_methods dict
     assert 'message_validation' in custom_methods
