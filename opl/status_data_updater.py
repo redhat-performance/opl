@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
+import datetime
 import json
 import logging
+import os
 import sys
 import tempfile
 
@@ -128,6 +130,19 @@ def doit_change(args):
         logging.debug(f"Setting {key} = {value} ({type(value)})")
         sd.set(key, value)
 
+    # Add comment to log the change
+    if sd.get('comments') is None:
+        sd.set('comments', [])
+    if not isinstance(sd.get('comments'), list):
+        logging.error(f"Field 'comments' is not a list: {sd.get('comments')}")
+    if args.change_comment_text is None:
+        args.change_comment_text = 'Setting ' + ', '.join(args.change_set)
+    sd.get('comments').append({
+        'author': os.getenv('USER', 'unknown'),
+        'date': datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
+        'text': args.change_comment_text,
+    })
+
     url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
 
     logging.info(f"Saving to ES with url={url} and json={json.dumps(sd.dump())}")
@@ -160,6 +175,8 @@ def main():
                         help='ID of a test run when changing')
     parser.add_argument('--change-set', nargs='*', default=[],
                         help='Set key=value data')
+    parser.add_argument('--change-comment-text',
+                        help='Comment to be added as part of change')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Show debug output')
     args = parser.parse_args()
