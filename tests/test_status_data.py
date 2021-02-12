@@ -180,3 +180,15 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd.get('aaa'), None)
         self.assertEqual(sd.get('aaa.bbb'), None)
         self.assertEqual(sd.get('aaa.bbb.ccc'), None)
+
+    def test_copy_original_object(self):
+        something = {
+            'foo': 1,
+            'bar': 2,
+        }
+        self.status_data.set('results.something', something)
+        something['baz'] = 3
+        self.assertEqual(self.status_data.get('results.something.foo'), 1)
+        self.assertEqual(self.status_data.get('results.something.bar'), 2)
+        self.assertIn('baz', something)
+        self.assertEqual(self.status_data.get('results.something.baz'), None)
