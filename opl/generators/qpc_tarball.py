@@ -81,9 +81,13 @@ class QPCTarball:
         data = {
             "report_id": opl.gen.gen_uuid(),
             "host_inventory_api_version": "1.0",
-            "source": "satellite",
-            "source_metadata": {},
-            "report_slices": {s.get_id(): {"number_hosts": s.get_host_count()} for s in self.slices},
+            "source": "Satellite",
+            "source_metadata": {
+                "foreman_rh_cloud_version": "3.0.14",
+            },
+            "report_slices": {
+                s.get_id(): {"number_hosts": s.get_host_count()} for s in self.slices
+            },
         }
 
         logging.debug(f"Writing {filename}")
