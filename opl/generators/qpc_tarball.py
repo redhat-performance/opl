@@ -17,7 +17,7 @@ def get_tarball_message(account, remotename, size, download_url):
             "reporter": "",
             "stale_timestamp": "0001-01-01T00:00:00Z"
         },
-        "request_id": remotename,
+        "request_id": remotename[-45:],
         "principal": account,
         "service": "qpc",
         "size": size,
