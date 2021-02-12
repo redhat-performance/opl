@@ -117,8 +117,7 @@ class QPCTarball:
             return self.filename
 
     def dumps_message(self):
-        data = get_tarball_message(self.account, self.remotename, self.size, self.download_url)
-        return json.dumps(data)
+        return get_tarball_message(self.account, self.remotename, self.size, self.download_url)
 
     def __iter__(self):
         return self
