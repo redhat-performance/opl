@@ -24,7 +24,7 @@ def upload_file(s3_resource, local_name, bucket, remote_name):
     s3_object = s3_bucket.Object(key=remote_name)
     s3_object.upload_file(Filename=local_name, ExtraArgs={'ServerSideEncryption': 'AES256'})
     size = s3_object.content_length
-    logging.info(f"Uploaded {local_name} as {remote_name}")
+    logging.info(f"Uploaded {size}B of {local_name} as {remote_name}")
     return size
 
 
