@@ -32,6 +32,10 @@ def add_storage_db_opts(parser):
     _add_generic_db_opts(parser, 'storage')
 
 
+def add_subscriptions_db_opts(parser):
+    _add_generic_db_opts(parser, 'subscriptions')
+
+
 def add_inventory_db_opts(parser):
     _add_generic_db_opts(parser, 'inventory')
 
