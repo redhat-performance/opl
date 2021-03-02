@@ -1,10 +1,17 @@
 import argparse
+import datetime
 import logging
 import os
 import unicodedata
 import junitparser
 
+import requests
+
 from . import date
+
+
+def now():
+    return datetime.datetime.now(tz=datetime.timezone.utc)
 
 
 class TestCaseWithProp(junitparser.TestCase):
@@ -29,6 +36,15 @@ class TestCaseWithProp(junitparser.TestCase):
             self.append(props)
         prop = junitparser.Property(name, value)
         props.add_property(prop)
+
+    def get_property(self, name, default=None):
+        """
+        Get a property from the testcase
+        """
+        for prop in self.properties():
+            if prop.name == name:
+                return prop.value
+        return default
 
 
 class JUnitXmlPlus(junitparser.JUnitXml):
@@ -102,6 +118,153 @@ class JUnitXmlPlus(junitparser.JUnitXml):
     def delete(self):
         os.remove(self.filepath)
 
+    def upload(self, host, verify, project, token, launch):
+
+        def req(method, url, data):
+            logging.debug(f"Going to do {method} request to {url} with {data}")
+            response = method(url, json=data, headers=headers, verify=verify)
+            if not response.ok:
+                logging.error(f"Request failed: {response.text}")
+            response.raise_for_status()
+            logging.debug(f"Request returned {response.json()}")
+            return response.json()
+
+        def times(ts):
+            return str(int(ts.timestamp() * 1000))
+
+        # Determine launch start and end by taking min from test case
+        # starts and max from testcase ends
+        start = None
+        end = None
+        suites_times = {}
+        for suite in self:
+            suite_start = None
+            suite_end = None
+            for case in suite:
+                case = TestCaseWithProp.fromelem(case)
+                for prop in case.properties():
+                    if prop.name == 'start':
+                        tmp = datetime.datetime.fromisoformat(prop.value)
+                        if start is None or start > tmp:
+                            start = tmp
+                        if suite_start is None or suite_start > tmp:
+                            suite_start = tmp
+                    if prop.name == 'end':
+                        tmp = datetime.datetime.fromisoformat(prop.value)
+                        if end is None or end < tmp:
+                            end = tmp
+                        if suite_end is None or suite_end < tmp:
+                            suite_end = tmp
+            suite_start = suite_start if suite_start is not None else now()
+            suite_end = suite_end if suite_end is not None else now()
+            suites_times[suite.name] = [suite_start, suite_end]
+        start = start if start is not None else now()
+        end = end if end is not None else now()
+
+        # Start a session
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}',
+        }
+        session = requests.Session()
+
+        # Start launch
+        url = f'https://{host}/api/v1/{project}/launch'
+        data = {
+          "name": launch,
+          "startTime": times(start),
+          "mode": "DEFAULT",
+          "attributes": [],
+        }
+        response = req(session.post, url, data)
+        launch_id = response['id']
+
+        # Process all the suites
+        for suite in self:
+            suite_start, suite_end = suites_times[suite.name]
+
+            # Start root(suite) item
+            url = f'https://{host}/api/v1/{project}/item'
+            data = {
+              "name": suite.name,
+              "startTime": times(suite_start),
+              "type": "suite",
+              "launchUuid": launch_id,
+            }
+            response = req(session.post, url, data)
+            suite_id = response['id']
+
+            # Process all the testcases in the suite
+            for case in suite:
+                case = TestCaseWithProp.fromelem(case)
+                case_start = datetime.datetime.fromisoformat(case.get_property('start', now()))
+                case_end = datetime.datetime.fromisoformat(case.get_property('end', now()))
+
+                # Determine case status
+                if len(case.result) == 0:
+                    result = 'passed'
+                elif isinstance(case.result[0], junitparser.junitparser.Error):
+                    result = 'failed'
+                elif isinstance(case.result[0], junitparser.junitparser.Failure):
+                    result = 'failed'
+                elif isinstance(case.result[0], junitparser.junitparser.Skipped):
+                    result = 'skipped'
+                else:
+                    raise Exception(f'Unknown result for {case}: {case.result}')
+
+                # Start child(container) item
+                url = f'https://{host}/api/v1/{project}/item/{suite_id}'
+                data = {
+                  "name": case.name,
+                  "startTime": times(case_start),
+                  "type": "test",
+                  "launchUuid": launch_id,
+                }
+                response = req(session.post, url, data)
+                case_id = response['id']
+
+                # Finish parent(container) item
+                url = f'https://{host}/api/v1/{project}/item/{case_id}'
+                data = {
+                  "endTime": times(case_end),
+                  "launchUuid": launch_id,
+                  "status": result,
+                }
+                if result != 'passed':
+                    data["issue"] = {"issueType": "ti001"}
+                response = req(session.put, url, data)
+
+                # Add log message
+                url = f'https://{host}/api/v1/{project}/log'
+                data = {
+                  "launchUuid": launch_id,
+                  "itemUuid": case_id,
+                  "time": times(case_end),
+                  "message": case.system_out,
+                  "level": "info",
+                }
+                response = req(session.post, url, data)
+                if case.system_err:
+                    data["message"] = case.system_err
+                    data["level"] = "error"
+                    response = req(session.post, url, data)
+
+            # Finish root(suite) item
+            url = f'https://{host}/api/v1/{project}/item/{suite_id}'
+            data = {
+              "endTime": times(suite_end),
+              "launchUuid": launch_id,
+            }
+            response = req(session.put, url, data)
+
+        # Finish launch
+        url = f'https://{host}/api/v1/{project}/launch/{launch_id}/finish'
+        data = {
+            "endTime": times(end),
+        }
+        response = req(session.put, url, data)
+
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -142,6 +305,20 @@ def main():
     parser_add.add_argument('--end', required=True,
                             type=date.my_fromisoformat,
                             help='Testcase end time in ISO 8601 format')
+
+    # create the parser for the "upload" command
+    parser_add = subparsers.add_parser('upload',
+                                       help='Upload the file to ReportPortal')
+    parser_add.add_argument('--host', required=True,
+                            help='ReportPortal host')
+    parser_add.add_argument('--noverify', action='store_true',
+                            help='When talking to ReportPortal ignore certificate verification failures')
+    parser_add.add_argument('--project', required=True,
+                            help='ReportPortal project')
+    parser_add.add_argument('--token', required=True,
+                            help='ReportPortal token')
+    parser_add.add_argument('--launch', required=True,
+                            help='ReportPortal launch name to use when creating')
     args = parser.parse_args()
 
     if args.debug:
@@ -164,5 +341,7 @@ def main():
             'end': args.end,
         }
         junit.add_to_suite(args.suite, new)
+    elif args.action == 'upload':
+        junit.upload(args.host, not args.noverify, args.project, args.token, args.launch)
     else:
         raise Exception('I do not know what to do')
