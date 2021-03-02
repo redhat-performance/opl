@@ -108,6 +108,8 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         out = []
         for suite in self:
             print(f"suite: {suite}")
+            for prop in suite.properties():
+                print(f"    property: {prop}")
             for case in suite:
                 case = TestCaseWithProp.fromelem(case)
                 print(f"    case: {case}   {case.result}")
@@ -118,7 +120,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
     def delete(self):
         os.remove(self.filepath)
 
-    def upload(self, host, verify, project, token, launch):
+    def upload(self, host, verify, project, token, launch, properties):
 
         def req(method, url, data):
             logging.debug(f"Going to do {method} request to {url} with {data}")
@@ -176,6 +178,12 @@ class JUnitXmlPlus(junitparser.JUnitXml):
           "mode": "DEFAULT",
           "attributes": [],
         }
+        for prop in properties:
+            name, value = prop.split('=')
+            data['attributes'].append({
+                "key": name,
+                "value": value,
+            })
         response = req(session.post, url, data)
         launch_id = response['id']
 
@@ -190,7 +198,13 @@ class JUnitXmlPlus(junitparser.JUnitXml):
               "startTime": times(suite_start),
               "type": "suite",
               "launchUuid": launch_id,
+              "attributes": [],
             }
+            for prop in suite.properties():
+                data['attributes'].append({
+                    "key": prop.name,
+                    "value": prop.value,
+                })
             response = req(session.post, url, data)
             suite_id = response['id']
 
@@ -219,7 +233,13 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                   "startTime": times(case_start),
                   "type": "test",
                   "launchUuid": launch_id,
+                  "attributes": [],
                 }
+                for prop in case.properties():
+                    data['attributes'].append({
+                        "key": prop.name,
+                        "value": prop.value,
+                    })
                 response = req(session.post, url, data)
                 case_id = response['id']
 
@@ -319,6 +339,8 @@ def main():
                             help='ReportPortal token')
     parser_add.add_argument('--launch', required=True,
                             help='ReportPortal launch name to use when creating')
+    parser_add.add_argument('--properties', nargs='*', default=[],
+                            help='Launch property pairs in a name=value form, space separated, that will be added as ReportPortal attributes')
     args = parser.parse_args()
 
     if args.debug:
@@ -342,6 +364,6 @@ def main():
         }
         junit.add_to_suite(args.suite, new)
     elif args.action == 'upload':
-        junit.upload(args.host, not args.noverify, args.project, args.token, args.launch)
+        junit.upload(args.host, not args.noverify, args.project, args.token, args.launch, args.properties)
     else:
         raise Exception('I do not know what to do')
