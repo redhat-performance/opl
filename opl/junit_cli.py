@@ -146,13 +146,13 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                 case = TestCaseWithProp.fromelem(case)
                 for prop in case.properties():
                     if prop.name == 'start':
-                        tmp = datetime.datetime.fromisoformat(prop.value)
+                        tmp = date.my_fromisoformat(prop.value)
                         if start is None or start > tmp:
                             start = tmp
                         if suite_start is None or suite_start > tmp:
                             suite_start = tmp
                     if prop.name == 'end':
-                        tmp = datetime.datetime.fromisoformat(prop.value)
+                        tmp = date.my_fromisoformat(prop.value)
                         if end is None or end < tmp:
                             end = tmp
                         if suite_end is None or suite_end < tmp:
@@ -211,8 +211,8 @@ class JUnitXmlPlus(junitparser.JUnitXml):
             # Process all the testcases in the suite
             for case in suite:
                 case = TestCaseWithProp.fromelem(case)
-                case_start = datetime.datetime.fromisoformat(case.get_property('start', now()))
-                case_end = datetime.datetime.fromisoformat(case.get_property('end', now()))
+                case_start = date.my_fromisoformat(case.get_property('start', now()))
+                case_end = date.my_fromisoformat(case.get_property('end', now()))
 
                 # Determine case status
                 if len(case.result) == 0:
