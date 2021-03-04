@@ -224,7 +224,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                 if len(case.result) == 0:
                     result = 'passed'
                 elif isinstance(case.result[0], junitparser.junitparser.Error):
-                    result = 'failed'
+                    result = 'interrupted'
                 elif isinstance(case.result[0], junitparser.junitparser.Failure):
                     result = 'failed'
                 elif isinstance(case.result[0], junitparser.junitparser.Skipped):
@@ -256,7 +256,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                   "launchUuid": launch_id,
                   "status": result,
                 }
-                if result != 'passed':
+                if result == 'interrupted':
+                    data["issue"] = {"issueType": "si001"}
+                elif result != 'passed':
                     data["issue"] = {"issueType": "ti001"}
                 response = req(session.put, url, data)
 
