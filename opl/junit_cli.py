@@ -83,16 +83,22 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         else:
             raise Exception(f"Invalid result {new['result']}")
 
+        case.system_out = ''
         if new['system-out']:
-            try:
-                case.system_out = self._remove_control_characters(new['system-out'].read())
-            except ValueError as e:
-                logging.error(f"Failed to load {new['system-out'].name} file: {e}")
+            for f in new['system-out']:
+                try:
+                    case.system_out += self._remove_control_characters(f.read())
+                    case.system_out += "\n"
+                except ValueError as e:
+                    logging.error(f"Failed to load {new['system-out'].name} file: {e}")
+        case.system_err = ''
         if new['system-err']:
-            try:
-                case.system_err = self._remove_control_characters(new['system-err'].read())
-            except ValueError as e:
-                logging.error(f"Failed to load {new['system-err'].name} file: {e}")
+            for f in new['system-err']:
+                try:
+                    case.system_err += self._remove_control_characters(f.read())
+                    case.system_err += "\n"
+                except ValueError as e:
+                    logging.error(f"Failed to load {new['system-err'].name} file: {e}")
 
         duration = (new['end'] - new['start']).total_seconds()
         case.time = duration
@@ -313,9 +319,9 @@ def main():
                             help='Result of the testcase')
     parser_add.add_argument('--suite', required=True,
                             help='Testsuite this testcase should be in')
-    parser_add.add_argument('--out', type=argparse.FileType('r'),
+    parser_add.add_argument('--out', type=argparse.FileType('r'), nargs='*', default=[],
                             help='File with stdout of the testcase')
-    parser_add.add_argument('--err', type=argparse.FileType('r'),
+    parser_add.add_argument('--err', type=argparse.FileType('r'), nargs='*', default=[],
                             help='File with stderr of the testcase')
     parser_add.add_argument('--message',
                             help='Message when result is failure or error')
