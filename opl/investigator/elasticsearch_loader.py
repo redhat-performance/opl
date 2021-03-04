@@ -32,7 +32,7 @@ def load(server, index, query, paths):
         'Content-Type': 'application/json',
     }
     data = query
-    print(f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}")
+    logging.info(f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}")
 
     response = requests.get(url, headers=headers, json=data)
     response.raise_for_status()
