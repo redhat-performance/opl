@@ -12,7 +12,7 @@ import opl.investigator.status_data_loader
 import tabulate
 
 
-STATSUSES = {
+STATUSES = {
     0: 'PASS',
     1: 'FAIL',
     2: 'ERROR',
@@ -74,7 +74,7 @@ def main():
 
     print("\n", tabulate.tabulate(info_all, headers="keys", tablefmt="simple", floatfmt=".3f"))
     print("\n", tabulate.tabulate(summary, headers="keys", tablefmt="simple"))
-    print("\nOverall status: {STATSUSES[exit_code]}")
+    print(f"\nOverall status: {STATUSES[exit_code]}")
 
     if args.decisions_type == 'elasticsearch':
         opl.investigator.elasticsearch_decisions.store(args.decisions_es_server, args.decisions_es_index, info_all)
