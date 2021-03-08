@@ -37,6 +37,7 @@ setuptools.setup(
         "scipy",
         "tabulate",
         "deepdiff",
+        "paho-mqtt",
     ],
     package_data={
         "opl": [

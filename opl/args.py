@@ -71,6 +71,24 @@ def add_kafka_opts(parser):
                         help='Kafka consumer group (also use env variable KAFKA_GROUP)')
 
 
+def add_mosquitto_opts(parser):
+    parser.add_argument('--mosquitto-host',
+                        default=os.getenv('MOSQUITTO_HOST', 'localhost'),
+                        help='Mosquitto host (also use env variable MOSQUITTO_HOST)')
+    parser.add_argument('--mosquitto-port', type=int,
+                        default=int(os.getenv('MOSQUITTO_PORT', 8883)),
+                        help='Mosquitto port (also use env variable MOSQUITTO_PORT)')
+    parser.add_argument('--mosquitto-timeout', type=int,
+                        default=int(os.getenv('MOSQUITTO_TIMEOUT', 60)),
+                        help='Mosquitto timeout (also use env variable MOSQUITTO_TIMEOUT)')
+    parser.add_argument('--mosquitto-username',
+                        default=os.getenv('MOSQUITTO_USERNAME', "connector-service"),
+                        help='Mosquitto username (also use env variable MOSQUITTO_USERNAME)')
+    parser.add_argument('--mosquitto-password',
+                        default=os.getenv('MOSQUITTO_PASSWORD', None),
+                        help='Mosquitto password (also use env variable MOSQUITTO_PASSWORD)')
+
+
 def add_s3_opts(parser):
     parser.add_argument('--s3-aws-access-key-id',
                         default=os.getenv('S3_AWS_ACCESS_KEY_ID', 'abcdef'),
