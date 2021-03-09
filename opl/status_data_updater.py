@@ -154,7 +154,7 @@ def doit_rp_to_es(args):
     url = f'https://{args.rp_host}/api/v1/{args.rp_project}/launch'
     data = {
       "filter.eq.name": args.rp_launch,
-      "page.size": 3,
+      "page.size": 10,
       "page.sort": "endTime,desc",
     }
     logging.debug(f"Going to do GET request to {url} with {data}")
@@ -172,11 +172,19 @@ def doit_rp_to_es(args):
             if a["key"] == "run_id":
                 run_id = a["value"]
                 break
-        assert run_id is not None
+        if run_id is None:
+            logging.warning(f"Launch id={launch['id']} do not have run_id key, skipping it")
+            continue
 
-        # Get result from launch statistics
-        assert sum([d["total"] for d in launch["statistics"]["defects"].values()]) == 1
-        assert len(list(launch["statistics"]["defects"].keys())) == 1
+        # Validate defects in launch
+        if sum([d["total"] for d in launch["statistics"]["defects"].values()]) != 1:
+            logging.warning(f"Launch id={launch['id']} do not have expected number of defects, skipping it")
+            continue
+        if len(list(launch["statistics"]["defects"].keys())) != 1:
+            logging.warning(f"Launch id={launch['id']} do not have expected number of defect types, skipping it")
+            continue
+
+        # Get resuls from launch statistics
         result = RP_TO_ES_STATE[list(launch["statistics"]["defects"].keys())[0]]
 
         # Get tests in the launch
