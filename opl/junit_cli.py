@@ -223,12 +223,16 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                 # Determine case status
                 if len(case.result) == 0:
                     result = 'passed'
+                    issue = None
                 elif isinstance(case.result[0], junitparser.junitparser.Error):
-                    result = 'interrupted'
+                    result = 'failed'
+                    issue = 'si001'
                 elif isinstance(case.result[0], junitparser.junitparser.Failure):
                     result = 'failed'
+                    issue = 'ti001'
                 elif isinstance(case.result[0], junitparser.junitparser.Skipped):
                     result = 'skipped'
+                    issue = 'ti001'
                 else:
                     raise Exception(f'Unknown result for {case}: {case.result}')
 
@@ -255,11 +259,8 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                   "endTime": times(case_end),
                   "launchUuid": launch_id,
                   "status": result,
+                  "issue": {} if issue is None else {"issueType": issue}
                 }
-                if result == 'interrupted':
-                    data["issue"] = {"issueType": "si001"}
-                elif result != 'passed':
-                    data["issue"] = {"issueType": "ti001"}
                 response = req(session.put, url, data)
 
                 # Add log message
