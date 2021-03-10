@@ -87,6 +87,10 @@ def add_mosquitto_opts(parser):
     parser.add_argument('--mosquitto-password',
                         default=os.getenv('MOSQUITTO_PASSWORD', None),
                         help='Mosquitto password (also use env variable MOSQUITTO_PASSWORD)')
+    parser.add_argument('--mosquitto-transport',
+                        default=os.getenv('MOSQUITTO_TRANSPORT', 'tcp'),
+                        choices=['tcp', 'websockets'],
+                        help='Mosquitto transport (also use env variable MOSQUITTO_TRANSPORT)')
 
 
 def add_s3_opts(parser):
