@@ -33,12 +33,11 @@ class TestSkelet(unittest.TestCase):
         data = [
             datetime.datetime.fromisoformat('2021-03-22T12:00:00.000000+00:00'),
             datetime.datetime.fromisoformat('2021-03-22T11:50:00.000000+00:00'),
-            datetime.datetime.fromisoformat('2021-03-22T11:30:00.000001+00:00'),
             datetime.datetime.fromisoformat('2021-03-22T11:30:00.000000+00:00'),
             datetime.datetime.fromisoformat('2021-03-22T11:00:00.000000+00:00'),
         ]
         stats = opl.data.data_stats(data)
-        self.assertEqual(stats['samples'], 5)
+        self.assertEqual(stats['samples'], 4)
         self.assertEqual(stats['max'], datetime.datetime.fromisoformat('2021-03-22T12:00:00.000000+00:00'))
         self.assertEqual(stats['min'], datetime.datetime.fromisoformat('2021-03-22T11:00:00.000000+00:00'))
 

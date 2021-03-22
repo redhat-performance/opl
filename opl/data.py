@@ -179,7 +179,6 @@ def data_stats(data):
             'min': min(data),
             'max': max(data),
             'mean': (max(data) - min(data)) / len(data),
-            'median': statistics.median(data),
             'range': max(data) - min(data),
         }
     else:
