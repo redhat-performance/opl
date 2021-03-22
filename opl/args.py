@@ -82,7 +82,7 @@ def add_mosquitto_opts(parser):
                         default=int(os.getenv('MOSQUITTO_TIMEOUT', 60)),
                         help='Mosquitto timeout (also use env variable MOSQUITTO_TIMEOUT)')
     parser.add_argument('--mosquitto-username',
-                        default=os.getenv('MOSQUITTO_USERNAME', "connector-service"),
+                        default=os.getenv('MOSQUITTO_USERNAME', None),
                         help='Mosquitto username (also use env variable MOSQUITTO_USERNAME)')
     parser.add_argument('--mosquitto-password',
                         default=os.getenv('MOSQUITTO_PASSWORD', None),
