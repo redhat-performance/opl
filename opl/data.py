@@ -1,3 +1,4 @@
+import datetime
 import logging
 import statistics
 import numpy
@@ -154,23 +155,35 @@ def data_stats(data):
     if len(data) == 0:
         return {'samples': 0}
     non_zero_data = [i for i in data if i != 0]
-    q25 = numpy.percentile(data, 25)
-    q75 = numpy.percentile(data, 75)
-    return {
-        'samples': len(data),
-        'min': min(data),
-        'max': max(data),
-        'sum': sum(data),
-        'mean': statistics.mean(data),
-        'non_zero_mean': statistics.mean(non_zero_data) if len(non_zero_data) > 0 else 0.0,
-        'median': statistics.median(data),
-        'non_zero_median': statistics.median(non_zero_data) if len(non_zero_data) > 0 else 0.0,
-        'stdev': statistics.stdev(data) if len(data) > 1 else 0.0,
-        'range': max(data) - min(data),
-        'percentile25': q25,
-        'percentile75': q75,
-        'iqr': q75 - q25,
-    }
+    if isinstance(data[0], int) or isinstance(data[0], float):
+        q25 = numpy.percentile(data, 25)
+        q75 = numpy.percentile(data, 75)
+        return {
+            'samples': len(data),
+            'min': min(data),
+            'max': max(data),
+            'sum': sum(data),
+            'mean': statistics.mean(data),
+            'non_zero_mean': statistics.mean(non_zero_data) if len(non_zero_data) > 0 else 0.0,
+            'median': statistics.median(data),
+            'non_zero_median': statistics.median(non_zero_data) if len(non_zero_data) > 0 else 0.0,
+            'stdev': statistics.stdev(data) if len(data) > 1 else 0.0,
+            'range': max(data) - min(data),
+            'percentile25': q25,
+            'percentile75': q75,
+            'iqr': q75 - q25,
+        }
+    elif isinstance(data[0], datetime.datetime):
+        return {
+            'samples': len(data),
+            'min': min(data),
+            'max': max(data),
+            'mean': (max(data) - min(data)) / len(data),
+            'median': statistics.median(data),
+            'range': max(data) - min(data),
+        }
+    else:
+        raise Exception(f"Do not know how to get stats for list of {type(data[0])}")
 
 
 def get_hist(data):
