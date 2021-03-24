@@ -1,15 +1,18 @@
+import copy
 import logging
+import re
 import time
-import tabulate
 
 import gevent
 
 import locust.env
-import locust.stats
 import locust.log
+import locust.stats
+
+import tabulate
 
 
-def run_locust(args, status_data, test_set):
+def run_locust(args, status_data, test_set, new_stats=False):
     # Local runner is True by default, bot overwrite it if we have selected
     # master or worker runner
     assert not (args.locust_master_runner and args.locust_worker_runner), \
@@ -71,7 +74,7 @@ def run_locust(args, status_data, test_set):
         status_data.set_now('results.end')
         logging.info("Local Locust run finished")
 
-        return show_locust_stats(env.stats, status_data)
+        return show_locust_stats(env.stats, status_data, new_stats)
 
     elif args.locust_master_runner:
 
@@ -103,13 +106,13 @@ def run_locust(args, status_data, test_set):
         status_data.set_now('results.end')
         logging.info("Master Locust run finished")
 
-        return show_locust_stats(env.stats, status_data)
+        return show_locust_stats(env.stats, status_data, new_stats)
 
     elif args.locust_worker_runner:
 
         env.create_worker_runner(
-            master_host = args.master_host,
-            master_port = args.master_port,
+            master_host=args.master_host,
+            master_port=args.master_port,
         )
         status_data.set('parameters.locust.runner', 'worker')
         status_data.set('parameters.locust.master_host', args.master_host)
@@ -129,7 +132,7 @@ def run_locust(args, status_data, test_set):
         raise Exception('No runner specified')
 
 
-def show_locust_stats(locust_stats, status_data):
+def show_locust_stats(locust_stats, status_data, new_stats):
     """
     Print Locust stats obejct and format nice table of it.
     Also add values to status data object.
@@ -146,6 +149,7 @@ def show_locust_stats(locust_stats, status_data):
         'med resp time': [],
         'total RPS': [],
     }
+    data_new = {}
 
     # Load all rows
     sum_count = 0
@@ -166,38 +170,66 @@ def show_locust_stats(locust_stats, status_data):
         data['med resp time'].append(value.median_response_time)
         data['total RPS'].append(value.total_rps)
 
+        name_safe = re.sub('[^a-zA-Z0-9-]+', '_', f"{name[1]} {name[0]}")
+        while name_safe in data_new:
+            name_safe += '_'
+        data_new[name_safe] = {
+            '50percentile': value.get_response_time_percentile(0.50),
+            '90percentile': value.get_response_time_percentile(0.90),
+            '95percentile': value.get_response_time_percentile(0.95),
+            '99percentile': value.get_response_time_percentile(0.99),
+            'avg_content_length': value.avg_content_length,
+            'avg_response_time': value.avg_response_time,
+            'fail_ratio': value.fail_ratio,
+            'max_response_time': value.max_response_time,
+            'median_response_time': value.median_response_time,
+            'min_response_time': value.min_response_time,
+            'num_failures': value.num_failures,
+            'num_none_requests': value.num_none_requests,
+            'num_requests': value.num_requests,
+        }
+
     # Footer
     data['request'].append("SUMMARY")
     data['count'].append(sum_count)
-    data['fail ratio'].append(sum_failures / sum_count)
-    data['med resp time'].append(sum_total_response_time / sum_count)
+    if sum_count != 0:
+        data['fail ratio'].append(sum_failures / sum_count)
+        data['med resp time'].append(sum_total_response_time / sum_count)
+    else:
+        data['fail ratio'].append(None)
+        data['med resp time'].append(None)
     data['total RPS'].append(sum_total_rps)
 
     # Print table
     print(tabulate.tabulate(data, headers="keys", floatfmt=".3f"))
 
     print("Errors encountered:")
-    if len(locust_stats.serialize_errors()) == 0:
+    errors = list(locust_stats.serialize_errors().values())
+    if len(errors) == 0:
         print("Good, no errors.")
     else:
-        errors = locust_stats.serialize_errors().values()
-        for e in errors:
-            e.update({'error': e['error'][:100]})   # some errors are too long
-        table = tabulate.tabulate(errors, headers='keys')
+        errors_table = [e.update({'error': e['error'][:100]}) or e for e in copy.deepcopy(errors)]
+        table = tabulate.tabulate(errors_table, headers='keys')
         print(table)
-
-    # Add results to status data file
-    transposed = {}
-    for i in range(len(data['request'])):
-        r_req = data['request'][i]
-        r_status = 'OK' if data['fail ratio'][i] == 0.0 else 'EE'
-        r = f"[{r_status}] {r_req}"
-        if r in transposed:
-            logging.error("Second same key? That is strange. We are loosing data in status data file.")
-        transposed[r] = {}
-        for f in ['count', 'fail ratio', 'med resp time', 'total RPS']:
-            transposed[r][f] = data[f][i]
     if status_data is not None:
-        status_data.set('results.requests', transposed)
+        status_data.set('results.errors', errors)
+
+    if not new_stats:
+        # Add results to status data file
+        transposed = {}
+        for i in range(len(data['request'])):
+            r_req = data['request'][i]
+            r_status = 'OK' if data['fail ratio'][i] == 0.0 else 'EE'
+            r = f"[{r_status}] {r_req}"
+            if r in transposed:
+                logging.error("Second same key? That is strange. We are loosing data in status data file.")
+            transposed[r] = {}
+            for f in ['count', 'fail ratio', 'med resp time', 'total RPS']:
+                transposed[r][f] = data[f][i]
+        if status_data is not None:
+            status_data.set('results.requests', transposed)
+    else:
+        if status_data is not None:
+            status_data.set('results.requests', data_new)
 
     return sum_failures
