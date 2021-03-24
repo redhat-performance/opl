@@ -40,6 +40,7 @@ class TestSkelet(unittest.TestCase):
         self.assertEqual(stats['samples'], 4)
         self.assertEqual(stats['max'], datetime.datetime.fromisoformat('2021-03-22T12:00:00.000000+00:00'))
         self.assertEqual(stats['min'], datetime.datetime.fromisoformat('2021-03-22T11:00:00.000000+00:00'))
+        self.assertEqual(stats['range'].total_seconds(), 3600)
 
     def test_get_rps(self):
         rps_vals = opl.data.get_rps([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bucket_size=10, granularity=1)
