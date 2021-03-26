@@ -187,18 +187,27 @@ def show_locust_stats(locust_stats, status_data, new_stats):
             'num_failures': value.num_failures,
             'num_none_requests': value.num_none_requests,
             'num_requests': value.num_requests,
+            'total_rps': value.total_rps,
         }
 
     # Footer
     data['request'].append("SUMMARY")
+    data_new['SUMMARY'] = {}
     data['count'].append(sum_count)
+    data_new['SUMMARY']['num_requests'] = sum_count
+    data_new['SUMMARY']['num_failures'] = sum_failures
     if sum_count != 0:
         data['fail ratio'].append(sum_failures / sum_count)
+        data_new['SUMMARY']['fail_ratio'] = sum_failures / sum_count
         data['med resp time'].append(sum_total_response_time / sum_count)
+        data_new['SUMMARY']['median_response_time'] = sum_total_response_time / sum_count
     else:
         data['fail ratio'].append(None)
+        data_new['SUMMARY']['fail_ratio'] = None
         data['med resp time'].append(None)
+        data_new['SUMMARY']['median_response_time'] = None
     data['total RPS'].append(sum_total_rps)
+    data_new['SUMMARY']['total_rps'] = sum_total_rps
 
     # Print table
     print(tabulate.tabulate(data, headers="keys", floatfmt=".3f"))
