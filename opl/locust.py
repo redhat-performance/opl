@@ -160,7 +160,7 @@ def show_locust_stats(locust_stats, status_data, new_stats):
         sum_count += value.num_requests
         sum_failures += value.num_failures
         sum_total_response_time += value.median_response_time * value.num_requests
-        sum_total_rps += value.total_rps * (1 - value.fail_ratio)
+        sum_total_rps += value.total_rps
         n = f"{name[1]} {name[0]}"
         if len(n) > 40:
             n = n[:39] + '…'
