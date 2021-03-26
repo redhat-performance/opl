@@ -212,6 +212,7 @@ def show_locust_stats(locust_stats, status_data, new_stats):
         table = tabulate.tabulate(errors_table, headers='keys')
         print(table)
     if status_data is not None:
+        logging.debug("Adding errors to status data file")
         status_data.set('results.errors', errors)
 
     if not new_stats:
@@ -226,10 +227,12 @@ def show_locust_stats(locust_stats, status_data, new_stats):
             transposed[r] = {}
             for f in ['count', 'fail ratio', 'med resp time', 'total RPS']:
                 transposed[r][f] = data[f][i]
-        if status_data is not None:
-            status_data.set('results.requests', transposed)
+            sd_data = transposed
     else:
-        if status_data is not None:
-            status_data.set('results.requests', data_new)
+        sd_data = data_new
+
+    if status_data is not None:
+        logging.debug(f"Adding {'new' if new_stats else 'old'} style results to status data file")
+        status_data.set('results.requests', sd_data)
 
     return sum_failures
