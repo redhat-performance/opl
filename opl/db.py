@@ -73,7 +73,7 @@ class BatchProcessor():
         self.batch = batch
         self.lock = lock
         self.data = []
-        self.counter = 0
+        self.counter_commited = 0
 
     def commit(self):
         logging.debug(f"Executing '{self.sql}' with {len(self.data)} rows of data")
@@ -96,7 +96,6 @@ class BatchProcessor():
 
     def add(self, row):
         self.data.append(row)
-        self.counter_in_flight += 1
         if len(self.data) >= self.batch:
             self.commit()
 
