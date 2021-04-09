@@ -27,12 +27,21 @@ def count_table(connection, table):
         return count
 
 
-def wait_for_count(connection, table, expected):
+def wait_for_count(connection, table, expected, timeout):
+    start = time.perf_counter()
+
     while True:
+        now = time.perf_counter()
+
         count = count_table(connection, table)
         if count >= expected:
             break
+
+        if (now - start) >= timeout:
+            raise Exception(f"Timeount {now - start}/{timeout} reached when waiting for {count}/{expected} rows in {table}")
+
         time.sleep(3)
+    return count
 
 
 def truncate_table(connection, table):
@@ -104,8 +113,8 @@ def doit(args, status_data):
             count = count_table(connection, table)
             print(f"There is {count} records in the {table} table")
         if args.wait_for_count:
-            wait_for_count(connection, table, args.wait_for_count)
-            print(f"Table {table} reached {args.wait_for_count} rows")
+            count = wait_for_count(connection, table, args.wait_for_count, args.wait_for_count_timeout)
+            print(f"Table {table} reached {count} rows (goal was {args.wait_for_count})")
         if args.truncate:
             truncate_table(connection, table)
             status_data.set_now(f'parameters.storage.{table}.truncated_at')
@@ -132,8 +141,9 @@ def main():
     parser.add_argument('--count', action='store_true',
                         help='Count rows in the table(s)')
     parser.add_argument('--wait-for-count', type=int,
-                        help='Wait till we have given number of rows'
-                             ' in the table(s)')
+                        help='Wait till we have given number of rows in the table(s)')
+    parser.add_argument('--wait-for-count-timeout', type=float, default=300,
+                        help='How long to wait for correct count before failing')
     parser.add_argument('--truncate', action='store_true',
                         help='Truncate the table(s)')
     parser.add_argument('--recreate', action='store_true',
