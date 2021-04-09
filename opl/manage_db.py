@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-import logging
 import argparse
-import psycopg2
+import logging
 import os
-import yaml
 import time
+
+import psycopg2
+
+import yaml
 
 from . import args
 from . import skelet
