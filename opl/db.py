@@ -73,6 +73,7 @@ class BatchProcessor():
         self.batch = batch
         self.lock = lock
         self.data = []
+        self.counter = 0
 
     def commit(self):
         logging.debug(f"Executing '{self.sql}' with {len(self.data)} rows of data")
@@ -84,6 +85,7 @@ class BatchProcessor():
         psycopg2.extras.execute_values(
             cursor, self.sql, self.data, template=None, page_size=100)
 
+        self.counter_commited += len(self.data)
         self.data.clear()
 
         if self.lock is not None:
@@ -94,6 +96,7 @@ class BatchProcessor():
 
     def add(self, row):
         self.data.append(row)
+        self.counter_in_flight += 1
         if len(self.data) >= self.batch:
             self.commit()
 
