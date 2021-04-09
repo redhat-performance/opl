@@ -14,7 +14,6 @@ from . import skelet
 def count_table(connection, table):
     cursor = connection.cursor()
 
-    logging.debug(f"Counting table {table}")
     try:
         cursor.execute(f"SELECT COUNT(*) FROM {table}")
     except psycopg2.ProgrammingError as e:
@@ -24,6 +23,7 @@ def count_table(connection, table):
         count = cursor.fetchone()[0]
         cursor.close()
         connection.commit()
+        logging.debug(f"Table {table} row count is {count}")
         return count
 
 
