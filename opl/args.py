@@ -87,6 +87,8 @@ def add_mosquitto_opts(parser):
     parser.add_argument('--mosquitto-password',
                         default=os.getenv('MOSQUITTO_PASSWORD', None),
                         help='Mosquitto password (also use env variable MOSQUITTO_PASSWORD)')
+    parser.add_argument('--mosquitto-tls', action='store_true', default=False,
+                        help='Setup TLS when talking to mosquitto host')
     parser.add_argument('--mosquitto-transport',
                         default=os.getenv('MOSQUITTO_TRANSPORT', 'tcp'),
                         choices=['tcp', 'websockets'],
