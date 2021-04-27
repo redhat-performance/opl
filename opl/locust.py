@@ -34,6 +34,7 @@ def run_locust(args, status_data, test_set, new_stats=False):
     status_data.set('parameters.locust.stop_timeout', args.stop_timeout)
     status_data.set('parameters.test.duration', args.test_duration)
     status_data.set('parameters.test.requests', args.test_requests)
+    status_data.set('parameters.test.url_suffix', args.test_url_suffix)
     if 'test_selection' in args:
         status_data.set('parameters.test.test_selection', args.test_selection)
     print(f"Running with host = {args.host}, num_clients = {args.num_clients}, hatch_rate = {args.hatch_rate}, duration = {args.test_duration} / requests = {args.test_requests}")
