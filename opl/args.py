@@ -93,6 +93,9 @@ def add_mosquitto_opts(parser):
                         default=os.getenv('MOSQUITTO_TRANSPORT', 'tcp'),
                         choices=['tcp', 'websockets'],
                         help='Mosquitto transport (also use env variable MOSQUITTO_TRANSPORT)')
+    parser.add_argument('--mosquitto-topic-prefix',
+                        default=os.getenv('MOSQUITTO_TOPIC_PREFIX', 'perf'),
+                        help='Mosquitto topic prefix (also use env variable MOSQUITTO_TOPIC_PREFIX)')
 
 
 def add_s3_opts(parser):
