@@ -137,9 +137,6 @@ def main():
         description='Script to maintain tables in storage DB',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument('--tables-definition', type=argparse.FileType('r'),
-                        default=open(os.getenv('TABLES_DEFINITION', 'tables.yaml'), 'r'),
-                        help='File defining tables and SQL to create them (also use env variable TABLES_DEFINITION)')
     parser.add_argument('--count', action='store_true',
                         help='Count rows in the table(s)')
     parser.add_argument('--wait-for-count', type=int,
@@ -154,6 +151,7 @@ def main():
                         help='Put NULL to column in table specified by tables')
     parser.add_argument('tables', nargs='*', default=[],
                         help='Which tables to work with, all by default')
+    args.add_tables_def_opts(parser)
     args.add_storage_db_opts(parser)
 
     with skelet.test_setup(parser) as (params, status_data):
