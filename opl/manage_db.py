@@ -2,7 +2,6 @@
 
 import argparse
 import logging
-import os
 import time
 
 import psycopg2
@@ -10,6 +9,7 @@ import psycopg2
 import yaml
 
 from . import args
+from . import db
 from . import skelet
 
 
@@ -98,7 +98,7 @@ def doit(args, status_data):
         'user': args.storage_db_user,
         'password': args.storage_db_pass,
     }
-    connection = psycopg2.connect(**storage_db_conf)
+    connection = db.connect_with_retry(storage_db_conf)
 
     # Load tables definition
     tables_definition = yaml.load(args.tables_definition,
