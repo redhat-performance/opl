@@ -1,5 +1,23 @@
 import logging
+import random
+import time
+
+
+import psycopg2
 import psycopg2.extras
+
+
+def connect_with_retry(db_conf, cattempt=1, cmax=100, csleep=5):
+    while True:
+        try:
+            return psycopg2.connect(**db_conf)
+        except psycopg2.OperationalError as e:
+            if cattempt >= cmax:
+                raise
+            else:
+                logging.warning(f"Failed to connect to the DB in attempt {cattempt} of {cmax}: {str(e)}")
+                time.sleep(random.random() * csleep)
+                cattempt += 1
 
 
 def get_column(connection, column, include_null=False, table='items'):
@@ -100,7 +118,7 @@ class BatchProcessor():
             self.commit()
 
 
-def BatchReader(db, sql, limit=100):
+def BatchReader(db, sql, limit=100):   # noqa: N802
     """
     Creates named server side cursor (so not all results are fetched to
     the client when query is executed):
