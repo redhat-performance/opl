@@ -158,6 +158,9 @@ def data_stats(data):
     if isinstance(data[0], int) or isinstance(data[0], float):
         q25 = numpy.percentile(data, 25)
         q75 = numpy.percentile(data, 75)
+        q90 = numpy.percentile(data, 90)
+        q99 = numpy.percentile(data, 99)
+        q999 = numpy.percentile(data, 99.9)
         return {
             'samples': len(data),
             'min': min(data),
@@ -171,6 +174,9 @@ def data_stats(data):
             'range': max(data) - min(data),
             'percentile25': q25,
             'percentile75': q75,
+            'percentile90': q90,
+            'percentile99': q99,
+            'percentile999': q999,
             'iqr': q75 - q25,
         }
     elif isinstance(data[0], datetime.datetime):
