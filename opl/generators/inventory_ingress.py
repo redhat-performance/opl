@@ -11,8 +11,8 @@ import os
 import opl.generators.packages
 
 
-class PayloadRHSMGenerator:
-    """Iterator that creates payloads with RHSM formated messages"""
+class InventoryIngressGenerator:
+    """Iterator that creates payloads with messages formatted using given template."""
 
     installed_packages = []
 
@@ -142,3 +142,9 @@ class PayloadRHSMGenerator:
         mid, msg = self._get()
         self.counter += 1
         return mid, msg
+
+
+class PayloadRHSMGenerator(InventoryIngressGenerator):
+    """This is just a nickname so we do not need to change existing code."""
+
+    pass
