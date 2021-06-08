@@ -1,3 +1,4 @@
+import base64
 import logging
 import string
 import json
@@ -111,6 +112,27 @@ class InventoryIngressGenerator:
         ast = self.env.parse(self.env.loader.get_source(self.env, tmpl)[0])
         return jinja2.meta.find_undeclared_variables(ast)
 
+    def _get_b64_identity(self, account):
+        data = {
+            "identity": {
+                "account_number": account,
+                "fqdn": "fquhahomjr.example.com",
+                "type": "User",
+                "user": {
+                    "username": "tuser@redhat.com",
+                    "email": "tuser@redhat.com",
+                    "first_name":"test",
+                    "last_name":"user",
+                    "is_active":"true",
+                    "is_org_admin": "false",
+                    "is_internal":"true",
+                    "locale":"en_US"
+                }
+            }
+        }
+        return base64.b64encode(bytes(json.dumps(data).encode('UTF-8'))).decode()
+
+
     def _get(self):
         """
         Generate message and its ID
@@ -129,8 +151,13 @@ class InventoryIngressGenerator:
             'nowz': self._get_now_iso_z(),   # well, this is in nano-seconds, but should be in mili-seconds
             'tommorowz': self._get_tommorow_iso_z(),
             'packages': self.pg.generate(self.packages),
+            'yum_repos': opl.generators.packages.YumReposGenerator().generate(137),
+            'enabled_services': opl.generators.packages.EnabledServicesGenerator().generate(139),
+            'installed_services': opl.generators.packages.InstalledServicesGenerator() .generate(160),
+            'running_processes': opl.generators.packages.RunningProcessesGenerator().generate(89),
         }
         data.update(random.choice(self.relatives))   # add account and orgid
+        data.update({'b64_identity': self._get_b64_identity(data['account'])})
         msg = json.loads(template.render(**data))
         mid = data['subscription_manager_id']
         return mid, msg

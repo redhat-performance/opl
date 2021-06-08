@@ -7,6 +7,44 @@ import psycopg2
 import psycopg2.extras
 
 
+def get_query_result(db_conf, sql):
+    """
+    get_query_result is a wrapper function that gives query result taking database
+    credentials and sql query as input.
+    """
+    data = []
+    try:
+        connection = psycopg2.connect(**db_conf)
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        for each in cursor:
+            data.append(each[0])
+
+        connection.commit()
+        cursor.close()
+        return data
+    except Exception as e:
+        logging.error(f"failed to execute query as %s", str(e))
+        return False
+
+
+def execute_query(db_conf, sql):
+    """
+    execute_query executes query with database and query as input credentials and doesn't
+    return any result.
+    """
+    try:
+        connection = psycopg2.connect(**db_conf)
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        connection.commit()
+        cursor.close()
+        return True     
+    except Exception as e:
+        logging.error(f"failed to execute query as %s", str(e))
+        return False
+
+
 def connect_with_retry(db_conf, cattempt=1, cmax=100, csleep=5):
     while True:
         try:
