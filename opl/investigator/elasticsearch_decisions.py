@@ -12,7 +12,7 @@ def store(server, index, decisions):
     job_name = os.environ.get('JOB_NAME', '')
     build_url = os.environ.get('BUILD_URL', '')
 
-    url = f"{server}/{index}/decisions"
+    url = f"{server}/{index}/_doc"
     headers = {
         'Content-Type': 'application/json',
     }
