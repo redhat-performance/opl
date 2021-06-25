@@ -1,0 +1,50 @@
+Results investigator
+====================
+
+This tool (see `../pass_or_fail.py` in one level up directory) is supposed
+to check historical results of some given test, compare with new result
+and decide if new test result is PASS or FAIL.
+
+See `sample_config.yaml` for example configuration. This is what each
+section is for:
+
+`history:`
+----------
+
+This specifies from where we should get historical data. Sample config
+uses ElasticSearch plugin to retrieve it. Most important part here is
+`es_query` which is described in ElasticSearch docs:
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+
+This query is used to only filter documents that are useful to us:
+we only want documents for same test (you can use status data field
+`name`) which were running with same parameters and so on.
+
+That query is Jinja2 template-able, so you can include:
+
+    - term:
+        parameters.cluster.pods.yupana.count: "{{ current.get('parameters.cluster.pods.yupana.count') }}"
+
+to dynamically obtain the value from new result and use it to filter for
+historical results.
+
+`current:`
+----------
+
+This specifies from where we should load new (`current`) test result
+we will be evaluating.
+
+`sets:`
+-------
+
+This list status data paths (with numerical values) where it makes sense
+to evaluate. E.g. you definitely want to include `results.rps` or
+`measurements.cpu.mean`, but adding `parameters.test_started.timestamp`
+might not be useful (because it does not represent test result).
+
+`decisions:`
+------------
+
+This is optional and serves to record internal stats about evaluation
+process.
