@@ -14,8 +14,11 @@ def test_setup(parser):
                         help='Show debug output')
     args = parser.parse_args()
 
+    fmt = '%(asctime)s %(name)s %(levelname)s %(message)s'
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(format=fmt, level=logging.DEBUG)
+    else:
+        logging.basicConfig(format=fmt)
 
     logging.debug(f"Args: {args}")
 
