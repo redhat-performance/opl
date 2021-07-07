@@ -29,8 +29,10 @@ def count_table(connection, table):
         return count
 
 
-def wait_for_count(connection, table, expected, timeout):
+def wait_for_count(connection, table, expected, timeout, progress):
     start = time.perf_counter()
+    count_before = None
+    count_change_at = None
 
     while True:
         now = time.perf_counter()
@@ -39,8 +41,15 @@ def wait_for_count(connection, table, expected, timeout):
         if count >= expected:
             break
 
+        if count != count_before:
+            count_before = count
+            count_change_at = time.perf_counter()
+
         if (now - start) >= timeout:
-            raise Exception(f"Timeount {now - start}/{timeout} reached when waiting for {count}/{expected} rows in {table}")
+            raise Exception(f"Timeout {now - start}/{timeout} reached when waiting for {count}/{expected} rows in {table}")
+
+        if (now - count_change_at) >= progress:
+            raise Exception(f"No change for too long {now - count_change_at}/{progress} reached when waiting for {count}/{expected} rows in {table}")
 
         time.sleep(3)
     return count
@@ -115,7 +124,7 @@ def doit(args, status_data):
             count = count_table(connection, table)
             print(f"There is {count} records in the {table} table")
         if args.wait_for_count:
-            count = wait_for_count(connection, table, args.wait_for_count, args.wait_for_count_timeout)
+            count = wait_for_count(connection, table, args.wait_for_count, args.wait_for_count_timeout, args.wait_for_count_progress)
             print(f"Table {table} reached {count} rows (goal was {args.wait_for_count})")
         if args.truncate:
             truncate_table(connection, table)
@@ -143,6 +152,8 @@ def main():
                         help='Wait till we have given number of rows in the table(s)')
     parser.add_argument('--wait-for-count-timeout', type=float, default=300,
                         help='How long to wait for correct count before failing')
+    parser.add_argument('--wait-for-count-progress', type=float, default=300,
+                        help='How long to wait for count to change before failing')
     parser.add_argument('--truncate', action='store_true',
                         help='Truncate the table(s)')
     parser.add_argument('--recreate', action='store_true',
