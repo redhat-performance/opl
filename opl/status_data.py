@@ -136,7 +136,7 @@ class StatusData():
         empty dict.
         """
         split_key = self._split_mutlikey(multikey)
-        logging.debug(f"Setting {split_key} in {self._filename} to {value}")
+        logging.debug(f"Setting {'.'.join(split_key)} in {self._filename} to {value}")
         if isinstance(value, datetime.datetime):
             value = value.isoformat()   # make it a string with propper format
         self._set(self._data, split_key, copy.deepcopy(value))
