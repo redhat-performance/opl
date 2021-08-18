@@ -47,4 +47,6 @@ might not be useful (because it does not represent test result).
 ------------
 
 This is optional and serves to record internal stats about evaluation
-process.
+process. Every time we do some PASS/FAIL/ERROR decision, we record that
+decision (it's parameters and result) into system defined here (e.g.
+ElasticSearch index). That supports investigation of decision trends or so.
