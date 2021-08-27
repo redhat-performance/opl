@@ -202,3 +202,14 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get('results.xxx.hello'), 'world')
         self.assertEqual(self.status_data.get('results.xxx.foo'), 42)
         self.assertEqual(self.status_data.get('results.xxx.bar.baz'), 1)
+
+    def test_remove_simple(self):
+        self.status_data.set('results.xxx', 'should not be here')
+        self.assertEqual(self.status_data.get('results.xxx'), 'should not be here')
+        self.status_data.remove('results.xxx')
+        self.assertIsNone(self.status_data.get('results.xxx'))
+
+    def test_remove_missing(self):
+        self.assertIsNone(self.status_data.get('results.missing'))
+        self.status_data.remove('results.missing')
+        self.assertIsNone(self.status_data.get('results.missing'))

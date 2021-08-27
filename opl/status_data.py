@@ -156,6 +156,27 @@ class StatusData():
             data = json.load(fp)
         return self.set(multikey, data)
 
+    def _remove(self, data, split_key):
+        try:
+            new_data = data[split_key[0]]
+        except KeyError:
+            return
+
+        if len(split_key) == 1:
+            del(data[split_key[0]])
+            return
+        else:
+            return self._remove(new_data, split_key[1:])
+
+    def remove(self, multikey):
+        """
+        Remove given multikey (and it's content) from status data file
+        """
+        split_key = self._split_mutlikey(multikey)
+        logging.debug(f"Removing {split_key} from {self._filename}")
+        self._remove(self._data, split_key)
+
+
     def list(self, multikey):
         """
         For given path, return list of all existing paths below this one
@@ -234,6 +255,11 @@ def doit_set(status_data, set_this):
         status_data.set(key, value)
 
 
+def doit_remove(status_data, remove_this):
+    for item in remove_this:
+        status_data.remove(item)
+
+
 def doit_set_subtree_json(status_data, set_this):
     for item in set_this:
         if item == '':
@@ -288,6 +314,8 @@ def main():
                         help='Set key to structure from json formated file')
     parser.add_argument('--get', nargs='*', default=[],
                         help='Print value for given key(s)')
+    parser.add_argument('--remove', nargs='*', default=[],
+                        help='Remove given key(s)')
     parser.add_argument('--additional', type=argparse.FileType('r'),
                         help='Gather more info as specified by the cluster_read.py compatible yaml file')
     parser.add_argument('--monitoring-start', type=date.my_fromisoformat,
@@ -314,6 +342,8 @@ def main():
             doit_set_subtree_json(status_data, args.set_subtree_json)
         if len(args.get) > 0:
             doit_print_oneline(status_data, args.get, args.decimal_rounding, args.delimiter)
+        if len(args.remove) > 0:
+            doit_remove(status_data, args.remove)
         if args.additional:
             doit_additional(
                 status_data,
