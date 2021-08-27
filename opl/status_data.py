@@ -148,6 +148,14 @@ class StatusData():
         now = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
         return self.set(multikey, now.isoformat())
 
+    def set_subtree_json(self, multikey, file_path):
+        """
+        Set given multikey to contents of JSON formated file provided by its path
+        """
+        with open(file_path, 'r') as fp:
+            data = json.load(fp)
+        return self.set(multikey, data)
+
     def list(self, multikey):
         """
         For given path, return list of all existing paths below this one
@@ -226,6 +234,18 @@ def doit_set(status_data, set_this):
         status_data.set(key, value)
 
 
+def doit_set_subtree_json(status_data, set_this):
+    for item in set_this:
+        if item == '':
+            logging.warning("Got empty key=value pair to set - ignoring it")
+            continue
+
+        key, value = item.split('=')
+
+        logging.debug(f"Setting {key} = {value} (JSON file)")
+        status_data.set_subtree_json(key, value)
+
+
 def doit_print_oneline(status_data, get_this, get_rounding, get_delimiter):
     if not get_rounding:
         print(get_delimiter.join([str(status_data.get(i)) for i in get_this]))
@@ -264,6 +284,8 @@ def main():
                         help='Set key=value data. If value is "%%NOW%%", current date&time is added')
     parser.add_argument('--set-now', nargs='*', default=[],
                         help='Set key to current date&time')
+    parser.add_argument('--set-subtree-json', nargs='*', default=[],
+                        help='Set key to structure from json formated file')
     parser.add_argument('--get', nargs='*', default=[],
                         help='Print value for given key(s)')
     parser.add_argument('--additional', type=argparse.FileType('r'),
@@ -288,6 +310,8 @@ def main():
             doit_set(status_data, args.set)
         if len(args.set_now) > 0:
             doit_set(status_data, [k + "=%NOW%" for k in args.set_now])
+        if len(args.set_subtree_json) > 0:
+            doit_set_subtree_json(status_data, args.set_subtree_json)
         if len(args.get) > 0:
             doit_print_oneline(status_data, args.get, args.decimal_rounding, args.delimiter)
         if args.additional:
