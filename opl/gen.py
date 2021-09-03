@@ -6,7 +6,12 @@ import uuid
 import string
 
 
-def get_auth_header(account, user):
+def get_auth_header(account, user, org_id=None):
+    if org_id:
+        pass
+    else:
+        org_id = account
+
     data = {
         "identity": {
             "account_number": account,
@@ -17,7 +22,7 @@ def get_auth_header(account, user):
                 "is_org_admin": True,
             },
             "internal": {
-                "org_id": account,
+                "org_id": org_id,
             },
         }
     }
