@@ -97,14 +97,21 @@ def load_apps_and_perms(url_base, x_rh_identity, application=[]):
     params = {
         'limit': 1000,
     }
+    logging.info(f"The request url is {url}")
     logging.info(f"Loading applications and permissions with identity header {x_rh_identity}")
     r = _run_request(requests.get, url, params=params, headers=headers, verify=False)
+
+    if r.json()["data"]:
+        logging.info(f"Received permissions data list is {r.json()}")
+    else:
+        logging.info(f"Response received is {r}")
 
     for i in r.json()["data"]:
         if i["application"] in application:
             PERMISSIONS.append(i["permission"])
     
     APPLICATIONS = application.copy()
+    logging.info(f"APPLICATINS: {APPLICATIONS}, PERMISSIONS: {PERMISSIONS}")
     assert len(PERMISSIONS) > 0
     assert len(APPLICATIONS) > 0
 
