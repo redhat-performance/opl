@@ -299,13 +299,13 @@ def main():
     parser.add_argument('--test-data-file', default='/tmp/rbac-test-data.json',
                         help='File where to add test data created here')
     
-    parser.add_argument('--rbac-url-suffix',
+    parser.add_argument('--rbac-url-suffix', dest='rbac_url_suffix',
                         default=os.getenv('RBAC_URL_SUFFIX', '/api/rbac/v1'),
-                        help='Test host URL suffix (also use env variable TEST_URL_SUFFIX)')
+                        help='RBAC host URL suffix (also use env variable RBAC_URL_SUFFIX)')
     
     parser.add_argument('--rbac-host', dest='rbac_host',
-                        default=os.getenv('LOCUST_HOST', 'http://rbac.qa.svc:8080'),
-                        help='Locust host to test (also use env variable LOCUST_HOST)')
+                        default=os.getenv('RBAC_HOST', 'http://rbac.qa.svc:8080'),
+                        help='RBAC host to test (also use env variable RBAC_HOST)')
     opl.args.add_rbac_db_opts(parser)
     with opl.skelet.test_setup(parser) as (args, status_data):
         rbac_test_data = opl.rbac_utils.RbacTestData(args.test_data_file)
