@@ -26,4 +26,4 @@ def store(server, index, decisions):
         response = requests.post(url, headers=headers, json=decision)
 
         if not response.ok:
-            logging.warning(f"Failed to store deecision to ES: {response.text}")
+            logging.warning(f"Failed to store decision to ES: {response.text}")
