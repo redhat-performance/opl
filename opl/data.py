@@ -122,7 +122,7 @@ class WaitForDataAndSave():
             batches_count = int(remaining / self.batch_size) + 1
             logging.debug(f"Iteration {iteration} running with {batches_count} batches for {remaining} remaining items")
 
-            # Go through all ramaining values (from storage DB) in batches
+            # Go through all remaining values (from storage DB) in batches
             # and attempt to get dates from data DB
             for batch_number in range(batches_count):
                 batch = self._get_remaining(batch_number)
