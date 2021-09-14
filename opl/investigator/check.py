@@ -20,7 +20,7 @@ def _check_by_stdev(data, value, trim=0.0, boost=1.0):
         ("boost", boost),
         ("data len", len(data)),
         ("data mean", mean),
-        ("data svdev", stdev),
+        ("data stdev", stdev),
         ("lower_boundary", lower_boundary),
         ("upper_boundary", upper_boundary),
     ])
