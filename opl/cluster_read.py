@@ -4,6 +4,7 @@ import datetime
 import yaml
 import json
 import subprocess
+import re
 import requests
 import os
 import jinja2
@@ -190,8 +191,15 @@ def config_stuff(config):
     """
     if not isinstance(config, str):
         config = config.read()
+    templates = {'config': config}
+
+    # Check for templates extending main template and load them as well
+    match = re.search('{% extends "([^"]+?)" %}', config)
+    for i in match.groups():
+        templates[i] = open(i, 'r').read()
+
     env = jinja2.Environment(
-        loader=jinja2.DictLoader({'config': config}))
+        loader=jinja2.DictLoader(templates))
     template = env.get_template('config')
     config_rendered = template.render(os.environ)
     return yaml.load(config_rendered, Loader=yaml.SafeLoader)
