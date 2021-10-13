@@ -239,7 +239,7 @@ class RequestedInfo():
         # Execute the command
         result = execute(config['command'])
 
-        # Sanitize command respose
+        # Sanitize command response
         if 'output' in config and result is not None:
             if config['output'] == 'text':
                 pass
