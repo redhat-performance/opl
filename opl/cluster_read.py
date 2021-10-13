@@ -195,8 +195,9 @@ def config_stuff(config):
 
     # Check for templates extending main template and load them as well
     match = re.search('{% extends "([^"]+?)" %}', config)
-    for i in match.groups():
-        templates[i] = open(i, 'r').read()
+    if match:
+        for i in match.groups():
+            templates[i] = open(i, 'r').read()
 
     env = jinja2.Environment(
         loader=jinja2.DictLoader(templates))
