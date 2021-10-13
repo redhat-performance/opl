@@ -189,19 +189,46 @@ def config_stuff(config):
         containing yaml formated data. First of all we will run it through
         Jinja2 as a template with env variables to expand
     """
+
+    class MyLoader(jinja2.BaseLoader):
+        """
+        Our custom wide open and possibly unsecure jinja2 loader
+
+        Main template is stored as a string, but also capable of loading
+        templates to satisfy things like:
+
+            {% extends "../something.yaml" %}
+
+        or:
+
+            {% import '../something.yaml' as something %}
+
+        It is very similar to `jinja2.FileSystemLoader('/')` but can also
+        handle loading files with relative path.
+        """
+
+        def __init__(self, main_template):
+            self.main_template = main_template
+
+        def get_source(self, environment, path):
+            if path == 'main_template':
+                return self.main_template, None, lambda: True
+
+            if not os.path.exists(path):
+                raise TemplateNotFound(path)
+
+            mtime = os.path.getmtime(path)
+            with open(path) as f:
+                source = f.read()
+
+            return source, path, lambda: mtime == os.path.getmtime(path)
+
     if not isinstance(config, str):
         config = config.read()
-    templates = {'config': config}
 
-    # Check for templates extending main template and load them as well
-    match = re.search('{% extends "([^"]+?)" %}', config)
-    if match:
-        for i in match.groups():
-            templates[i] = open(i, 'r').read()
+    env = jinja2.Environment(loader=MyLoader(config))
+    template = env.get_template('main_template')
 
-    env = jinja2.Environment(
-        loader=jinja2.DictLoader(templates))
-    template = env.get_template('config')
     config_rendered = template.render(os.environ)
     return yaml.load(config_rendered, Loader=yaml.SafeLoader)
 
