@@ -1,3 +1,6 @@
+# Generates a "random" service/package/whatever
+# implemented as picking random item from corresponding .json/.txt file and returning it
+
 import os.path
 import json
 import random
