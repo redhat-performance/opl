@@ -61,6 +61,8 @@ class PrometheusMeasurementsPlugin():
         return self.token
 
     def measure(self, start, end, name, monitoring_query, monitoring_step):
+        logging.debug(f"Getting data for {name} using Prometheus query {monitoring_query} and step {monitoring_step}")
+
         assert start is not None and end is not None, \
             "We need timerange to approach Prometheus"
         # Get data from Prometheus
