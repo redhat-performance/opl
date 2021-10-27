@@ -62,7 +62,7 @@ class GetKafkaTimes():
         Number of items that are still missing in the DB
         """
         cursor = self.connection.cursor()
-        sql = self.queries_definition[self.custom_methods['query_remaining_count']]
+        sql = self.queries_definition[self.custom_methods['query_remaining_count']()]
         cursor.execute(sql)
         self.remaining_count = int(cursor.fetchone()[0])
         cursor.close()
@@ -102,7 +102,7 @@ class GetKafkaTimes():
         Query is supposed to only update existing records, not add new ones.
         """
         cursor = self.connection.cursor()
-        sql = self.queries_definition[self.custom_methods['query_store_info']]
+        sql = self.queries_definition[self.custom_methods['query_store_info']()]
         psycopg2.extras.execute_values(
             cursor, sql, self.waiting_items, template=None, page_size=self.batches_size)
         try:
@@ -185,7 +185,7 @@ class GetKafkaTimes():
 
     def get_biggest(self):
         cursor = self.connection.cursor()
-        sql = self.queries_definition[self.custom_methods['query_get_biggest']]
+        sql = self.queries_definition[self.custom_methods['query_get_biggest']()]
         cursor.execute(sql)
         last = cursor.fetchone()[0]
         cursor.close()
