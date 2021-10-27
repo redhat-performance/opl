@@ -147,6 +147,7 @@ class GetKafkaTimes():
                 msg_pack = consumer.poll(timeout_ms=5000, max_records=self.kafka_max_poll_records, update_offsets=True)
                 for topic, messages in msg_pack.items():
                     for message in messages:
+                        key = message.key
                         value = json.loads(message.value.decode('utf-8'))
                         logging.debug(f"Received {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}...")
 
@@ -156,7 +157,7 @@ class GetKafkaTimes():
 
                             # Construct item to be saved
                             new_value = self.custom_methods['process_message'](
-                                self.kafka_ts2dt(message.timestamp), value)
+                                self.kafka_ts2dt(message.timestamp), key, value)
                             self.store_item(new_value)
                         else:
                             if self.show_dropped_messages:
