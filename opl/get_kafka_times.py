@@ -147,7 +147,7 @@ class GetKafkaTimes():
                 msg_pack = consumer.poll(timeout_ms=5000, max_records=self.kafka_max_poll_records, update_offsets=True)
                 for topic, messages in msg_pack.items():
                     for message in messages:
-                        key = message.key
+                        key = message.key.decode('utf-8')
                         value = json.loads(message.value.decode('utf-8'))
                         logging.debug(f"Received {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}...")
 
