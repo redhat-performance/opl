@@ -5,6 +5,8 @@ import os
 import unittest
 import tempfile
 
+import requests.exceptions
+
 from .context import opl
 
 
@@ -213,3 +215,7 @@ class TestStatusData(unittest.TestCase):
         self.assertIsNone(self.status_data.get('results.missing'))
         self.status_data.remove('results.missing')
         self.assertIsNone(self.status_data.get('results.missing'))
+
+    def test_file_on_http(self):
+        with self.assertRaises(requests.exceptions.ConnectionError):
+            status_data = opl.status_data.StatusData('http://does.not.exist/status-data-file.json')

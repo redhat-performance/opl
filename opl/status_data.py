@@ -7,6 +7,8 @@ import pprint
 import deepdiff
 import os
 import jinja2
+import requests
+import tempfile
 
 from . import date
 from . import skelet
@@ -16,6 +18,14 @@ from . import cluster_read
 class StatusData():
 
     def __init__(self, filename, data=None):
+        if filename.startswith('http://') or filename.startswith('https://'):
+            tmp = tempfile.mktemp()
+            logging.info(f"Downloading {filename} to {tmp} and will work with that file from now on")
+            r = requests.get(filename, verify=False)
+            with open(tmp, 'wb') as fp:
+                fp.write(r.content)
+            filename = tmp
+
         self._filename = filename
         if data is None:
             try:

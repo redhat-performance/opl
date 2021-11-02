@@ -58,3 +58,9 @@ Install with:
 If you have cloned the git and want to develop locally, replace last step with:
 
     pip install --editable .
+
+Running unit tests
+------------------
+
+    source venv/bin/activate
+    python -m unittest
