@@ -62,7 +62,7 @@ class GetKafkaTimes():
         Number of items that are still missing in the DB
         """
         cursor = self.connection.cursor()
-        sql = self.queries_definition['remaining_count']
+        sql = self.queries_definition[self.custom_methods['query_remaining_count']()]
         cursor.execute(sql)
         self.remaining_count = int(cursor.fetchone()[0])
         cursor.close()
@@ -102,7 +102,7 @@ class GetKafkaTimes():
         Query is supposed to only update existing records, not add new ones.
         """
         cursor = self.connection.cursor()
-        sql = self.queries_definition['store_info']
+        sql = self.queries_definition[self.custom_methods['query_store_info']()]
         psycopg2.extras.execute_values(
             cursor, sql, self.waiting_items, template=None, page_size=self.batches_size)
         try:
@@ -147,6 +147,7 @@ class GetKafkaTimes():
                 msg_pack = consumer.poll(timeout_ms=5000, max_records=self.kafka_max_poll_records, update_offsets=True)
                 for topic, messages in msg_pack.items():
                     for message in messages:
+                        key = message.key.decode('utf-8') if message.key is not None else None
                         value = json.loads(message.value.decode('utf-8'))
                         logging.debug(f"Received {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}...")
 
@@ -156,7 +157,7 @@ class GetKafkaTimes():
 
                             # Construct item to be saved
                             new_value = self.custom_methods['process_message'](
-                                self.kafka_ts2dt(message.timestamp), value)
+                                self.kafka_ts2dt(message.timestamp), key, value)
                             self.store_item(new_value)
                         else:
                             if self.show_dropped_messages:
@@ -184,7 +185,8 @@ class GetKafkaTimes():
 
     def get_biggest(self):
         cursor = self.connection.cursor()
-        cursor.execute(self.queries_definition['get_biggest'])
+        sql = self.queries_definition[self.custom_methods['query_get_biggest']()]
+        cursor.execute(sql)
         last = cursor.fetchone()[0]
         cursor.close()
         return last
@@ -251,6 +253,14 @@ def get_kafka_times(custom_methods):
     assert 'count_sd_name' in custom_methods
     assert 'biggest_sd_name' in custom_methods
     assert 'start_end_col_table_name' in custom_methods
+
+    # These have its defaults
+    if 'query_remaining_count' not in custom_methods:
+        custom_methods['query_remaining_count'] = lambda: 'remaining_count'
+    if 'query_store_info' not in custom_methods:
+        custom_methods['query_store_info'] = lambda: 'store_info'
+    if 'query_get_biggest' not in custom_methods:
+        custom_methods['query_get_biggest'] = lambda: 'get_biggest'
 
     with opl.skelet.test_setup(parser) as (args, status_data):
         args.max_quiet_period = \
