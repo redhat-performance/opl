@@ -82,7 +82,7 @@ def recreate_table(connection, table, table_sql):
         cursor = connection.cursor()
     connection.commit()
 
-    logging.debug(f"Createing table {table}")
+    logging.debug(f"Creating table {table}")
     for sql in table_sql:
         cursor.execute(sql)
     connection.commit()
