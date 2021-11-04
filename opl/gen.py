@@ -24,6 +24,9 @@ def get_auth_header(account, user, org_id=None):
             "internal": {
                 "org_id": org_id,
             },
+            "system": {
+                "cn": None,
+            },
         }
     }
     return base64.b64encode(json.dumps(data).encode('UTF-8'))
