@@ -133,7 +133,7 @@ class InventoryIngressGenerator:
         return base64.b64encode(bytes(json.dumps(data).encode('UTF-8'))).decode()
 
     def _get_disk_devices(self):
-        device = ["/dev/fdd2", "/dev/fdd0", "/dev/fdd0"]
+        device = ["/dev/fdd2", "/dev/fdd0", "/dev/fdd1"]
         label = ["bar", "foo", "baz"]
         mount_point = ["/mnt/local_nfs", "/mnt/foo", "/mnt/remote_nfs_shares"]
         type = ["ext1", "ext2", "ext3"]
