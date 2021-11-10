@@ -132,6 +132,62 @@ class InventoryIngressGenerator:
         }
         return base64.b64encode(bytes(json.dumps(data).encode('UTF-8'))).decode()
 
+    def _get_disk_devices(self):
+        device = ["/dev/fdd2", "/dev/fdd0", "/dev/fdd0"]
+        label = ["bar", "foo", "baz"]
+        mount_point = ["/mnt/local_nfs", "/mnt/foo", "/mnt/remote_nfs_shares"]
+        type = ["ext1", "ext2", "ext3"]
+        return {
+            "device": random.choice(device),
+            "label": random.choice(label),
+            "mount_point": random.choice(mount_point),
+            "type": random.choice(type)
+        }
+
+    def _get_rpm_ostree_deployment(self):
+        id = ["fedora-blackpink-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
+              "fedora-silverblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
+              "fedora-orangeblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0"]
+        checksum = ["83335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb", 
+                    "63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb",
+                     "73335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb"]
+        origin = ["fedora/31/x86_64/blackpink", "fedora/34/x86_64/orangeblue", "fedora/33/x86_64/silverblue"]
+        osname = ["fedora-blackpink", "fedora-silveblue", "fedora-orangeblue"]
+        version = ["33.45", "31.12", "33.21"]
+        return {
+            "id": random.choice(id),
+            "checksum": random.choice(checksum),
+            "origin": random.choice(origin),
+            "osname": random.choice(osname),
+            "version": random.choice(version),
+            "booted": False,
+            "pinned": False
+        }
+
+    def _get_system_purpose(self):
+        purposes = [{"usage": "Production", "role": "Red Hat Enterprise Linux Server", "sla": "Premium"},\
+                    {"usage": "Development/Test", "role": "Red Hat Enterprise Linux Workstation", "sla": "Standard"}, \
+                    {"usage": "Disaster Recovery", "role": "Red Hat Enterprise Linux Compute Node", "sla": "Self-Support"}]
+        return random.choice(purposes)
+
+    def _get_ansible(self):
+        ansible_profiles = [{
+                "controller_version": "1.2.3",
+                "hub_version": "1.2.3",
+                "catalog_worker_version": "1.2.3",
+                "sso_version": "1.2.3"
+            }, {
+                "controller_version": "4.5.6",
+                "hub_version": "4.5.6",
+                "catalog_worker_version": "4.5.6",
+                "sso_version": "4.5.6"
+            }, {
+                "controller_version": "7.8.9",
+                "hub_version": "7.8.9",
+                "catalog_worker_version": "7.8.9",
+                "sso_version": "7.8.9"
+            }]
+        return random.choice(ansible_profiles)
 
     def _get(self):
         """
@@ -143,6 +199,24 @@ class InventoryIngressGenerator:
             'bios_uuid': self._get_bios_uuid(),
             'request_id': self._get_uuid(),
             'owner_id': self._get_uuid(),
+            'rhc_client_id': self._get_uuid(),
+            'rhc_config_state': self._get_uuid(),
+            'disk_devices': json.dumps([self._get_disk_devices()]),
+            'subscription_status': random.choice(["ext1", "ext2", "ext3"]),
+            'katello_agent_running': random.choice(['true', 'false']),
+            'cloud_provider': random.choice(["aws", "ibm", "ms"]),
+            'gpg_pubkeys': json.dumps([random.choice(["gpg-pubkey-22222222-22222222", "gpg-pubkey-22222222-33333333", "gpg-pubkey-11111111-22222222"])]),
+            'sap_system': random.choice(["true", "false"]),
+            'sap_sids': json.dumps([random.choice(['ABC', 'XYZ', 'H20'])]),
+            'sap_instance_number': random.choice(["03", "05", "99"]),
+            'sap_version': random.choice(["3.00.122.04.1478575636", "2.00.122.04.1478575636", "1.00.122.04.1478575636"]),
+            'is_marketplace': random.choice(['true', 'false']),
+            'host_type': random.choice(['edge', 'not_edge']),
+            'greenboot_status': random.choice(['red', 'green']),
+            'greenboot_fallback_detected': random.choice(['false', 'true']),
+            'rpm_ostree_deployments': json.dumps([self._get_rpm_ostree_deployment()]),
+            'system_purpose': json.dumps(self._get_system_purpose()),
+            'ansible': json.dumps(self._get_ansible()),
             'insights_id': self._get_uuid(),
             'ipv4_addr': self._get_ipv4(),
             'ipv6_addr': self._get_ipv6(),
