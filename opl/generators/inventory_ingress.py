@@ -189,6 +189,34 @@ class InventoryIngressGenerator:
             }]
         return random.choice(ansible_profiles)
 
+    def _get_operating_system(self):
+        operating_systems = [{
+                "major": 0,
+                "minor": 0,
+                "name": "RHEL"
+            }, {
+                "major": 1,
+                "minor": 1,
+                "name": "FED"
+            }, {
+                "major": 2,
+                "minor": 2,
+                "name": "RHEL"
+            }
+        ]
+        return random.choice(operating_systems)
+
+    def _get_rhsm(self):
+        rhsm_profiles = [{
+                "version": "8.1"
+            }, {
+                "version": "7.5"
+            }, {
+                "version": "9.9"
+            }
+        ]
+        return random.choice(rhsm_profiles)
+
     def _get(self):
         """
         Generate message and its ID
@@ -199,6 +227,13 @@ class InventoryIngressGenerator:
             'bios_uuid': self._get_bios_uuid(),
             'request_id': self._get_uuid(),
             'owner_id': self._get_uuid(),
+            'cpu_model': random.choice(["Intel(R) Xeon(R) CPU E5-2690 0 @ 2.90GHz", "Intel(R) Xeon(R) CPU E9-7800 0 @ 1.90GHz", "Intel(R) I7(R) CPU I7-10900k 0 @ 4.90GHz"]),
+            'operating_system': json.dumps(self._get_operating_system()),
+            'installed_packages': random.choice(["krb5-libs-0:-1.16.1-23.fc29.i686", "arb5-libs-0:-1.16.1-23.fc29.i686", "brb5-libs-0:-1.16.1-23.fc29.i686"]),
+            'tuned_profile': random.choice(["desktop", "example", "laptop"]),
+            'selinux_current_mode': random.choice(['sleeping', 'enforcing', 'not_enforcing']),
+            'selinux_config_file': random.choice(['permissive', 'sleepy', 'authoritative']),
+            'rhsm': json.dumps(self._get_rhsm()),
             'rhc_client_id': self._get_uuid(),
             'rhc_config_state': self._get_uuid(),
             'disk_devices': json.dumps([self._get_disk_devices()]),
