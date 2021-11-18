@@ -229,7 +229,7 @@ class InventoryIngressGenerator:
             'owner_id': self._get_uuid(),
             'cpu_model': random.choice(["Intel(R) Xeon(R) CPU E5-2690 0 @ 2.90GHz", "Intel(R) Xeon(R) CPU E9-7800 0 @ 1.90GHz", "Intel(R) I7(R) CPU I7-10900k 0 @ 4.90GHz"]),
             'operating_system': json.dumps(self._get_operating_system()),
-            'installed_packages': random.choice(["krb5-libs-0:-1.16.1-23.fc29.i686", "arb5-libs-0:-1.16.1-23.fc29.i686", "brb5-libs-0:-1.16.1-23.fc29.i686"]),
+            'installed_packages': json.dumps([random.choice(["krb5-libs-0:-1.16.1-23.fc29.i686", "arb5-libs-0:-1.16.1-23.fc29.i686", "brb5-libs-0:-1.16.1-23.fc29.i686"])]),
             'tuned_profile': random.choice(["desktop", "example", "laptop"]),
             'selinux_current_mode': random.choice(['sleeping', 'enforcing', 'not_enforcing']),
             'selinux_config_file': random.choice(['permissive', 'sleepy', 'authoritative']),
