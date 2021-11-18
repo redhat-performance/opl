@@ -231,7 +231,7 @@ class InventoryIngressGenerator:
             'operating_system': json.dumps(self._get_operating_system()),
             'installed_packages': json.dumps([random.choice(["krb5-libs-0:-1.16.1-23.fc29.i686", "arb5-libs-0:-1.16.1-23.fc29.i686", "brb5-libs-0:-1.16.1-23.fc29.i686"])]),
             'tuned_profile': random.choice(["desktop", "example", "laptop"]),
-            'selinux_current_mode': random.choice(['sleeping', 'enforcing', 'not_enforcing']),
+            'selinux_current_mode': random.choice(['sleeping', 'enforcing', 'disabled']),
             'selinux_config_file': random.choice(['permissive', 'sleepy', 'authoritative']),
             'rhsm': json.dumps(self._get_rhsm()),
             'rhc_client_id': self._get_uuid(),
