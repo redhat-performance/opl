@@ -123,6 +123,28 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     print(f"        property: {prop}")
         return "\n".join(out)
 
+    def get_result(self):
+        RESULTS = ['PASSED', 'SKIPPED', 'FAILED', 'ERROR']
+        result = 0
+        for suite in self:
+            for case in suite:
+                case = TestCaseWithProp.fromelem(case)
+                if len(case.result) == 0:
+                    pass   # result "PASS" can not make overall result worse
+                elif len(case.result) == 1:
+                    r = case.result[0]
+                    if isinstance(r, junitparser.junitparser.Error):
+                        result = max(result, 3)
+                    elif isinstance(r, junitparser.junitparser.Failure):
+                        result = max(result, 2)
+                    elif isinstance(r, junitparser.junitparser.Skipped):
+                        result = max(result, 1)
+                    else:
+                        raise Exception(f"No idea how to handle this result type: {r} - {type(r)}")
+                else:
+                    raise Exception(f"No idea how to handle this case result: {case.result}")
+        return RESULTS[result]
+
     def delete(self):
         os.remove(self.filepath)
 
@@ -312,6 +334,10 @@ def main():
     parser_print = subparsers.add_parser('print',   # noqa: F841
                                          help='Print content of the file')
 
+    # Create the parser for the "result" command
+    parser_print = subparsers.add_parser('result',   # noqa: F841
+                                         help='Print overall result from the file')
+
     # create the parser for the "add" command
     parser_add = subparsers.add_parser('add',
                                        help='Add testcase into the file')
@@ -361,6 +387,8 @@ def main():
 
     if args.action == 'print':
         print(junit.get_info())
+    if args.action == 'result':
+        print(junit.get_result())
     elif args.action == 'add':
         new = {
             'name': args.name,
