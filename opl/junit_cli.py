@@ -281,8 +281,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                   "endTime": times(case_end),
                   "launchUuid": launch_id,
                   "status": result,
-                  "issue": {} if issue is None else {"issueType": issue}
                 }
+                if issue is not None:
+                    data["issue"] = {"issueType": issue}
                 response = req(session.put, url, data)
 
                 # Add log message
