@@ -388,7 +388,7 @@ def main():
 
     if args.action == 'print':
         print(junit.get_info())
-    if args.action == 'result':
+    elif args.action == 'result':
         print(junit.get_result())
     elif args.action == 'add':
         new = {
