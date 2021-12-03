@@ -26,6 +26,10 @@ def main():
     )
     parser.add_argument('--config', type=argparse.FileType('r'), required=True,
                         help='Config file to use')
+    parser.add_argument('--current-file', type=argparse.FileType('r'),
+                        help='Status data file with results to investigate. Overwrites current.file value from config file')
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Investigate result, but do not upload decisions. Meant for debugging')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Show debug output')
     args = parser.parse_args()
@@ -49,6 +53,10 @@ def main():
         history = opl.investigator.elasticsearch_loader.load(args.history_es_server, args.history_es_index, args.history_es_query, args.sets)
     else:
         raise Exception("Not supported data source type for historical data")
+
+    total = sum([len(v) for v in history.values()])
+    if total == 0:
+        raise Exception(f"No data available in historical results!")
 
     exit_code = 0
     summary = []
@@ -76,7 +84,7 @@ def main():
     print("\n", tabulate.tabulate(summary, headers="keys", tablefmt="simple"))
     print(f"\nOverall status: {STATUSES[exit_code]}")
 
-    if args.decisions_type == 'elasticsearch':
+    if not args.dry_run and args.decisions_type == 'elasticsearch':
         opl.investigator.elasticsearch_decisions.store(args.decisions_es_server, args.decisions_es_index, info_all)
 
     return exit_code

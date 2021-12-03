@@ -24,8 +24,9 @@ def load_config(conf, fp):
         conf.history_es_index = data['history']['es_index']
         conf.history_es_query = data['history']['es_query']
 
-    if conf.current_type == 'status_data':
-        conf.current_file = open(data['current']['file'], 'r')
+    if conf.current_file is None:
+        if conf.current_type == 'status_data':
+            conf.current_file = open(data['current']['file'], 'r')
 
     if conf.decisions_type == 'elasticsearch':
         conf.decisions_es_server = data['decisions']['es_server']
