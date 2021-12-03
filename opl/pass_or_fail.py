@@ -1,6 +1,7 @@
 import argparse
 import collections
 import logging
+import os
 
 import opl.investigator.check
 import opl.investigator.config
@@ -49,7 +50,7 @@ def main():
     if args.history_type == 'csv':
         history = opl.investigator.csv_loader.load(args.history_file, args.sets)
     if args.history_type == 'elasticsearch':
-        args.history_es_query = opl.investigator.elasticsearch_loader.render_query(args.history_es_query, {'current': current_sd})
+        args.history_es_query = opl.investigator.elasticsearch_loader.render_query(args.history_es_query, {'current': current_sd, 'environ': os.environ})
         history = opl.investigator.elasticsearch_loader.load(args.history_es_server, args.history_es_index, args.history_es_query, args.sets)
     else:
         raise Exception("Not supported data source type for historical data")
