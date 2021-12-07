@@ -23,13 +23,7 @@ def _es_get_test(args, key, val, size=1):
     data = {
         "query": {
             "bool": {
-                "filter": [
-                    {
-                        "term": {
-                            key: val,
-                        },
-                    },
-                ],
+                "filter": [],
             },
         },
         "sort": {
@@ -40,10 +34,20 @@ def _es_get_test(args, key, val, size=1):
         "size": size,
     }
 
+    for k, v in zip(key, val):
+        data['query']['bool']['filter'].append(
+            {
+                "term": {
+                    k: v,
+                },
+            }
+        )
+
     logging.info(f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}")
     response = requests.get(url, headers=headers, json=data)
     response.raise_for_status()
     logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
+    assert response.json()['hits']['total']['value'] == 1
 
     return response.json()
 
@@ -51,7 +55,7 @@ def _es_get_test(args, key, val, size=1):
 def doit_list(args):
     assert args.list_name is not None
 
-    response = _es_get_test(args, "name.keyword", args.list_name, args.list_size)
+    response = _es_get_test(args, ["name.keyword"], [args.list_name], args.list_size)
 
     table_headers = [
         'Run ID',
@@ -80,7 +84,7 @@ def doit_list(args):
 def doit_change(args):
     assert args.change_id is not None
 
-    response = _es_get_test(args, "id.keyword", args.change_id)
+    response = _es_get_test(args, ["id.keyword"], [args.change_id])
 
     source = response['hits']['hits'][0]
     es_type = source['_type']
@@ -124,9 +128,12 @@ def doit_change(args):
 
     logging.info(f"Saving to ES with url={url} and json={json.dumps(sd.dump())}")
 
-    response = requests.post(url, json=sd.dump())
-    response.raise_for_status()
-    logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
+    if args.dry_run:
+        logging.info(f"Not touching ES as we are running in dry run mode")
+    else:
+        response = requests.post(url, json=sd.dump())
+        response.raise_for_status()
+        logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
 
     print(sd.info())
 
@@ -176,48 +183,74 @@ def doit_rp_to_es(args):
             logging.warning(f"Launch id={launch['id']} do not have run_id key, skipping it")
             continue
 
-        # Validate defects in launch
-        if sum([d["total"] for d in launch["statistics"]["defects"].values()]) != 1:
-            logging.warning(f"Launch id={launch['id']} do not have expected number of defects, skipping it")
-            continue
-        if len(list(launch["statistics"]["defects"].keys())) != 1:
-            logging.warning(f"Launch id={launch['id']} do not have expected number of defect types, skipping it")
-            continue
+        # Get test results from launch
+        results = []
+        url = f'https://{args.rp_host}/api/v1/{args.rp_project}/item'
+        data = {
+          "filter.eq.launchId": launch['id'],
+          "filter.eq.type": "STEP",
+          "page.size": 100,
+          "page.page": 0,
+          "page.sort": "id,asc",
+        }
+        while True:
+            logging.debug(f"Going to do GET request to {url} with {data}")
+            response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
+            results += response.json()['content']
+            if response.json()['page']['number'] < response.json()['page']['totalPages']:
+                data['page.page'] += 1
+            else:
+                logging.debug("No content in the response, considering this last page of data")
+                break
 
-        # Get resuls from launch statistics
-        result = RP_TO_ES_STATE[list(launch["statistics"]["defects"].keys())[0]]
+        # Process individual results
+        for result in results:
+            # Get resuls from launch statistics
+            result_string = RP_TO_ES_STATE[list(result["statistics"]["defects"].keys())[0]]
 
-        # Get tests in the launch
-        response = _es_get_test(args, "id.keyword", run_id)
-        source = response['hits']['hits'][0]
-        es_type = source['_type']
-        es_id = source['_id']
-        logging.debug(f"Loading data from document ID {source['_id']} with field id={source['_source']['id']}")
-        tmpfile = tempfile.NamedTemporaryFile(prefix=source['_id'], delete=False).name
-        sd = opl.status_data.StatusData(tmpfile, data=source['_source'])
+            # Get relevant status data document from ElasticSearch
+            if args.rp_project != 'satcpt':
+                response = _es_get_test(args, ["id.keyword"], [run_id])
+            else:
+                # OK, I agree we need a better way here.
+                # In all projects except SatCPT we have 1 run_id for 1 test
+                # result, but in SatCPT we need to differentiate by name as
+                # well and that is composed differently in SatCPT and in other
+                # CPTs :-(
+                sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
+                response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, sd_name])
+            source = response['hits']['hits'][0]
+            es_type = source['_type']
+            es_id = source['_id']
+            logging.debug(f"Loading data from document ID {source['_id']} with field id={source['_source']['id']}")
+            tmpfile = tempfile.NamedTemporaryFile(prefix=source['_id'], delete=False).name
+            sd = opl.status_data.StatusData(tmpfile, data=source['_source'])
 
-        if sd.get("result") != result:
-            logging.info(f"Results do not match, updating them: {sd.get('result')} != {result}")
-            sd.set("result", result)
+            if sd.get("result") != result_string:
+                logging.info(f"Results do not match, updating them: {sd.get('result')} != {result_string}")
+                sd.set("result", result_string)
 
-            # Add comment to log the change
-            if sd.get('comments') is None:
-                sd.set('comments', [])
-            if not isinstance(sd.get('comments'), list):
-                logging.error(f"Field 'comments' is not a list: {sd.get('comments')}")
-                raise Exception(f"Field 'comments' is not a list: {sd.get('comments')}")
-            sd.get('comments').append({
-                'author': "status_data_updater",
-                'date': datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
-                'text': "Automatic update as per ReportPortal change",
-            })
+                # Add comment to log the change
+                if sd.get('comments') is None:
+                    sd.set('comments', [])
+                if not isinstance(sd.get('comments'), list):
+                    logging.error(f"Field 'comments' is not a list: {sd.get('comments')}")
+                    raise Exception(f"Field 'comments' is not a list: {sd.get('comments')}")
+                sd.get('comments').append({
+                    'author': "status_data_updater",
+                    'date': datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
+                    'text': "Automatic update as per ReportPortal change",
+                })
 
-            # Save the changes to ES
-            url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
-            logging.info(f"Saving to ES with url={url} and json={json.dumps(sd.dump())}")
-            response = requests.post(url, json=sd.dump())
-            response.raise_for_status()
-            logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
+                # Save the changes to ES
+                url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
+                logging.info(f"Saving to ES with url={url} and json={json.dumps(sd.dump())}")
+                if args.dry_run:
+                    logging.info(f"Not touching ES as we are running in dry run mode")
+                else:
+                    response = requests.post(url, json=sd.dump())
+                    response.raise_for_status()
+                    logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
 
 
 def main():
@@ -258,6 +291,8 @@ def main():
     parser.add_argument('--rp-launch',
                         help='ReportPortal launch name')
 
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Do not actually change data, meant for debugging')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Show debug output')
     args = parser.parse_args()
