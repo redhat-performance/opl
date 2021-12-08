@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import tempfile
+import urllib3
 
 import opl.status_data
 
@@ -47,7 +48,6 @@ def _es_get_test(args, key, val, size=1):
     response = requests.get(url, headers=headers, json=data)
     response.raise_for_status()
     logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
-    assert response.json()['hits']['total']['value'] == 1
 
     return response.json()
 
@@ -149,6 +149,14 @@ def doit_rp_to_es(args):
         "system_issue": "ERROR",
         "to_investigate": "FAIL",
     }
+    stats = {
+        'launches': 0,
+        'cases': 0,
+        'cases_changed': 0,
+    }
+
+    if args.rp_noverify:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     # Start a session
     headers = {
@@ -173,6 +181,8 @@ def doit_rp_to_es(args):
     launches = response.json()['content']
 
     for launch in launches:
+        stats['launches'] += 1
+
         # Get run ID from launch attributes
         run_id = None
         for a in launch["attributes"]:
@@ -205,12 +215,15 @@ def doit_rp_to_es(args):
 
         # Process individual results
         for result in results:
+            stats['cases'] += 1
+
             # Get resuls from launch statistics
             result_string = RP_TO_ES_STATE[list(result["statistics"]["defects"].keys())[0]]
 
             # Get relevant status data document from ElasticSearch
             if args.rp_project != 'satcpt':
                 response = _es_get_test(args, ["id.keyword"], [run_id])
+                assert response['hits']['total']['value'] == 1
             else:
                 # OK, I agree we need a better way here.
                 # In all projects except SatCPT we have 1 run_id for 1 test
@@ -227,6 +240,8 @@ def doit_rp_to_es(args):
             sd = opl.status_data.StatusData(tmpfile, data=source['_source'])
 
             if sd.get("result") != result_string:
+                stats['cases_changed'] += 1
+
                 logging.info(f"Results do not match, updating them: {sd.get('result')} != {result_string}")
                 sd.set("result", result_string)
 
@@ -251,6 +266,8 @@ def doit_rp_to_es(args):
                     response = requests.post(url, json=sd.dump())
                     response.raise_for_status()
                     logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
+
+    print(tabulate.tabulate(stats.items()))
 
 
 def main():
