@@ -4,6 +4,7 @@ import logging
 import os
 import unicodedata
 import junitparser
+import urllib3
 
 import requests
 
@@ -161,6 +162,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
 
         def times(ts):
             return str(int(ts.timestamp() * 1000))
+
+        if not verify:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         # Determine launch start and end by taking min from test case
         # starts and max from testcase ends
