@@ -1,7 +1,6 @@
 import argparse
 import collections
 import logging
-import os
 
 import opl.investigator.check
 import opl.investigator.config
@@ -42,30 +41,35 @@ def main():
 
     opl.investigator.config.load_config(args, args.config)
 
+    # Load current data
     if args.current_type == 'status_data':
         current_sd = opl.investigator.status_data_loader.load(args.current_file)
     else:
         raise Exception("Not supported data source type for current data")
 
-    args.sets = opl.investigator.config.render_sets(args.sets, {'current': current_sd, 'environ': os.environ})
+    # Render what needs to be rendered to finish config loading
+    opl.investigator.config.load_config_finish(args, current_sd)
 
+    # Load data items from current data
     current = opl.investigator.status_data_loader.load_data(current_sd, args.sets)
-    total = len([v for v in current.values() if v is not None and v is not ''])
-    if total == 0:
-        raise Exception(f"No data available in current result!")
 
+    total = len([v for v in current.values() if v is not None and v != ''])
+    if total == 0:
+        raise Exception("No data available in current result!")
+
+    # Load historical data
     if args.history_type == 'csv':
         history = opl.investigator.csv_loader.load(args.history_file, args.sets)
     if args.history_type == 'elasticsearch':
-        args.history_es_query = opl.investigator.elasticsearch_loader.render_query(args.history_es_query, {'current': current_sd, 'environ': os.environ})
         history = opl.investigator.elasticsearch_loader.load(args.history_es_server, args.history_es_index, args.history_es_query, args.sets)
     else:
         raise Exception("Not supported data source type for historical data")
 
     total = sum([len(v) for v in history.values()])
     if total == 0:
-        raise Exception(f"No data available in historical results!")
+        raise Exception("No data available in historical results!")
 
+    # Compute if current data matches historical data safe margins
     exit_code = 0
     summary = []
     info_all = []

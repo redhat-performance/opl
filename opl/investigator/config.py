@@ -1,22 +1,40 @@
 import logging
+import os
 
 import jinja2
 
 import yaml
 
 
-def render_sets(sets, template_data):
-    if not isinstance(sets, str):
+def render_sets(args, template_data):
+    if not isinstance(args.sets, str):
         logging.debug("No need to render, sets is already a list")
-        return sets
+        return
 
-    logging.debug(f"Rendering Jinja2 template sets {sets} with data {template_data}")
+    logging.debug(f"Rendering Jinja2 template sets {args.sets} with data {template_data}")
     env = jinja2.Environment(
-        loader=jinja2.DictLoader({'sets': sets}))
+        loader=jinja2.DictLoader({'sets': args.sets}))
     template = env.get_template('sets')
     rendered = template.render(template_data)
     logging.debug(f"Rendered Jinja2 template sets {rendered}")
-    return yaml.load(rendered, Loader=yaml.SafeLoader)
+    args.sets = yaml.load(rendered, Loader=yaml.SafeLoader)
+
+
+def render_query(args, template_data):
+    logging.debug(f"Rendering Jinja2 template query {args.history_es_query} with data {template_data}")
+    env = jinja2.Environment(
+        loader=jinja2.DictLoader({'query': args.history_es_query}))
+    template = env.get_template('query')
+    rendered = template.render(template_data)
+    logging.debug(f"Rendered Jinja2 template query {rendered}")
+    args.history_es_query = yaml.load(rendered, Loader=yaml.SafeLoader)
+
+
+def load_config_finish(args, sd):
+    template_data = {'current': sd, 'environ': os.environ}
+    render_sets(args, template_data)
+    if args.history_type == 'elasticsearch':
+        render_query(args, template_data)
 
 
 def load_config(conf, fp):
