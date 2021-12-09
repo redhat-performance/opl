@@ -41,7 +41,20 @@ we will be evaluating.
 This list status data paths (with numerical values) where it makes sense
 to evaluate. E.g. you definitely want to include `results.rps` or
 `measurements.cpu.mean`, but adding `parameters.test_started.timestamp`
-might not be useful (because it does not represent test result).
+might not be useful (because it does not represent test result comparable
+across historical runs).
+
+If this is not a list but a string like in the example below, it is first
+rendered via Jinja2 and only then parsed as YAML to get the final list:
+
+    sets: |
+      {% if current.get('parameters.cli').startswith('experiment/reg-average.py ') %}
+      - results.items.avg_duration
+      {% else %}
+      - results.duration
+      {% endif %}
+      - measurements.satellite.swap.swap-used.mean
+
 
 `decisions:`
 ------------

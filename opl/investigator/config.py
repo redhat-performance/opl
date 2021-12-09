@@ -1,6 +1,22 @@
 import logging
 
+import jinja2
+
 import yaml
+
+
+def render_sets(sets, template_data):
+    if not isinstance(sets, str):
+        logging.debug("No need to render, sets is already a list")
+        return sets
+
+    logging.debug(f"Rendering Jinja2 template sets {sets} with data {template_data}")
+    env = jinja2.Environment(
+        loader=jinja2.DictLoader({'sets': sets}))
+    template = env.get_template('sets')
+    rendered = template.render(template_data)
+    logging.debug(f"Rendered Jinja2 template sets {rendered}")
+    return yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
 def load_config(conf, fp):

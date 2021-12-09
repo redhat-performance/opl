@@ -43,9 +43,16 @@ def main():
     opl.investigator.config.load_config(args, args.config)
 
     if args.current_type == 'status_data':
-        current, current_sd = opl.investigator.status_data_loader.load(args.current_file, args.sets)
+        current_sd = opl.investigator.status_data_loader.load(args.current_file)
     else:
         raise Exception("Not supported data source type for current data")
+
+    args.sets = opl.investigator.config.render_sets(args.sets, {'current': current_sd, 'environ': os.environ})
+
+    current = opl.investigator.status_data_loader.load_data(current_sd, args.sets)
+    total = len([v for v in current.values() if v is not None and v is not ''])
+    if total == 0:
+        raise Exception(f"No data available in current result!")
 
     if args.history_type == 'csv':
         history = opl.investigator.csv_loader.load(args.history_file, args.sets)
