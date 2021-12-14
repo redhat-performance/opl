@@ -149,6 +149,21 @@ class JUnitXmlPlus(junitparser.JUnitXml):
     def delete(self):
         os.remove(self.filepath)
 
+    def ibutsu_upload(self, host, project, verify, file):
+        if not verify:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        res = requests.post(
+            f'{host}/api/import',
+            files={
+                'importFile': (file, open(file, 'rb'), 'text/xml'),
+            },
+            verify=verify,
+            data={"project": project})
+        if not res.ok:
+            raise Exception(res.text)
+        else:
+            logging.debug(res.text)
+
     def upload(self, host, verify, project, token, launch, properties):
 
         def req(method, url, data):
@@ -366,6 +381,16 @@ def main():
                             type=date.my_fromisoformat,
                             help='Testcase end time in ISO 8601 format')
 
+    # create the parser for the "ibutsu" command
+    parser_ibutsu = subparsers.add_parser('ibutsu-import',
+                                       help='Import the file to Ibutsu')
+    parser_ibutsu.add_argument('--host', required=True,
+                            help='Ibutsu host')
+    parser_ibutsu.add_argument('--project', required=True,
+                            help='Ibutsu project')
+    parser_ibutsu.add_argument('--noverify', action='store_true',
+                            help='When talking to Ibutsu ignore certificate verification failures')
+
     # create the parser for the "upload" command
     parser_add = subparsers.add_parser('upload',
                                        help='Upload the file to ReportPortal')
@@ -407,5 +432,7 @@ def main():
         junit.add_to_suite(args.suite, new)
     elif args.action == 'upload':
         junit.upload(args.host, not args.noverify, args.project, args.token, args.launch, args.properties)
+    elif args.action == 'ibutsu-import':
+        junit.ibutsu_upload(args.host, args.project, not args.noverify, args.file)
     else:
         raise Exception('I do not know what to do')
