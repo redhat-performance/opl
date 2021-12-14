@@ -68,6 +68,7 @@ setuptools.setup(
             "data_investigator.py = opl.data_investigator:main",
             "pass_or_fail.py = opl.pass_or_fail:main",
             "junit_cli.py = opl.junit_cli:main",
+            "rp_updater.py = opl.rp_updater:main",
             "status_data_diff.py = opl.status_data:main_diff",
             "status_data.py = opl.status_data:main",
             "status_data_report.py = opl.status_data:main_report",
