@@ -1,17 +1,8 @@
-#!/usr/bin/env python3
-
 import argparse
-import datetime
-import json
 import logging
-import os
-import sys
-import tempfile
 
-import opl.status_data
 import opl.http
-
-import requests
+import opl.status_data
 
 import tabulate
 
@@ -26,7 +17,7 @@ def _get_all_items(args):
       'filter.eq.launchId': args.rp_launch_id,
       'page.size': 100,
       'page.page': 1,
-      ###'page.sort': 'endTime,desc',
+      # 'page.sort': 'endTime,desc',
     }
 
     items = []

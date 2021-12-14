@@ -1,5 +1,7 @@
 import logging
+
 import requests
+
 import urllib3
 
 
@@ -28,6 +30,7 @@ def get(url, headers=None, params=None, verify=True):
 
 def post(url, headers=None, data=None, verify=True):
     return req(session.post, url, headers=headers, data=data, verify=verify)
+
 
 def put(url, headers=None, data=None, verify=True):
     return req(session.put, url, headers=headers, data=data, verify=verify)
