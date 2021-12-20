@@ -198,11 +198,13 @@ def doit_rp_to_es(args):
         url = f'https://{args.rp_host}/api/v1/{args.rp_project}/item'
         data = {
           "filter.eq.launchId": launch['id'],
-          "filter.eq.type": "STEP",
+          "filter.ne.type": "SUITE",
           "page.size": 100,
           "page.page": 0,
           "page.sort": "id,asc",
         }
+        if args.rp_project == 'satcpt':
+          data["filter.eq.type"] = "STEP"
         while True:
             logging.debug(f"Going to do GET request to {url} with {data}")
             response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
@@ -222,10 +224,7 @@ def doit_rp_to_es(args):
             result_string = RP_TO_ES_STATE[list(result["statistics"]["defects"].keys())[0]]
 
             # Get relevant status data document from ElasticSearch
-            if args.rp_project != 'satcpt':
-                response = _es_get_test(args, ["id.keyword"], [run_id])
-                assert response['hits']['total']['value'] == 1
-            else:
+            if args.rp_project == 'satcpt':
                 # OK, I agree we need a better way here.
                 # In all projects except SatCPT we have 1 run_id for 1 test
                 # result, but in SatCPT we need to differentiate by name as
@@ -233,7 +232,16 @@ def doit_rp_to_es(args):
                 # CPTs :-(
                 sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
                 response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, sd_name])
-            source = response['hits']['hits'][0]
+            elif args.rp_project == 'aapcpt':
+                response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, result["name"]])
+            else:
+                response = _es_get_test(args, ["id.keyword"], [run_id])
+                assert response['hits']['total']['value'] == 1
+            try:
+                source = response['hits']['hits'][0]
+            except IndexError:
+                logging.warning(f"Failed to find test result in ES for {run_id}")
+                continue
             es_type = source['_type']
             es_id = source['_id']
             logging.debug(f"Loading data from document ID {source['_id']} with field id={source['_source']['id']}")
