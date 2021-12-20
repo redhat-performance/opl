@@ -212,6 +212,7 @@ def doit_rp_to_es(args):
             else:
                 logging.debug("No content in the response, considering this last page of data")
                 break
+        logging.debug(f"OK, we have {len(results)} results from RP for this launch")
 
         # Process individual results
         for result in results:
@@ -239,6 +240,7 @@ def doit_rp_to_es(args):
             tmpfile = tempfile.NamedTemporaryFile(prefix=source['_id'], delete=False).name
             sd = opl.status_data.StatusData(tmpfile, data=source['_source'])
 
+            logging.debug(f"Comparing result from RP {result_string} to result from ES {sd.get('result')}")
             if sd.get("result") != result_string:
                 stats['cases_changed'] += 1
 

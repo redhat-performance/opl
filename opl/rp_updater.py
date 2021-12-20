@@ -44,8 +44,6 @@ def doit_list_tests(args):
     for i in items:
         if i['type'] == 'TEST':
             i['parent_name'] = suites[i['parent']]['name']
-            if i['status'] != 'PASSED':
-                print(i)
 
     table = [(i['id'], i['type'], i['parent_name'] + '/' + i['name'], i['status'], i['statistics']['defects']) for i in items if i['type'] == 'TEST']
     print(tabulate.tabulate(table, headers=('ID', 'type', 'name', 'status', 'defects')))
