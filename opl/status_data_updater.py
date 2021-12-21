@@ -52,6 +52,26 @@ def _es_get_test(args, key, val, size=1):
     return response.json()
 
 
+def _add_comment(sd, author=None, text=None):
+    """Add text as a comment to status data document."""
+    if sd.get('comments') is None:
+        sd.set('comments', [])
+
+    if not isinstance(sd.get('comments'), list):
+        logging.error(f"Field 'comments' is not a list: {sd.get('comments')}")
+
+    if author is None:
+        author = os.getenv('USER', 'unknown')
+    if text is None:
+        text = 'Setting ' + ', '.join(args.change_set)
+
+    sd.get('comments').append({
+        'author': author,
+        'date': datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
+        'text': text,
+    })
+
+
 def doit_list(args):
     assert args.list_name is not None
 
@@ -112,17 +132,7 @@ def doit_change(args):
         sd.set(key, value)
 
     # Add comment to log the change
-    if sd.get('comments') is None:
-        sd.set('comments', [])
-    if not isinstance(sd.get('comments'), list):
-        logging.error(f"Field 'comments' is not a list: {sd.get('comments')}")
-    if args.change_comment_text is None:
-        args.change_comment_text = 'Setting ' + ', '.join(args.change_set)
-    sd.get('comments').append({
-        'author': os.getenv('USER', 'unknown'),
-        'date': datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
-        'text': args.change_comment_text,
-    })
+    _add_comment(sd, args.change_comment_text)
 
     url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
 
@@ -252,20 +262,11 @@ def doit_rp_to_es(args):
             if sd.get("result") != result_string:
                 stats['cases_changed'] += 1
 
+                # Add comment to log the change
+                _add_comment(sd, author='status_data_updater', text=f"Automatic update as per ReportPortal change: {sd.get('result')} -> {result_string}")
+
                 logging.info(f"Results do not match, updating them: {sd.get('result')} != {result_string}")
                 sd.set("result", result_string)
-
-                # Add comment to log the change
-                if sd.get('comments') is None:
-                    sd.set('comments', [])
-                if not isinstance(sd.get('comments'), list):
-                    logging.error(f"Field 'comments' is not a list: {sd.get('comments')}")
-                    raise Exception(f"Field 'comments' is not a list: {sd.get('comments')}")
-                sd.get('comments').append({
-                    'author': "status_data_updater",
-                    'date': datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
-                    'text': "Automatic update as per ReportPortal change",
-                })
 
                 # Save the changes to ES
                 url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
