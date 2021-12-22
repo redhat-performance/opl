@@ -242,8 +242,12 @@ def doit_rp_to_es(args):
                 # result, but in SatCPT we need to differentiate by name as
                 # well and that is composed differently in SatCPT and in other
                 # CPTs :-(
-                sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
-                response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, sd_name])
+                if 'itemPaths' not in result['pathNames']:
+                    logging.warning(f"Strange, no result['pathNames']['itemPaths'] in this result, skipping it: {result}")
+                    continue
+                else:
+                    sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
+                    response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, sd_name])
             elif args.rp_project == 'aapcpt':
                 response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, result["name"]])
             else:
