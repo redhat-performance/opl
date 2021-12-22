@@ -5,8 +5,10 @@ import datetime
 import json
 import logging
 import os
+import random
 import sys
 import tempfile
+import time
 import urllib3
 
 import opl.status_data
@@ -274,7 +276,19 @@ def doit_rp_to_es(args):
                 if args.dry_run:
                     logging.info(f"Not touching ES as we are running in dry run mode")
                 else:
-                    response = requests.post(url, json=sd.dump())
+                    attempt = 0
+                    attempt_max = 10
+                    while True:
+                        response = session.post(url, json=sd.dump())
+                        if response.status_code == 429:   # 429 Client Error: Too Many Requests for url: http://.../<index>/_doc/...
+                            attempt += 1
+                            if attempt >= attempt_max:
+                                raise Exception(f"Failed to update data in ES after {attempt} attempts: {response}")
+                            else:
+                                logging.info(f"Request failed with '429 Client Error: Too Many Requests'. Will retry in a bit. Attempt {attempt}/{attempt_max}")
+                                time.sleep(random.randint(1, 10))
+                        else:
+                            break
                     response.raise_for_status()
                     logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
 
