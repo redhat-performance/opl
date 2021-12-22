@@ -270,7 +270,11 @@ def doit_rp_to_es(args):
                 stats['cases_changed'] += 1
 
                 # Add comment to log the change
-                _add_comment(sd, author='status_data_updater', text=f"Automatic update as per ReportPortal change: {sd.get('result')} -> {result_string}")
+                try:
+                    comment = "Comment from RP: " + result['issue']['issueType']
+                except IndexError:
+                    comment = f"Automatic update as per ReportPortal change: {sd.get('result')} -> {result_string}"
+                _add_comment(sd, author='status_data_updater', text=comment)
 
                 logging.info(f"Results do not match, updating them: {sd.get('result')} != {result_string}")
                 sd.set("result", result_string)
