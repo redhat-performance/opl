@@ -209,6 +209,7 @@ def doit_rp_to_es(args):
         data = {
           "filter.eq.launchId": launch['id'],
           "filter.eq.type": "TEST",
+          "filter.ne.status": "PASSED",
           "page.size": 100,
           "page.page": 0,
           "page.sort": "id,asc",
@@ -226,6 +227,7 @@ def doit_rp_to_es(args):
 
         # Process individual results
         for result in results:
+            logging.debug(f"Processing RP result {result}")
             stats['cases'] += 1
 
             # Get resuls from launch statistics
