@@ -219,3 +219,17 @@ class TestStatusData(unittest.TestCase):
     def test_file_on_http(self):
         with self.assertRaises(requests.exceptions.ConnectionError):
             status_data = opl.status_data.StatusData('http://does.not.exist/status-data-file.json')
+
+    def test_comment(self):
+        comment = {
+            'author': 'Foo Bar',
+            'date': datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
+            'text': 'Some comment',
+        }
+        self.status_data.set('comments', [])
+        comments = self.status_data.get('comments')
+        comments.append(comment)
+        self.assertEqual(self.status_data.get('comments')[0], comment)
+        data = self.status_data.dump()
+        sd_new = opl.status_data.StatusData('/tmp/aaa.json', data=data)
+        self.assertEqual(sd_new.get('comments')[0], comment)
