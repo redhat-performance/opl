@@ -202,7 +202,7 @@ def doit_rp_to_es(args):
                 run_id = a["value"]
                 break
         if run_id is None:
-            logging.warning(f"Launch id={launch['id']} do not have run_id key, skipping it")
+            logging.warning(f"Launch id={launch['id']} do not have run_id attribute, skipping it")
             continue
 
         # Get test results from launch
