@@ -208,13 +208,11 @@ def doit_rp_to_es(args):
         url = f'https://{args.rp_host}/api/v1/{args.rp_project}/item'
         data = {
           "filter.eq.launchId": launch['id'],
-          "filter.ne.type": "SUITE",
+          "filter.eq.type": "TEST",
           "page.size": 100,
           "page.page": 0,
           "page.sort": "id,asc",
         }
-        if args.rp_project == 'satcpt':
-          data["filter.eq.type"] = "STEP"
         while True:
             logging.debug(f"Going to do GET request to {url} with {data}")
             response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
