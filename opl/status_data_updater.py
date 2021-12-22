@@ -226,6 +226,7 @@ def doit_rp_to_es(args):
                 logging.debug("No content in the response, considering this last page of data")
                 break
         logging.debug(f"OK, we have {len(results)} results from RP for this launch")
+        print(f"Going to compare {len(results)} results for launch {launch['id']}")
 
         # Process individual results
         for result in results:
