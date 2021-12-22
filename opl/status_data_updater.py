@@ -244,7 +244,7 @@ def doit_rp_to_es(args):
                 # well and that is composed differently in SatCPT and in other
                 # CPTs :-(
                 if 'itemPaths' not in result['pathNames']:
-                    logging.warning(f"Strange, no result['pathNames']['itemPaths'] in this result, skipping it: {result}")
+                    logging.info(f"This result do not have result -> pathNames -> itemPaths, skipping it: {result}")
                     continue
                 else:
                     sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
