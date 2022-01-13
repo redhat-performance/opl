@@ -36,6 +36,9 @@ sets:
 
 # Shuld we log our decisions somewhere?
 decisions:
+  # type: csv
+  # filename: /tmp/decisions.csv
+
   type: elasticsearch
   es_server: http://elasticsearch.example.com:9286
   es_index: my_aa_decisions

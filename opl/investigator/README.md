@@ -93,8 +93,15 @@ rendered via Jinja2 and only then parsed as YAML to get the final list:
 ------------
 
 This is optional and serves to record internal stats about evaluation
-process. Every time we do some PASS/FAIL/ERROR decision, we record that
-decision (it's parameters and result) into system defined here (e.g.
-ElasticSearch index). That supports investigation of decision trends or so.
+process. Every time we do some PASS/FAIL/ERROR decision on any metric
+(as defined in `sets`), we record that decision (it's parameters and
+result) into system defined here.
+
+As of now you can use these decisions storage plugins:
+
+ * `elasticsearch` - stores decisions to ElasticSearch index. Then in
+   Kibana you can have investigation of decision trends dashboards or so.
+ * `csv` - stores all the decisions for current test in a CSV file
+   (overwritten every time the tool is invoked)
 
 This can be turned off with `--dry-run` command line option.
