@@ -30,11 +30,23 @@ def render_query(args, template_data):
     args.history_es_query = yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
+def render_matchers(args, template_data):
+    logging.debug(f"Rendering Jinja2 template matchers {args.history_matchers} with data {template_data}")
+    env = jinja2.Environment(
+        loader=jinja2.DictLoader({'matchers': args.history_matchers}))
+    template = env.get_template('matchers')
+    rendered = template.render(template_data)
+    logging.debug(f"Rendered Jinja2 template matchers {rendered}")
+    args.history_matchers = yaml.load(rendered, Loader=yaml.SafeLoader)
+
+
 def load_config_finish(args, sd):
     template_data = {'current': sd, 'environ': os.environ}
     render_sets(args, template_data)
     if args.history_type == 'elasticsearch':
         render_query(args, template_data)
+    if args.history_type == 'sd_dir':
+        render_matchers(args, template_data)
 
 
 def load_config(conf, fp):
@@ -57,6 +69,10 @@ def load_config(conf, fp):
         assert not conf.history_es_server.endswith('/')
         conf.history_es_index = data['history']['es_index']
         conf.history_es_query = data['history']['es_query']
+
+    if conf.history_type == 'sd_dir':
+        conf.history_dir = data['history']['dir']
+        conf.history_matchers = data['history']['matchers']
 
     if conf.current_file is None:
         if conf.current_type == 'status_data':

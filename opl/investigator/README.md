@@ -29,20 +29,53 @@ That query is Jinja2 template-able, so you can include:
 to dynamically obtain the value from new result and use it to filter for
 historical results.
 
+There are other plugins you can use to retrieve distorical data:
+
+ * `elasticsearch` - Retrieves historical data from ElasticSearch
+   and is described above
+
+ * `csv` - CSV file with rows being historical results and columns
+   individual data sets. Example of a CSV file:
+
+    id,name,results.duration
+    run-2022-01-07T20:57:40+00:00,Test XYZ,152
+    run-2022-01-08T03:01:07+00:00,Test XYZ,148
+    run-2022-01-08T22:16:30+00:00,Test XYZ,155
+    run-2022-01-09T04:20:04+00:00,Test XYZ,151
+    run-2022-01-11T01:16:47+00:00,Test XYZ,144
+
+ * `sd_dir` - directory with status data files from past experiments
+   which allows filtering by matching various fields before loading data.
+   Below is example where we load data from SD files whose `name` matches
+   `name` value from current result. `matchers` is Jinja2 template again:
+
+    type: sd_dir
+    dir: /tmp/historical_sd_storage/
+    matchers: |
+      name: "{{ current.get('name') }}"
+
+
 `current:`
 ----------
 
 This specifies from where we should load new (`current`) test result
 we will be evaluating.
 
+There is only choice now that loads current result from status data file.
+
+This can be overwriten by `--current-file` command line option.
+
+
 `sets:`
 -------
 
-This list status data paths (with numerical values) where it makes sense
-to evaluate. E.g. you definitely want to include `results.rps` or
-`measurements.cpu.mean`, but adding `parameters.test_started.timestamp`
+This list status data paths (with *numerical* values) where it makes sense
+to evaluate. E.g. you definitely want to include something like `results.rps`
+or `measurements.cpu.mean`, but adding `parameters.test_started.timestamp`
 might not be useful (because it does not represent test result comparable
-across historical runs).
+across historical runs - this timestamp is simply always different, based
+on when the test was running, so it does not make sense to compare it
+across historical results).
 
 If this is not a list but a string like in the example below, it is first
 rendered via Jinja2 and only then parsed as YAML to get the final list:
@@ -63,3 +96,5 @@ This is optional and serves to record internal stats about evaluation
 process. Every time we do some PASS/FAIL/ERROR decision, we record that
 decision (it's parameters and result) into system defined here (e.g.
 ElasticSearch index). That supports investigation of decision trends or so.
+
+This can be turned off with `--dry-run` command line option.

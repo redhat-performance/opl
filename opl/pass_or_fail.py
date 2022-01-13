@@ -8,6 +8,7 @@ import opl.investigator.csv_loader
 import opl.investigator.elasticsearch_decisions
 import opl.investigator.elasticsearch_loader
 import opl.investigator.status_data_loader
+import opl.investigator.sd_dir_loader
 
 import tabulate
 
@@ -62,6 +63,8 @@ def main():
         history = opl.investigator.csv_loader.load(args.history_file, args.sets)
     if args.history_type == 'elasticsearch':
         history = opl.investigator.elasticsearch_loader.load(args.history_es_server, args.history_es_index, args.history_es_query, args.sets)
+    if args.history_type == 'sd_dir':
+        history = opl.investigator.sd_dir_loader.load(args.history_dir, args.history_matchers, args.sets)
     else:
         raise Exception("Not supported data source type for historical data")
 

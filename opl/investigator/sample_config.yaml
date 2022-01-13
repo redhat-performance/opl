@@ -2,6 +2,12 @@
 history:
   # type: csv
   # file: /tmp/data.csv
+
+  # type: sd_dir
+  # dir: /tmp/historical_sd_storage/
+  # matchers: |
+  #   name: "{{ current.get('name') }}"
+
   type: elasticsearch
   es_server: http://elasticsearch.example.com:9286
   es_index: my-index
