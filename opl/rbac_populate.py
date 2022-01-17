@@ -19,6 +19,7 @@ import opl.args   # noqa: E402
 import opl.skelet   # noqa: E402
 import opl.gen   # noqa: E402
 import opl.rbac_utils   # noqa: E402
+import opl.db
 
 APPLICATIONS = []
 PERMISSIONS = []
@@ -160,11 +161,11 @@ def add_roles_to_group(url_base, x_rh_identity, role_list, group_uuid):
     _run_request(requests.post, url, headers=headers, verify=False, json=data)
 
 
-def create_principal(cursor):
+def create_principal(cursor, tenant_id):
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     logging.info(f"Creating principal username = {user_name}")
-    cursor.execute("INSERT INTO management_principal (uuid, username) VALUES (%s, %s) RETURNING id", (user_uuid, user_name))
+    cursor.execute("INSERT INTO management_principal (uuid, username, tenant_id) VALUES (%s, %s, %s) RETURNING id", (user_uuid, user_name, tenant_id))
     user_id = cursor.fetchone()[0]
     return user_name, user_id
 
@@ -239,9 +240,12 @@ def doit(rbac_test_data, args, status_data):
         cursor = connection.cursor()
         cursor.execute(f"SET search_path TO acct{account}")
 
+        # Get the tenant_id list.
+        tenant_ids = opl.db.get_query_result(rbac_db_conf, 'select id from api_tenant')
+        tenant_id = tenant_ids[-1]
         # Create users   (via SQL for now because of https://projects.engineering.redhat.com/browse/RHIOPS-557)
         for _ in range(args.principals_number):
-            user_name, user_id = create_principal(cursor)
+            user_name, user_id = create_principal(cursor, tenant_id)
             for group_uuid in group_list:
                 add_principal_to_group(cursor, user_id, group_uuid)
 

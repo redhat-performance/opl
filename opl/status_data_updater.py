@@ -134,7 +134,7 @@ def doit_change(args):
         sd.set(key, value)
 
     # Add comment to log the change
-    _add_comment(sd, args.change_comment_text)
+    _add_comment(sd, text=args.change_comment_text)
 
     url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
 
