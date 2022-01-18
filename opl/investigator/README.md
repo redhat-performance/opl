@@ -66,6 +66,31 @@ There is only choice now that loads current result from status data file.
 This can be overwriten by `--current-file` command line option.
 
 
+`methods:`
+----------
+
+Alows you to specify list of checks you want to use to check results.
+These checks are defined in `check.py`. Impractical example:
+
+    methods:
+      - check_by_stdev
+      - check_by_stdev_2
+      - check_by_trim_stdev
+      - check_by_trim_stdev_2
+      - check_by_error_1
+      - check_by_error_2
+      - check_by_error_3
+      - check_by_error_4
+      - check_by_perc_40
+      - check_by_perc_60
+      - check_by_perc_100
+      - check_by_min_max_7_1
+      - check_by_min_max_7_2
+
+This is optional and if not present or empty, default set of checks will
+be used.
+
+
 `sets:`
 -------
 

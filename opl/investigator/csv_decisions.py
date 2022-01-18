@@ -15,7 +15,12 @@ def store(filename, decisions):
         decision['build_url'] = build_url
         decision['uploaded'] = datetime.datetime.utcnow().isoformat()
 
-    fieldnames = decisions[0].keys()
+    fieldnames = []
+    for d in decisions:
+        for k in d.keys():
+            if k not in fieldnames:
+                fieldnames.append(k)
+
     with open(filename, 'w') as fp:
         writer = csv.DictWriter(fp, fieldnames=fieldnames)
 

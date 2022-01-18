@@ -58,6 +58,7 @@ def load_config(conf, fp):
 
     conf.history_type = data['history']['type']
     conf.current_type = data['current']['type']
+    conf.methods = data['methods'] if 'methods' in data else []
     conf.sets = data['sets']
     conf.decisions_type = data['decisions']['type']
 

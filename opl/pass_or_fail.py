@@ -79,9 +79,10 @@ def main():
     info_all = []
     for var in args.sets:
         try:
-            results, info = opl.investigator.check.check(history[var], current[var], description=var)
+            results, info = opl.investigator.check.check(args.methods, history[var], current[var], description=var)
         except Exception as e:
             logging.warning(f"Check on {var} failed with: {e}")
+            raise
             info_all.append({"result": "ERROR", "exception": str(e)})
             summary_this = collections.OrderedDict([("data set", var), ("exception", str(e))])
             exit_code = 2
@@ -96,7 +97,13 @@ def main():
 
         summary.append(summary_this)
 
-    print("\n", tabulate.tabulate(info_all, headers="keys", tablefmt="simple", floatfmt=".3f"))
+    # Only take headers common to all the rows
+    info_headers = list(info_all[0].keys())
+    for i in info_all:
+        info_headers = [k for k in info_headers if k in i.keys()]
+    info_headers_tabulate = dict(zip(info_headers, info_headers))   # https://bitbucket.org/astanin/python-tabulate/issues/39/valueerror-headers-for-a-list-of-dicts-is
+
+    print("\n", tabulate.tabulate(info_all, headers=info_headers_tabulate, tablefmt="simple", floatfmt=".3f"))
     print("\n", tabulate.tabulate(summary, headers="keys", tablefmt="simple"))
     print(f"\nOverall status: {STATUSES[exit_code]}")
 

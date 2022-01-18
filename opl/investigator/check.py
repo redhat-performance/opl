@@ -75,6 +75,10 @@ def check_by_error_3(data, value):
     return _check_by_error(data, value, 3)
 
 
+def check_by_error_4(data, value):
+    return _check_by_error(data, value, 4)
+
+
 def _check_by_perc(data, value, perc=20):
     logging.debug(f"data={data} and value={value} and perf={perc}")
     mean = statistics.mean(data)
@@ -133,16 +137,20 @@ def check_by_min_max_7_2(data, value):
     return _check_by_min_max(data, value, trim=0.07, boost=2)
 
 
-def check(data, value, description="N/A", verbose=True):
+def check(methods, data, value, description="N/A", verbose=True):
     assert value is not None, "Value to check should not be None"
 
-    methods = [check_by_error_3]
+    if methods == []:
+        methods = ['check_by_error_3']
+    for method in methods:
+        assert method in globals(), f"Check method '{method}' not defined"
+
     results = []
     info_all = []
     for method in methods:
-        result, info = method(data, value)
+        result, info = globals()[method](data, value)
         results.append(result)
-        logging.info(f"{method.__name__} value {value} returned {'PASS' if result else 'FAIL'}")
+        logging.info(f"{method} value {value} returned {'PASS' if result else 'FAIL'}")
 
         info_full = collections.OrderedDict()
         info_full['description'] = description
