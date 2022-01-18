@@ -21,6 +21,34 @@ STATUSES = {
 }
 
 
+def get_stats(checks, key):
+    per_key = {}
+    for i in checks:
+        if i[key] not in per_key:
+            per_key[i[key]] = {
+                'PASS': 0,
+                'FAIL': 0,
+                'ERROR': 0,
+            }
+        per_key[i[key]][i['result']] += 1
+
+    # Count score
+    for k, v in per_key.items():
+        score = v['FAIL'] + 10 * v['ERROR'] if 'ERROR' in v else 0
+        v['SCORE'] = score
+
+    # Reorder data structure for tabulate
+    per_key_tabulate = []
+    for k, v in per_key.items():
+        v['name'] = k
+        per_key_tabulate.append(v)
+
+    # Sort by score
+    per_key_tabulate = sorted(per_key_tabulate, key=lambda i: i['SCORE'])
+
+    print(f"\nStats by {key}:\n\n", tabulate.tabulate(per_key_tabulate, headers="keys", tablefmt="simple", floatfmt=".3f"))
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Given historical numerical data, determine if latest result is PASS or FAIL',
@@ -32,6 +60,8 @@ def main():
                         help='Status data file with results to investigate. Overwrites current.file value from config file')
     parser.add_argument('--dry-run', action='store_true',
                         help='Investigate result, but do not upload decisions. Meant for debugging')
+    parser.add_argument('--stats', action='store_true',
+                        help='Show statistics')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Show debug output')
     args = parser.parse_args()
@@ -106,6 +136,10 @@ def main():
     print("\n", tabulate.tabulate(info_all, headers=info_headers_tabulate, tablefmt="simple", floatfmt=".3f"))
     print("\n", tabulate.tabulate(summary, headers="keys", tablefmt="simple"))
     print(f"\nOverall status: {STATUSES[exit_code]}")
+
+    if args.stats:
+        get_stats(info_all, 'description')
+        get_stats(info_all, 'method')
 
     if not args.dry_run:
         if args.decisions_type == 'elasticsearch':
