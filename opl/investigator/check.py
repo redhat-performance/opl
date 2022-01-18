@@ -27,7 +27,7 @@ def _check_by_stdev(data, value, trim=0.0, boost=1.0):
     return lower_boundary <= value <= upper_boundary, info
 
 
-def check_by_stdev(data, value):
+def check_by_stdev_1(data, value):
     return _check_by_stdev(data, value, trim=0)
 
 
@@ -35,7 +35,11 @@ def check_by_stdev_2(data, value):
     return _check_by_stdev(data, value, trim=0, boost=2)
 
 
-def check_by_trim_stdev(data, value):
+def check_by_stdev_3(data, value):
+    return _check_by_stdev(data, value, trim=0, boost=3)
+
+
+def check_by_trim_stdev_1(data, value):
     return _check_by_stdev(data, value, trim=0.1)
 
 
@@ -79,6 +83,10 @@ def check_by_error_4(data, value):
     return _check_by_error(data, value, 4)
 
 
+def check_by_error_5(data, value):
+    return _check_by_error(data, value, 5)
+
+
 def _check_by_perc(data, value, perc=20):
     logging.debug(f"data={data} and value={value} and perf={perc}")
     mean = statistics.mean(data)
@@ -97,6 +105,10 @@ def _check_by_perc(data, value, perc=20):
     return lower_boundary <= value <= upper_boundary, info
 
 
+def check_by_perc_20(data, value):
+    return _check_by_perc(data, value, perc=20)
+
+
 def check_by_perc_40(data, value):
     return _check_by_perc(data, value, perc=40)
 
@@ -105,8 +117,12 @@ def check_by_perc_60(data, value):
     return _check_by_perc(data, value, perc=60)
 
 
+def check_by_perc_80(data, value):
+    return _check_by_perc(data, value, perc=80)
+
+
 def check_by_perc_100(data, value):
-    return _check_by_perc(data, value, perc=60)
+    return _check_by_perc(data, value, perc=100)
 
 
 def _check_by_min_max(data, value, trim=0, boost=1.0):
@@ -135,6 +151,10 @@ def check_by_min_max_7_1(data, value):
 
 def check_by_min_max_7_2(data, value):
     return _check_by_min_max(data, value, trim=0.07, boost=2)
+
+
+def check_by_min_max_7_3(data, value):
+    return _check_by_min_max(data, value, trim=0.07, boost=3)
 
 
 def check(methods, data, value, description="N/A", verbose=True):

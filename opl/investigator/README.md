@@ -73,19 +73,24 @@ Alows you to specify list of checks you want to use to check results.
 These checks are defined in `check.py`. Impractical example:
 
     methods:
-      - check_by_stdev
+      - check_by_stdev_1
       - check_by_stdev_2
-      - check_by_trim_stdev
+      - check_by_stdev_3
+      - check_by_trim_stdev_1
       - check_by_trim_stdev_2
       - check_by_error_1
       - check_by_error_2
       - check_by_error_3
       - check_by_error_4
+      - check_by_error_5
+      - check_by_perc_20
       - check_by_perc_40
       - check_by_perc_60
+      - check_by_perc_80
       - check_by_perc_100
       - check_by_min_max_7_1
       - check_by_min_max_7_2
+      - check_by_min_max_7_3
 
 This is optional and if not present or empty, default set of checks will
 be used.
