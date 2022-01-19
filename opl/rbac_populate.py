@@ -40,6 +40,7 @@ def _get_group():
     return {
       "name": name,
       "description": f"Test group {name}",
+      "admin_default": False,
     }
 
 
@@ -48,6 +49,7 @@ def _get_role():
     return {
        "name": name,
        "description": f"Test role {name}",
+       "admin_default": False,
        "access": [
             {
                 "permission": _get_access(),
