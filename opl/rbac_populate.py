@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 
 # Basic setup for subsequent code
-import requests
-import uuid
-import os.path
-import logging
-import random
-import psycopg2
-import sys
 import argparse
 import datetime
+import logging
+import os.path
+import random
+import sys
 import time
+import uuid
+
+import opl.args   # noqa: E402
+import opl.db   # noqa: E402
+import opl.gen   # noqa: E402
+import opl.rbac_utils   # noqa: E402
+import opl.skelet   # noqa: E402
+
+import psycopg2
+
+import requests
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-import opl.args   # noqa: E402
-import opl.skelet   # noqa: E402
-import opl.gen   # noqa: E402
-import opl.rbac_utils   # noqa: E402
-import opl.db
 
 APPLICATIONS = []
 PERMISSIONS = []
@@ -38,19 +41,19 @@ def _get_access():
 def _get_group():
     name = 'group-' + str(uuid.uuid4())
     return {
-      "name": name,
-      "description": f"Test group {name}",
-      "admin_default": False,
+        "name": name,
+        "description": f"Test group {name}",
+        "admin_default": False,
     }
 
 
 def _get_role():
     name = "role-" + str(uuid.uuid4())
     return {
-       "name": name,
-       "description": f"Test role {name}",
-       "admin_default": False,
-       "access": [
+        "name": name,
+        "description": f"Test role {name}",
+        "admin_default": False,
+        "access": [
             {
                 "permission": _get_access(),
                 "resourceDefinitions": [],
