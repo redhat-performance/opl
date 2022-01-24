@@ -106,7 +106,7 @@ def load_apps_and_perms(url_base, x_rh_identity, application=[]):
     for i in r.json()["data"]:
         if i["application"] in application:
             PERMISSIONS.append(i["permission"])
-    
+
     APPLICATIONS = application.copy()
     assert len(PERMISSIONS) > 0
     assert len(APPLICATIONS) > 0
@@ -286,29 +286,29 @@ def main():
     parser = argparse.ArgumentParser(
         description='Create bunch of RBAC tenants and populate them',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    
+
     parser.add_argument('--application', type=list, default=["approval", "advisor"],
                         help='application permissions to be considered')
 
     parser.add_argument('--tenants-number', type=int, default=1,
                         help='Number of tenants to create')
-    
+
     parser.add_argument('--groups-number', type=int, default=0,
                         help='Number of groups per tenants to create')
-    
+
     parser.add_argument('--roles-number', type=int, default=0,
                         help='Number of roles per group to create')
-    
+
     parser.add_argument('--principals-number', type=int, default=0,
                         help='Number of principals per tenant to create. Will be member of all created groups')
-    
+
     parser.add_argument('--test-data-file', default='/tmp/rbac-test-data.json',
                         help='File where to add test data created here')
-    
+
     parser.add_argument('--rbac-url-suffix', dest='rbac_url_suffix',
                         default=os.getenv('RBAC_URL_SUFFIX', '/api/rbac/v1'),
                         help='RBAC host URL suffix (also use env variable RBAC_URL_SUFFIX)')
-    
+
     parser.add_argument('--rbac-host', dest='rbac_host',
                         default=os.getenv('RBAC_HOST', 'http://rbac.qa.svc:8080'),
                         help='RBAC host to test (also use env variable RBAC_HOST)')
