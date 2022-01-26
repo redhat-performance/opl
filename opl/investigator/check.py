@@ -167,7 +167,7 @@ def check(methods, data, value, description="N/A", verbose=True):
     assert value is not None, "Value to check should not be None"
 
     if methods == []:
-        methods = ['check_by_error_3']
+        methods = ['check_by_min_max_0_1']
     for method in methods:
         assert method in globals(), f"Check method '{method}' not defined"
 
