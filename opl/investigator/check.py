@@ -139,8 +139,8 @@ def _check_by_min_max(data, value, trim=0, boost=1.0):
         ("boost", boost),
         ("data len", len(data)),
         ("data mean", mean),
-        ("trimmed min", min(data_trimmed)),
-        ("trimmed max", max(data_trimmed)),
+        ("trimmed min", float(min(data_trimmed))),
+        ("trimmed max", float(max(data_trimmed))),
         ("lower_boundary", lower_boundary),
         ("upper_boundary", upper_boundary),
     ])
