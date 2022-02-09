@@ -60,6 +60,8 @@ def main():
                         help='Status data file with results to investigate. Overwrites current.file value from config file')
     parser.add_argument('--dry-run', action='store_true',
                         help='Investigate result, but do not upload decisions. Meant for debugging')
+    parser.add_argument('--detailed-decisions', action='store_true',
+                        help='When showing decisions, show all the details')
     parser.add_argument('--stats', action='store_true',
                         help='Show statistics')
     parser.add_argument('-d', '--debug', action='store_true',
@@ -127,10 +129,18 @@ def main():
 
         summary.append(summary_this)
 
-    # Only take headers common to all the rows
-    info_headers = list(info_all[0].keys())
-    for i in info_all:
-        info_headers = [k for k in info_headers if k in i.keys()]
+    if args.detailed_decisions:
+        # Only take headers common to all the rows
+        info_headers = list(info_all[0].keys())
+        for i in info_all:
+            info_headers = [k for k in info_headers if k in i.keys()]
+    else:
+        info_headers = ['description', 'result', 'method', 'value', 'lower_boundary', 'upper_boundary']
+        for i in info_all:
+            for k in list(i.keys()):
+                if k not in info_headers:
+                    del i[k]
+
     info_headers_tabulate = dict(zip(info_headers, info_headers))   # https://bitbucket.org/astanin/python-tabulate/issues/39/valueerror-headers-for-a-list-of-dicts-is
 
     print("\n", tabulate.tabulate(info_all, headers=info_headers_tabulate, tablefmt="simple", floatfmt=".3f"))
