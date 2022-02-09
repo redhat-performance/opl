@@ -135,7 +135,7 @@ def main():
         for i in info_all:
             info_headers = [k for k in info_headers if k in i.keys()]
     else:
-        info_headers = ['description', 'result', 'method', 'value', 'lower_boundary', 'upper_boundary']
+        info_headers = ['description', 'result', 'method', 'value', 'lower_boundary', 'upper_boundary', 'deviation']
         for i in info_all:
             for k in list(i.keys()):
                 if k not in info_headers:

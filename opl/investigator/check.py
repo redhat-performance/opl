@@ -6,6 +6,19 @@ import statistics
 import scipy.stats
 
 
+def _count_deviation(value, lower_boundary, upper_boundary):
+    if lower_boundary <= value <= upper_boundary:
+        return None
+    else:
+        dist = min(abs(lower_boundary - value), abs(value - upper_boundary))
+        try:
+            frac = dist / abs(upper_boundary - lower_boundary)
+        except ZeroDivisionError:
+            frac = 1
+        logging.debug(f"_count_deviation({value}, {lower_boundary}, {upper_boundary}): dist={dist} frac={frac}")
+        return frac
+
+
 def _check_by_stdev(data, value, trim=0.0, boost=1.0):
     logging.debug(f"data={data} and value={value} and trim={trim} and boost={boost}")
     mean = float(scipy.stats.trim_mean(data, trim))
@@ -182,5 +195,6 @@ def check(methods, data, value, description="N/A", verbose=True):
         info_full['description'] = description
         info_full['result'] = 'PASS' if result else 'FAIL'
         info_full.update(info)
+        info_full['deviation'] = _count_deviation(value, info['lower_boundary'], info['upper_boundary'])
         info_all.append(info_full)
     return results, info_all
