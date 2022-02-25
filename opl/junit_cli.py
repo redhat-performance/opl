@@ -335,6 +335,8 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         }
         response = req(session.put, url, data)
 
+        # Show where we have uploaded data
+        print(f'Created launch https://{host}/ui/#{project}/launches/all/{launch_id}')
 
 
 def main():
