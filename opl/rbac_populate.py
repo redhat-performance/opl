@@ -170,16 +170,16 @@ def create_principal(cursor, account):
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     logging.info(f"Creating principal username = {user_name}")
-    cursor.execute("INSERT INTO management_principal (uuid, username, tenant_id) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE schema_name = 'acct' || %s)) RETURNING id", (user_uuid, user_name, account))
+    cursor.execute("INSERT INTO public.management_principal (uuid, username, tenant_id) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE schema_name = 'acct' || %s)) RETURNING id", (user_uuid, user_name, account))
     user_id = cursor.fetchone()[0]
     return user_name, user_id
 
 
 def add_principal_to_group(cursor, user_id, group_uuid):
     logging.info(f"Adding principal {user_id} to group {group_uuid}")
-    cursor.execute("SELECT id FROM management_group WHERE uuid = %s", (group_uuid,))
+    cursor.execute("SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,))
     group_id = cursor.fetchone()[0]
-    cursor.execute("INSERT INTO management_group_principals (group_id, principal_id) VALUES (%s, %s)", (group_id, user_id))
+    cursor.execute("INSERT INTO public.management_group_principals (group_id, principal_id) VALUES (%s, %s)", (group_id, user_id))
 
 
 def doit(rbac_test_data, args, status_data):
