@@ -15,6 +15,7 @@ def get_auth_header(account, user, org_id=None):
     data = {
         "identity": {
             "account_number": account,
+            "org_id": org_id,
             "type": "User",
             "user": {
                 "username": user,
