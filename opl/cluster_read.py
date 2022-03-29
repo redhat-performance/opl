@@ -8,6 +8,7 @@ import re
 import requests
 import os
 import jinja2
+import jinja2.exceptions
 import traceback
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -91,6 +92,8 @@ class PrometheusMeasurementsPlugin():
             "'data' needs to be in response"
         assert 'result' in json_response['data'], \
             "'result' needs to be in response's 'data'"
+        assert len(json_response['data']['result']) != 0, \
+            "missing 'response' in response's 'data'"
         assert len(json_response['data']['result']) == 1, \
             "we need exactly one 'response' in response's 'data'"
         assert 'values' in json_response['data']['result'][0], \
@@ -217,7 +220,7 @@ def config_stuff(config):
                 return self.main_template, None, lambda: True
 
             if not os.path.exists(path):
-                raise TemplateNotFound(path)
+                raise jinja2.exceptions.TemplateNotFound(path)
 
             mtime = os.path.getmtime(path)
             with open(path) as f:
@@ -301,7 +304,7 @@ class RequestedInfo():
                 try:
                     return instance.measure(self.start, self.end, **self.config[i])
                 except Exception as e:
-                    logging.error(f"Failed to measure: {e}")
+                    logging.error(f"Failed to measure {self.config[i]['name']}: {e}")
                     traceback.print_exc()
                     return None, None
             else:
