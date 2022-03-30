@@ -34,10 +34,10 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic):
         session_timeout_ms=50000,
         heartbeat_interval_ms=10000,
         consumer_timeout_ms=kafka_timeout)
-    consumer.poll()
 
-    for attempt in range(3):
+    for attempt in range(10):
         try:
+            consumer.poll(timeout_ms=0)
             consumer.seek_to_end()
         except AssertionError as e:
             logging.warning(f"Retrying as seek to end failed with: {e}")
@@ -45,8 +45,7 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic):
         else:
             break
     else:
-        logging.fatal("Out of attempts when trying to seek to end")
-        raise
+        logging.error("Out of attempts when trying to seek to end")
 
     for _ in consumer:
         print('.', end='')
