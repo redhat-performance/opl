@@ -4,6 +4,7 @@ import logging
 import argparse
 import socket
 import os
+import time
 
 from kafka import KafkaConsumer
 
@@ -34,7 +35,19 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic):
         heartbeat_interval_ms=10000,
         consumer_timeout_ms=kafka_timeout)
     consumer.poll()
-    consumer.seek_to_end()
+
+    for attempt in range(3):
+        try:
+            consumer.seek_to_end()
+        except AssertionError as e:
+            logging.warning(f"Retrying as seek to end failed with: {e}")
+            time.sleep(1)
+        else:
+            break
+    else:
+        logging.fatal("Out of attempts when trying to seek to end")
+        raise
+
     for _ in consumer:
         print('.', end='')
     consumer.close()
