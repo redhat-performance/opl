@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import json
 import logging
 import os
 import unicodedata
@@ -149,20 +150,46 @@ class JUnitXmlPlus(junitparser.JUnitXml):
     def delete(self):
         os.remove(self.filepath)
 
-    def ibutsu_upload(self, host, project, verify, file):
+    def ibutsu_upload(self, host, token, project, verify, file, metadata):
         if not verify:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        if metadata:
+            metadata = json.dumps(parse_ibutsu_metadata(metadata))
         res = requests.post(
             f'{host}/api/import',
+            headers=headers,
             files={
                 'importFile': (file, open(file, 'rb'), 'text/xml'),
             },
             verify=verify,
-            data={"project": project})
+            data={"project": project, "metadata": metadata})
         if not res.ok:
             raise Exception(res.text)
         else:
             logging.debug(res.text)
+
+    def parse_ibutsu_metadata(metadata_list):
+        """Parse the metadata from a set of strings to a dictionary"""
+        metadata = {}
+        # Loop through the list of metadata values
+        for pair in metadata_list:
+            # Split the key part from the value
+            key_path, value = pair.split("=", 1)
+            # Split the key up if it is a dotted path
+            keys = key_path.split(".")
+            current_data = metadata
+            # Loop through all but the last key and create the dictionary structure
+            for key in keys[:-1]:
+                if key not in current_data:
+                    current_data[key] = {}
+                current_data = current_data[key]
+            # Finally, set the actual value
+            key = keys[-1]
+            current_data[key] = value
+        return metadata
 
     def upload(self, host, verify, project, token, launch, properties):
 
@@ -388,10 +415,14 @@ def main():
                                        help='Import the file to Ibutsu')
     parser_ibutsu.add_argument('--host', required=True,
                             help='Ibutsu host')
+    parser_ibutsu.add_argument('--token', required=True,
+                            help='Ibutsu token')
     parser_ibutsu.add_argument('--project', required=True,
                             help='Ibutsu project')
     parser_ibutsu.add_argument('--noverify', action='store_true',
                             help='When talking to Ibutsu ignore certificate verification failures')
+    parser_ibutsu.add_argument('--metadata', action="append",
+                            help='Additional metadata to set when uploading, in the format of dotted.key.path=value')
 
     # create the parser for the "upload" command
     parser_add = subparsers.add_parser('upload',
@@ -435,6 +466,6 @@ def main():
     elif args.action == 'upload':
         junit.upload(args.host, not args.noverify, args.project, args.token, args.launch, args.properties)
     elif args.action == 'ibutsu-import':
-        junit.ibutsu_upload(args.host, args.project, not args.noverify, args.file)
+        junit.ibutsu_upload(args.host, args.token, args.project, not args.noverify, args.file, args.metadata)
     else:
         raise Exception('I do not know what to do')
