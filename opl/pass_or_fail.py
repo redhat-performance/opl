@@ -1,6 +1,7 @@
 import argparse
 import collections
 import logging
+import sys
 
 import opl.investigator.check
 import opl.investigator.config
@@ -103,7 +104,8 @@ def main():
 
     total = sum([len(v) for v in history.values()])
     if total == 0:
-        raise Exception("No data available in historical results!")
+        logging.fatal("No data available in historical results!")
+        sys.exit(1)
 
     # Compute if current data matches historical data safe margins
     exit_code = 0
