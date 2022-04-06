@@ -157,7 +157,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
             "Authorization": f"Bearer {token}"
         }
         if metadata:
-            metadata = json.dumps(parse_ibutsu_metadata(metadata))
+            metadata = json.dumps(self.parse_ibutsu_metadata(metadata))
         res = requests.post(
             f'{host}/api/import',
             headers=headers,
@@ -171,7 +171,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         else:
             logging.debug(res.text)
 
-    def parse_ibutsu_metadata(metadata_list):
+    def parse_ibutsu_metadata(self, metadata_list):
         """Parse the metadata from a set of strings to a dictionary"""
         metadata = {}
         # Loop through the list of metadata values
