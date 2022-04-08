@@ -1,26 +1,29 @@
 {
     "host": {
-        "id": "{{ INVENTORY_ID }}",
-        "display_name": "{{ FQND }}",
+        "id": "{{ inventory_id }}",
+        "display_name": "{{ fqdn }}",
         "ansible_host": null,
-        "account": "{{ ACCOUNT_ID }}",
-        "insights_id": "{{ INSIGHTS_ID }}",
+        "account": "{{ account }}",
+        "insights_id": "{{ insights_id }}",
         "rhel_machine_id": null,
-        "subscription_manager_id": null,
+        "subscription_manager_id": "{{ subscription_manager_id }}",
         "satellite_id": null,
-        "fqdn": null,
-        "bios_uuid": null,
-        "ip_addresses": null,
+        "fqdn": "{{ fqdn }}",
+        "bios_uuid": "{{ bios_uuid }}",
+        "ip_addresses": [
+            "{{ ipv4_addr }}",
+            "{{ ipv6_addr }}"
+        ],
         "mac_addresses": [
-            "fa:16:3e:72:a6:99",
+            "{{ mac_addr }}",
             "00:00:00:00:00:00"
         ],
         "external_id": null,
-        "created": "2020-03-20T11:04:57.434527+00:00",
-        "updated": "2020-04-14T10:11:33.231512+00:00",
-        "stale_timestamp": "3020-04-15T12:11:33.168053+00:00",
-        "stale_warning_timestamp": "3020-04-22T12:11:33.168053+00:00",
-        "culled_timestamp": "3020-04-29T12:11:33.168053+00:00",
+        "created": "{{ nowz }}",
+        "updated": "{{ nowz }}",
+        "stale_timestamp": "{{ tommorowz }}",
+        "stale_warning_timestamp": "{{ tommorowz }}",
+        "culled_timestamp": "{{ tommorowz }}",
         "tags": [
 
         ],
@@ -371,14 +374,14 @@
                 },
                 {
                     "ipv6_addresses": [
-                        "fe80::f816:3eff:fe72:a699"
+                        "{{ ipv6_addr }}"
                     ],
                     "state": "UP",
                     "ipv4_addresses": [
-                        "10.0.149.122"
+                        "{{ ipv4_addr }}"
                     ],
                     "type": "ether",
-                    "mac_address": "fa:16:3e:72:a6:99",
+                    "mac_address": "{{ mac_addr }}",
                     "name": "eth0",
                     "mtu": 1500
                 }
@@ -441,11 +444,11 @@
             "infrastructure_vendor": "kvm",
             "number_of_sockets": 1,
             "system_memory_bytes": 1927180288,
-            "yum_repos": {{ YUM_REPOS|tojson }},
+            "yum_repos": {{ yum_repos|tojson }},
             "bios_version": "1.11.0-2.el7",
             "cores_per_socket": 1,
             "last_boot_time": "2019-11-19T21:47:22",
-            "installed_packages": {{ INSTALLED_PACKAGES|tojson }},
+            "installed_packages": {{ installed_packages|tojson }},
             "installed_services": [
                 "arp-ethers",
                 "auditd",
@@ -585,8 +588,8 @@
         "reporter": "puptoo"
     },
     "platform_metadata": {
-        "account": "{{ ACCOUNT_ID }}",
-        "b64_identity": "{{ B64_IDENTITY }}",
+        "account": "{{ account }}",
+        "b64_identity": "{{ b64_identity }}",
         "category": "something",
         "elapsed_time": 1586859092.4174569,
         "extras": {
@@ -602,15 +605,15 @@
         },
         "payload_id": null,
         "principal": "5894300",
-        "request_id": "018c78be10954bf689974590c19da741",
+        "request_id": "{{ request_id }}",
         "satellite_managed": null,
         "service": "advisor",
         "size": 195324,
-        "timestamp": "2020-04-14T10:09:34.578526029Z",
+        "timestamp": "{{ nowz }}",
         "url": "https://XXXXXXXXXXXXX.s3.amazonaws.com/018c78be10954bf689974590c19da741?X",
         "validation": null,
         "test": null
     },
-    "timestamp": "2020-04-21T04:36:13.694341+00:00",
-    "type": "{{ MSG_TYPE }}"
+    "timestamp": "{{ nowz }}",
+    "type": "{{ msg_type }}"
 }
