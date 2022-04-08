@@ -66,6 +66,8 @@ def gen_ipv4():
     data = [str(random.randint(1, 255)) for i in range(4)]
     return '.'.join(data)
 
+def gen_ipv6():
+    return f"{random.randrange(16**4):x}:{random.randrange(16**4):x}::{random.randrange(16**4):x}:{random.randrange(16**4):x}:{random.randrange(16**4):x}"
 
 def gen_mac():
     data = ['%02x' % random.randrange(256) for i in range(6)]
