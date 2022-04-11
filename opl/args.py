@@ -51,6 +51,9 @@ def add_patchman_db_opts(parser):
 def add_rbac_db_opts(parser):
     _add_generic_db_opts(parser, 'rbac')
 
+def add_sources_db_opts(parser):
+    _add_generic_db_opts(parser, 'sources')
+
 
 def add_rhsm_db_opts(parser):
     _add_generic_db_opts(parser, 'rhsm')
