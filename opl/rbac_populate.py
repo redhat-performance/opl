@@ -170,7 +170,7 @@ def create_principal(cursor, account):
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     logging.info(f"Creating principal username = {user_name}")
-    cursor.execute("INSERT INTO public.management_principal (uuid, username, tenant_id) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE schema_name = 'acct' || %s)) RETURNING id", (user_uuid, user_name, account))
+    cursor.execute("INSERT INTO public.management_principal (uuid, username, tenant_id) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE tenant_name = 'acct' || %s)) RETURNING id", (user_uuid, user_name, account))
     user_id = cursor.fetchone()[0]
     return user_name, user_id
 
