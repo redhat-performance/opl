@@ -10,7 +10,7 @@ import uuid
 import os
 
 import opl.generators.packages
-import opl.generators.packages
+import opl.generators.generic
 
 
 class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
