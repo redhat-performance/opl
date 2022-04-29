@@ -8,6 +8,7 @@ import deepdiff
 import os
 import jinja2
 import requests
+import tabulate
 import tempfile
 
 from . import date
@@ -376,6 +377,8 @@ def main_diff():
                         help='First file to compare')
     parser.add_argument('second', nargs=1,
                         help='Second file to compare')
+    parser.add_argument('--report', action='store_true',
+                        help='Show formated report')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Show debug output')
     args = parser.parse_args()
@@ -388,7 +391,34 @@ def main_diff():
     first = StatusData(args.first[0])
     second = StatusData(args.second[0])
 
-    pprint.pprint(deepdiff.DeepDiff(first._data, second._data, view='tree'))
+    diff = deepdiff.DeepDiff(first._data, second._data, view='tree')
+    if args.report:
+        print(f"Keys: {', '.join(diff.keys())}")
+        if 'dictionary_item_added' in diff:
+            print("\nDictionary items added:\n")
+            table = []
+            for i in diff['dictionary_item_added']:
+                table.append([i.path(), i.t2])
+            print(tabulate.tabulate(table, headers=['path', 'added value']))
+        if 'values_changed' in diff:
+            print("\nValues changed:\n")
+            table = []
+            for i in diff['values_changed']:
+                d = None
+                try:
+                    first = float(i.t1)
+                    second = float(i.t2)
+                    d_raw = (second - first) / first * 100
+                    if abs(d_raw) < 1:
+                        d = f'{d_raw:.3f}'
+                    else:
+                        d = f'{d_raw:.0f}'
+                except:
+                    pass
+                table.append([i.path(), i.t1, i.t2, d])
+            print(tabulate.tabulate(table, headers=['path', 'first', 'second', 'change [%]']))
+    else:
+        pprint.pprint(diff)
 
 
 def main_report():
