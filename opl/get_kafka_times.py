@@ -173,7 +173,7 @@ class GetKafkaTimes():
                 if quiet_period > self.max_quiet_period:
                     updated = self.store_now()
                     if updated > 0:
-                        logging.warning(f"It was quiet for {quiet_period}, but we have saved some items so lets wait some more.")
+                        logging.warning(f"It was quiet for {quiet_period}, but we have saved {updated} items so lets wait some more.")
                         continue
                     else:
                         logging.warning(f"It was quiet here for {quiet_period}. Skipping remaining items as they are not coming.")
