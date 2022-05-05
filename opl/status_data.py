@@ -410,6 +410,12 @@ def main_diff():
             for i in diff['dictionary_item_added']:
                 table.append([i.path(), i.t2])
             print(tabulate.tabulate(table, headers=['path', 'added value']))
+        if 'dictionary_item_removed' in diff:
+            print("\nDictionary items removed:\n")
+            table = []
+            for i in diff['dictionary_item_removed']:
+                table.append([i.path(), i.t1])
+            print(tabulate.tabulate(table, headers=['path', 'removed value']))
         if 'values_changed' in diff:
             print("\nValues changed:\n")
             table = []
@@ -427,6 +433,12 @@ def main_diff():
                     pass
                 table.append([i.path(), i.t1, i.t2, d])
             print(tabulate.tabulate(table, headers=['path', 'first', 'second', 'change [%]']))
+        if 'type_changes' in diff:
+            print("\nTypes changed:\n")
+            table = []
+            for i in diff['type_changes']:
+                table.append([i.path(), type(i.t1), type(i.t2)])
+            print(tabulate.tabulate(table, headers=['path', 'first', 'second']))
     else:
         pprint.pprint(diff)
 
