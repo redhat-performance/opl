@@ -303,9 +303,16 @@ def doit_additional(status_data, additional, monitoring_start, monitoring_end, a
     for name, plugin in cluster_read.PLUGINS.items():
         requested_info.register_measurement_plugin(name, plugin(args))
 
+    counter_ok = 0
+    counter_bad = 0
     for k, v in requested_info:
-        if k is not None:
+        if k is None:
+            counter_bad += 1
+        else:
             status_data.set(k, v)
+            counter_ok += 1
+
+    print(f"Gathered {counter_ok}, failed to gather {counter_bad} data points")
 
 
 def doit_info(status_data):
