@@ -1,19 +1,23 @@
-import logging
 import argparse
 import copy
 import datetime
 import json
-import pprint
-import deepdiff
+import logging
 import os
-import jinja2
-import requests
-import tabulate
+import pprint
 import tempfile
 
+import deepdiff
+
+import jinja2
+
+import requests
+
+import tabulate
+
+from . import cluster_read
 from . import date
 from . import skelet
-from . import cluster_read
 
 
 class StatusData():
@@ -75,7 +79,7 @@ class StatusData():
             return data
 
         if not isinstance(data, dict):
-            logging.warning(f"Attempted to dive into non-dict. Falling back to return None")
+            logging.warning("Attempted to dive into non-dict. Falling back to return None")
             return None
 
         try:
@@ -187,7 +191,6 @@ class StatusData():
         logging.debug(f"Removing {split_key} from {self._filename}")
         self._remove(self._data, split_key)
 
-
     def list(self, multikey):
         """
         For given path, return list of all existing paths below this one
@@ -288,10 +291,10 @@ def doit_print_oneline(status_data, get_this, get_rounding, get_delimiter):
         print(get_delimiter.join([str(status_data.get(i)) for i in get_this]))
     else:
         for i in get_this:
-            if isinstance(status_data.get(i),float):
-                print('{:.2f}'.format(status_data.get(i)),end=get_delimiter)
+            if isinstance(status_data.get(i), float):
+                print('{:.2f}'.format(status_data.get(i)), end=get_delimiter)
             else:
-                print('{}'.format(status_data.get(i)),end=get_delimiter)
+                print('{}'.format(status_data.get(i)), end=get_delimiter)
         print()
 
 
@@ -345,7 +348,7 @@ def main():
     parser.add_argument('--info', action='store_true',
                         help='Show basic info from status data file')
     parser.add_argument('--decimal-rounding', action='store_true',
-                         help='Rounding a number to its hundredths, leaving 2 numbers after decimal point')
+                        help='Rounding a number to its hundredths, leaving 2 numbers after decimal point')
     parser.add_argument('--delimiter', default='\t',
                         help='When returning more "--get" fields, delimit them with this (default is tab)')
     for name, plugin in cluster_read.PLUGINS.items():
@@ -420,7 +423,7 @@ def main_diff():
                         d = f'{d_raw:.3f}'
                     else:
                         d = f'{d_raw:.0f}'
-                except:
+                except (ValueError, ZeroDivisionError):
                     pass
                 table.append([i.path(), i.t1, i.t2, d])
             print(tabulate.tabulate(table, headers=['path', 'first', 'second', 'change [%]']))
