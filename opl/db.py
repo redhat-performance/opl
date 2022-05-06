@@ -151,7 +151,14 @@ class BatchProcessor():
         cursor.close()
 
     def add(self, row):
+        if self.lock is not None:
+            self.lock.acquire(True)
+
         self.data.append(row)
+
+        if self.lock is not None:
+            self.lock.release()
+
         if len(self.data) >= self.batch:
             self.commit()
 
