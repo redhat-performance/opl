@@ -15,6 +15,7 @@ def get_auth_header(account, user, org_id=None):
     data = {
         "identity": {
             "account_number": account,
+            "auth_type": "cert-auth",
             "org_id": org_id,
             "type": "User",
             "user": {
