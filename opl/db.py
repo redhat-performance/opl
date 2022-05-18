@@ -140,15 +140,14 @@ class BatchProcessor():
 
         psycopg2.extras.execute_values(
             cursor, self.sql, self.data, template=None, page_size=100)
+        self.db.commit()
+        cursor.close()
 
         self.counter_commited += len(self.data)
         self.data.clear()
 
         if self.lock is not None:
             self.lock.release()
-
-        self.db.commit()
-        cursor.close()
 
     def add(self, row):
         if self.lock is not None:
