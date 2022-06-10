@@ -53,6 +53,7 @@ class PrometheusMeasurementsPlugin():
         self.host = args.prometheus_host
         self.port = args.prometheus_port
         self.token = args.prometheus_token
+        self.no_auth = args.prometheus_no_auth
 
     def _get_token(self):
         if self.token is None:
@@ -69,9 +70,10 @@ class PrometheusMeasurementsPlugin():
         # Get data from Prometheus
         url = f'{self.host}:{self.port}/api/v1/query_range'
         headers = {
-            'Authorization': f'Bearer {self._get_token()}',
             'Content-Type': 'application/json',
         }
+        if not self.no_auth:
+            headers['Authorization'] = f'Bearer {self._get_token()}'
         params = {
             'query': monitoring_query,
             'step': monitoring_step,
@@ -112,6 +114,8 @@ class PrometheusMeasurementsPlugin():
                             help='Port Prometheus is listening on')
         parser.add_argument('--prometheus-token', default=None,
                             help='Authorization token without the "Bearer: " part. If not provided, we will try to get one with "oc whoami -t"')
+        parser.add_argument('--prometheus-no-auth', action='store_true',
+                            help='Do not send auth headers to Prometheus')
 
 
 class GrafanaMeasurementsPlugin():
