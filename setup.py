@@ -75,6 +75,8 @@ setuptools.setup(
             "status_data_updater.py = opl.status_data_updater:main",
             "script-skip-to-end.py = opl.skip_to_end:main",
             "script-manage-db.py = opl.manage_db:main",
+            "script-hbi-populate.py = opl.hbi_utils:populate_main",
+            "script-hbi-cleanup.py = opl.hbi_utils:cleanup_main",
         ],
     },
 )
