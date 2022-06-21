@@ -266,6 +266,7 @@ def cleanup(args, status_data):
 
     logging.info("Truncating Inventory DB 'hosts' table")
     inventory_cursor.execute("TRUNCATE hosts")
+    inventory.commit()
 
     status_data.set_now("parameters.inventory_db.table_hosts.truncated_at")
 
