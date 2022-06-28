@@ -196,9 +196,19 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get('results.something.baz'), None)
 
     def test_set_subtree_json(self):
-        with tempfile.NamedTemporaryFile(delete=False) as f:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as f:
             f_name = f.name
             f.write(b'{"hello":"world","foo":42,"bar":{"baz":1}}')
+        self.status_data.set_subtree_json('results.xxx', f_name)
+        os.unlink(f_name)
+        self.assertEqual(self.status_data.get('results.xxx.hello'), 'world')
+        self.assertEqual(self.status_data.get('results.xxx.foo'), 42)
+        self.assertEqual(self.status_data.get('results.xxx.bar.baz'), 1)
+
+    def test_set_subtree_yaml(self):
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.yaml') as f:
+            f_name = f.name
+            f.write(b'hello: world\nfoo: 42\nbar:\n  baz: 1')
         self.status_data.set_subtree_json('results.xxx', f_name)
         os.unlink(f_name)
         self.assertEqual(self.status_data.get('results.xxx.hello'), 'world')

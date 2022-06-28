@@ -2,6 +2,7 @@ import argparse
 import copy
 import datetime
 import json
+import yaml
 import logging
 import os
 import pprint
@@ -168,7 +169,12 @@ class StatusData():
         Set given multikey to contents of JSON formated file provided by its path
         """
         with open(file_path, 'r') as fp:
-            data = json.load(fp)
+            if file_path.endswith(".json"):
+                data = json.load(fp)
+            elif file_path.endswith(".yaml"):
+                data = yaml.load(fp, Loader=yaml.SafeLoader)
+            else:
+                raise Exception(f"Unrecognized extension of file to import")
         return self.set(multikey, data)
 
     def _remove(self, data, split_key):
@@ -332,7 +338,7 @@ def main():
     parser.add_argument('--set-now', nargs='*', default=[],
                         help='Set key to current date&time')
     parser.add_argument('--set-subtree-json', nargs='*', default=[],
-                        help='Set key to structure from json formated file')
+                        help='Set key to structure from json or yaml formated file (detected by *.json or *.yaml file extension)')
     parser.add_argument('--get', nargs='*', default=[],
                         help='Print value for given key(s)')
     parser.add_argument('--remove', nargs='*', default=[],
