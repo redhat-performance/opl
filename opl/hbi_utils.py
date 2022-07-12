@@ -105,32 +105,29 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
             f"Not all messages sent {data_stats['successes']} + {data_stats['failures']} != {args.count}"
         )
 
+        
+def fetch_records_count(inventory):
+    inventory_cursor = inventory.cursor()
+    inventory_cursor.execute("select count(*) as exact_count from hosts")
+    for i in inventory_cursor.fetchone():
+        existing_records = int(i)
 
-def verify(args, status_data, inventory, collect_info):
+    return existing_records
+
+
+def verify(args, previous_records, status_data, inventory, collect_info):
     # Generatate set of IDs to check in the DB
-    remaining_ids = set()
-    for a in collect_info["accounts"].values():
-        for h in a:
-            remaining_ids.add(h["subscription_manager_id"])
-    logging.info(f"Going to verify {len(remaining_ids)} IDs")
-
     inventory_cursor = inventory.cursor()
 
     batch_size = 100  # how many IDs to check in one go
     attempt = 0
     attempts_max = (args.count // batch_size + 1) * 10
+    expected_ids = previous_records + args.count # number of records exist after test
     while True:
-        inventory_cursor.execute(
-            """SELECT canonical_facts ->> 'subscription_manager_id'
-               FROM hosts
-               WHERE canonical_facts ->> 'subscription_manager_id'=ANY(%s)""",
-            (list(remaining_ids)[:batch_size],),
-        )
-        existing_ids = set([i[0] for i in inventory_cursor.fetchall()])
-        remaining_ids = remaining_ids - existing_ids
+        existing_ids = fetch_records_count(inventory)
 
         # Are we done yet?
-        if len(remaining_ids) == 0:
+        if existing_ids == expected_ids:
             logging.info("All IDs present in the Inventory DB")
             break
 
@@ -138,13 +135,13 @@ def verify(args, status_data, inventory, collect_info):
         attempt += 1
         if attempt > attempts_max:
             raise Exception(
-                f"After {attempt} attempts, we still need to check {len(remaining_ids)} out of {args.count}"
+                f"After {attempt} attempts, we still need to check {existing_ids} out of {args.count}"
             )
 
         # If there were no new hosts now, wait a bit
-        if len(existing_ids) == 0:
+        if existing_ids != expected_ids:
             logging.debug(
-                f"Waiting for IDs, attempt {attempt}, remaining {len(remaining_ids)}"
+                f"Waiting for IDs, attempt {attempt}, remaining {existing_ids}"
             )
             time.sleep(1)
 
@@ -160,11 +157,6 @@ def gen_send_verify(args, status_data):
         template=args.template,
     )
 
-    logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
-    producer = kafka.KafkaProducer(
-        bootstrap_servers=[f"{args.kafka_host}:{args.kafka_port}"], api_version=(0, 10)
-    )
-
     logging.info("Creating Inventory DB connection")
     inventory_db_conf = {
         "host": args.inventory_db_host,
@@ -173,8 +165,14 @@ def gen_send_verify(args, status_data):
         "user": args.inventory_db_user,
         "password": args.inventory_db_pass,
     }
+    
     inventory = psycopg2.connect(**inventory_db_conf)
-
+    exist_records_in_db = fetch_records_count(inventory) # fetch existing records count
+    
+    logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
+    producer = kafka.KafkaProducer(
+        bootstrap_servers=[f"{args.kafka_host}:{args.kafka_port}"], api_version=(0, 10)
+    )
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
 
@@ -187,6 +185,7 @@ def gen_send_verify(args, status_data):
     )
     verify(
         args,
+        exist_records_in_db,
         status_data,
         inventory=inventory,
         collect_info=collect_info,
