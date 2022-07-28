@@ -131,8 +131,8 @@ class GenericGenerator:
         ast = self.env.parse(self.env.loader.get_source(self.env, tmpl)[0])
         return jinja2.meta.find_undeclared_variables(ast)
 
-    def _get_b64_identity(self, account):
-        return opl.gen.get_auth_header(account=account, user=opl.gen.gen_string()).decode()
+    def _get_b64_identity(self, account, orgid):
+        return opl.gen.get_auth_header(account=account, user=opl.gen.gen_string(), org_id=orgid).decode()
 
     def _get_disk_devices(self):
         device = ["/dev/fdd2", "/dev/fdd0", "/dev/fdd1"]
