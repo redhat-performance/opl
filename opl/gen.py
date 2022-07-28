@@ -7,9 +7,7 @@ import string
 
 
 def get_auth_header(account, user, org_id=None):
-    if org_id:
-        pass
-    else:
+    if org_id is None:
         org_id = account
 
     data = {
