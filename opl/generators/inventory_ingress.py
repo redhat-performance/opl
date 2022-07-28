@@ -92,7 +92,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             'running_processes': opl.generators.packages.RunningProcessesGenerator().generate(89),
         }
         data.update(random.choice(self.relatives))   # add account and orgid
-        data.update({'b64_identity': self._get_b64_identity(data['account'])})
+        data.update({'b64_identity': self._get_b64_identity(data['account'], data['orgid'])})
         return data
 
 
