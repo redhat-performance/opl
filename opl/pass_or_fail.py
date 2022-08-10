@@ -105,7 +105,8 @@ def main():
     total = sum([len(v) for v in history.values()])
     if total == 0:
         logging.fatal("No data available in historical results!")
-        sys.exit(1)
+        # if no historical results available return PASS
+        sys.exit(0) 
 
     # Compute if current data matches historical data safe margins
     exit_code = 0
