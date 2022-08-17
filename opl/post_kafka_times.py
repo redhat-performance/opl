@@ -30,7 +30,7 @@ To create a script using this helper, you can create this:
     import json
     import socket
 
-    import opl.generators.inventory_ingress
+    import opl.generators.inventory_egress
     import opl.post_kafka_times
 
 
@@ -185,7 +185,7 @@ class PostKafkaTimes:
         """
 
         def handle_send_success(*args, **kwargs):
-            self.save_here.add((kwargs["message_id"], self.dt_now))
+            self.save_here.add((kwargs["message_id"], self.dt_now()))
 
         def wait_for_next_second(second=int(time.perf_counter())):
             while second == int(time.perf_counter()):
