@@ -12,7 +12,7 @@ import locust.stats
 import tabulate
 
 
-def run_locust(args, status_data, test_set, new_stats=False):
+def run_locust(args, status_data, test_set, new_stats=False, summary_only=False):
     # Local runner is True by default, bot overwrite it if we have selected
     # master or worker runner
     assert not (args.locust_master_runner and args.locust_worker_runner), \
@@ -75,7 +75,7 @@ def run_locust(args, status_data, test_set, new_stats=False):
         status_data.set_now('results.end')
         logging.info("Local Locust run finished")
 
-        return show_locust_stats(env.stats, status_data, new_stats)
+        return show_locust_stats(env.stats, status_data, new_stats, summary_only)
 
     elif args.locust_master_runner:
 
@@ -107,7 +107,7 @@ def run_locust(args, status_data, test_set, new_stats=False):
         status_data.set_now('results.end')
         logging.info("Master Locust run finished")
 
-        return show_locust_stats(env.stats, status_data, new_stats)
+        return show_locust_stats(env.stats, status_data, new_stats, summary_only)
 
     elif args.locust_worker_runner:
 
@@ -133,7 +133,7 @@ def run_locust(args, status_data, test_set, new_stats=False):
         raise Exception('No runner specified')
 
 
-def show_locust_stats(locust_stats, status_data, new_stats):
+def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
     """
     Print Locust stats obejct and format nice table of it.
     Also add values to status data object.
@@ -239,7 +239,10 @@ def show_locust_stats(locust_stats, status_data, new_stats):
                 transposed[r][f] = data[f][i]
             sd_data = transposed
     else:
-        sd_data = data_new
+        if summary_only:
+            sd_data = {k: v for k, v in data_new.items() if k == "SUMMARY"}
+        else:
+            sd_data = data_new
 
     if status_data is not None:
         logging.debug(f"Adding {'new' if new_stats else 'old'} style results to status data file")
