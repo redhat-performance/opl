@@ -67,6 +67,9 @@ class ConsumerLag:
         self.store_offset_records()
         response = True
         for _ , record in self.offset_records.items():
+            if record['curr_offset'] is None:
+                self.logger.warning(f"For some reason current offset is None, replacing it with 0 in: {record}")
+                record['curr_offset'] = 0
             diff = record['end_offset'] - record['curr_offset']
             if diff == 0:
                 response *= True
