@@ -10,8 +10,8 @@ import opl.generators.generic
 
 
 class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
-    def __init__(self, count=1, n_packages=300, msg_type='created'):
-        super().__init__(count=count, template='inventory_egress_template.json.j2', dump_message=False)
+    def __init__(self, count=1, n_packages=300, template='inventory_egress_template.json.j2' , msg_type='created'):
+        super().__init__(count=count, template=template , dump_message=False)
 
         self.n_packages = n_packages   # how many packages to put into profile
         self.msg_type = msg_type
