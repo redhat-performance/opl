@@ -12,6 +12,7 @@ import opl.s3_tools
 def get_tarball_message(account, remotename, size, download_url):
     data = {
         "account": account,
+        "org_id": account,
         "category": "tar",
         "metadata": {
             "reporter": "",
