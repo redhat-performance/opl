@@ -45,7 +45,6 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             'b64_identity': self._get_b64_identity(account),
             'msg_type': self.msg_type,
             'subscription_manager_id': self._get_uuid(),
-            'subscription_manager_id': self._get_uuid(),
             'bios_uuid': self._get_bios_uuid(),
             'ipv4_addr': self._get_ipv4(),
             'ipv6_addr': self._get_ipv6(),
