@@ -148,6 +148,7 @@ def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
         'count': [],
         'fail ratio': [],
         'med resp time': [],
+        'avg content lenght': [],
         'total RPS': [],
     }
     data_new = {}
@@ -156,11 +157,13 @@ def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
     sum_count = 0
     sum_failures = 0
     sum_total_response_time = 0.0
+    sum_total_content_length = 0
     sum_total_rps = 0.0
     for name, value in locust_stats.entries.items():
         sum_count += value.num_requests
         sum_failures += value.num_failures
         sum_total_response_time += value.median_response_time * value.num_requests
+        sum_total_content_length += value.total_content_length
         sum_total_rps += value.total_rps
         n = f"{name[1]} {name[0]}"
         if len(n) > 40:
@@ -169,6 +172,7 @@ def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
         data['count'].append(value.num_requests)
         data['fail ratio'].append(value.fail_ratio)
         data['med resp time'].append(value.median_response_time)
+        data['avg content lenght'].append(value.total_content_length / value.num_requests)
         data['total RPS'].append(value.total_rps)
 
         name_safe = re.sub('[^a-zA-Z0-9-]+', '_', f"{name[1]} {name[0]}")
@@ -202,11 +206,16 @@ def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
         data_new['SUMMARY']['fail_ratio'] = sum_failures / sum_count
         data['med resp time'].append(sum_total_response_time / sum_count)
         data_new['SUMMARY']['median_response_time'] = sum_total_response_time / sum_count
+        data['avg content lenght'].append(sum_total_content_length / sum_count)
+        data_new['SUMMARY']['avg_content_length'] = sum_total_content_length / sum_count
     else:
         data['fail ratio'].append(None)
         data_new['SUMMARY']['fail_ratio'] = None
         data['med resp time'].append(None)
         data_new['SUMMARY']['median_response_time'] = None
+        data['avg content lenght'].append(None)
+        data_new['SUMMARY']['avg_content_length'] = None
+    data_new['SUMMARY']['total_content_length'] = sum_total_content_length
     data['total RPS'].append(sum_total_rps)
     data_new['SUMMARY']['total_rps'] = sum_total_rps
 
