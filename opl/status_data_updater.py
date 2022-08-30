@@ -85,7 +85,7 @@ def doit_list(args):
         'Owner',
         'Golden',
         'Result',
-    ]
+    ] + args.list_fields
     table = []
 
     for item in response['hits']['hits']:
@@ -98,7 +98,7 @@ def doit_list(args):
             sd.get('owner'),
             sd.get('golden'),
             sd.get('result'),
-        ])
+        ] + [sd.get(i) for i in args.list_fields])
 
     print(tabulate.tabulate(table, headers=table_headers))
 
@@ -323,6 +323,8 @@ def main():
                         help='Name of the test to query for when listing')
     parser.add_argument('--list-size', type=int, default=50,
                         help='Number of documents to show when listing')
+    parser.add_argument('--list-fields', nargs='+', default=[],
+                        help='Additional fields to add to the table')
 
     parser.add_argument('--change-id',
                         help='ID of a test run when changing')
