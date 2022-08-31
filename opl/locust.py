@@ -75,7 +75,7 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
         status_data.set_now('results.end')
         logging.info("Local Locust run finished")
 
-        return show_locust_stats(env.stats, status_data, new_stats, summary_only, args.test_duration)
+        return show_locust_stats(env.stats, status_data, new_stats, summary_only)
 
     elif args.locust_master_runner:
 
@@ -107,7 +107,7 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
         status_data.set_now('results.end')
         logging.info("Master Locust run finished")
 
-        return show_locust_stats(env.stats, status_data, new_stats, summary_only, args.test_duration)
+        return show_locust_stats(env.stats, status_data, new_stats, summary_only)
 
     elif args.locust_worker_runner:
 
@@ -133,7 +133,7 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
         raise Exception('No runner specified')
 
 
-def show_locust_stats(locust_stats, status_data, new_stats, summary_only, test_duration):
+def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
     """
     Print Locust stats obejct and format nice table of it.
     Also add values to status data object.
@@ -223,7 +223,6 @@ def show_locust_stats(locust_stats, status_data, new_stats, summary_only, test_d
     print(tabulate.tabulate(data, headers="keys", floatfmt=".3f"))
 
     print("Errors encountered:")
-    print(f"The total throughput is (total_content_length/test_duration): {float(sum_total_content_length)}/{test_duration} = {float(sum_total_content_length)/float(test_duration)} per second ")
     errors = list(locust_stats.serialize_errors().values())
     if len(errors) == 0:
         print("Good, no errors.")
