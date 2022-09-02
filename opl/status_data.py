@@ -260,7 +260,7 @@ def doit_set(status_data, set_this):
 
         key, value = item.split('=')
 
-        if value[0] == '"' and value[-1] == '"':
+        if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
             value = value[1:-1]
 
         if value == '%NOW%':
