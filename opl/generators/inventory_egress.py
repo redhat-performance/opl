@@ -10,11 +10,12 @@ import opl.generators.generic
 
 
 class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
-    def __init__(self, count=1, n_packages=300, template='inventory_egress_template.json.j2' , msg_type='created'):
+    def __init__(self, count=1, n_packages=300, template='inventory_egress_template.json.j2' , msg_type='created', per_account_data=[]):
         super().__init__(count=count, template=template , dump_message=False)
 
         self.n_packages = n_packages   # how many packages to put into profile
         self.msg_type = msg_type
+        self.per_account_data = per_account_data
 
         # Load package profile generator
         self.pg = opl.generators.packages.PackagesGenerator()
@@ -33,11 +34,17 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         return data['inventory_id']
 
     def _data(self):
-        account = self._get_account()
+        if self.per_account_data == []:
+            account = self._get_account()
+            os_tree_commit = "ec3c003da4eafaa971b528b3383d8caff688a110e53af71a85e666cf60b4ed20"
+        else:
+            account = random.choice([i['account'] for i in self.per_account_data])
+            os_tree_commit = random.choice([i['os_tree_commits'] for i in self.per_account_data if i['account'] == account][0])
         return {
             'inventory_id': self._get_uuid(),
             'insights_id': self._get_uuid(),
             'account': account,
+            'os_tree_commit': os_tree_commit,
             'fqdn': self._get_hostname(),
             'installed_packages': self.pg.generate(self.n_packages),
             'yum_repos': self.data['ENABLED_REPOS']
@@ -54,3 +61,5 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             'nowz': self._get_now_iso_z(),
             'tommorowz': self._get_tommorow_iso_z(),
         }
+
+
