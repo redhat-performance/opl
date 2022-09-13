@@ -11,6 +11,54 @@ import opl.generators.generic
 
 class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
     def __init__(self, count=1, n_packages=300, template='inventory_egress_template.json.j2' , msg_type='created', per_account_data=[]):
+        # per_account_data=[] is a json stored in /tmp/edge-test-data.json
+        # the value it takes is in the form :
+#         [
+#   {
+#     "account": "5735447",
+#     "image_set_id": [
+#       529,
+#       530,
+#       531,
+#       532,
+#       533
+#     ],
+#     "repo_ids": [
+#       521,
+#       522,
+#       523,
+#       524,
+#       525
+#     ],
+#     "commit_ids": [
+#       518,
+#       519,
+#       520,
+#       521,
+#       522
+#     ],
+#     "installer_ids": [
+#       517,
+#       518,
+#       519,
+#       520,
+#       521
+#     ],
+#     "image_ids": [
+#       513,
+#       514,
+#       515,
+#       516,
+#       517
+#     ],
+#     "os_tree_commits": [
+#       "xvsff05dvuj7aocz9qlkrb6uejydysk1eqwjf9xxx1w82l2sh0i7ig6ugqm8l48m",
+#       "2rs005sauq3ntnej1bjsjtifxvheutmsq2qx33yur82vcqbb9rj9xjg2c3oyswno",
+#       "mu6o43nao29kher8ifscq7zfs3vl2xhcnym577ombmgu5ds11nbdnvwhaudrwz6v",
+#       "6c5bnbjupgezd3chkje68gor52jy6j1rmz8ly1vnve4ovvwdopiek4v73z4wqrwc",
+#       "eh14yfr96myfmm6md32gcsw0zzvqey22dk4i0uersyygfmp32svi83n8ast0jv0s"
+#     ]
+#   }
         super().__init__(count=count, template=template , dump_message=False)
 
         self.n_packages = n_packages   # how many packages to put into profile
@@ -61,5 +109,3 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             'nowz': self._get_now_iso_z(),
             'tommorowz': self._get_tommorow_iso_z(),
         }
-
-
