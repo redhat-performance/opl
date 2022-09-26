@@ -193,16 +193,20 @@ class GenericGenerator:
 
     def _get_operating_system(self):
         operating_systems = [{
-                "major": 0,
-                "minor": 0,
+                "major": 7,
+                "minor": 6,
                 "name": "RHEL"
             }, {
-                "major": 1,
-                "minor": 1,
+                "major": 7,
+                "minor": 7,
                 "name": "RHEL"
             }, {
-                "major": 2,
-                "minor": 2,
+                "major": 7,
+                "minor": 8,
+                "name": "RHEL"
+            }, {
+                "major": 7,
+                "minor": 9,
                 "name": "RHEL"
             }
         ]
