@@ -48,6 +48,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
         current_info = {
             "fqdn": message["data"]["fqdn"],
             "subscription_manager_id": message["data"]["subscription_manager_id"],
+            "org_id": message["data"]["org_id"]
         }
         if "insights_id" in message["data"]:
             current_info["insights_id"] = message["data"]["insights_id"]
