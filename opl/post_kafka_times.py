@@ -171,6 +171,7 @@ class PostKafkaTimes:
         logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
         self.produce_here = KafkaProducer(
             bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
+            request_timeout_ms = args.request_timeout_ms
         )
 
     def dt_now(self):
@@ -269,6 +270,13 @@ def post_kafka_times(config):
         default=0,
         help="How many messages per second should we produce (0 for no limit)",
     )
+    parser.add_arguement(
+        "--request-timeout-ms",
+        type=int,
+        default=60000,
+        help="The client is going to wait this much time for the server to respond to a request.",
+    )
+
     opl.args.add_storage_db_opts(parser)
     opl.args.add_kafka_opts(parser)
     opl.args.add_tables_def_opts(parser)
