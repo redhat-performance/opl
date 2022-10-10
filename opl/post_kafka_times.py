@@ -273,7 +273,7 @@ def post_kafka_times(config):
     parser.add_arguement(
         "--request-timeout-ms",
         type=int,
-        default=60000,
+        default=30000,
         help="The client is going to wait this much time for the server to respond to a request.",
     )
 
