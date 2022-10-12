@@ -270,7 +270,7 @@ def post_kafka_times(config):
         default=0,
         help="How many messages per second should we produce (0 for no limit)",
     )
-    parser.add_arguement(
+    parser.add_argument(
         "--request-timeout-ms",
         type=int,
         default=30000,
