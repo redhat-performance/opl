@@ -1,0 +1,23 @@
+name: CI for PRs
+
+on:
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Super-Linter
+      uses: github/super-linter@v3.15.5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEFAULT_BRANCH: main
+        OUTPUT_FOLDER: linter_reports # super linter dumps results in this directory
+        OUTPUT_DETAILS: detailed
+        DISABLE_ERRORS: false 
+        VALIDATE_ALL_CODEBASE: false #set this to true if you want the linter to always check the entire codebase instead of the committed changes. NOT CONVINIENT IF THERE IS A LOT OF CODE
+
+
+
