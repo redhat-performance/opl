@@ -53,11 +53,11 @@ Install with:
 
     python -m venv venv
     source venv/bin/activate
-    pip install git+https://github.com/redhat-performance/opl.git
+    python -m pip install git+https://github.com/redhat-performance/opl.git
 
 If you have cloned the git and want to develop locally, replace last step with:
 
-    pip install --editable .
+    python -m pip install --editable .
 
 Running unit tests
 ------------------
