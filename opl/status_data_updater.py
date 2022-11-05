@@ -6,10 +6,8 @@ import json
 import logging
 import os
 import random
-import sys
 import tempfile
 import time
-import urllib3
 
 import opl.status_data
 
@@ -17,8 +15,19 @@ import requests
 
 import tabulate
 
+import urllib3
 
-def _es_get_test(args, key, val, size=1):
+
+RP_TO_ES_STATE = {
+    "automation_bug": "FAIL",
+    "no_defect": "PASS",
+    "product_bug": "FAIL",
+    "system_issue": "ERROR",
+    "to_investigate": "FAIL",
+}
+
+
+def _es_get_test(session, args, key, val, size=1):
     url = f"{args.es_server}/{args.es_index}/_search"
     headers = {
         'Content-Type': 'application/json',
@@ -46,15 +55,18 @@ def _es_get_test(args, key, val, size=1):
             }
         )
 
+    if session is None:
+        session = requests.Session()
+
     logging.info(f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}")
-    response = requests.get(url, headers=headers, json=data)
+    response = session.get(url, headers=headers, json=data)
     response.raise_for_status()
     logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
 
     return response.json()
 
 
-def _add_comment(sd, author=None, text=None):
+def _add_comment(args, sd, author=None, text=None):
     """Add text as a comment to status data document."""
     if sd.get('comments') is None:
         sd.set('comments', [])
@@ -77,7 +89,7 @@ def _add_comment(sd, author=None, text=None):
 def doit_list(args):
     assert args.list_name is not None
 
-    response = _es_get_test(args, ["name.keyword"], [args.list_name], args.list_size)
+    response = _es_get_test(None, args, ["name.keyword"], [args.list_name], args.list_size)
 
     table_headers = [
         'Run ID',
@@ -106,7 +118,7 @@ def doit_list(args):
 def doit_change(args):
     assert args.change_id is not None
 
-    response = _es_get_test(args, ["id.keyword"], [args.change_id])
+    response = _es_get_test(None, args, ["id.keyword"], [args.change_id])
 
     source = response['hits']['hits'][0]
     es_type = source['_type']
@@ -134,14 +146,14 @@ def doit_change(args):
         sd.set(key, value)
 
     # Add comment to log the change
-    _add_comment(sd, text=args.change_comment_text)
+    _add_comment(args, sd, text=args.change_comment_text)
 
     url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
 
     logging.info(f"Saving to ES with url={url} and json={json.dumps(sd.dump())}")
 
     if args.dry_run:
-        logging.info(f"Not touching ES as we are running in dry run mode")
+        logging.info("Not touching ES as we are running in dry run mode")
     else:
         response = requests.post(url, json=sd.dump())
         response.raise_for_status()
@@ -150,17 +162,115 @@ def doit_change(args):
     print(sd.info())
 
 
+def _get_rp_launches(session, args):
+    """Get 10 newest launches from RP"""
+    url = f'https://{args.rp_host}/api/v1/{args.rp_project}/launch'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {args.rp_token}',
+    }
+    data = {
+        "filter.eq.name": args.rp_launch,
+        "page.size": 10,
+        "page.sort": "endTime,desc",
+    }
+    logging.debug(f"Going to do GET request to {url} with {data}")
+    response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
+    if not response.ok:
+        logging.error(f"Request failed: {response.text}")
+    response.raise_for_status()
+    logging.debug(f"Request returned {response.json()}")
+    return response.json()['content']
+
+
+def _get_run_id_from_rp_launch(launch):
+    """Return "run_id" attribute value from RP launch or None if not present"""
+    run_id = None
+    for a in launch["attributes"]:
+        if a["key"] == "run_id":
+            run_id = a["value"]
+            break
+    return run_id
+
+
+def _filter_rp_launches_without_run_id(launches):
+    """Filter out RP launches that does not have "run_id" attribute"""
+    launches_filtered = []
+    for launch in launches:
+        run_id = _get_run_id_from_rp_launch(launch)
+        if run_id is None:
+            logging.warning(f"Launch id={launch['id']} do not have run_id attribute, skipping it")
+            continue
+        launches_filtered.append(launch)
+    return launches_filtered
+
+
+def _get_rp_launch_results(session, args, launch):
+    """Get results for RP launch"""
+    results = []
+    url = f'https://{args.rp_host}/api/v1/{args.rp_project}/item'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {args.rp_token}',
+    }
+    data = {
+        "filter.eq.launchId": launch['id'],
+        "filter.eq.type": "TEST",
+        "filter.ne.status": "PASSED",
+        "page.size": 100,
+        "page.page": 0,
+        "page.sort": "id,asc",
+    }
+    while True:
+        logging.debug(f"Going to do GET request to {url} with {data}")
+        response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
+        results += response.json()['content']
+        if response.json()['page']['number'] < response.json()['page']['totalPages']:
+            data['page.page'] += 1
+        else:
+            logging.debug("No content in the response, considering this last page of data")
+            break
+    logging.debug(f"OK, we have {len(results)} results from RP for this launch")
+    return results
+
+
+def _get_es_result_for_rp_result(session, args, run_id, result):
+    if args.rp_project == 'satcpt':
+        # OK, I agree we need a better way here.
+        # In all projects except SatCPT we have 1 run_id for 1 test
+        # result, but in SatCPT we need to differentiate by name as
+        # well and that is composed differently in SatCPT and in other
+        # CPTs :-(
+        if 'itemPaths' not in result['pathNames']:
+            raise Exception(f"This result do not have result -> pathNames -> itemPaths, skipping it: {result}")
+        else:
+            sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
+            response = _es_get_test(session, args, ["id.keyword", "name.keyword"], [run_id, sd_name])
+    elif args.rp_project == 'aapcpt':
+        response = _es_get_test(session, args, ["id.keyword", "name.keyword"], [run_id, result["name"]])
+    else:
+        response = _es_get_test(session, args, ["id.keyword"], [run_id])
+        assert response['hits']['total']['value'] == 1
+    try:
+        source = response['hits']['hits'][0]
+    except IndexError:
+        raise Exception(f"Failed to find test result in ES for {run_id}")
+    es_type = source['_type']
+    es_id = source['_id']
+    logging.debug(f"Loading data from document ID {source['_id']} with field id={source['_source']['id']}")
+    tmpfile = tempfile.NamedTemporaryFile(prefix=source['_id'], delete=False).name
+    sd = opl.status_data.StatusData(tmpfile, data=source['_source'])
+    return (sd, es_type, es_id)
+
+
+def _get_rp_result_result_string(result):
+    return RP_TO_ES_STATE[list(result["statistics"]["defects"].keys())[0]]
+
+
 def doit_rp_to_es(args):
     assert args.es_server is not None
     assert args.rp_host is not None
 
-    RP_TO_ES_STATE = {
-        "automation_bug": "FAIL",
-        "no_defect": "PASS",
-        "product_bug": "FAIL",
-        "system_issue": "ERROR",
-        "to_investigate": "FAIL",
-    }
     stats = {
         'launches': 0,
         'cases': 0,
@@ -171,61 +281,22 @@ def doit_rp_to_es(args):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     # Start a session
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {args.rp_token}',
-    }
     session = requests.Session()
 
     # Get 10 newest launches
-    url = f'https://{args.rp_host}/api/v1/{args.rp_project}/launch'
-    data = {
-      "filter.eq.name": args.rp_launch,
-      "page.size": 10,
-      "page.sort": "endTime,desc",
-    }
-    logging.debug(f"Going to do GET request to {url} with {data}")
-    response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
-    if not response.ok:
-        logging.error(f"Request failed: {response.text}")
-    response.raise_for_status()
-    logging.debug(f"Request returned {response.json()}")
-    launches = response.json()['content']
+    launches = _get_rp_launches(session, args)
+
+    # Filter out RP launches that does not have "run_id" attribute
+    launches = _filter_rp_launches_without_run_id(launches)
 
     for launch in launches:
         stats['launches'] += 1
 
         # Get run ID from launch attributes
-        run_id = None
-        for a in launch["attributes"]:
-            if a["key"] == "run_id":
-                run_id = a["value"]
-                break
-        if run_id is None:
-            logging.warning(f"Launch id={launch['id']} do not have run_id attribute, skipping it")
-            continue
+        run_id = _get_run_id_from_rp_launch(launch)
 
         # Get test results from launch
-        results = []
-        url = f'https://{args.rp_host}/api/v1/{args.rp_project}/item'
-        data = {
-          "filter.eq.launchId": launch['id'],
-          "filter.eq.type": "TEST",
-          "filter.ne.status": "PASSED",
-          "page.size": 100,
-          "page.page": 0,
-          "page.sort": "id,asc",
-        }
-        while True:
-            logging.debug(f"Going to do GET request to {url} with {data}")
-            response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
-            results += response.json()['content']
-            if response.json()['page']['number'] < response.json()['page']['totalPages']:
-                data['page.page'] += 1
-            else:
-                logging.debug("No content in the response, considering this last page of data")
-                break
-        logging.debug(f"OK, we have {len(results)} results from RP for this launch")
+        results = _get_rp_launch_results(session, args, launch)
         print(f"Going to compare {len(results)} results for launch {launch['id']}")
 
         # Process individual results
@@ -234,36 +305,14 @@ def doit_rp_to_es(args):
             stats['cases'] += 1
 
             # Get resuls from launch statistics
-            result_string = RP_TO_ES_STATE[list(result["statistics"]["defects"].keys())[0]]
+            result_string = _get_rp_result_result_string(result)
 
             # Get relevant status data document from ElasticSearch
-            if args.rp_project == 'satcpt':
-                # OK, I agree we need a better way here.
-                # In all projects except SatCPT we have 1 run_id for 1 test
-                # result, but in SatCPT we need to differentiate by name as
-                # well and that is composed differently in SatCPT and in other
-                # CPTs :-(
-                if 'itemPaths' not in result['pathNames']:
-                    logging.info(f"This result do not have result -> pathNames -> itemPaths, skipping it: {result}")
-                    continue
-                else:
-                    sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
-                    response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, sd_name])
-            elif args.rp_project == 'aapcpt':
-                response = _es_get_test(args, ["id.keyword", "name.keyword"], [run_id, result["name"]])
-            else:
-                response = _es_get_test(args, ["id.keyword"], [run_id])
-                assert response['hits']['total']['value'] == 1
             try:
-                source = response['hits']['hits'][0]
-            except IndexError:
-                logging.warning(f"Failed to find test result in ES for {run_id}")
+                sd, es_type, es_id = _get_es_result_for_rp_result(session, args, run_id, result)
+            except Exception:
+                logging.warning(f"Something went wrong when getting data for {run_id}/{result}")
                 continue
-            es_type = source['_type']
-            es_id = source['_id']
-            logging.debug(f"Loading data from document ID {source['_id']} with field id={source['_source']['id']}")
-            tmpfile = tempfile.NamedTemporaryFile(prefix=source['_id'], delete=False).name
-            sd = opl.status_data.StatusData(tmpfile, data=source['_source'])
 
             logging.debug(f"Comparing result from RP {result_string} to result from ES {sd.get('result')}")
             if sd.get("result") != result_string:
@@ -274,7 +323,7 @@ def doit_rp_to_es(args):
                     comment = "Comment from RP: " + result['issue']['issueType']
                 except IndexError:
                     comment = f"Automatic update as per ReportPortal change: {sd.get('result')} -> {result_string}"
-                _add_comment(sd, author='status_data_updater', text=comment)
+                _add_comment(args, sd, author='status_data_updater', text=comment)
 
                 logging.info(f"Results do not match, updating them: {sd.get('result')} != {result_string}")
                 sd.set("result", result_string)
@@ -283,7 +332,7 @@ def doit_rp_to_es(args):
                 url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
                 logging.info(f"Saving to ES with url={url} and json={json.dumps(sd.dump())}")
                 if args.dry_run:
-                    logging.info(f"Not touching ES as we are running in dry run mode")
+                    logging.info("Not touching ES as we are running in dry run mode")
                 else:
                     attempt = 0
                     attempt_max = 10
