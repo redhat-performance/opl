@@ -47,7 +47,17 @@ def _debug_response(r):
     raise Exception("Request failed")
 
 
-class PrometheusMeasurementsPlugin():
+class BasePlugin():
+
+    def measure(self, start, end, name, **args):
+        pass
+
+    @staticmethod
+    def add_args(parser):
+        pass
+
+
+class PrometheusMeasurementsPlugin(BasePlugin):
 
     def __init__(self, args):
         self.host = args.prometheus_host
@@ -118,7 +128,7 @@ class PrometheusMeasurementsPlugin():
                             help='Do not send auth headers to Prometheus')
 
 
-class GrafanaMeasurementsPlugin():
+class GrafanaMeasurementsPlugin(BasePlugin):
 
     def __init__(self, args):
         self.host = args.grafana_host
@@ -186,7 +196,34 @@ class GrafanaMeasurementsPlugin():
                             help='Monitored host network interface name in Graphite')
 
 
+class CommandPlugin(BasePlugin):
+
+    def __init__(self, args):
+        pass
+
+    def measure(self, start, end, name, command, output="text"):
+        """
+        Execute command "command" and return result as per its "output" configuration
+        """
+        # Execute the command
+        result = execute(command)
+
+        # Sanitize command response
+        if result is not None:
+            if output == 'text':
+                pass
+            elif output == 'json':
+                result = json.loads(result)
+            elif output == 'yaml':
+                result = yaml.load(result, Loader=yaml.SafeLoader)
+            else:
+                raise Exception(f"Unexpected output type '{output}' for '{name}'")
+
+        return name, result
+
+
 PLUGINS = {
+    'command': CommandPlugin,
     'monitoring_query': PrometheusMeasurementsPlugin,
     'grafana_target': GrafanaMeasurementsPlugin,
 }
@@ -244,7 +281,7 @@ def config_stuff(config):
 
 class RequestedInfo():
 
-    def __init__(self, config, start=None, end=None):
+    def __init__(self, config, start=None, end=None, args=argparse.Namespace()):
         """
         "config" is input for config_stuff function
         "start" and "end" are datetimes needed if config file contains some
@@ -254,10 +291,18 @@ class RequestedInfo():
         self.config = config_stuff(config)
         self.start = start
         self.end = end
+        self.args = args
 
         self._index = 0   # which config item are we processing?
         self._token = None   # OCP token - we will take it from `oc whoami -t` if needed
         self.measurement_plugins = {}   # objects to use for measurements (it's 'measure()' method) by key in config
+
+        # Register plugins
+        for name, plugin in PLUGINS.items():
+            try:
+                self.register_measurement_plugin(name, plugin(args))
+            except Exception as e:
+                logging.warning(f"Failed to register plugin {name}: {e}")
 
     def register_measurement_plugin(self, key, instance):
         self.measurement_plugins[key] = instance
@@ -267,26 +312,6 @@ class RequestedInfo():
 
     def __iter__(self):
         return self
-
-    def _command(self, config):
-        """
-        Execute command "command" and return result as per its "output" configuration
-        """
-        # Execute the command
-        result = execute(config['command'])
-
-        # Sanitize command response
-        if 'output' in config and result is not None:
-            if config['output'] == 'text':
-                pass
-            elif config['output'] == 'json':
-                result = json.loads(result)
-            elif config['output'] == 'yaml':
-                result = yaml.load(result, Loader=yaml.SafeLoader)
-            else:
-                raise Exception(f"Unexpected output type '{config['output']}' for '{config['name']}'")
-
-        return config['name'], result
 
     def _find_plugin(self, keys):
         for key in keys:
@@ -301,9 +326,7 @@ class RequestedInfo():
         i = self._index
         self._index += 1
         if i < len(self.config):
-            if 'command' in self.config[i]:
-                return self._command(self.config[i])
-            elif self._find_plugin(self.config[i].keys()):
+            if self._find_plugin(self.config[i].keys()):
                 instance = self._find_plugin(self.config[i].keys())
                 try:
                     return instance.measure(self.start, self.end, **self.config[i])
@@ -330,8 +353,6 @@ def doit(args):
             args.requested_info_config,
             args.monitoring_start,
             args.monitoring_end)
-        for name, plugin in PLUGINS.items():
-            requested_info.register_measurement_plugin(name, plugin(args))
 
     if args.render_config:
         print(yaml.dump(requested_info.get_config(), width=float("inf")))
