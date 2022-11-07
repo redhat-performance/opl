@@ -26,8 +26,14 @@ RP_TO_ES_STATE = {
     "to_investigate": "FAIL",
 }
 
+STATE_WEIGHTS = {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 2,
+}
 
-def _es_get_test(session, args, key, val, size=1):
+
+def _es_get_test(session, args, key, val, size=1, sort_by="started"):
     url = f"{args.es_server}/{args.es_index}/_search"
     headers = {
         'Content-Type': 'application/json',
@@ -39,7 +45,7 @@ def _es_get_test(session, args, key, val, size=1):
             },
         },
         "sort": {
-            "started": {
+            sort_by: {
                 "order": "desc",
             },
         },
@@ -263,6 +269,21 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
     return (sd, es_type, es_id)
 
 
+def _get_es_dashboard_result_for_run_id(session, args, run_id):
+    response = _es_get_test(session, args, ["result_id.keyword"], [run_id], sort_by="date")
+    if response['hits']['total']['value'] == 0:
+        return (None, None, None)
+    else:
+        assert response['hits']['total']['value'] == 1, "There have to be exactly one result"
+    try:
+        source = response['hits']['hits'][0]
+    except IndexError:
+        logging.debug(f"Failed to find dashboard result in ES for {run_id}")
+        return (None, None, None)
+    else:
+        return (response['hits']['hits'][0]['_source'], source['_type'], source['_id'])
+
+
 def _get_rp_result_result_string(result):
     return RP_TO_ES_STATE[list(result["statistics"]["defects"].keys())[0]]
 
@@ -353,13 +374,129 @@ def doit_rp_to_es(args):
     print(tabulate.tabulate(stats.items()))
 
 
+def doit_rp_to_dashboard_new(args):
+    assert args.es_server is not None
+
+    if args.rp_noverify:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    # Start a session
+    session = requests.Session()
+
+    run_id = args.dashboard_run_id
+    result = args.dashboard_result
+
+    # Ensure there are no results for this run_id in ElasticSearch yet
+    try:
+        dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(session, args, run_id)
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 400 and "No mapping found for [date] in order to sort on" in e.response.text:
+            logging.debug(f"Query failed, but I guess it was because there are no data in the index yet")
+            dashboard = None
+        else:
+            raise
+    assert dashboard is None, f"Result {run_id} already exists: {dashboard}"
+
+    # Create new result in the dashboard
+    url = f'{args.es_server}/{args.es_index}/_doc/'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {args.rp_token}',
+    }
+    data = {
+        "result_id": run_id,
+        "group": args.dashboard_group,
+        "product": args.dashboard_product,
+        "release": args.dashboard_release,
+        "version": args.dashboard_version,
+        "link": args.dashboard_link,
+        "result": result,
+        "date": args.dashboard_date,
+    }
+    logging.debug(f"Going to do POST request to {url} with {data}")
+    response = session.post(url, json=data, headers=headers, verify=not args.rp_noverify)
+    print(f"Created result {run_id} in the dashboard with value {result}")
+
+
+def doit_rp_to_dashboard_update(args):
+    assert args.es_server is not None
+    assert args.rp_host is not None
+
+    stats = {
+        'launches': 0,
+        'results': 0,
+        'results_changed': 0,
+    }
+
+    if args.rp_noverify:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    # Start a session
+    session = requests.Session()
+
+    # Get 10 newest launches
+    launches = _get_rp_launches(session, args)
+
+    # Filter out RP launches that does not have "run_id" attribute
+    launches = _filter_rp_launches_without_run_id(launches)
+
+    for launch in launches:
+        stats['launches'] += 1
+
+        # Get run ID from launch attributes
+        run_id = _get_run_id_from_rp_launch(launch)
+
+        # Get test results from launch
+        results = _get_rp_launch_results(session, args, launch)
+        print(f"Going to compare {len(results)} results for launch {launch['id']}")
+
+        # Process individual results to get final result
+        result_final = 'PASS'
+        for result in results:
+            logging.debug(f"Processing RP result {result}")
+
+            result_string = _get_rp_result_result_string(result)
+
+            if STATE_WEIGHTS[result_string] > STATE_WEIGHTS[result_final]:
+                result_final = result_string
+
+        # Get relevant dashboard result from ElasticSearch
+        dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(session, args, run_id)
+        if dashboard is None:
+            logging.warning(f"Result {run_id} does not exist in the dashboard, skipping updating it")
+            continue
+
+        # Update the result in dashboard if needed
+        stats['results'] += 1
+        if dashboard["result"] == result_final:
+            pass   # data in the dashboard are correct, no action needed
+        else:
+            url = f'{args.es_server}/{args.es_index}/_doc/{es_id}/_update'
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {args.rp_token}',
+            }
+            data = {
+                "doc": {
+                    "result": result_string,
+                },
+            }
+            logging.debug(f"Going to do POST request to {url} with {data}")
+            response = session.post(url, json=data, headers=headers, verify=not args.rp_noverify)
+            response.raise_for_status()
+            logging.debug(f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}")
+            stats['results_changed'] += 1
+
+    print(tabulate.tabulate(stats.items()))
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Investigate and modify status data documents in ElasticSearch',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument('--action', required=True,
-                        choices=['list', 'change', 'rp-to-es'],
+                        choices=['list', 'change', 'rp-to-es', 'rp-to-dashboard-new', 'rp-to-dashboard-update'],
                         help='What action to do')
 
     parser.add_argument('--es-server',
@@ -393,6 +530,23 @@ def main():
     parser.add_argument('--rp-launch',
                         help='ReportPortal launch name')
 
+    parser.add_argument('--dashboard-run-id', default="Unknown run_id",
+                        help='When pushing new result to dashboard, this is the run_id')
+    parser.add_argument('--dashboard-result', default="ERROR",
+                        help='When pushing new result to dashboard, this is the result')
+    parser.add_argument('--dashboard-group', default="Unknown group",
+                        help='Product group for result dashboard')
+    parser.add_argument('--dashboard-product', default="Unknown product",
+                        help='Product for result dashboard')
+    parser.add_argument('--dashboard-release', default="Unknown release",
+                        help='Product release stream for result dashboard')
+    parser.add_argument('--dashboard-version', default="Unknown version",
+                        help='Application version during the test for result dashboard')
+    parser.add_argument('--dashboard-link', default="Unknown link",
+                        help='Link with test details for result dashboard')
+    parser.add_argument('--dashboard-date', default=datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
+                        help='When the test was executed for result dashboard')
+
     parser.add_argument('--dry-run', action='store_true',
                         help='Do not actually change data, meant for debugging')
     parser.add_argument('-d', '--debug', action='store_true',
@@ -410,3 +564,7 @@ def main():
         return doit_change(args)
     if args.action == 'rp-to-es':
         return doit_rp_to_es(args)
+    if args.action == 'rp-to-dashboard-new':
+        return doit_rp_to_dashboard_new(args)
+    if args.action == 'rp-to-dashboard-update':
+        return doit_rp_to_dashboard_update(args)
