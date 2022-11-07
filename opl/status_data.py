@@ -311,9 +311,9 @@ def doit_additional(status_data, additional, monitoring_start, monitoring_end, a
     requested_info = cluster_read.RequestedInfo(
         additional,
         start=monitoring_start,
-        end=monitoring_end)
-    for name, plugin in cluster_read.PLUGINS.items():
-        requested_info.register_measurement_plugin(name, plugin(args))
+        end=monitoring_end,
+        args=args,
+    )
 
     counter_ok = 0
     counter_bad = 0
