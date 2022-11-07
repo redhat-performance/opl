@@ -64,4 +64,4 @@ Running unit tests
 ------------------
 
     source venv/bin/activate
-    python -m unittest
+    python -m pytest
