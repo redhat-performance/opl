@@ -49,6 +49,9 @@ def _debug_response(r):
 
 class BasePlugin():
 
+    def __init__(self, args):
+        pass
+
     def measure(self, start, end, name, **args):
         pass
 
@@ -196,10 +199,16 @@ class GrafanaMeasurementsPlugin(BasePlugin):
                             help='Monitored host network interface name in Graphite')
 
 
-class CommandPlugin(BasePlugin):
+class ConstantPlugin(BasePlugin):
 
-    def __init__(self, args):
-        pass
+    def measure(self, start, end, name, constant):
+        """
+        Just store given constant
+        """
+        return name, constant
+
+
+class CommandPlugin(BasePlugin):
 
     def measure(self, start, end, name, command, output="text"):
         """
@@ -223,6 +232,7 @@ class CommandPlugin(BasePlugin):
 
 
 PLUGINS = {
+    'constant': ConstantPlugin,
     'command': CommandPlugin,
     'monitoring_query': PrometheusMeasurementsPlugin,
     'grafana_target': GrafanaMeasurementsPlugin,

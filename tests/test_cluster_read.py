@@ -54,7 +54,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v['bbb'], 456)
 
     def test_measurements(self):
-        class TestMeasurementPlugin():
+        class TestMeasurementPlugin(opl.cluster_read.BasePlugin):
             def measure(self, start, end, name, test_measurement_query):
                 if test_measurement_query == 'simple':
                     return name, opl.data.data_stats([1, 2, 3])
@@ -64,7 +64,7 @@ class TestRequestedInfo(unittest.TestCase):
               test_measurement_query: simple
         """
         ri = opl.cluster_read.RequestedInfo(string)
-        ri.register_measurement_plugin('test_measurement_query', TestMeasurementPlugin())
+        ri.register_measurement_plugin('test_measurement_query', TestMeasurementPlugin({}))
         k, v = next(ri)
         self.assertEqual(k, 'mymeasurement')
         self.assertEqual(v['samples'], 3)
@@ -113,3 +113,13 @@ class TestRequestedInfo(unittest.TestCase):
         ri = opl.cluster_read.RequestedInfo(string)
         orig = yaml.load(string, Loader=yaml.SafeLoader)
         self.assertEqual(orig, ri.get_config())
+
+    def test_constant(self):
+        string = """
+            - name: myconstant
+              constant: Hello world
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, 'myconstant')
+        self.assertEqual(v, 'Hello world')
