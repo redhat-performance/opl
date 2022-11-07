@@ -16,3 +16,6 @@
 
 - name: measurements.satellite.load
   grafana_target: $Cloud.$Node.load.load.shortterm
+
+- name: parameters.test_description
+  constant: This test is about this and that
