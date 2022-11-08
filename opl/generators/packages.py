@@ -10,15 +10,30 @@ class PackagesGenerator:
     def __init__(self):
         data_dirname = os.path.dirname(__file__)
         self.data_file = os.path.join(data_dirname, 'packages_data.json')
+
+        # Load data
         with open(self.data_file, 'r') as fp:
-            self.data = json.load(fp)
+            data_raw = json.load(fp)
+
+        # Only pick one version and drop rest of them to make
+        # `generate()` faster
+        self.data = []
+        for key in data_raw.keys():
+            self.data.append(random.choice(data_raw[key]))
+
+        # Sort data randomly, again to make `generate()` faster
+        random.shuffle(self.data)
+        self.len = len(self.data)
 
     def count(self):
         return len(self.data)
 
     def generate(self, count):
-        return [random.choice(self.data[key])
-                for key in random.sample(self.data.keys(), count)]
+        if count > self.len:
+            i = 0
+        else:
+            i = random.randint(0, self.len - count)
+        return self.data[i:i + count]
 
 
 class YumReposGenerator:
