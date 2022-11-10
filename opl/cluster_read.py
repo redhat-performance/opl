@@ -52,7 +52,7 @@ class BasePlugin():
     def __init__(self, args):
         pass
 
-    def measure(self, start, end, name, **args):
+    def measure(self, ri, **args):
         pass
 
     @staticmethod
@@ -75,10 +75,10 @@ class PrometheusMeasurementsPlugin(BasePlugin):
                 raise Exception("Failsed to get token")
         return self.token
 
-    def measure(self, start, end, name, monitoring_query, monitoring_step):
-        logging.debug(f"Getting data for {name} using Prometheus query {monitoring_query} and step {monitoring_step}")
+    def measure(self, ri, name, monitoring_query, monitoring_step):
+        logging.debug(f"/Getting data for {name} using Prometheus query {monitoring_query} and step {monitoring_step}")
 
-        assert start is not None and end is not None, \
+        assert ri.start is not None and ri.end is not None, \
             "We need timerange to approach Prometheus"
         # Get data from Prometheus
         url = f'{self.host}:{self.port}/api/v1/query_range'
@@ -90,8 +90,8 @@ class PrometheusMeasurementsPlugin(BasePlugin):
         params = {
             'query': monitoring_query,
             'step': monitoring_step,
-            'start': start.timestamp(),
-            'end': end.timestamp(),
+            'start': ri.start.timestamp(),
+            'end': ri.end.timestamp(),
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         response = requests.get(url, headers=headers, params=params, verify=False)
@@ -150,10 +150,10 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             target = target.replace(k, v)
         return target
 
-    def measure(self, start, end, name, grafana_target):
-        assert start is not None and end is not None, \
+    def measure(self, ri, name, grafana_target):
+        assert ri.start is not None and ri.end is not None, \
             "We need timerange to approach Grafana"
-        if start.strftime('%s') == end.strftime('%s'):
+        if ri.start.strftime('%s') == ri.end.strftime('%s'):
             return name, None
 
         # Metadata for the request
@@ -164,8 +164,8 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             headers['Authorization'] = 'Bearer %s' % self.token
         params = {
             'target': [self._sanitize_target(grafana_target)],
-            'from': int(start.timestamp()),
-            'until': round(end.timestamp()),
+            'from': int(ri.start.timestamp()),
+            'until': round(ri.end.timestamp()),
             'format': 'json',
         }
         url = "http://%s:%s/api/datasources/proxy/%s/render" % (self.host, self.port, self.datasource)
@@ -201,7 +201,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
 class ConstantPlugin(BasePlugin):
 
-    def measure(self, start, end, name, constant):
+    def measure(self, ri, name, constant):
         """
         Just store given constant
         """
@@ -210,7 +210,7 @@ class ConstantPlugin(BasePlugin):
 
 class CommandPlugin(BasePlugin):
 
-    def measure(self, start, end, name, command, output="text"):
+    def measure(self, ri, name, command, output="text"):
         """
         Execute command "command" and return result as per its "output" configuration
         """
@@ -231,9 +231,22 @@ class CommandPlugin(BasePlugin):
         return name, result
 
 
+class CopyFromPlugin(BasePlugin):
+
+    def measure(self, ri, name, copy_from):
+        """
+        Just return value from previously answered item
+        """
+        try:
+            return name, dict(ri._responses)[copy_from]
+        except KeyError:
+            return name, None
+
+
 PLUGINS = {
     'constant': ConstantPlugin,
     'command': CommandPlugin,
+    'copy_from': CopyFromPlugin,
     'monitoring_query': PrometheusMeasurementsPlugin,
     'grafana_target': GrafanaMeasurementsPlugin,
 }
@@ -304,6 +317,7 @@ class RequestedInfo():
         self.args = args
 
         self._index = 0   # which config item are we processing?
+        self._responses = []   # what responses we have gave so far
         self._token = None   # OCP token - we will take it from `oc whoami -t` if needed
         self.measurement_plugins = {}   # objects to use for measurements (it's 'measure()' method) by key in config
 
@@ -339,11 +353,13 @@ class RequestedInfo():
             if self._find_plugin(self.config[i].keys()):
                 instance = self._find_plugin(self.config[i].keys())
                 try:
-                    return instance.measure(self.start, self.end, **self.config[i])
+                    output = instance.measure(self, **self.config[i])
                 except Exception as e:
                     logging.error(f"Failed to measure {self.config[i]['name']}: {e}")
                     traceback.print_exc()
-                    return None, None
+                    output = None
+                self._responses.append(output)
+                return output
             else:
                 raise Exception(f"Unknown config '{self.config[i]}'")
         else:

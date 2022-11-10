@@ -55,7 +55,7 @@ class TestRequestedInfo(unittest.TestCase):
 
     def test_measurements(self):
         class TestMeasurementPlugin(opl.cluster_read.BasePlugin):
-            def measure(self, start, end, name, test_measurement_query):
+            def measure(self, ri, name, test_measurement_query):
                 if test_measurement_query == 'simple':
                     return name, opl.data.data_stats([1, 2, 3])
 
@@ -123,3 +123,33 @@ class TestRequestedInfo(unittest.TestCase):
         k, v = next(ri)
         self.assertEqual(k, 'myconstant')
         self.assertEqual(v, 'Hello world')
+
+    def test_copy_from(self):
+        string = """
+            - name: somevalue
+              constant: Hello world
+            - name: mycopyfrom
+              copy_from: somevalue
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, 'somevalue')
+        self.assertEqual(v, 'Hello world')
+        k, v = next(ri)
+        self.assertEqual(k, 'mycopyfrom')
+        self.assertEqual(v, 'Hello world')
+
+    def test_copy_from_negative(self):
+        string = """
+            - name: somevalue
+              constant: Hello world
+            - name: mycopyfrom
+              copy_from: somevalue_that_does_not_exist
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, 'somevalue')
+        self.assertEqual(v, 'Hello world')
+        k, v = next(ri)
+        self.assertEqual(k, 'mycopyfrom')
+        self.assertEqual(v, None)
