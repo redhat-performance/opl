@@ -171,7 +171,11 @@ class PostKafkaTimes:
         logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
         self.produce_here = KafkaProducer(
             bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
-            request_timeout_ms = args.request_timeout_ms
+            batch_size=args.batch_size,
+            buffer_memory=args.buffer_memory,
+            linger_ms=args.linger_ms,
+            max_block_ms=args.max_block_ms,
+            request_timeout_ms=args.request_timeout_ms,
         )
 
     def dt_now(self):
@@ -275,6 +279,30 @@ def post_kafka_times(config):
         type=int,
         default=30000,
         help="The client is going to wait this much time for the server to respond to a request.",
+    )
+    parser.add_argument(
+        "--max_block_ms",
+        type=int,
+        default=60000,
+        help="Max time to block send e.g. because buffer is full.",
+    )
+    parser.add_argument(
+        "--linger-ms",
+        type=int,
+        default=0,
+        help="Max time to wait for more messages when creating batch.",
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=16384,
+        help="Max size of the batch before sending.",
+    )
+    parser.add_argument(
+        "--buffer-memory",
+        type=int,
+        default=33554432,
+        help="Memory the producer can use at max for batching.",
     )
 
     opl.args.add_storage_db_opts(parser)
