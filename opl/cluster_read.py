@@ -367,7 +367,7 @@ class RequestedInfo():
                 except Exception as e:
                     logging.error(f"Failed to measure {self.config[i]['name']}: {e}")
                     traceback.print_exc()
-                    output = None
+                    output = (None, None)
                 self._responses.append(output)
                 return output
             else:
