@@ -243,7 +243,17 @@ class CopyFromPlugin(BasePlugin):
             return name, None
 
 
+class TestFailMePlugin(BasePlugin):
+
+    def measure(self, ri, name, **kwargs):
+        """
+        Just raise an exception. Mean for tests only.
+        """
+        a = 1 / 0
+
+
 PLUGINS = {
+    'test_fail_me': TestFailMePlugin,
     'constant': ConstantPlugin,
     'command': CommandPlugin,
     'copy_from': CopyFromPlugin,

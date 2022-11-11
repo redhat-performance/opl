@@ -153,3 +153,14 @@ class TestRequestedInfo(unittest.TestCase):
         k, v = next(ri)
         self.assertEqual(k, 'mycopyfrom')
         self.assertEqual(v, None)
+
+    def test_wrong_config(self):
+        """If plugin throws an exception, (None, None) should be returned"""
+        string = """
+            - name: some_name
+              test_fail_me: abc
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, None)
+        self.assertEqual(v, None)
