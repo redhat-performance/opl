@@ -171,7 +171,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         url = "http://%s:%s/api/datasources/proxy/%s/render" % (self.host, self.port, self.datasource)
 
         r = requests.post(url=url, headers=headers, params=params)
-        if not r.ok or r.headers['Content-Type'] != 'application/json':
+        if not r.ok or r.headers['Content-Type'] != 'application/json' or r.json() == []:
             _debug_response(r)
         logging.debug("Response: %s" % r.json())
 
