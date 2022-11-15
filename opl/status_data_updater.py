@@ -473,6 +473,7 @@ def doit_rp_to_dashboard_new(args):
         "release": args.dashboard_release,
         "version": args.dashboard_version,
         "link": args.dashboard_link,
+        "test": args.dashboard_test,
         "result": result,
         "date": args.dashboard_date,
     }
@@ -639,6 +640,11 @@ def main():
         "--dashboard-result",
         default="ERROR",
         help="When pushing new result to dashboard, this is the result",
+    )
+    parser.add_argument(
+        "--dashboard-test",
+        default="N/A",
+        help="When pushing new result to dashboard, this is the test name",
     )
     parser.add_argument(
         "--dashboard-group",
