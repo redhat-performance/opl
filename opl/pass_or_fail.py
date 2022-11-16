@@ -158,4 +158,15 @@ def main():
         if args.decisions_type == 'csv':
             opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
 
+    if not args.dry_run:
+        if exit_code == 0:
+            result = "PASS"
+        elif exit_code == 1:
+            result = "FAIL"
+        else:
+            result = "ERROR"
+        logging.info(f"In {current_sd} setting result to {result}")
+        current_sd.set("result", result)
+        current_sd.save()
+
     return exit_code
