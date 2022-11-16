@@ -1,7 +1,7 @@
 FROM registry.fedoraproject.org/fedora:36
 MAINTAINER "Jan Hutar" <jhutar@redhat.com>
 
-RUN dnf -y install python3-boto3 python3-numpy python3-scipy python3-virtualenv python3-pip python3-psycopg2 python3-requests python3-psutil python3-pyyaml postgresql git-core dumb-init 'dnf-command(builddep)' \
+RUN dnf -y install python3-boto3 python3-numpy python3-virtualenv python3-pip python3-psycopg2 python3-requests python3-psutil python3-pyyaml postgresql git-core dumb-init 'dnf-command(builddep)' \
     && dnf -y builddep python3-requests python3-psutil \
     && rm -rf /var/cache/yum/* /var/cache/dnf/*
 RUN echo "Marker 2022-11-15 13:20" \

@@ -32,11 +32,6 @@ There is couple of tools used mostly to integrate with CPT and comp.:
   template - e.g. see `opl/status_data_report.txt`.
 * `status_data_diff.py` - Convenience tool to show differences in two status
   data files.
-* Deprecated `data_investigator.py` - Tool which consumes input status data
-  files and loads data from similar status data documents in ElasticSearch
-  and decides if result in provided input status data file is PASS or FAIL.
-  It counts some averages and so to do that. Currently it is used by
-  Satellite CPT.
 
 These tools are only used by tests:
 

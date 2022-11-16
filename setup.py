@@ -34,7 +34,6 @@ setuptools.setup(
         "pyyaml",
         "PyYAML",
         "requests",
-        "scipy",
         "tabulate",
         "deepdiff",
         "paho-mqtt",
@@ -65,7 +64,6 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "cluster_read.py = opl.cluster_read:main",
-            "data_investigator.py = opl.data_investigator:main",
             "pass_or_fail.py = opl.pass_or_fail:main",
             "junit_cli.py = opl.junit_cli:main",
             "rp_updater.py = opl.rp_updater:main",
