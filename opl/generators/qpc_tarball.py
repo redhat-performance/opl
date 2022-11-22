@@ -14,17 +14,14 @@ def get_tarball_message(account, remotename, size, download_url):
         "account": account,
         "org_id": account,
         "category": "tar",
-        "metadata": {
-            "reporter": "",
-            "stale_timestamp": "0001-01-01T00:00:00Z"
-        },
+        "metadata": {"reporter": "", "stale_timestamp": "0001-01-01T00:00:00Z"},
         "request_id": remotename[-45:],
         "principal": account,
         "service": "qpc",
         "size": size,
         "url": download_url,
-        "b64_identity": opl.gen.get_auth_header(account, account).decode('UTF-8'),
-        "timestamp": opl.gen.gen_datetime().replace('+00:00', 'Z'),
+        "b64_identity": opl.gen.get_auth_header(account, account).decode("UTF-8"),
+        "timestamp": opl.gen.gen_datetime().replace("+00:00", "Z"),
     }
     return json.dumps(data)
 
@@ -64,8 +61,10 @@ class QPCTarball:
 
     def __init__(self, tarball_conf, s3_conf=None):
         self.slices = []
-        self.filename = tempfile.mkstemp(suffix='-output.tar.gz')[1]
-        self.remotename = os.path.join('upload-service-opl', os.path.basename(self.filename))
+        self.filename = tempfile.mkstemp(suffix="-output.tar.gz")[1]
+        self.remotename = os.path.join(
+            "upload-service-opl", os.path.basename(self.filename)
+        )
         self.s3_conf = s3_conf
         self.tarball_conf = tarball_conf
         self.download_url = None
@@ -77,13 +76,17 @@ class QPCTarball:
         self.dump()
 
         s3_resource = opl.s3_tools.connect(self.s3_conf)
-        self.size = opl.s3_tools.upload_file(s3_resource, self.filename, self.s3_conf['bucket'], self.remotename)
-        self.download_url = opl.s3_tools.get_presigned_url(s3_resource, self.s3_conf['bucket'], self.remotename)
+        self.size = opl.s3_tools.upload_file(
+            s3_resource, self.filename, self.s3_conf["bucket"], self.remotename
+        )
+        self.download_url = opl.s3_tools.get_presigned_url(
+            s3_resource, self.s3_conf["bucket"], self.remotename
+        )
 
         os.remove(self.filename)
 
     def dump_manifest(self, dirname):
-        filename = os.path.join(dirname.name, 'metadata.json')
+        filename = os.path.join(dirname.name, "metadata.json")
         data = {
             "report_id": opl.gen.gen_uuid(),
             "host_inventory_api_version": "1.0",
@@ -100,7 +103,7 @@ class QPCTarball:
         with open(filename, "w") as fp:
             json.dump(data, fp)
 
-        return 'metadata.json'
+        return "metadata.json"
 
     def dump(self):
         files = []
@@ -123,7 +126,9 @@ class QPCTarball:
         return self.filename
 
     def dumps_message(self):
-        return get_tarball_message(self.account, self.remotename, self.size, self.download_url)
+        return get_tarball_message(
+            self.account, self.remotename, self.size, self.download_url
+        )
 
     def cleanup(self):
         self.dirname.cleanup()
@@ -132,7 +137,7 @@ class QPCTarball:
         return self
 
     def __next__(self):
-        if self.tarball_conf['slices_count'] == len(self.slices):
+        if self.tarball_conf["slices_count"] == len(self.slices):
             raise StopIteration()
 
         new_slice = QPCTarballSlice()
@@ -145,7 +150,7 @@ class QPCTarballGenerator:
 
     def __init__(self, count, tarball_conf, s3_conf=None):
         self.counter = 0
-        self.count = count   # how many tarballs to produce
+        self.count = count  # how many tarballs to produce
         self.tarball_conf = tarball_conf
         self.s3_conf = s3_conf
 
