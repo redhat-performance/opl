@@ -35,6 +35,7 @@ class QPCTarballSlice:
     def __init__(self):
         self.id = opl.gen.gen_uuid()
         self.hosts = []
+        self.dump_file = None
 
     def get_id(self):
         return self.id
@@ -46,12 +47,16 @@ class QPCTarballSlice:
         self.hosts.append(host_json)
 
     def dump(self, dirname):
-        filename = os.path.join(dirname, self.id + ".json")
-        logging.debug(f"Writing {filename}")
-        with open(filename, "w") as fp:
-            json.dump({"report_slice_id": self.id, "hosts": self.hosts}, fp)
+        if self.dump_file is None:
+            self.dump_file = os.path.join(dirname.name, self.id + ".json")
+            logging.debug(f"Writing {self.dump_file}")
+            with open(self.dump_file, "w") as fp:
+                json.dump({"report_slice_id": self.id, "hosts": self.hosts}, fp)
 
-        return self.id + '.json'
+            # Free the memory now
+            self.hosts = []
+
+        return self.dump_file
 
 
 class QPCTarball:
@@ -66,6 +71,7 @@ class QPCTarball:
         self.download_url = None
         self.size = None
         self.account = opl.gen.gen_account()
+        self.dirname = tempfile.TemporaryDirectory()
 
     def upload(self):
         self.dump()
@@ -77,7 +83,7 @@ class QPCTarball:
         os.remove(self.filename)
 
     def dump_manifest(self, dirname):
-        filename = os.path.join(dirname, 'metadata.json')
+        filename = os.path.join(dirname.name, 'metadata.json')
         data = {
             "report_id": opl.gen.gen_uuid(),
             "host_inventory_api_version": "1.0",
@@ -97,28 +103,30 @@ class QPCTarball:
         return 'metadata.json'
 
     def dump(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            files = []
+        files = []
 
-            for s in self.slices:
-                files.append(s.dump(tmpdirname))
+        for s in self.slices:
+            files.append(s.dump(self.dirname))
 
-            files.append(self.dump_manifest(tmpdirname))
+        files.append(self.dump_manifest(self.dirname))
 
-            orig_cwd = os.getcwd()
-            os.chdir(tmpdirname)
-            tar = tarfile.open(self.filename, "w:gz")
-            for name in files:
-                tar.add(name)
-            tar.close()
-            os.chdir(orig_cwd)
+        orig_cwd = os.getcwd()
+        os.chdir(self.dirname.name)
+        tar = tarfile.open(self.filename, "w:gz")
+        for name in files:
+            tar.add(name)
+        tar.close()
+        os.chdir(orig_cwd)
 
-            logging.info(f"Wrote {self.filename}")
+        logging.info(f"Wrote {self.filename}")
 
-            return self.filename
+        return self.filename
 
     def dumps_message(self):
         return get_tarball_message(self.account, self.remotename, self.size, self.download_url)
+
+    def cleanup(self):
+        self.dirname.cleanup()
 
     def __iter__(self):
         return self
