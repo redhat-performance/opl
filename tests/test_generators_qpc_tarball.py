@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import unittest
 
 from .context import opl
@@ -48,3 +49,31 @@ class TestPayloadGenerator(unittest.TestCase):
         tarball_slice = next(tarball)
         with self.assertRaises(StopIteration):
             tarball_slice = next(tarball)
+
+    def test_add_hosts(self):
+        pg = opl.generators.qpc_tarball.QPCTarballGenerator(
+            count=2, tarball_conf=self.tarball_conf
+        )
+        tarball = next(pg)
+        tarball_slice = next(tarball)
+        for i in range(4):
+            tarball_slice.add_host({"fqdn": f"host{i}.example.com"})
+        self.assertEqual(tarball_slice.get_host_count(), 4)
+
+
+    def test_slice_after_dump(self):
+        pg = opl.generators.qpc_tarball.QPCTarballGenerator(
+            count=2, tarball_conf=self.tarball_conf
+        )
+        tarball = next(pg)
+        tarball_dirname = tarball.dirname
+        tarball_slice = next(tarball)
+        for i in range(4):
+            tarball_slice.add_host({"fqdn": f"host{i}.example.com"})
+        self.assertEqual(tarball_slice.get_host_count(), 4)
+        tarball_slice_filename = tarball_slice.dump(tarball.dirname)
+        self.assertTrue(os.path.isfile(tarball_slice_filename))
+        self.assertEqual(tarball_slice.get_host_count(), 4)
+        tarball.cleanup()
+        self.assertFalse(os.path.isdir(tarball_dirname.name))
+        self.assertFalse(os.path.isfile(tarball_slice_filename))
