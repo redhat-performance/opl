@@ -123,7 +123,7 @@ class QPCTarball:
         os.chdir(self.dirname.name)
         tar = tarfile.open(self.filename, "w:gz")
         for name in files:
-            tar.add(name)
+            tar.add(os.path.basename(name))
         tar.close()
         os.chdir(orig_cwd)
 
