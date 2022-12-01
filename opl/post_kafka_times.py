@@ -156,6 +156,9 @@ class PostKafkaTimes:
         def handle_send_success(*args, **kwargs):
             self.save_here.add((kwargs["message_id"], self.dt_now()))
 
+        def handle_send_error(e, message_id):
+            logging.error(f"Failed to produce message {message_id}", exc_info=e)
+
         def wait_for_next_second(second=int(time.perf_counter())):
             while second == int(time.perf_counter()):
                 time.sleep(0.01)
@@ -186,6 +189,7 @@ class PostKafkaTimes:
 
             future = self.produce_here.send(self.kafka_topic, **send_params)
             future.add_callback(handle_send_success, message_id=message_id)
+            future.add_errback(handle_send_error, message_id=message_id)
 
             if int(time.perf_counter()) == this_second:
                 in_second += 1
