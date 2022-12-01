@@ -180,6 +180,10 @@ class PostKafkaTimes:
             headers = self.config["func_return_message_headers"](self.args, message_id, message)
             send_params["headers"] = [(h, k.encode("UTF-8")) for h, k in headers]
 
+            # Show message if we wanted it
+            if self.show_processed_messages:
+                print(f"Producing {json.dumps(send_params, sort_keys=True)}")
+
             future = self.produce_here.send(self.kafka_topic, **send_params)
             future.add_callback(handle_send_success, message_id=message_id)
 
