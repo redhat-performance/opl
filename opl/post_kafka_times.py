@@ -270,6 +270,18 @@ def post_kafka_times(config):
         default=33554432,
         help="Memory the producer can use at max for batching.",
     )
+    parser.add_argument(
+        "--acks",
+        choices=['all', '1', '0'],
+        default='1',
+        help="How many acknowledgments the producer requires.",
+    )
+    parser.add_argument(
+        "--retries",
+        type=int,
+        default=0,
+        help="Resend any record whose send fails this many times. Can cause duplicates!",
+    )
 
     opl.args.add_storage_db_opts(parser)
     opl.args.add_kafka_opts(parser)
@@ -296,9 +308,15 @@ def post_kafka_times(config):
         args_copy["tables_definition"] = args_copy["tables_definition"].name
         status_data.set("parameters.produce_messages", args_copy)
 
+        # Sanitize acks setting
+        if args.acks != 'all':
+            args.acks = int(args.acks)
+
         logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
         produce_here = KafkaProducer(
             bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
+            acks=args.acks,
+            retries=args.retries,
             batch_size=args.batch_size,
             buffer_memory=args.buffer_memory,
             linger_ms=args.linger_ms,
