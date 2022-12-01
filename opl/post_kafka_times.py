@@ -1,5 +1,7 @@
 import argparse
+import concurrent.futures
 import datetime
+import json
 import logging
 import os
 import threading
@@ -123,60 +125,22 @@ class PostKafkaTimes:
     to sorage DB.
     """
 
-    def __init__(self, args, status_data, config):
+    def __init__(self, args, config, produce_here, save_here):
         """
         Connect to the storage DB, load SQL query templates, initiate
         a BatchProcessor, instantate messages generator and start
         a Kafka producer.
         """
         self.args = args
-        self.status_data = status_data
-
-        # Sanitize and include args into status data file
-        args_copy = vars(args).copy()
-        args_copy["tables_definition"] = args_copy["tables_definition"].name
-        self.status_data.set("parameters.produce_messages", args_copy)
-
-        storage_db_conf = {
-            "host": args.storage_db_host,
-            "port": args.storage_db_port,
-            "database": args.storage_db_name,
-            "user": args.storage_db_user,
-            "password": args.storage_db_pass,
-        }
-        self.connection = psycopg2.connect(**storage_db_conf)
-        self.kafka_hosts = [f"{args.kafka_host}:{args.kafka_port}"]
-        self.kafka_group = args.kafka_group
+        self.config = config
+        self.produce_here = produce_here
+        self.save_here = save_here
         self.kafka_topic = args.kafka_topic
-        self.kafka_timeout = args.kafka_timeout
-        self.kafka_max_poll_records = 100
-        self.queries_definition = yaml.load(
-            args.tables_definition, Loader=yaml.SafeLoader
-        )["queries"]
         self.show_processed_messages = args.show_processed_messages
         self.rate = args.rate
 
-        self.config = config
-
-        sql = self.queries_definition[self.config["query_store_info_produced"]]
-        logging.info(f"Creating storage DB batch inserter with {sql}")
-        data_lock = threading.Lock()
-        self.save_here = opl.db.BatchProcessor(
-            self.connection, sql, batch=100, lock=data_lock
-        )
-
         logging.info("Creating generator")
         self.generator = self.config["func_return_generator"](args)
-
-        logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
-        self.produce_here = KafkaProducer(
-            bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
-            batch_size=args.batch_size,
-            buffer_memory=args.buffer_memory,
-            linger_ms=args.linger_ms,
-            max_block_ms=args.max_block_ms,
-            request_timeout_ms=args.request_timeout_ms,
-        )
 
     def dt_now(self):
         """
@@ -198,30 +162,23 @@ class PostKafkaTimes:
             return int(time.perf_counter())
 
         logging.info("Started message generation")
-        self.status_data.set_now("parameters.produce.started_at")
 
         in_second = 0  # how many messages we have sent in this second
         this_second = wait_for_next_second()  # second relevant for in_second
 
         for message_id, message in self.generator:
             # Message payload
-            send_params = {
-                "value": self.config["func_return_message_payload"](
-                    self.args, message_id, message
-                ).encode("UTF-8"),
-            }
+            value = self.config["func_return_message_payload"](self.args, message_id, message)
+            send_params = {"value": value.encode("UTF-8")}
 
             # Do we need message key?
-            i = self.config["func_return_message_key"](self.args, message_id, message)
-            if i is not None:
-                send_params["key"] = i.encode("UTF-8")
+            key = self.config["func_return_message_key"](self.args, message_id, message)
+            if key is not None:
+                send_params["key"] = key.encode("UTF-8")
 
             # Do we need message headers?
-            i = self.config["func_return_message_headers"](
-                self.args, message_id, message
-            )
-            if i is not []:
-                send_params["headers"] = [(i1, i2.encode("UTF-8")) for i1, i2 in i]
+            headers = self.config["func_return_message_headers"](self.args, message_id, message)
+            send_params["headers"] = [(h, k.encode("UTF-8")) for h, k in headers]
 
             future = self.produce_here.send(self.kafka_topic, **send_params)
             future.add_callback(handle_send_success, message_id=message_id)
@@ -240,12 +197,7 @@ class PostKafkaTimes:
                     this_second = int(time.perf_counter())
                     in_second = 0
 
-        self.status_data.set_now("parameters.produce.ended_at")
         logging.info("Finished message generation, producing and storing")
-
-        self.produce_here.flush()
-
-        self.save_here.commit()
 
 
 def post_kafka_times(config):
@@ -262,6 +214,12 @@ def post_kafka_times(config):
         "--kafka-topic",
         default=os.getenv("KAFKA_TOPIC", "platform.upload.qpc"),
         help="Produce to this topic (also use env variable KAFKA_TOPIC)",
+    )
+    parser.add_argument(
+        "--kafka-producer-threads",
+        type=int,
+        default=os.getenv("KAFKA_PRODUCER_THREADS", 1),
+        help="Produce in this many threads (also use env variable KAFKA_PRODUCER_THREADS)",
     )
     parser.add_argument(
         "--show-processed-messages",
@@ -320,10 +278,60 @@ def post_kafka_times(config):
     # Add more args
     config["func_add_more_args"](parser)
 
+    def produce_thread(args, config, produce_here, save_here):
+        produce_object = PostKafkaTimes(args, config, produce_here, save_here)
+        return produce_object.work()
+
     with opl.skelet.test_setup(parser) as (args, status_data):
-        post_kafka_times_object = PostKafkaTimes(
-            args,
-            status_data,
-            config,
+        # Sanitize and include args into status data file
+        args_copy = vars(args).copy()
+        args_copy["tables_definition"] = args_copy["tables_definition"].name
+        status_data.set("parameters.produce_messages", args_copy)
+
+        logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
+        produce_here = KafkaProducer(
+            bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
+            batch_size=args.batch_size,
+            buffer_memory=args.buffer_memory,
+            linger_ms=args.linger_ms,
+            max_block_ms=args.max_block_ms,
+            request_timeout_ms=args.request_timeout_ms,
         )
-        post_kafka_times_object.work()
+
+        logging.info(f"Loading queries definition from {args.tables_definition}")
+        queries_definition = yaml.load(
+            args.tables_definition, Loader=yaml.SafeLoader
+        )["queries"]
+
+        storage_db_conf = {
+            "host": args.storage_db_host,
+            "port": args.storage_db_port,
+            "database": args.storage_db_name,
+            "user": args.storage_db_user,
+            "password": args.storage_db_pass,
+        }
+        storage_db_connection = psycopg2.connect(**storage_db_conf)
+        sql = queries_definition[config["query_store_info_produced"]]
+        data_lock = threading.Lock()
+        logging.info(f"Creating storage DB batch inserter with {sql}")
+        save_here = opl.db.BatchProcessor(
+            storage_db_connection, sql, batch=100, lock=data_lock
+        )
+
+        status_data.set_now("parameters.produce.started_at")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.kafka_producer_threads) as executor:
+            my_threads = [executor.submit(produce_thread, args, config, produce_here, save_here) for i in range(args.kafka_producer_threads)]
+            for future in concurrent.futures.as_completed(my_threads):
+                try:
+                    future.result()
+                except Exception as exc:
+                    logging.info(f"Thread {future} caused exception: {exc}")
+                else:
+                    logging.info(f"Thread {future} worked")
+
+        produce_here.flush()
+
+        status_data.set_now("parameters.produce.ended_at")
+
+        save_here.commit()
