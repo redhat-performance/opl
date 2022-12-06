@@ -53,7 +53,9 @@ def add_rbac_db_opts(parser):
 
 def add_sources_db_opts(parser):
     _add_generic_db_opts(parser, 'sources')
-
+    
+def add_notifications_db_opts(parser):
+    _add_generic_db_opts(parser, 'notifications')
 
 def add_rhsm_db_opts(parser):
     _add_generic_db_opts(parser, 'rhsm')
