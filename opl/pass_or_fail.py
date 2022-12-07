@@ -90,7 +90,7 @@ def main():
 
     total = len([v for v in current.values() if v is not None and v != ''])
     if total == 0:
-        raise Exception("No data available in current result!")
+        raise Exception(f"No data available in current result (tried to load {', '.join(args.sets)} but nothing)!")
 
     # Load historical data
     if args.history_type == 'csv':
