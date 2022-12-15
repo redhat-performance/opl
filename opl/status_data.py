@@ -324,7 +324,7 @@ def doit_additional(status_data, additional, monitoring_start, monitoring_end, a
             status_data.set(k, v)
             counter_ok += 1
 
-    print(f"Gathered {counter_ok}, failed to gather {counter_bad} data points")
+    print(f"Gathered {counter_ok} `ok` data points. Gathered {counter_bad} `bad` data points")
 
 
 def doit_info(status_data):
