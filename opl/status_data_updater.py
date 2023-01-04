@@ -187,7 +187,7 @@ def doit_change(args):
 
 
 def _get_rp_launches(session, args):
-    """Get 10 newest launches from RP"""
+    """Get N newest launches from RP"""
     url = f"https://{args.rp_host}/api/v1/{args.rp_project}/launch"
     headers = {
         "Content-Type": "application/json",
@@ -195,7 +195,7 @@ def _get_rp_launches(session, args):
     }
     data = {
         "filter.eq.name": args.rp_launch,
-        "page.size": 10,
+        "page.size": args.rp_launches_count,
         "page.sort": "endTime,desc",
     }
     logging.debug(f"Going to do GET request to {url} with {data}")
@@ -630,6 +630,12 @@ def main():
     parser.add_argument("--rp-project", help="ReportPortal project")
     parser.add_argument("--rp-token", help="ReportPortal token")
     parser.add_argument("--rp-launch", help="ReportPortal launch name")
+    parser.add_argument(
+        "--rp-launches-count",
+        default=10,
+        type=int,
+        help="Number of ReportPortal launches to load",
+    )
 
     parser.add_argument(
         "--dashboard-run-id",
