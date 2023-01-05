@@ -9,6 +9,8 @@ import random
 import tempfile
 import time
 
+from collections import OrderedDict
+
 import opl.status_data
 
 import requests
@@ -16,6 +18,8 @@ import requests
 import tabulate
 
 import urllib3
+
+import yaml
 
 
 RP_TO_ES_STATE = {
@@ -186,16 +190,21 @@ def doit_change(args):
     print(sd.info())
 
 
-def _get_rp_launches(session, args):
+def _get_rp_launches(session, args, rp_launch=None, rp_launches_count=None):
     """Get N newest launches from RP"""
+    if rp_launch is None:
+        rp_launch = args.rp_launch
+    if rp_launches_count is None:
+        rp_launches_count = args.rp_launches_count
+
     url = f"https://{args.rp_host}/api/v1/{args.rp_project}/launch"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {args.rp_token}",
     }
     data = {
-        "filter.eq.name": args.rp_launch,
-        "page.size": args.rp_launches_count,
+        "filter.eq.name": rp_launch,
+        "page.size": rp_launches_count,
         "page.sort": "endTime,desc",
     }
     logging.debug(f"Going to do GET request to {url} with {data}")
@@ -322,8 +331,11 @@ def _get_es_dashboard_result_for_run_id(session, args, run_id):
         return (response["hits"]["hits"][0]["_source"], source["_type"], source["_id"])
 
 
+def _get_rp_result_defect_string(result):
+    return list(result["statistics"]["defects"].keys())[0]
+
 def _get_rp_result_result_string(result):
-    return RP_TO_ES_STATE[list(result["statistics"]["defects"].keys())[0]]
+    return RP_TO_ES_STATE[_get_rp_result_defect_string(result)]
 
 
 def doit_rp_to_es(args):
@@ -568,6 +580,89 @@ def doit_rp_to_dashboard_update(args):
     print(tabulate.tabulate(stats.items()))
 
 
+def doit_rp_backlog(args):
+    assert args.rp_host is not None
+    assert args.jobs_ownership_config is not None
+
+    if args.rp_noverify:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    # Start a session
+    session = requests.Session()
+
+    with open(args.jobs_ownership_config, "r") as fp:
+        launches_to_check = yaml.load(fp, Loader=yaml.Loader)
+
+    data_per_owner = OrderedDict()
+    data_per_job = OrderedDict()
+
+    for launch_to_check in launches_to_check:
+        rp_launch = launch_to_check["name"]
+        rp_launches_count = launch_to_check["history"]
+        rp_launch_owner = launch_to_check["owner"]
+        if rp_launch_owner not in data_per_owner:
+            data_per_owner[rp_launch_owner] = OrderedDict([
+                ("automation_bug", 0),
+                ("no_defect", 0),
+                ("product_bug", 0),
+                ("system_issue", 0),
+                ("to_investigate", 0),
+            ])
+        if rp_launch not in data_per_job:
+            data_per_job[rp_launch] = OrderedDict([
+                ("automation_bug", 0),
+                ("no_defect", 0),
+                ("product_bug", 0),
+                ("system_issue", 0),
+                ("to_investigate", 0),
+            ])
+
+        # Get N newest launches
+        launches = _get_rp_launches(session, args, rp_launch=rp_launch, rp_launches_count=rp_launches_count)
+
+        # Filter out RP launches that does not have "run_id" attribute
+        launches = _filter_rp_launches_without_run_id(launches)
+
+        for launch in launches:
+            # Get run ID for a launch
+            run_id = _get_run_id_from_rp_launch(launch)
+
+            # Get test results from launch
+            results = _get_rp_launch_results(session, args, launch)
+            logging.debug(f"Going to compare {len(results)} results for launch {launch['id']}")
+
+            # Process individual results
+            for result in results:
+                logging.debug(f"Processing RP result {result}")
+
+                # Get resuls from launch statistics
+                assert result["statistics"]["executions"]["total"] == 1, "We only know how to work with results with one executions"
+                result_string = result["status"]
+                defect_string = _get_rp_result_defect_string(result)
+                override_string = _get_rp_result_result_string(result)
+                logging.debug(f"Counted result {run_id}: {result_string}, {defect_string}, {override_string}")
+                data_per_owner[rp_launch_owner][defect_string] += 1
+                data_per_job[rp_launch][defect_string] += 1
+
+    headers = sorted(list(data_per_owner[next(iter(data_per_owner.keys()))].keys()))
+
+    rows = []
+    for owner in data_per_owner:
+        row = [owner]
+        for defect in headers:
+            row.append(data_per_owner[owner].get(defect, None))
+        rows.append(row)
+    print(tabulate.tabulate(rows, headers=headers))
+
+    rows = []
+    for job in data_per_job:
+        row = [job]
+        for defect in headers:
+            row.append(data_per_job[job].get(defect, None))
+        rows.append(row)
+    print(tabulate.tabulate(rows, headers=headers))
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Investigate and modify status data documents in ElasticSearch",
@@ -582,6 +677,7 @@ def main():
             "rp-to-es",
             "rp-to-dashboard-new",
             "rp-to-dashboard-update",
+            "rp-backlog",
         ],
         help="What action to do",
     )
@@ -635,6 +731,11 @@ def main():
         default=10,
         type=int,
         help="Number of ReportPortal launches to load",
+    )
+
+    parser.add_argument(
+        "--jobs-ownership-config",
+        help="YAML config with owners and history size for ReportPortal 'to_investigate' rp-backlog feature"
     )
 
     parser.add_argument(
@@ -708,3 +809,5 @@ def main():
         return doit_rp_to_dashboard_new(args)
     if args.action == "rp-to-dashboard-update":
         return doit_rp_to_dashboard_update(args)
+    if args.action == "rp-backlog":
+        return doit_rp_backlog(args)
