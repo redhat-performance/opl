@@ -14,9 +14,9 @@ def disable_insecure_request_warnings(disable_it):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-def req(method, url, headers=None, params=None, data=None, verify=True):
-    logging.debug(f"Going to do {method} request to {url} with headers {headers}, params {params} and data {data}")
-    response = method(url, params=params, json=data, headers=headers, verify=verify)
+def req(method, url, **kwargs):
+    logging.debug(f"Going to do {method} request to {url} with {kwargs}")
+    response = method(url, **kwargs)
     if not response.ok:
         logging.error(f"Request failed: {response.text}")
     response.raise_for_status()
@@ -24,13 +24,13 @@ def req(method, url, headers=None, params=None, data=None, verify=True):
     return response.json()
 
 
-def get(url, headers=None, params=None, verify=True):
-    return req(session.get, url, headers=headers, params=params, verify=verify)
+def get(url, **kwargs):
+    return req(session.get, url, **kwargs)
 
 
-def post(url, headers=None, data=None, verify=True):
-    return req(session.post, url, headers=headers, data=data, verify=verify)
+def post(url, **kwargs):
+    return req(session.post, url, **kwargs)
 
 
-def put(url, headers=None, data=None, verify=True):
-    return req(session.put, url, headers=headers, data=data, verify=verify)
+def put(url, **kwargs):
+    return req(session.put, url, **kwargs)
