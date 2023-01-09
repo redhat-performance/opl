@@ -108,16 +108,14 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
         
 def fetch_records_count(inventory):
     inventory_cursor = inventory.cursor()
-    inventory_cursor.execute("select count(*) as exact_count from hosts")
-    for i in inventory_cursor.fetchone():
-        existing_records = int(i)
-
+    inventory_cursor.execute("select count(*) from hosts")
+    existing_records = inventory_cursor.fetchone()[0]
+    inventory_cursor.close()
     return existing_records
 
 
 def verify(args, previous_records, status_data, inventory, collect_info):
     # Generatate set of IDs to check in the DB
-    inventory_cursor = inventory.cursor()
 
     batch_size = 100  # how many IDs to check in one go
     attempt = 0
@@ -143,9 +141,9 @@ def verify(args, previous_records, status_data, inventory, collect_info):
             logging.debug(
                 f"Waiting for IDs, attempt {attempt}, remaining {existing_ids}"
             )
-            time.sleep(1)
-
-    inventory_cursor.close()
+            # avoiding insert() call every 1 second for larger number of hosts it
+            # improves the performance
+            time.sleep(15)
 
 
 def gen_send_verify(args, status_data):
@@ -200,6 +198,7 @@ def gen_send_verify(args, status_data):
     logging.info(f"Dumping data to file {args.data_file}")
     with open(args.data_file, "w") as fp:
         json.dump(collect_info, fp, sort_keys=True, indent=4)
+    inventory.close()
 
 
 def populate_main():

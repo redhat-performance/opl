@@ -10,6 +10,7 @@ import os
 import jinja2
 import jinja2.exceptions
 import traceback
+import sys
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
@@ -88,24 +89,18 @@ class PrometheusMeasurementsPlugin():
         # Check that what we got back seems OK
         json_response = response.json()
         logging.debug("Response: %s" % json_response)
-
-        if json_response['status'] != 'success':
-            logging.warning("status needs to be success")
-        
-        if 'data' not in json_response:
-            logging.warning("data needs to be in response")
-
-        if 'result' not in json_response:
-            logging.warning("result needs to be in response's data")
-        
-        if len(json_response['data']['result']) == 0:
-            logging.warning("missing response in response's data")
-
-        if len(json_response['data']['result']) != 1:
-            logging.warning("we need exactly one response in response's data")
-        
-        if 'values' not in json_response['data']['result'][0]:
-            logging.warning("we need expected form of response")
+        assert json_response['status'] == 'success', \
+            "'status' needs to be 'success'"
+        assert 'data' in json_response, \
+            "'data' needs to be in response"
+        assert 'result' in json_response['data'], \
+            "'result' needs to be in response's 'data'"
+        assert len(json_response['data']['result']) != 0, \
+            "missing 'response' in response's 'data'"
+        assert len(json_response['data']['result']) == 1, \
+            "we need exactly one 'response' in response's 'data'"
+        assert 'values' in json_response['data']['result'][0], \
+            "we need expected form of response"
 
         points = [float(i[1]) for i in json_response['data']['result'][0]['values']]
         stats = data.data_stats(points)
@@ -315,7 +310,8 @@ class RequestedInfo():
                     return instance.measure(self.start, self.end, **self.config[i])
                 except Exception as e:
                     logging.error(f"Failed to measure {self.config[i]['name']}: {e}")
-                    traceback.print_exc()
+                    tb = traceback.format_exc()
+                    print(tb, file=sys.stderr)
                     return None, None
             else:
                 raise Exception(f"Unknown config '{self.config[i]}'")
