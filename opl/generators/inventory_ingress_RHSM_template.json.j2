@@ -5,9 +5,9 @@
         "org_id":"{{ orgid }}",
         "subscription_manager_id":"{{ subscription_manager_id }}",
         "bios_uuid":"{{ bios_uuid }}",
-        "ip_addresses":["{{ ipv4_addr }}","{{ ipv6_addr }}","127.0.0.1"],
+        "ip_addresses":{{ ipv4_addr + ipv6_addr }},
         "fqdn":"{{ fqdn }}",
-        "mac_addresses":["{{ mac_addr }}"],
+        "mac_addresses":{{ mac_addr }},
         "facts":[
             {
                 "namespace":"rhsm",

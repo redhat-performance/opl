@@ -61,16 +61,27 @@ def gen_machine_id():
     return gen_uuid()
 
 
-def gen_ipv4():
-    data = [str(random.randint(1, 255)) for i in range(4)]
-    return '.'.join(data)
+def gen_ipv4(ip_v4_addresses):
+    ip_v4_add=[]
+    for i in range(0,ip_v4_addresses):
+        data = [str(random.randint(1, 255)) for j in range(4)]
+        joined_data = '.'.join(data)
+        ip_v4_add.append(joined_data)
+    return ip_v4_add
 
-def gen_ipv6():
-    return f"{random.randrange(16**4):x}:{random.randrange(16**4):x}::{random.randrange(16**4):x}:{random.randrange(16**4):x}:{random.randrange(16**4):x}"
+def gen_ipv6(ip_v6_addresses):
+    ip_v6_add=[]
+    for i in range(0,ip_v6_addresses):
+        ip_v6_add.append(f"{random.randrange(16**4):x}:{random.randrange(16**4):x}::{random.randrange(16**4):x}:{random.randrange(16**4):x}:{random.randrange(16**4):x}")
+    return ip_v6_add
 
-def gen_mac():
-    data = ['%02x' % random.randrange(256) for i in range(6)]
-    return ':'.join(data)
+def gen_mac(mac_addresses):
+    mac_add=[]
+    for i in range(0,mac_addresses):
+        data = ['%02x' % random.randrange(256) for i in range(6)]
+        joined_data=':'.join(data)
+        mac_add.append(joined_data)
+    return mac_add
 
 
 def gen_hostname():
