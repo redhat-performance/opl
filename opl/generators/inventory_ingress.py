@@ -18,7 +18,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 
     installed_packages = []
 
-    def __init__(self, count, fraction=1, relatives=100, ip_v4_addresses=10, ip_v6_addresses=10, mac_addresses=1, packages=500, template='inventory_ingress_RHSM_template.json.j2'):   # noqa: E501
+    def __init__(self, count, fraction=1, relatives=100, addresses=10, mac_addresses=1,packages=500, template='inventory_ingress_RHSM_template.json.j2'):   # noqa: E501
         super().__init__(count=count, template=template, dump_message=False)
 
         self.counter = 0   # how many payloads we have produced already
@@ -26,9 +26,8 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         assert fraction > 0
         self.fraction = fraction   # how often we should be returning new system
         self.relatives = self._get_relatives(relatives)   # list of accounts/... to choose from
-        self.ip_v4_addresses = ip_v4_addresses # how many IP V4 addresses should the host have
-        self.ip_v6_addresses= ip_v6_addresses # how many IP V6 addresses should the host have
-        self.mac_addresses= mac_addresses   # how many MAC addresses should the host have
+        self.addresses = addresses  # how many IP addresses should the host have
+        self.mac_addresses= mac_addresses # how many MAC addresses should the host have
         self.packages = packages   # how many packages should be in RHSM package profile
 
         assert fraction == 1, "'fraction' handling not yet implemented, please just use 1"
@@ -80,8 +79,8 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             'system_purpose': json.dumps(self._get_system_purpose()),
             'ansible': json.dumps(self._get_ansible()),
             'insights_id': self._get_uuid(),
-            'ipv4_addr':  [self._get_ipv4() for _ in range(self.ip_v4_addresses)],
-            'ipv6_addr':  [self._get_ipv6() for _ in range(self.ip_v6_addresses)],
+            'ipv4_addr':  [self._get_ipv4() for _ in range(self.addresses)],
+            'ipv6_addr':  [self._get_ipv6() for _ in range(self.addresses)],
             'mac_addr': [self._get_mac() for _ in range(self.mac_addresses)],
             'fqdn': self._get_hostname(),
             'nowz': self._get_now_iso_z(),   # well, this is in nano-seconds, but should be in mili-seconds
