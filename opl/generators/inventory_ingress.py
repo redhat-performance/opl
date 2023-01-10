@@ -26,9 +26,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         assert fraction > 0
         self.fraction = fraction   # how often we should be returning new system
         self.relatives = self._get_relatives(relatives)   # list of accounts/... to choose from
-        self.ip_v4_addresses = ip_v4_addresses
-        self.ip_v6_addresses= ip_v6_addresses
-        self.mac_addresses= mac_addresses   # how many IP and MAC addresses should the host have
+        self.ip_v4_addresses = ip_v4_addresses # how many IP V4 addresses should the host have
+        self.ip_v6_addresses= ip_v6_addresses # how many IP V6 addresses should the host have
+        self.mac_addresses= mac_addresses   # how many MAC addresses should the host have
         self.packages = packages   # how many packages should be in RHSM package profile
 
         assert fraction == 1, "'fraction' handling not yet implemented, please just use 1"
