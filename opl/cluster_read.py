@@ -365,8 +365,7 @@ class RequestedInfo():
                 try:
                     output = instance.measure(self, **self.config[i])
                 except Exception as e:
-                    logging.error(f"Failed to measure {self.config[i]['name']}: {e}")
-                    traceback.print_exc()
+                    logging.exception(f"Failed to measure {self.config[i]['name']}: {e}")
                     output = (None, None)
                 self._responses.append(output)
                 return output
