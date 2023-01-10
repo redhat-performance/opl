@@ -309,9 +309,7 @@ class RequestedInfo():
                 try:
                     return instance.measure(self.start, self.end, **self.config[i])
                 except Exception as e:
-                    logging.error(f"Failed to measure {self.config[i]['name']}: {e}")
-                    tb = traceback.format_exc()
-                    print(tb, file=sys.stderr)
+                    logging.exception(f"Failed to measure {self.config[i]['name']}: {e}")
                     return None, None
             else:
                 raise Exception(f"Unknown config '{self.config[i]}'")
