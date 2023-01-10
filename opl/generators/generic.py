@@ -90,14 +90,14 @@ class GenericGenerator:
     def _get_metadata(self):
         return {"request_id": self._get_uuid(), "archive_url": "http://s3.aws.com/redhat/insights/1234567"}
 
-    def _get_ipv4(self,ip_v4_addresses):
-        return opl.gen.gen_ipv4(ip_v4_addresses)
+    def _get_ipv4(self):
+        return opl.gen.gen_ipv4()
 
-    def _get_ipv6(self,ip_v6_addresses):
-        return opl.gen.gen_ipv6(ip_v6_addresses)
+    def _get_ipv6(self):
+        return opl.gen.gen_ipv6()
 
-    def _get_mac(self,mac_addresses):
-        return opl.gen.gen_mac(mac_addresses)
+    def _get_mac(self):
+        return opl.gen.gen_mac()
 
     def _get_now_iso(self):
         return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()   # noqa: E501

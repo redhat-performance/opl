@@ -80,9 +80,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             'system_purpose': json.dumps(self._get_system_purpose()),
             'ansible': json.dumps(self._get_ansible()),
             'insights_id': self._get_uuid(),
-            'ipv4_addr': self._get_ipv4(self.ip_v4_addresses),
-            'ipv6_addr': self._get_ipv6(self.ip_v6_addresses),
-            'mac_addr': self._get_mac(self.mac_addresses),
+            'ipv4_addr':  [self._get_ipv4() for _ in range(self.ip_v4_addresses)],
+            'ipv6_addr':  [self._get_ipv6() for _ in range(self.ip_v6_addresses)],
+            'mac_addr': [self._get_mac() for _ in range(self.mac_addresses)],
             'fqdn': self._get_hostname(),
             'nowz': self._get_now_iso_z(),   # well, this is in nano-seconds, but should be in mili-seconds
             'tommorowz': self._get_tommorow_iso_z(),
