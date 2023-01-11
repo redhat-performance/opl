@@ -60,7 +60,6 @@ def gen_insights_id():
 def gen_machine_id():
     return gen_uuid()
 
-
 def gen_ipv4():
     data = [str(random.randint(1, 255)) for i in range(4)]
     return '.'.join(data)
@@ -71,7 +70,6 @@ def gen_ipv6():
 def gen_mac():
     data = ['%02x' % random.randrange(256) for i in range(6)]
     return ':'.join(data)
-
 
 def gen_hostname():
     return ''.join(random.choices(string.ascii_lowercase, k=10)) \
