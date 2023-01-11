@@ -18,7 +18,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 
     installed_packages = []
 
-    def __init__(self, count, fraction=1, relatives=100, addresses=10, mac_addresses=1,packages=500, template='inventory_ingress_RHSM_template.json.j2'):   # noqa: E501
+    def __init__(self, count, fraction=1, relatives=100, addresses=3, mac_addresses=1,packages=500, template='inventory_ingress_RHSM_template.json.j2'):   # noqa: E501
         super().__init__(count=count, template=template, dump_message=False)
 
         self.counter = 0   # how many payloads we have produced already
