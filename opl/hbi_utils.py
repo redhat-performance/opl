@@ -160,6 +160,8 @@ def gen_send_verify(args, status_data):
         relatives=args.relatives,
         packages=args.packages,
         template=args.template,
+        addresses=args.addresses,
+        mac_addresses=args.mac_addresses,
     )
 
     logging.info("Creating Inventory DB connection")
@@ -234,6 +236,18 @@ def populate_main():
         default=500,
         type=int,
         help="How many packages addresses should each host have",
+    )
+    parser.add_argument(
+        "--addresses",
+        default=3,
+        type=int,
+        help="How many IPv4 and IPv6 adresses to put into the host",
+    )
+    parser.add_argument(
+        "--mac-addresses",
+        default=1,
+        type=int,
+        help="How many MAC adresses to put into the host",
     )
     parser.add_argument(
         "--template",

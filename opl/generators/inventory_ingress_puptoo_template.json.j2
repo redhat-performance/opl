@@ -53,12 +53,14 @@
         "captured_date": "2020-07-02T18:28:11+00:00",
         "last_boot_time": "2020-07-02T15:56:11Z",
         "network_interfaces": [
+        {% for mac in mac_addr %}
           {
-            "ipv4_addresses": ["{{ ipv4_addr }}"],
-            "ipv6_addresses": ["{{ ipv6_addr }}"],
-            "mac_address": "{{ mac_addr }}",
-            "name": "ens1f0"
-          }
+            "ipv4_addresses": ["{{ ipv4_addr[loop.index-1] | default('127.0.0.1') }}"],
+            "ipv6_addresses": ["{{ ipv6_addr[loop.index-1] | default('::1') }}"],
+            "mac_address": "{{ mac }}",
+            "name": "ens1f{{ loop.index - 1 }}"
+          }{% if not loop.last %},{% endif %}
+        {% endfor %}
         ],
         "os_kernel_version": "3.10.0",
         "os_kernel_release": "193.6.3.el8_2",
