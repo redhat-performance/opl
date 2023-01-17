@@ -56,13 +56,16 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
 
         value = json.dumps(message).encode()
 
-        future = producer.send(args.kafka_topic, value=value)
-        future.add_callback(
-            handle_send_success, data_stats=data_stats, data_lock=data_lock
-        )
-        future.add_errback(
-            handle_send_failure, data_stats=data_stats, data_lock=data_lock
-        )
+        if args.dry_run:
+            handle_send_success(data_stats=data_stats, data_lock=data_lock)
+        else:
+            future = producer.send(args.kafka_topic, value=value)
+            future.add_callback(
+                handle_send_success, data_stats=data_stats, data_lock=data_lock
+            )
+            future.add_errback(
+                handle_send_failure, data_stats=data_stats, data_lock=data_lock
+            )
 
         # Limit producing rate to given value
         if int(time.perf_counter()) == this_second:
@@ -80,7 +83,8 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
                 this_second = int(time.perf_counter())
                 in_second = 0
 
-    producer.flush()
+    if not args.dry_run:
+        producer.flush()
     status_data.set_now("parameters.payload_generator.sent_at")
 
     # Make sure all messages were produced
@@ -166,14 +170,21 @@ def gen_send_verify(args, status_data):
         "user": args.inventory_db_user,
         "password": args.inventory_db_pass,
     }
-
-    inventory = psycopg2.connect(**inventory_db_conf)
-    exist_records_in_db = fetch_records_count(inventory) # fetch existing records count
+    if args.dry_run:
+        inventory = None
+        exist_records_in_db = 0
+    else:
+        inventory = psycopg2.connect(**inventory_db_conf)
+        exist_records_in_db = fetch_records_count(inventory) # fetch existing records count
 
     logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
-    producer = kafka.KafkaProducer(
-        bootstrap_servers=[f"{args.kafka_host}:{args.kafka_port}"], api_version=(0, 10)
-    )
+    if args.dry_run:
+        producer = None
+    else:
+        producer = kafka.KafkaProducer(
+            bootstrap_servers=[f"{args.kafka_host}:{args.kafka_port}"], api_version=(0, 10)
+        )
+
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
 
@@ -184,13 +195,14 @@ def gen_send_verify(args, status_data):
         producer=producer,
         collect_info=collect_info,
     )
-    verify(
-        args,
-        exist_records_in_db,
-        status_data,
-        inventory=inventory,
-        collect_info=collect_info,
-    )
+    if not args.dry_run:
+        verify(
+            args,
+            exist_records_in_db,
+            status_data,
+            inventory=inventory,
+            collect_info=collect_info,
+        )
 
     status_data.set("parameters.payload_generator.count", args.count)
     status_data.set("parameters.payload_generator.relatives", args.relatives)
@@ -243,6 +255,11 @@ def populate_main():
         "--data-file",
         default="/tmp/data-file.json",
         help="Where to save list of accounts and so that were created",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Use this for debugging if you do not want to actuall send the messages",
     )
     opl.args.add_kafka_opts(parser)
     opl.args.add_inventory_db_opts(parser)
