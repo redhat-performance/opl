@@ -106,7 +106,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
             f"Not all messages sent {data_stats['successes']} + {data_stats['failures']} != {args.count}"
         )
 
-        
+
 def fetch_records_count(inventory):
     inventory_cursor = inventory.cursor()
     inventory_cursor.execute("select count(*) as exact_count from hosts")
@@ -166,10 +166,10 @@ def gen_send_verify(args, status_data):
         "user": args.inventory_db_user,
         "password": args.inventory_db_pass,
     }
-    
+
     inventory = psycopg2.connect(**inventory_db_conf)
     exist_records_in_db = fetch_records_count(inventory) # fetch existing records count
-    
+
     logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
     producer = kafka.KafkaProducer(
         bootstrap_servers=[f"{args.kafka_host}:{args.kafka_port}"], api_version=(0, 10)
