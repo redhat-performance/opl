@@ -148,7 +148,7 @@ def verify(args, previous_records, status_data, inventory, collect_info):
             logging.debug(
                 f"Waiting for IDs, attempt {attempt}, remaining {existing_ids}"
             )
-            time.sleep(1)
+            time.sleep(15)
 
     inventory_cursor.close()
 
