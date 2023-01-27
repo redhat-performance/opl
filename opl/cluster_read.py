@@ -10,6 +10,7 @@ import os
 import jinja2
 import jinja2.exceptions
 import traceback
+import boto3
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
@@ -198,6 +199,68 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         parser.add_argument('--grafana-interface', default='interface-em1',
                             help='Monitored host network interface name in Graphite')
 
+class PerformanceInsightsMeasurementPlugin(BasePlugin):
+
+    def __init__(self, args):
+        self.pi_access_key = args.aws_pi_access_key_id
+        self.pi_access_secret = args.aws_pi_secret_access_key
+        self.pi_region_name = args.aws_pi_region_name
+
+    def get_formatted_metric_query(self, metric_query):
+        return [
+            {
+                'Metric': metric_query
+            }
+        ]
+
+    def measure(self, requested_info, name, identifier, metric_query, metric_step):
+        logging.debug(f"/Getting data for {identifier} using PI query {metric_query} with monitoring interval {metric_step}")
+
+        assert requested_info.start is not None and requested_info.end is not None, \
+            "We need timerange to approach AWS PI service"
+
+        assert self.pi_access_key is not None and self.pi_access_secret is not None, \
+            "We need AWS access key and secret key to create the client for accessing PI service"
+
+        # Create a low-level service client
+        aws_session = boto3.session.Session(
+                            aws_access_key_id = self.pi_access_key,
+                            aws_secret_access_key = self.pi_access_secret,
+                            region_name = self.pi_region_name
+                        )
+        aws_client = aws_session.client('pi')
+        response = aws_client.get_resource_metrics(
+                            ServiceType = 'RDS',
+                            Identifier = identifier,
+                            StartTime = requested_info.start,
+                            EndTime = requested_info.end,
+                            MetricQueries = self.get_formatted_metric_query(metric_query),
+                            PeriodInSeconds = metric_step,
+                        )
+
+        # Check that what we got back seems OK
+        logging.debug(f"Response: {response}")
+        assert len(response['MetricList']) > 0, \
+            "'MetricList' should not be empty"
+        assert response['MetricList'][0]['Key']['Metric'] == metric_query, \
+            "'metric_query' needs to be in response"
+        assert len(response['MetricList'][0]['DataPoints']) > 0, \
+            "'DataPoints' needs to be in response"
+
+        points = [ data_point['Value'] for data_point in response['MetricList'][0]['DataPoints'] ]
+        stats = data.data_stats(points)
+        return name, stats
+
+    @staticmethod
+    def add_args(parser):
+        parser.add_argument('--aws-pi-access-key-id',
+                            default=os.getenv('AWS_PI_READ_ONLY_ACCESS_KEY_ID'),
+                            help='The aws access key to use when creating the client for accessing PI service')
+        parser.add_argument('--aws-pi-secret-access-key',
+                            default=os.getenv('AWS_PI_READ_ONLY_SECRET_ACCESS_KEY'),
+                            help='The aws secret key to use when creating the client for accessing PI service')
+        parser.add_argument('--aws-pi-region-name', default='us-east-1',
+                            help='The name of the aws region associated with the client')
 
 class ConstantPlugin(BasePlugin):
 
@@ -259,6 +322,7 @@ PLUGINS = {
     'copy_from': CopyFromPlugin,
     'monitoring_query': PrometheusMeasurementsPlugin,
     'grafana_target': GrafanaMeasurementsPlugin,
+    'metric_query': PerformanceInsightsMeasurementPlugin,
 }
 
 
