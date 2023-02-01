@@ -618,7 +618,7 @@
     "service": "advisor",
     "size": 195324,
     "timestamp": "{{ nowz }}",
-    "url": "https://XXXXXXXXXXXXX.s3.amazonaws.com/018c78be10954bf689974590c19da741?X"
+    "url": "{{ s3_presigned_url|default('https://XXXXXXXXXXXXX.s3.amazonaws.com/018c78be10954bf689974590c19da741?X') }}"
   },
   "timestamp": "{{ nowz }}",
   "type": "{{ msg_type }}"

@@ -16,6 +16,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         n_packages=300,
         template="inventory_egress_template.json.j2",
         msg_type="created",
+        s3_presigned_url=None,
         per_account_data=[],
     ):
         # per_account_data=[] is a json stored in /tmp/edge-test-data.json
@@ -26,6 +27,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
 
         self.n_packages = n_packages  # how many packages to put into profile
         self.msg_type = msg_type
+        self.s3_presigned_url = s3_presigned_url
         self.per_account_data = per_account_data
 
         # Load package profile generator
@@ -80,4 +82,5 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             "request_id": self._get_uuid(),
             "nowz": self._get_now_iso_z(),
             "tommorowz": self._get_tommorow_iso_z(),
+            "s3_presigned_url": self.s3_presigned_url,
         }
