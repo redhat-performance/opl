@@ -179,12 +179,14 @@ def gen_send_verify(args, status_data):
         inventory = psycopg2.connect(**inventory_db_conf)
         exist_records_in_db = fetch_records_count(inventory) # fetch existing records count
 
-    logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
+    kafka_host = f"{args.kafka_host}:{args.kafka_port}"
+    logging.info(f"Creating producer to {kafka_host}")
     if args.dry_run:
         producer = None
     else:
+        status_data.set('parameters.kafka.bootstrap', kafka_host)
         producer = kafka.KafkaProducer(
-            bootstrap_servers=[f"{args.kafka_host}:{args.kafka_port}"], api_version=(0, 10)
+            bootstrap_servers=[kafka_host], api_version=(0, 10)
         )
 
     logging.info("Creating data structure to store list of accounts and so")
