@@ -4,7 +4,7 @@ import argparse
 
 
 def _add_generic_db_opts(parser, name):
-    name_lower = name.lower()
+    name_lower  =  name.lower()
     name_upper = name.upper()
     name_camel = f'{name_upper[0]}{name_lower[1:]}'
     parser.add_argument(f'--{name_lower}-db-host',
