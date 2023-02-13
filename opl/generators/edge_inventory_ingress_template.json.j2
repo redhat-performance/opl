@@ -23,10 +23,7 @@
         },
         "stale_warning_timestamp": "{{ tommorowz }}",
         "culled_timestamp": "{{ tommorowz }}",
-        "ip_addresses": [
-            "{{ ipv4_addr }}",
-            "{{ ipv6_addr }}"
-        ],
+        "ip_addresses": [{% for addr in ipv4_addr + ipv6_addr %}"{{ addr }}"{% if not loop.last %},{% endif %}{% endfor %}],
         "system_profile": {
             "arch": "x86_64",
             "rhsm": {
@@ -621,32 +618,14 @@
                 "wpa_supplicant"
             ],
             "network_interfaces": [
-                {
-                    "mtu": 1500,
-                    "name": "enp1s0",
-                    "type": "ether",
-                    "state": "UP",
-                    "mac_address": "{{ mac_addr }}",
-                    "ipv4_addresses": [
-                      "{{ ipv4_addr }}"
-                     ],
-                    "ipv6_addresses": [
-                      "{{ ipv6_addr }}"
-                     ]
-                },
-                {
-                    "mtu": 65536,
-                    "name": "lo",
-                    "type": "loopback",
-                    "state": "UNKNOWN",
-                    "mac_address": "00:00:00:00:00:00",
-                    "ipv4_addresses": [
-                        "127.0.0.1"
-                    ],
-                    "ipv6_addresses": [
-                        "::1"
-                    ]
-                }
+            {% for mac in mac_addr %}
+              {
+                "ipv4_addresses": ["{{ ipv4_addr[loop.index-1] | default('127.0.0.1') }}"],
+                "ipv6_addresses": ["{{ ipv6_addr[loop.index-1] | default('::1') }}"],
+                "mac_address": "{{ mac }}",
+                "name": "ens1f{{ loop.index - 1 }}"
+              }{% if not loop.last %},{% endif %}
+            {% endfor %}
             ],
             "infrastructure_type": "virtual",
             "selinux_config_file": "enforcing",
@@ -677,10 +656,7 @@
         },
         "updated": "{{ nowz }}",
         "fqdn": "{{ fqdn }}",
-        "mac_addresses": [
-          "{{ mac_addr }}",
-          "00:00:00:00:00:00"
-        ],
+        "mac_addresses": [{% for addr in mac_addr %}"{{ addr }}"{% if not loop.last %},{% endif %}{% endfor %}],
         "reporter": "puptoo",
         "created": "{{ nowz }}",
         "id": "{{ inventory_id }}",
