@@ -3,7 +3,6 @@
     "data": {
         "org_id": "{{ orgid }}",
         "insights_id": "{{ insights_id }}",
-        "provider_id": null,
         "tags": [],
         "per_reporter_staleness": {
             "puptoo": {
@@ -453,7 +452,7 @@
                 "xfsalloc"
             ],
             "satellite_managed": false,
-            "installed_packages": {{ installed_packages|tojson }},
+            "installed_packages": {{ installed_packages }},
             "installed_products": [
                 {
                     "id": "479"
@@ -682,13 +681,10 @@
           "{{ mac_addr }}",
           "00:00:00:00:00:00"
         ],
-        "ansible_host": null,
         "reporter": "puptoo",
         "created": "{{ nowz }}",
-        "satellite_id": null,
         "id": "{{ inventory_id }}",
         "bios_uuid": "{{ bios_uuid }}",
-        "provider_type": null,
         "stale_timestamp": "{{ tommorowz }}",
         "subscription_manager_id": "{{ subscription_manager_id }}",
         "display_name": "{{ fqdn }}",
@@ -699,17 +695,11 @@
         "category": "collection",
         "content_type": "application/vnd.redhat.advisor.collection+tgz",
         "metadata": {
-            "ip_addresses": [
-                "{{ ipv4_addr }}",
-                "{{ ipv6_addr }}"
-            ],
+            "ip_addresses": [{% for addr in ipv4_addr + ipv6_addr %}"{{ addr }}"{% if not loop.last %},{% endif %}{% endfor %}],
             "insights_id": "{{ insights_id }}",
             "machine_id": "{{ machine_id }}",
             "subscription_manager_id": "{{ subscription_manager_id }}",
-            "mac_addresses": [
-                "{{ mac_addr }}",
-                "00:00:00:00:00:00"
-            ],
+            "mac_addresses": [{% for addr in mac_addr %}"{{ addr }}"{% if not loop.last %},{% endif %}{% endfor %}],
             "fqdn": "{{ fqdn }}",
             "bios_uuid": "{{ bios_uuid }}",
             "reporter": "ingress",
