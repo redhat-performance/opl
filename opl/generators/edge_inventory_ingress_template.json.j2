@@ -95,7 +95,7 @@
             ],
             "cpu_model": "Intel Xeon E312xx (Sandy Bridge, IBRS update)",
             "host_type": "edge",
-            "yum_repos": {{ yum_repos|tojson }},
+            "yum_repos": [{% for index in range(yum_repos|length) %} {% if index < yum_repos|length-1 %}{{ yum_repos[index] }},{% else %}{{ yum_repos[index] }}{% endif %}{% endfor %}],
             "os_release": "8.4",
             "bios_vendor": "SeaBIOS",
             "bios_version": "1.13.0-2.module+el8.3.0+7353+9de0a3cc",
