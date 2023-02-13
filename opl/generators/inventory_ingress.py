@@ -18,17 +18,31 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 
     installed_packages = []
 
-    def __init__(self, count, fraction=1, relatives=100, addresses=3, mac_addresses=1,packages=500, template='inventory_ingress_RHSM_template.json.j2'):   # noqa: E501
+    def __init__(
+        self,
+        count,
+        fraction=1,
+        relatives=100,
+        addresses=3,
+        mac_addresses=1,
+        packages=500,
+        template='inventory_ingress_RHSM_template.json.j2',
+        per_account_data=[],
+    ):
         super().__init__(count=count, template=template, dump_message=False)
 
         self.counter = 0   # how many payloads we have produced already
 
         assert fraction > 0
         self.fraction = fraction   # how often we should be returning new system
-        self.relatives = self._get_relatives(relatives)   # list of accounts/... to choose from
         self.addresses = addresses  # how many IP addresses should the host have
         self.mac_addresses= mac_addresses # how many MAC addresses should the host have
         self.packages = packages   # how many packages should be in RHSM package profile
+        self.per_account_data = per_account_data   # this is used e.g. when generating messages for Edge where wee need specific rpm-ostree commit for given account
+
+        if len(self.per_account_data) > 0:
+            assert self.relatives is None, "If you provide per_account_data, relatives is ignored. Set it to None."
+        self.relatives = self._get_relatives()   # list of accounts/... to choose from
 
         assert fraction == 1, "'fraction' handling not yet implemented, please just use 1"
 
@@ -36,13 +50,20 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         self.packages = packages
         self.pg = opl.generators.packages.PackagesGenerator()
 
-    def _get_relatives(self, count):
-        return [{
-            'account': self._get_account(),
-            'orgid': self._get_orgid(),
-            'satellite_id': self._get_uuid(),
-            'satellite_instance_id': self._get_uuid(),
-        } for i in range(count)]
+    def _get_relatives(self):
+        if len(self.per_account_data) > 0:
+            return [{
+                'account': i["account"],
+                'orgid': self._get_orgid(),
+                'os_tree_commits': i["os_tree_commits"],
+            } for i in self.per_account_data.values()]
+        else:
+            return [{
+                'account': self._get_account(),
+                'orgid': self._get_orgid(),
+                'satellite_id': self._get_uuid(),
+                'satellite_instance_id': self._get_uuid(),
+            } for i in range(self.relatives)]
 
     def _mid(self, data):
         return data['subscription_manager_id']
@@ -92,6 +113,8 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             'running_processes': opl.generators.packages.RunningProcessesGenerator().generate(89),
         }
         data.update(random.choice(self.relatives))   # add account and orgid
+        if "os_tree_commits" in data:
+            data["os_tree_commit"] = random.choice(data["os_tree_commits"])   # pick os_tree_commit
         data.update({'b64_identity': self._get_b64_identity(data['account'], data['orgid'])})
         return data
 
