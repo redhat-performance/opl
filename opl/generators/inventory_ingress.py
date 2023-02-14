@@ -36,7 +36,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 
         if len(self.per_account_data) > 0:
             assert (
-                self.relatives is None
+                relatives is None
             ), "If you provide per_account_data, relatives is ignored. Set it to None."
         self.relatives = self._get_relatives()  # list of accounts/... to choose from
 
