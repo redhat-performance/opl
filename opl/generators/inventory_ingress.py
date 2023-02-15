@@ -38,7 +38,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             assert (
                 relatives is None
             ), "If you provide per_account_data, relatives is ignored. Set it to None."
-        self.relatives = self._get_relatives(relatives)  # list of accounts/... to choose from
+        self.relatives = self._get_relatives(
+            relatives
+        )  # list of accounts/... to choose from
 
         assert (
             fraction == 1
@@ -48,7 +50,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         self.packages = packages
         self.pg = opl.generators.packages.PackagesGenerator()
 
-    def _get_relatives(self,relatives):
+    def _get_relatives(self, relatives):
         if len(self.per_account_data) > 0:
             return [
                 {
