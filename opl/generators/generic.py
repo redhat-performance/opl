@@ -28,7 +28,11 @@ class GenericGenerator:
 
         data_dirname = os.path.dirname(__file__)
         self.env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(data_dirname))
+            loader = jinja2.ChoiceLoader([
+                jinja2.FileSystemLoader(data_dirname),
+                jinja2.FileSystemLoader('/home/')
+            ])
+        )
         self.template = self.env.get_template(self.template_file)
 
         logging.info(f"Created {self}")
