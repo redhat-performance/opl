@@ -166,7 +166,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 data["os_tree_commits"]
             )  # pick os_tree_commit
         data.update(
-            {"b64_identity": self._get_b64_identity(data["account"], data["orgid"])}
+            {"b64_identity": self._get_b64_identity(data["account"], data["account"])}
         )
         return data
 
