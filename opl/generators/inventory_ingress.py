@@ -1,4 +1,5 @@
 import json
+import logging
 import random
 
 import opl.generators.generic
@@ -20,6 +21,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         packages=500,
         template="inventory_ingress_RHSM_template.json.j2",
         per_account_data=[],
+        per_account_data_add_filed=None,
     ):
         super().__init__(count=count, template=template, dump_message=False)
 
@@ -33,6 +35,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         )
         self.packages = packages  # how many packages should be in RHSM package profile
         self.per_account_data = per_account_data  # this is used e.g. when generating messages for Edge where wee need specific rpm-ostree commit for given account
+        self.per_account_data_add_filed = per_account_data_add_filed  # set to non-None to add these values to per account json data file (e.g. to track host UUIDs created for individual account)
 
         if len(self.per_account_data) > 0:
             assert (
@@ -168,6 +171,22 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         data.update(
             {"b64_identity": self._get_b64_identity(data["account"], data["account"])}
         )
+        if self.per_account_data_add_filed is not None:
+            for account_data in self.per_account_data:
+                if account_data["account"] == data["account"]:
+                    break
+            else:
+                raise Exception(
+                    f"Failed to find account data for account {data['account']} in per_account_data file"
+                )
+            if self.per_account_data_add_filed not in account_data:
+                account_data[self.per_account_data_add_filed] = []
+            logging.debug(
+                f"Adding {self.per_account_data_add_filed}={data[self.per_account_data_add_filed]} to per account data file for account {data['account']}"
+            )
+            account_data[self.per_account_data_add_filed].append(
+                data[self.per_account_data_add_filed]
+            )
         return data
 
 
