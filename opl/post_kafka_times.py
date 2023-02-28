@@ -369,6 +369,7 @@ def post_kafka_times(config):
                     future.result()
                 except Exception as exc:
                     logging.info(f"Thread {future} caused exception: {exc}")
+                    logging.exception(exc)
                 else:
                     logging.info(f"Thread {future} worked")
 
