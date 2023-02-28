@@ -79,6 +79,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 
     def _data(self):
         data = {
+            "inventory_id": self._get_uuid(),
             "subscription_manager_id": self._get_uuid(),
             "bios_uuid": self._get_bios_uuid(),
             "request_id": self._get_uuid(),
