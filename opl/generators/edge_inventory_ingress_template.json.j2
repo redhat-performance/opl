@@ -1,7 +1,7 @@
 {
     "operation": "add_host",
     "data": {
-        "org_id": "{{ orgid }}",
+        "org_id": "{{ account }}",
         "insights_id": "{{ insights_id }}",
         "tags": [],
         "per_reporter_staleness": {
@@ -640,7 +640,7 @@
                     "origin": "rhel-edge:rhel/8/x86_64/edge",
                     "osname": "rhel-edge",
                     "pinned": false,
-                    "checksum": "663656b6b434510476350d32c7883432b14713476f75eab21558e2fd99337b4a"
+                    "checksum": "{{ os_tree_commit }}"
                 }
             ],
             "insights_client_version": "3.1.5",
@@ -675,7 +675,7 @@
         },
         "request_id": "{{ request_id }}",
         "principal": "{{ account }}",
-        "org_id": "{{ orgid }}",
+        "org_id": "{{ account }}",
         "service": "advisor",
         "size": 232561,
         "url": "https://XXXXXXXXXXXXX.s3.amazonaws.com/018c78be10954bf689974590c19da741?X",
