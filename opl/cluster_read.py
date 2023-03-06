@@ -82,10 +82,7 @@ class PrometheusMeasurementsPlugin(BasePlugin):
         assert ri.start is not None and ri.end is not None, \
             "We need timerange to approach Prometheus"
         # Get data from Prometheus
-        if self.host.endswith('.svc'):
-            url = f'{self.host}:{self.port}/api/v1/query_range'
-        else:
-            url = f'{self.host}/api/v1/query_range'
+        url = f'{self.host}:{self.port}/api/v1/query_range'
         headers = {
             'Content-Type': 'application/json',
         }
