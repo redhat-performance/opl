@@ -568,14 +568,17 @@ def doit_rp_to_dashboard_update(args):
                 },
             }
             logging.debug(f"Going to do POST request to {url} with {data}")
-            response = session.post(
-                url, json=data, headers=headers, verify=not args.rp_noverify
-            )
-            response.raise_for_status()
-            logging.debug(
-                f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
-            )
-            stats["results_changed"] += 1
+            if args.dry_run:
+                logging.debug("Skipped because of dry-run")
+            else:
+                response = session.post(
+                    url, json=data, headers=headers, verify=not args.rp_noverify
+                )
+                response.raise_for_status()
+                logging.debug(
+                    f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
+                )
+                stats["results_changed"] += 1
 
     print(tabulate.tabulate(stats.items()))
 
