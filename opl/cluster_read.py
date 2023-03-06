@@ -247,7 +247,9 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         assert len(response['MetricList'][0]['DataPoints']) > 0, \
             "'DataPoints' needs to be in response"
 
-        points = [ data_point['Value'] for data_point in response['MetricList'][0]['DataPoints'] ]
+        points = [ data_point['Value'] for data_point in response['MetricList'][0]['DataPoints'] if 'Value' in data_point ]
+        if len(points) < len(response['MetricList'][0]['DataPoints']):
+            logging.info(f"Value is missing in the AWS PI datapoints, total data points: {len(response['MetricList'][0]['DataPoints'])}, available values: {len(points)}")
         stats = data.data_stats(points)
         return name, stats
 
