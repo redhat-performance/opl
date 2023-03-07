@@ -7,8 +7,6 @@ import string
 
 
 def get_auth_header(account, user, org_id):
-    if org_id is None:
-        org_id = account
 
     data = {
         "identity": {
