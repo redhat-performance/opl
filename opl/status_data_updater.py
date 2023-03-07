@@ -383,9 +383,9 @@ def doit_rp_to_es(args):
                 sd, es_type, es_id = _get_es_result_for_rp_result(
                     session, args, run_id, result
                 )
-            except Exception:
+            except Exception as e:
                 logging.warning(
-                    f"Something went wrong when getting data for {run_id}/{result}"
+                    f"Something went wrong when getting data for {run_id}/{result}: {e}"
                 )
                 continue
 
