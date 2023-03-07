@@ -8,7 +8,6 @@ import os
 import random
 import tempfile
 import time
-
 from collections import OrderedDict
 
 import opl.status_data
@@ -334,6 +333,7 @@ def _get_es_dashboard_result_for_run_id(session, args, run_id):
 def _get_rp_result_defect_string(result):
     return list(result["statistics"]["defects"].keys())[0]
 
+
 def _get_rp_result_result_string(result):
     return RP_TO_ES_STATE[_get_rp_result_defect_string(result)]
 
@@ -460,10 +460,8 @@ def doit_rp_to_dashboard_new(args):
             session, args, run_id
         )
     except requests.exceptions.HTTPError as e:
-        if (
-            e.response.status_code == 400
-            and "No mapping found for [date] in order to sort on" in e.response.text
-        ):
+        matching = "No mapping found for [date] in order to sort on" in e.response.text
+        if e.response.status_code == 400 and matching:
             logging.debug(
                 "Request failed, but I guess it was because index is still empty"
             )
@@ -604,24 +602,30 @@ def doit_rp_backlog(args):
         rp_launches_count = launch_to_check["history"]
         rp_launch_owner = launch_to_check["owner"]
         if rp_launch_owner not in data_per_owner:
-            data_per_owner[rp_launch_owner] = OrderedDict([
-                ("automation_bug", 0),
-                ("no_defect", 0),
-                ("product_bug", 0),
-                ("system_issue", 0),
-                ("to_investigate", 0),
-            ])
+            data_per_owner[rp_launch_owner] = OrderedDict(
+                [
+                    ("automation_bug", 0),
+                    ("no_defect", 0),
+                    ("product_bug", 0),
+                    ("system_issue", 0),
+                    ("to_investigate", 0),
+                ]
+            )
         if rp_launch not in data_per_job:
-            data_per_job[rp_launch] = OrderedDict([
-                ("automation_bug", 0),
-                ("no_defect", 0),
-                ("product_bug", 0),
-                ("system_issue", 0),
-                ("to_investigate", 0),
-            ])
+            data_per_job[rp_launch] = OrderedDict(
+                [
+                    ("automation_bug", 0),
+                    ("no_defect", 0),
+                    ("product_bug", 0),
+                    ("system_issue", 0),
+                    ("to_investigate", 0),
+                ]
+            )
 
         # Get N newest launches
-        launches = _get_rp_launches(session, args, rp_launch=rp_launch, rp_launches_count=rp_launches_count)
+        launches = _get_rp_launches(
+            session, args, rp_launch=rp_launch, rp_launches_count=rp_launches_count
+        )
 
         # Filter out RP launches that does not have "run_id" attribute
         launches = _filter_rp_launches_without_run_id(launches)
@@ -632,18 +636,24 @@ def doit_rp_backlog(args):
 
             # Get test results from launch
             results = _get_rp_launch_results(session, args, launch)
-            logging.debug(f"Going to compare {len(results)} results for launch {launch['id']}")
+            logging.debug(
+                f"Going to compare {len(results)} results for launch {launch['id']}"
+            )
 
             # Process individual results
             for result in results:
                 logging.debug(f"Processing RP result {result}")
 
                 # Get resuls from launch statistics
-                assert result["statistics"]["executions"]["total"] == 1, "We only know how to work with results with one executions"
+                assert (
+                    result["statistics"]["executions"]["total"] == 1
+                ), "We only know how to work with results with one executions"
                 result_string = result["status"]
                 defect_string = _get_rp_result_defect_string(result)
                 override_string = _get_rp_result_result_string(result)
-                logging.debug(f"Counted result {run_id}: {result_string}, {defect_string}, {override_string}")
+                logging.debug(
+                    f"Counted result {run_id}: {result_string}, {defect_string}, {override_string}"
+                )
                 data_per_owner[rp_launch_owner][defect_string] += 1
                 data_per_job[rp_launch][defect_string] += 1
 
@@ -738,7 +748,7 @@ def main():
 
     parser.add_argument(
         "--jobs-ownership-config",
-        help="YAML config with owners and history size for ReportPortal 'to_investigate' rp-backlog feature"
+        help="YAML config with owners and history size for ReportPortal 'to_investigate' rp-backlog feature",
     )
 
     parser.add_argument(
