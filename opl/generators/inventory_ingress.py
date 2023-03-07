@@ -64,7 +64,6 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 for i in self.per_account_data  # because per_account_data is a list not dictionary
             ]
         else:
-            account = self._get_account()
             return [
                 {
                     "account": self._get_account(),
