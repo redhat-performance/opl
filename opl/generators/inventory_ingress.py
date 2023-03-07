@@ -170,7 +170,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 data["os_tree_commits"]
             )  # pick os_tree_commit
         data.update(
-            {"b64_identity": self._get_b64_identity(data["account"], data["account"])}
+            {"b64_identity": self._get_b64_identity(data["account"], data["orgid"])}
         )
         if self.per_account_data_add_filed is not None:
             for account_data in self.per_account_data:
