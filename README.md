@@ -63,5 +63,5 @@ Running unit tests
 
 Notes
 ------------------
-* Our Jinja2 by default loads templates from the folder where the script `generic.py` is located. 
+* Our Jinja2 by default loads templates from the folder where the script `generic.py` is located.
   * If no template with a given name is found, the second option is used: the `/home/` folder. That's more useful for temporary changes. For example, if I have a template in iperf in `/home/compliance/mycustomtemplate.j2`, I'll omit the `/home` to use this: `compliance/mycustomtemplate.j2`.
