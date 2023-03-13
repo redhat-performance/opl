@@ -188,9 +188,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         )
 
         r = requests.post(url=url, headers=headers, params=params)
-        if (
-            not r.ok or r.headers["Content-Type"] != "application/json" or r.json() == []
-        ):
+        if not r.ok or r.headers["Content-Type"] != "application/json" or len(r.json()) == 0:
             _debug_response(r)
         logging.debug("Response: %s" % r.json())
 
@@ -563,9 +561,7 @@ def main():
             "At least one of '--requested-info-config' or '--requested-info-string' needs to be set"
         )
         return 1
-    if (
-        args.requested_info_config is not None and args.requested_info_string is not None
-    ):
+    if args.requested_info_config is not None and args.requested_info_string is not None:
         logging.error(
             "Only one of '--requested-info-config' or '--requested-info-string' can be set"
         )
