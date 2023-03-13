@@ -22,7 +22,7 @@ setuptools.setup(
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
     install_requires=[
         "Jinja2>=3.0",
         "boto3",
