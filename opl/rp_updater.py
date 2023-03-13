@@ -127,9 +127,7 @@ def main():
     subparsers = parser.add_subparsers(dest="action", help="Select one of sub-commands")
 
     # create the parser for the "list_tests" command
-    subparsers.add_parser(
-        "list_tests", help="Print tests in given launch"
-    )
+    subparsers.add_parser("list_tests", help="Print tests in given launch")
 
     # create the parser for the "change_defects" command
     parser_change_defects = subparsers.add_parser(

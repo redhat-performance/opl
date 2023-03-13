@@ -388,9 +388,7 @@ def main():
     subparsers = parser.add_subparsers(dest="action", help="Select one of sub-commands")
 
     # Create the parser for the "print" command
-    subparsers.add_parser(
-        "print", help="Print content of the file"  # noqa: F841
-    )
+    subparsers.add_parser("print", help="Print content of the file")  # noqa: F841
 
     # Create the parser for the "result" command
     subparsers.add_parser(
