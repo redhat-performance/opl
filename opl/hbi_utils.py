@@ -48,7 +48,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
         current_info = {
             "fqdn": message["data"]["fqdn"],
             "subscription_manager_id": message["data"]["subscription_manager_id"],
-            "org_id": message["data"]["org_id"]
+            "org_id": message["data"]["org_id"],
         }
         if "insights_id" in message["data"]:
             current_info["insights_id"] = message["data"]["insights_id"]
@@ -127,7 +127,7 @@ def verify(args, previous_records, status_data, inventory, collect_info):
     batch_size = 100  # how many IDs to check in one go
     attempt = 0
     attempts_max = (args.count // batch_size + 1) * 10
-    expected_ids = previous_records + args.count # number of records exist after test
+    expected_ids = previous_records + args.count  # number of records exist after test
     while True:
         existing_ids = fetch_records_count(inventory)
 
@@ -177,14 +177,16 @@ def gen_send_verify(args, status_data):
         exist_records_in_db = 0
     else:
         inventory = psycopg2.connect(**inventory_db_conf)
-        exist_records_in_db = fetch_records_count(inventory) # fetch existing records count
+        exist_records_in_db = fetch_records_count(
+            inventory
+        )  # fetch existing records count
 
     kafka_host = f"{args.kafka_host}:{args.kafka_port}"
     logging.info(f"Creating producer to {kafka_host}")
     if args.dry_run:
         producer = None
     else:
-        status_data.set('parameters.kafka.bootstrap', kafka_host)
+        status_data.set("parameters.kafka.bootstrap", kafka_host)
         producer = kafka.KafkaProducer(
             bootstrap_servers=[kafka_host], api_version=(0, 10)
         )

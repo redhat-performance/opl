@@ -10,17 +10,18 @@ import sys
 import time
 import uuid
 
-import opl.args   # noqa: E402
-import opl.db   # noqa: E402
-import opl.gen   # noqa: E402
-import opl.rbac_utils   # noqa: E402
-import opl.skelet   # noqa: E402
+import opl.args  # noqa: E402
+import opl.db  # noqa: E402
+import opl.gen  # noqa: E402
+import opl.rbac_utils  # noqa: E402
+import opl.skelet  # noqa: E402
 
 import psycopg2
 
 import requests
 
 import urllib3
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -31,7 +32,7 @@ errors_counter = 0
 
 
 def _get_user():
-    return 'user-' + str(uuid.uuid4())
+    return "user-" + str(uuid.uuid4())
 
 
 def _get_access():
@@ -39,7 +40,7 @@ def _get_access():
 
 
 def _get_group():
-    name = 'group-' + str(uuid.uuid4())
+    name = "group-" + str(uuid.uuid4())
     return {
         "name": name,
         "description": f"Test group {name}",
@@ -73,7 +74,9 @@ def _run_request(func, *args, **kwargs):
             _check_response(response)
         except requests.exceptions.HTTPError:
             if attempt <= max_attempts:
-                logging.warning(f"Waiting to try again, attempt {attempt} of {max_attempts}")
+                logging.warning(
+                    f"Waiting to try again, attempt {attempt} of {max_attempts}"
+                )
                 time.sleep(sleep)
                 attempt += 1
                 errors_counter += 1
@@ -96,14 +99,16 @@ def load_apps_and_perms(url_base, x_rh_identity, application=[]):
 
     url = f"{url_base}/permissions/"
     headers = {
-        'X_RH_IDENTITY': x_rh_identity,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        "X_RH_IDENTITY": x_rh_identity,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
     params = {
-        'limit': 1000,
+        "limit": 1000,
     }
-    logging.info(f"Loading applications and permissions with identity header {x_rh_identity}")
+    logging.info(
+        f"Loading applications and permissions with identity header {x_rh_identity}"
+    )
     r = _run_request(requests.get, url, params=params, headers=headers, verify=False)
 
     for i in r.json()["data"]:
@@ -120,9 +125,9 @@ def create_tenant(url_base, x_rh_identity):
     # with unknown account will create new tenant for it
     url = f"{url_base}/roles/"
     headers = {
-        'X_RH_IDENTITY': x_rh_identity,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        "X_RH_IDENTITY": x_rh_identity,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
     logging.info(f"Creating tenant with identity header {x_rh_identity}")
     _run_request(requests.get, url, headers=headers, verify=False)
@@ -131,35 +136,39 @@ def create_tenant(url_base, x_rh_identity):
 def create_group(url_base, x_rh_identity):
     url = f"{url_base}/groups/"
     headers = {
-        'X_RH_IDENTITY': x_rh_identity,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        "X_RH_IDENTITY": x_rh_identity,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
     data = _get_group()
     logging.info(f"Creating group name = {data['name']}")
-    response = _run_request(requests.post, url, headers=headers, verify=False, json=data)
-    return response.json()['uuid']
+    response = _run_request(
+        requests.post, url, headers=headers, verify=False, json=data
+    )
+    return response.json()["uuid"]
 
 
 def create_role(url_base, x_rh_identity):
     url = f"{url_base}/roles/"
     headers = {
-        'X_RH_IDENTITY': x_rh_identity,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        "X_RH_IDENTITY": x_rh_identity,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
     data = _get_role()
     logging.info(f"Creating role name = {data['name']}")
-    response = _run_request(requests.post, url, headers=headers, verify=False, json=data)
-    return response.json()['uuid']
+    response = _run_request(
+        requests.post, url, headers=headers, verify=False, json=data
+    )
+    return response.json()["uuid"]
 
 
 def add_roles_to_group(url_base, x_rh_identity, role_list, group_uuid):
     url = f"{url_base}/groups/{group_uuid}/roles/"
     headers = {
-        'X_RH_IDENTITY': x_rh_identity,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        "X_RH_IDENTITY": x_rh_identity,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
     data = {"roles": role_list}
     logging.info(f"Adding roles = {role_list} to group = {group_uuid}")
@@ -170,16 +179,24 @@ def create_principal(cursor, account):
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     logging.info(f"Creating principal username = {user_name}")
-    cursor.execute("INSERT INTO public.management_principal (uuid, username, tenant_id) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE tenant_name = 'acct' || %s)) RETURNING id", (user_uuid, user_name, account))
+    cursor.execute(
+        "INSERT INTO public.management_principal (uuid, username, tenant_id) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE tenant_name = 'acct' || %s)) RETURNING id",
+        (user_uuid, user_name, account),
+    )
     user_id = cursor.fetchone()[0]
     return user_name, user_id
 
 
 def add_principal_to_group(cursor, user_id, group_uuid):
     logging.info(f"Adding principal {user_id} to group {group_uuid}")
-    cursor.execute("SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,))
+    cursor.execute(
+        "SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,)
+    )
     group_id = cursor.fetchone()[0]
-    cursor.execute("INSERT INTO public.management_group_principals (group_id, principal_id) VALUES (%s, %s)", (group_id, user_id))
+    cursor.execute(
+        "INSERT INTO public.management_group_principals (group_id, principal_id) VALUES (%s, %s)",
+        (group_id, user_id),
+    )
 
 
 def doit(rbac_test_data, args, status_data):
@@ -234,11 +251,11 @@ def doit(rbac_test_data, args, status_data):
             add_roles_to_group(url_base, x_rh_identity, role_list, group_uuid)
 
         rbac_db_conf = {
-            'host': args.rbac_db_host,
-            'port': args.rbac_db_port,
-            'database': args.rbac_db_name,
-            'user': args.rbac_db_user,
-            'password': args.rbac_db_pass,
+            "host": args.rbac_db_host,
+            "port": args.rbac_db_port,
+            "database": args.rbac_db_name,
+            "user": args.rbac_db_user,
+            "password": args.rbac_db_pass,
         }
         logging.info(f"Connecting to DB: {rbac_db_conf}")
         connection = psycopg2.connect(**rbac_db_conf)
@@ -264,54 +281,83 @@ def doit(rbac_test_data, args, status_data):
 
     # rbac_test_data.save()
 
-    print(f"DB population finished in {(population_end - population_start).total_seconds()} seconds")
+    print(
+        f"DB population finished in {(population_end - population_start).total_seconds()} seconds"
+    )
     print(f"Tenants created: {tenant_counter}")
     print(f"Groups created: {group_counter}")
     print(f"Roles created: {role_counter}")
     print(f"Principals created: {principal_counter}")
     print(f"Errors encountered: {errors_counter}")
 
-    status_data.set('parameters.test.data_created.end', population_end)
-    status_data.set('parameters.test.data_created.start', population_start)
-    status_data.set('parameters.test.data_created.tenant_counter', tenant_counter)
-    status_data.set('parameters.test.data_created.group_counter', group_counter)
-    status_data.set('parameters.test.data_created.role_counter', role_counter)
-    status_data.set('parameters.test.data_created.principal_counter', principal_counter)
-    status_data.set('parameters.test.data_created.errors_counter', errors_counter)
+    status_data.set("parameters.test.data_created.end", population_end)
+    status_data.set("parameters.test.data_created.start", population_start)
+    status_data.set("parameters.test.data_created.tenant_counter", tenant_counter)
+    status_data.set("parameters.test.data_created.group_counter", group_counter)
+    status_data.set("parameters.test.data_created.role_counter", role_counter)
+    status_data.set("parameters.test.data_created.principal_counter", principal_counter)
+    status_data.set("parameters.test.data_created.errors_counter", errors_counter)
 
     return rbac_test_data
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Create bunch of RBAC tenants and populate them',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        description="Create bunch of RBAC tenants and populate them",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument('--application', type=list, default=["approval", "advisor"],
-                        help='application permissions to be considered')
+    parser.add_argument(
+        "--application",
+        type=list,
+        default=["approval", "advisor"],
+        help="application permissions to be considered",
+    )
 
-    parser.add_argument('--tenants-number', type=int, default=1,
-                        help='Number of tenants to create')
+    parser.add_argument(
+        "--tenants-number", type=int, default=1, help="Number of tenants to create"
+    )
 
-    parser.add_argument('--groups-number', type=int, default=0,
-                        help='Number of groups per tenants to create')
+    parser.add_argument(
+        "--groups-number",
+        type=int,
+        default=0,
+        help="Number of groups per tenants to create",
+    )
 
-    parser.add_argument('--roles-number', type=int, default=0,
-                        help='Number of roles per group to create')
+    parser.add_argument(
+        "--roles-number",
+        type=int,
+        default=0,
+        help="Number of roles per group to create",
+    )
 
-    parser.add_argument('--principals-number', type=int, default=0,
-                        help='Number of principals per tenant to create. Will be member of all created groups')
+    parser.add_argument(
+        "--principals-number",
+        type=int,
+        default=0,
+        help="Number of principals per tenant to create. Will be member of all created groups",
+    )
 
-    parser.add_argument('--test-data-file', default='/tmp/rbac-test-data.json',
-                        help='File where to add test data created here')
+    parser.add_argument(
+        "--test-data-file",
+        default="/tmp/rbac-test-data.json",
+        help="File where to add test data created here",
+    )
 
-    parser.add_argument('--rbac-url-suffix', dest='rbac_url_suffix',
-                        default=os.getenv('RBAC_URL_SUFFIX', '/api/rbac/v1'),
-                        help='RBAC host URL suffix (also use env variable RBAC_URL_SUFFIX)')
+    parser.add_argument(
+        "--rbac-url-suffix",
+        dest="rbac_url_suffix",
+        default=os.getenv("RBAC_URL_SUFFIX", "/api/rbac/v1"),
+        help="RBAC host URL suffix (also use env variable RBAC_URL_SUFFIX)",
+    )
 
-    parser.add_argument('--rbac-host', dest='rbac_host',
-                        default=os.getenv('RBAC_HOST', 'http://rbac.qa.svc:8080'),
-                        help='RBAC host to test (also use env variable RBAC_HOST)')
+    parser.add_argument(
+        "--rbac-host",
+        dest="rbac_host",
+        default=os.getenv("RBAC_HOST", "http://rbac.qa.svc:8080"),
+        help="RBAC host to test (also use env variable RBAC_HOST)",
+    )
     opl.args.add_rbac_db_opts(parser)
     with opl.skelet.test_setup(parser) as (args, status_data):
         rbac_test_data = opl.rbac_utils.RbacTestData(args.test_data_file)

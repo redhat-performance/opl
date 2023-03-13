@@ -27,7 +27,7 @@ def get_auth_header(account, user, org_id):
             },
         }
     }
-    return base64.b64encode(json.dumps(data).encode('UTF-8'))
+    return base64.b64encode(json.dumps(data).encode("UTF-8"))
 
 
 def gen_datetime(plus_hours=None):
@@ -58,21 +58,24 @@ def gen_insights_id():
 def gen_machine_id():
     return gen_uuid()
 
+
 def gen_ipv4():
     data = [str(random.randint(1, 255)) for i in range(4)]
-    return '.'.join(data)
+    return ".".join(data)
+
 
 def gen_ipv6():
     return f"{random.randrange(16**4):x}:{random.randrange(16**4):x}::{random.randrange(16**4):x}:{random.randrange(16**4):x}:{random.randrange(16**4):x}"
 
+
 def gen_mac():
-    data = ['%02x' % random.randrange(256) for i in range(6)]
-    return ':'.join(data)
+    data = ["%02x" % random.randrange(256) for i in range(6)]
+    return ":".join(data)
+
 
 def gen_hostname():
-    return ''.join(random.choices(string.ascii_lowercase, k=10)) \
-        + '.example.com'
+    return "".join(random.choices(string.ascii_lowercase, k=10)) + ".example.com"
 
 
 def gen_string(size=10):
-    return ''.join(random.choice(string.printable) for i in range(size))
+    return "".join(random.choice(string.printable) for i in range(size))

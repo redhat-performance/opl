@@ -1,15 +1,12 @@
 import logging
 import argparse
-import datetime
 import yaml
 import json
 import subprocess
-import re
 import requests
 import os
 import jinja2
 import jinja2.exceptions
-import traceback
 import boto3
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -20,14 +17,14 @@ from . import date
 
 def execute(command):
     p = subprocess.run(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     if p.returncode != 0 or len(p.stderr) != 0:
-        stderr = p.stderr.decode().strip().replace('\n', '\t')
-        stdout = p.stdout.decode().strip().replace('\n', '\t')
-        logging.error(f"Failed to execute command '{command}' - returned stdout '{stdout}', stderr '{stderr}' and returncode '{p.returncode}'")
+        stderr = p.stderr.decode().strip().replace("\n", "\t")
+        stdout = p.stdout.decode().strip().replace("\n", "\t")
+        logging.error(
+            f"Failed to execute command '{command}' - returned stdout '{stdout}', stderr '{stderr}' and returncode '{p.returncode}'"
+        )
         result = None
     else:
         result = p.stdout.decode().strip()
@@ -48,8 +45,7 @@ def _debug_response(r):
     raise Exception("Request failed")
 
 
-class BasePlugin():
-
+class BasePlugin:
     def __init__(self, args):
         pass
 
@@ -62,7 +58,6 @@ class BasePlugin():
 
 
 class PrometheusMeasurementsPlugin(BasePlugin):
-
     def __init__(self, args):
         self.host = args.prometheus_host
         self.port = args.prometheus_port
@@ -71,69 +66,85 @@ class PrometheusMeasurementsPlugin(BasePlugin):
 
     def _get_token(self):
         if self.token is None:
-            self.token = execute('oc whoami -t')
+            self.token = execute("oc whoami -t")
             if self.token is None:
                 raise Exception("Failsed to get token")
         return self.token
 
     def measure(self, ri, name, monitoring_query, monitoring_step):
-        logging.debug(f"/Getting data for {name} using Prometheus query {monitoring_query} and step {monitoring_step}")
+        logging.debug(
+            f"/Getting data for {name} using Prometheus query {monitoring_query} and step {monitoring_step}"
+        )
 
-        assert ri.start is not None and ri.end is not None, \
-            "We need timerange to approach Prometheus"
+        assert (
+            ri.start is not None and ri.end is not None
+        ), "We need timerange to approach Prometheus"
         # Get data from Prometheus
-        url = f'{self.host}:{self.port}/api/v1/query_range'
+        url = f"{self.host}:{self.port}/api/v1/query_range"
         headers = {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         }
         if not self.no_auth:
-            headers['Authorization'] = f'Bearer {self._get_token()}'
+            headers["Authorization"] = f"Bearer {self._get_token()}"
         params = {
-            'query': monitoring_query,
-            'step': monitoring_step,
-            'start': ri.start.timestamp(),
-            'end': ri.end.timestamp(),
+            "query": monitoring_query,
+            "step": monitoring_step,
+            "start": ri.start.timestamp(),
+            "end": ri.end.timestamp(),
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         response = requests.get(url, headers=headers, params=params, verify=False)
-        if not response.ok or response.headers['Content-Type'] != 'application/json':
+        if not response.ok or response.headers["Content-Type"] != "application/json":
             _debug_response(response)
 
         # Check that what we got back seems OK
         json_response = response.json()
         logging.debug("Response: %s" % json_response)
-        assert json_response['status'] == 'success', \
-            "'status' needs to be 'success'"
-        assert 'data' in json_response, \
-            "'data' needs to be in response"
-        assert 'result' in json_response['data'], \
-            "'result' needs to be in response's 'data'"
-        assert len(json_response['data']['result']) != 0, \
-            "missing 'response' in response's 'data'"
-        assert len(json_response['data']['result']) == 1, \
-            "we need exactly one 'response' in response's 'data'"
-        assert 'values' in json_response['data']['result'][0], \
-            "we need expected form of response"
+        assert json_response["status"] == "success", "'status' needs to be 'success'"
+        assert "data" in json_response, "'data' needs to be in response"
+        assert (
+            "result" in json_response["data"]
+        ), "'result' needs to be in response's 'data'"
+        assert (
+            len(json_response["data"]["result"]) != 0
+        ), "missing 'response' in response's 'data'"
+        assert (
+            len(json_response["data"]["result"]) == 1
+        ), "we need exactly one 'response' in response's 'data'"
+        assert (
+            "values" in json_response["data"]["result"][0]
+        ), "we need expected form of response"
 
-        points = [float(i[1]) for i in json_response['data']['result'][0]['values']]
+        points = [float(i[1]) for i in json_response["data"]["result"][0]["values"]]
         stats = data.data_stats(points)
         return name, stats
 
     @staticmethod
     def add_args(parser):
-        parser.add_argument('--prometheus-host',
-                            default='https://prometheus-k8s.openshift-monitoring.svc',
-                            help='Prometheus server to talk to')
-        parser.add_argument('--prometheus-port', type=int, default=9091,
-                            help='Port Prometheus is listening on')
-        parser.add_argument('--prometheus-token', default=None,
-                            help='Authorization token without the "Bearer: " part. If not provided, we will try to get one with "oc whoami -t"')
-        parser.add_argument('--prometheus-no-auth', action='store_true',
-                            help='Do not send auth headers to Prometheus')
+        parser.add_argument(
+            "--prometheus-host",
+            default="https://prometheus-k8s.openshift-monitoring.svc",
+            help="Prometheus server to talk to",
+        )
+        parser.add_argument(
+            "--prometheus-port",
+            type=int,
+            default=9091,
+            help="Port Prometheus is listening on",
+        )
+        parser.add_argument(
+            "--prometheus-token",
+            default=None,
+            help='Authorization token without the "Bearer: " part. If not provided, we will try to get one with "oc whoami -t"',
+        )
+        parser.add_argument(
+            "--prometheus-no-auth",
+            action="store_true",
+            help="Do not send auth headers to Prometheus",
+        )
 
 
 class GrafanaMeasurementsPlugin(BasePlugin):
-
     def __init__(self, args):
         self.host = args.grafana_host
         self.port = args.grafana_port
@@ -141,9 +152,9 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         self.datasource = args.grafana_datasource
         self.chunk_size = args.grafana_chunk_size
         self.variables = {
-            '$Node': args.grafana_node,
-            '$Interface': args.grafana_interface,
-            '$Cloud': args.grafana_prefix
+            "$Node": args.grafana_node,
+            "$Interface": args.grafana_interface,
+            "$Cloud": args.grafana_prefix,
         }
 
     def _sanitize_target(self, target):
@@ -152,120 +163,163 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         return target
 
     def measure(self, ri, name, grafana_target):
-        assert ri.start is not None and ri.end is not None, \
-            "We need timerange to approach Grafana"
-        if ri.start.strftime('%s') == ri.end.strftime('%s'):
+        assert (
+            ri.start is not None and ri.end is not None
+        ), "We need timerange to approach Grafana"
+        if ri.start.strftime("%s") == ri.end.strftime("%s"):
             return name, None
 
         # Metadata for the request
         headers = {
-            'Accept': 'application/json, text/plain, */*',
+            "Accept": "application/json, text/plain, */*",
         }
         if self.token is not None:
-            headers['Authorization'] = 'Bearer %s' % self.token
+            headers["Authorization"] = "Bearer %s" % self.token
         params = {
-            'target': [self._sanitize_target(grafana_target)],
-            'from': int(ri.start.timestamp()),
-            'until': round(ri.end.timestamp()),
-            'format': 'json',
+            "target": [self._sanitize_target(grafana_target)],
+            "from": int(ri.start.timestamp()),
+            "until": round(ri.end.timestamp()),
+            "format": "json",
         }
-        url = "http://%s:%s/api/datasources/proxy/%s/render" % (self.host, self.port, self.datasource)
+        url = "http://%s:%s/api/datasources/proxy/%s/render" % (
+            self.host,
+            self.port,
+            self.datasource,
+        )
 
         r = requests.post(url=url, headers=headers, params=params)
-        if not r.ok or r.headers['Content-Type'] != 'application/json' or r.json() == []:
+        if (
+            not r.ok or r.headers["Content-Type"] != "application/json" or r.json() == []
+        ):
             _debug_response(r)
         logging.debug("Response: %s" % r.json())
 
-        points = [float(i[0]) for i in r.json()[0]['datapoints'] if i[0] is not None]
+        points = [float(i[0]) for i in r.json()[0]["datapoints"] if i[0] is not None]
         stats = data.data_stats(points)
         return name, stats
 
     @staticmethod
     def add_args(parser):
-        parser.add_argument('--grafana-host', default='',
-                            help='Grafana server to talk to')
-        parser.add_argument('--grafana-chunk-size', type=int, default=10,
-                            help='How many metrices to obtain from Grafana at one request')
-        parser.add_argument('--grafana-port', type=int, default=11202,
-                            help='Port Grafana is listening on')
-        parser.add_argument('--grafana-prefix', default='satellite62',
-                            help='Prefix for data in Graphite')
-        parser.add_argument('--grafana-datasource', type=int, default=1,
-                            help='Datasource ID in Grafana')
-        parser.add_argument('--grafana-token', default=None,
-                            help='Authorization token without the "Bearer: " part')
-        parser.add_argument('--grafana-node', default='satellite_satperf_local',
-                            help='Monitored host node name in Graphite')
-        parser.add_argument('--grafana-interface', default='interface-em1',
-                            help='Monitored host network interface name in Graphite')
+        parser.add_argument(
+            "--grafana-host", default="", help="Grafana server to talk to"
+        )
+        parser.add_argument(
+            "--grafana-chunk-size",
+            type=int,
+            default=10,
+            help="How many metrices to obtain from Grafana at one request",
+        )
+        parser.add_argument(
+            "--grafana-port",
+            type=int,
+            default=11202,
+            help="Port Grafana is listening on",
+        )
+        parser.add_argument(
+            "--grafana-prefix",
+            default="satellite62",
+            help="Prefix for data in Graphite",
+        )
+        parser.add_argument(
+            "--grafana-datasource", type=int, default=1, help="Datasource ID in Grafana"
+        )
+        parser.add_argument(
+            "--grafana-token",
+            default=None,
+            help='Authorization token without the "Bearer: " part',
+        )
+        parser.add_argument(
+            "--grafana-node",
+            default="satellite_satperf_local",
+            help="Monitored host node name in Graphite",
+        )
+        parser.add_argument(
+            "--grafana-interface",
+            default="interface-em1",
+            help="Monitored host network interface name in Graphite",
+        )
+
 
 class PerformanceInsightsMeasurementPlugin(BasePlugin):
-
     def __init__(self, args):
         self.pi_access_key = args.aws_pi_access_key_id
         self.pi_access_secret = args.aws_pi_secret_access_key
         self.pi_region_name = args.aws_pi_region_name
 
     def get_formatted_metric_query(self, metric_query):
-        return [
-            {
-                'Metric': metric_query
-            }
-        ]
+        return [{"Metric": metric_query}]
 
     def measure(self, requested_info, name, identifier, metric_query, metric_step):
-        logging.debug(f"/Getting data for {identifier} using PI query {metric_query} with monitoring interval {metric_step}")
+        logging.debug(
+            f"/Getting data for {identifier} using PI query {metric_query} with monitoring interval {metric_step}"
+        )
 
-        assert requested_info.start is not None and requested_info.end is not None, \
-            "We need timerange to approach AWS PI service"
+        assert (
+            requested_info.start is not None and requested_info.end is not None
+        ), "We need timerange to approach AWS PI service"
 
-        assert self.pi_access_key is not None and self.pi_access_secret is not None, \
-            "We need AWS access key and secret key to create the client for accessing PI service"
+        assert (
+            self.pi_access_key is not None and self.pi_access_secret is not None
+        ), "We need AWS access key and secret key to create the client for accessing PI service"
 
         # Create a low-level service client
         aws_session = boto3.session.Session(
-                            aws_access_key_id = self.pi_access_key,
-                            aws_secret_access_key = self.pi_access_secret,
-                            region_name = self.pi_region_name
-                        )
-        aws_client = aws_session.client('pi')
+            aws_access_key_id=self.pi_access_key,
+            aws_secret_access_key=self.pi_access_secret,
+            region_name=self.pi_region_name,
+        )
+        aws_client = aws_session.client("pi")
         response = aws_client.get_resource_metrics(
-                            ServiceType = 'RDS',
-                            Identifier = identifier,
-                            StartTime = requested_info.start,
-                            EndTime = requested_info.end,
-                            MetricQueries = self.get_formatted_metric_query(metric_query),
-                            PeriodInSeconds = metric_step,
-                        )
+            ServiceType="RDS",
+            Identifier=identifier,
+            StartTime=requested_info.start,
+            EndTime=requested_info.end,
+            MetricQueries=self.get_formatted_metric_query(metric_query),
+            PeriodInSeconds=metric_step,
+        )
 
         # Check that what we got back seems OK
         logging.debug(f"Response: {response}")
-        assert len(response['MetricList']) > 0, \
-            "'MetricList' should not be empty"
-        assert response['MetricList'][0]['Key']['Metric'] == metric_query, \
-            "'metric_query' needs to be in response"
-        assert len(response['MetricList'][0]['DataPoints']) > 0, \
-            "'DataPoints' needs to be in response"
+        assert len(response["MetricList"]) > 0, "'MetricList' should not be empty"
+        assert (
+            response["MetricList"][0]["Key"]["Metric"] == metric_query
+        ), "'metric_query' needs to be in response"
+        assert (
+            len(response["MetricList"][0]["DataPoints"]) > 0
+        ), "'DataPoints' needs to be in response"
 
-        points = [ data_point['Value'] for data_point in response['MetricList'][0]['DataPoints'] if 'Value' in data_point ]
-        if len(points) < len(response['MetricList'][0]['DataPoints']):
-            logging.info(f"Value is missing in the AWS PI datapoints, total data points: {len(response['MetricList'][0]['DataPoints'])}, available values: {len(points)}")
+        points = [
+            data_point["Value"]
+            for data_point in response["MetricList"][0]["DataPoints"]
+            if "Value" in data_point
+        ]
+        if len(points) < len(response["MetricList"][0]["DataPoints"]):
+            logging.info(
+                f"Value is missing in the AWS PI datapoints, total data points: {len(response['MetricList'][0]['DataPoints'])}, available values: {len(points)}"
+            )
         stats = data.data_stats(points)
         return name, stats
 
     @staticmethod
     def add_args(parser):
-        parser.add_argument('--aws-pi-access-key-id',
-                            default=os.getenv('AWS_PI_READ_ONLY_ACCESS_KEY_ID'),
-                            help='The aws access key to use when creating the client for accessing PI service')
-        parser.add_argument('--aws-pi-secret-access-key',
-                            default=os.getenv('AWS_PI_READ_ONLY_SECRET_ACCESS_KEY'),
-                            help='The aws secret key to use when creating the client for accessing PI service')
-        parser.add_argument('--aws-pi-region-name', default='us-east-1',
-                            help='The name of the aws region associated with the client')
+        parser.add_argument(
+            "--aws-pi-access-key-id",
+            default=os.getenv("AWS_PI_READ_ONLY_ACCESS_KEY_ID"),
+            help="The aws access key to use when creating the client for accessing PI service",
+        )
+        parser.add_argument(
+            "--aws-pi-secret-access-key",
+            default=os.getenv("AWS_PI_READ_ONLY_SECRET_ACCESS_KEY"),
+            help="The aws secret key to use when creating the client for accessing PI service",
+        )
+        parser.add_argument(
+            "--aws-pi-region-name",
+            default="us-east-1",
+            help="The name of the aws region associated with the client",
+        )
+
 
 class ConstantPlugin(BasePlugin):
-
     def measure(self, ri, name, constant):
         """
         Just store given constant
@@ -274,7 +328,6 @@ class ConstantPlugin(BasePlugin):
 
 
 class CommandPlugin(BasePlugin):
-
     def measure(self, ri, name, command, output="text"):
         """
         Execute command "command" and return result as per its "output" configuration
@@ -284,11 +337,11 @@ class CommandPlugin(BasePlugin):
 
         # Sanitize command response
         if result is not None:
-            if output == 'text':
+            if output == "text":
                 pass
-            elif output == 'json':
+            elif output == "json":
                 result = json.loads(result)
-            elif output == 'yaml':
+            elif output == "yaml":
                 result = yaml.load(result, Loader=yaml.SafeLoader)
             else:
                 raise Exception(f"Unexpected output type '{output}' for '{name}'")
@@ -297,7 +350,6 @@ class CommandPlugin(BasePlugin):
 
 
 class CopyFromPlugin(BasePlugin):
-
     def measure(self, ri, name, copy_from):
         """
         Just return value from previously answered item
@@ -309,22 +361,24 @@ class CopyFromPlugin(BasePlugin):
 
 
 class TestFailMePlugin(BasePlugin):
-
     def measure(self, ri, name, **kwargs):
         """
-        Just raise an exception. Mean for tests only.
+        Just raise an exception. Meant for tests only.
         """
-        a = 1 / 0
+        try:
+            _ = 1 / 0
+        except ZeroDivisionError:
+            raise Exception("Division by zero!")
 
 
 PLUGINS = {
-    'test_fail_me': TestFailMePlugin,
-    'constant': ConstantPlugin,
-    'command': CommandPlugin,
-    'copy_from': CopyFromPlugin,
-    'monitoring_query': PrometheusMeasurementsPlugin,
-    'grafana_target': GrafanaMeasurementsPlugin,
-    'metric_query': PerformanceInsightsMeasurementPlugin,
+    "test_fail_me": TestFailMePlugin,
+    "constant": ConstantPlugin,
+    "command": CommandPlugin,
+    "copy_from": CopyFromPlugin,
+    "monitoring_query": PrometheusMeasurementsPlugin,
+    "grafana_target": GrafanaMeasurementsPlugin,
+    "metric_query": PerformanceInsightsMeasurementPlugin,
 }
 
 
@@ -356,7 +410,7 @@ def config_stuff(config):
             self.main_template = main_template
 
         def get_source(self, environment, path):
-            if path == 'main_template':
+            if path == "main_template":
                 return self.main_template, None, lambda: True
 
             if not os.path.exists(path):
@@ -372,14 +426,13 @@ def config_stuff(config):
         config = config.read()
 
     env = jinja2.Environment(loader=MyLoader(config))
-    template = env.get_template('main_template')
+    template = env.get_template("main_template")
 
     config_rendered = template.render(os.environ)
     return yaml.load(config_rendered, Loader=yaml.SafeLoader)
 
 
-class RequestedInfo():
-
+class RequestedInfo:
     def __init__(self, config, start=None, end=None, args=argparse.Namespace()):
         """
         "config" is input for config_stuff function
@@ -392,10 +445,12 @@ class RequestedInfo():
         self.end = end
         self.args = args
 
-        self._index = 0   # which config item are we processing?
-        self._responses = []   # what responses we have gave so far
-        self._token = None   # OCP token - we will take it from `oc whoami -t` if needed
-        self.measurement_plugins = {}   # objects to use for measurements (it's 'measure()' method) by key in config
+        self._index = 0  # which config item are we processing?
+        self._responses = []  # what responses we have gave so far
+        self._token = None  # OCP token - we will take it from `oc whoami -t` if needed
+        self.measurement_plugins = (
+            {}
+        )  # objects to use for measurements (it's 'measure()' method) by key in config
 
         # Register plugins
         for name, plugin in PLUGINS.items():
@@ -431,7 +486,9 @@ class RequestedInfo():
                 try:
                     output = instance.measure(self, **self.config[i])
                 except Exception as e:
-                    logging.exception(f"Failed to measure {self.config[i]['name']}: {e}")
+                    logging.exception(
+                        f"Failed to measure {self.config[i]['name']}: {e}"
+                    )
                     output = (None, None)
                 self._responses.append(output)
                 return output
@@ -451,9 +508,8 @@ def doit(args):
         requested_info = RequestedInfo(string)
     else:
         requested_info = RequestedInfo(
-            args.requested_info_config,
-            args.monitoring_start,
-            args.monitoring_end)
+            args.requested_info_config, args.monitoring_start, args.monitoring_end
+        )
 
     if args.render_config:
         print(yaml.dump(requested_info.get_config(), width=float("inf")))
@@ -464,24 +520,37 @@ def doit(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Run commands defined in a config file and show output',
+        description="Run commands defined in a config file and show output",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument('--requested-info-config', type=argparse.FileType('r'),
-                        help='File with list of commands to run')
-    parser.add_argument('--requested-info-string',
-                        help='Ad-hoc command you want to run')
-    parser.add_argument('--requested-info-outputtype', default='text',
-                        choices=['text', 'json', 'yaml'],
-                        help='Ad-hoc command output type, default to "text"')
-    parser.add_argument('--monitoring-start', type=date.my_fromisoformat,
-                        help='Start of monitoring interval in ISO 8601 format in UTC with seconds precision')
-    parser.add_argument('--monitoring-end', type=date.my_fromisoformat,
-                        help='End of monitoring interval in ISO 8601 format in UTC with seconds precision')
-    parser.add_argument('--render-config', action='store_true',
-                        help='Just render config')
-    parser.add_argument('-d', '--debug', action='store_true',
-                        help='Show debug output')
+    parser.add_argument(
+        "--requested-info-config",
+        type=argparse.FileType("r"),
+        help="File with list of commands to run",
+    )
+    parser.add_argument(
+        "--requested-info-string", help="Ad-hoc command you want to run"
+    )
+    parser.add_argument(
+        "--requested-info-outputtype",
+        default="text",
+        choices=["text", "json", "yaml"],
+        help='Ad-hoc command output type, default to "text"',
+    )
+    parser.add_argument(
+        "--monitoring-start",
+        type=date.my_fromisoformat,
+        help="Start of monitoring interval in ISO 8601 format in UTC with seconds precision",
+    )
+    parser.add_argument(
+        "--monitoring-end",
+        type=date.my_fromisoformat,
+        help="End of monitoring interval in ISO 8601 format in UTC with seconds precision",
+    )
+    parser.add_argument(
+        "--render-config", action="store_true", help="Just render config"
+    )
+    parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
     for name, plugin in PLUGINS.items():
         plugin.add_args(parser)
     args = parser.parse_args()
@@ -490,10 +559,16 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
 
     if args.requested_info_config is None and args.requested_info_string is None:
-        logging.error("At least one of '--requested-info-config' or '--requested-info-string' needs to be set")
+        logging.error(
+            "At least one of '--requested-info-config' or '--requested-info-string' needs to be set"
+        )
         return 1
-    if args.requested_info_config is not None and args.requested_info_string is not None:
-        logging.error("Only one of '--requested-info-config' or '--requested-info-string' can be set")
+    if (
+        args.requested_info_config is not None and args.requested_info_string is not None
+    ):
+        logging.error(
+            "Only one of '--requested-info-config' or '--requested-info-string' can be set"
+        )
         return 1
 
     logging.debug(f"Args: {args}")

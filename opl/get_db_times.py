@@ -138,7 +138,9 @@ class GetDbTimes:
         Count hosts in storage DB that have empty target timestamp column.
         """
         cursor = self.storage_db.cursor()
-        sql = self.queries_definition[self.config["query_storage_count_applicable_hosts"]]
+        sql = self.queries_definition[
+            self.config["query_storage_count_applicable_hosts"]
+        ]
         cursor.execute(sql)
         count = int(cursor.fetchone()[0])
         cursor.close()
