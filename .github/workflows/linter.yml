@@ -21,6 +21,10 @@ jobs:
         OUTPUT_DETAILS: detailed
         DISABLE_ERRORS: false 
         VALIDATE_ALL_CODEBASE: false #set this to true if you want the linter to always check the entire codebase instead of the committed changes. NOT CONVINIENT IF THERE IS A LOT OF CODE
-
+        # PYTHON_FLAKE8_CONFIG_FILE: .github/linters/.flake8
+      black:
+        enabled: true
+        args: --skip-string-normalization
+        
 
 
