@@ -58,7 +58,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             return [
                 {
                     "account": i["account"],
-                    "orgid": self._get_orgid(),
+                    "orgid": i["account"],
                     "os_tree_commits": i["os_tree_commits"],
                 }
                 for i in self.per_account_data  # because per_account_data is a list not dictionary
