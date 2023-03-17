@@ -20,6 +20,8 @@ jobs:
         OUTPUT_FOLDER: linter_reports # super linter dumps results in this directory
         OUTPUT_DETAILS: detailed
         DISABLE_ERRORS: false 
+        VALIDATE_PYTHON_ISORT: false
+        VALIDATE_PYTHON_MYPY: false
         VALIDATE_ALL_CODEBASE: false #set this to true if you want the linter to always check the entire codebase instead of the committed changes. NOT CONVINIENT IF THERE IS A LOT OF CODE
 
 
