@@ -63,7 +63,6 @@ And have something like this in your tables.yaml:
             - CREATE INDEX IF NOT EXISTS items_subscription_manager_id_idx
                   ON items (subscription_manager_id)
     queries:
-        query_store_info_produced: INSERT INTO items(subscription_manager_id, qpc_at) VALUES %s
         query_storage_update_created_at: UPDATE items SET created_at = data.created_at FROM (VALUES %s) AS data(subscription_manager_id, created_at) WHERE items.subscription_manager_id = data.subscription_manager_id
         query_storage_count_applicable_hosts: SELECT COUNT(*) FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL
         query_storage_get_applicable_hosts: SELECT subscription_manager_id FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL OFFSET %s LIMIT %s
