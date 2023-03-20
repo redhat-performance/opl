@@ -70,7 +70,7 @@ def gen_mac():
     return ':'.join(data)
 
 def gen_hostname():
-    return ''.join(random.choices(string.ascii_lowercase, k=10)) \
+    return ''.join(random.choices(string.ascii_lowercase, k=18)) \
         + '.example.com'
 
 
