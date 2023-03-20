@@ -5,8 +5,7 @@ import numpy
 import time
 
 
-class WaitForDataAndSave():
-
+class WaitForDataAndSave:
     def __init__(self, data_db, storage_db, queries, save_here):
         self.data_db = data_db
         self.storage_db = storage_db
@@ -17,19 +16,19 @@ class WaitForDataAndSave():
 
     def _get_expected_count(self):
         cursor = self.storage_db.cursor()
-        sql = self.queries['get_expected_count']
+        sql = self.queries["get_expected_count"]
         cursor.execute(sql)
         return int(cursor.fetchone()[0])
 
     def _get_remaining_count(self):
         cursor = self.storage_db.cursor()
-        sql = self.queries['get_remaining_count']
+        sql = self.queries["get_remaining_count"]
         cursor.execute(sql)
         return int(cursor.fetchone()[0])
 
     def _get_remaining(self, batch_number):
         cursor = self.storage_db.cursor()
-        sql = self.queries['get_remaining']
+        sql = self.queries["get_remaining"]
         cursor.execute(sql, (self.batch_size, batch_number * self.batch_size))
         return tuple([row[0] for row in cursor.fetchall()])
 
@@ -39,7 +38,7 @@ class WaitForDataAndSave():
         if len(batch) == 0:
             return 0
         data_cursor = self.data_db.cursor()
-        sql = self.queries['read_these']
+        sql = self.queries["read_these"]
         data_cursor.execute(sql, (batch,))
         for row in data_cursor.fetchall():
             logging.debug(f"Saving row {row}")
@@ -57,7 +56,7 @@ class WaitForDataAndSave():
         logging.debug("Waiting for some change in the DB")
         count_old = None
         data_cursor = self.data_db.cursor()
-        sql = self.queries['get_all_done_count']
+        sql = self.queries["get_all_done_count"]
         while True:
             data_cursor.execute(sql)
             count = data_cursor.fetchone()[0]
@@ -70,7 +69,9 @@ class WaitForDataAndSave():
 
             # Looks like all items are in place
             if count == 0:
-                logging.info(f"Finally, count is {count} (was {count_old}), so we can go on")
+                logging.info(
+                    f"Finally, count is {count} (was {count_old}), so we can go on"
+                )
                 break
 
             # Wait some more
@@ -87,7 +88,7 @@ class WaitForDataAndSave():
         logging.debug("Waiting for some change in the DB")
         count_old = None
         data_cursor = self.data_db.cursor()
-        sql = self.queries['get_all_done_count']
+        sql = self.queries["get_all_done_count"]
         while True:
             data_cursor.execute(sql)
             count = data_cursor.fetchone()[0]
@@ -114,20 +115,26 @@ class WaitForDataAndSave():
         iteration_wait = 10
         batch_wait = 0.1
         found_in_total = 0
-        found_recently = [1]   # track how many items we have found in <found_recently_size> iterations - seed with fake 1, so we do not exit at first pass
+        found_recently = [
+            1
+        ]  # track how many items we have found in <found_recently_size> iterations - seed with fake 1, so we do not exit at first pass
         found_recently_size = 100
         while True:
             found_in_iteration = 0
             remaining = self._get_remaining_count()
             batches_count = int(remaining / self.batch_size) + 1
-            logging.debug(f"Iteration {iteration} running with {batches_count} batches for {remaining} remaining items")
+            logging.debug(
+                f"Iteration {iteration} running with {batches_count} batches for {remaining} remaining items"
+            )
 
             # Go through all remaining values (from storage DB) in batches
             # and attempt to get dates from data DB
             for batch_number in range(batches_count):
                 batch = self._get_remaining(batch_number)
                 found_count = self._check_these(batch)
-                logging.debug(f"In iteration {iteration} batch {batch_number} we have found {found_count} new items")
+                logging.debug(
+                    f"In iteration {iteration} batch {batch_number} we have found {found_count} new items"
+                )
                 found_in_iteration += found_count
                 time.sleep(batch_wait)
 
@@ -136,11 +143,15 @@ class WaitForDataAndSave():
             while len(found_recently) > found_recently_size:
                 found_recently.pop(0)
             if sum(found_recently) == 0:
-                raise Exception(f"Nothing found in last {len(found_recently)} iterations, giving up")
+                raise Exception(
+                    f"Nothing found in last {len(found_recently)} iterations, giving up"
+                )
 
             # Are we done?
             if remaining == found_in_iteration:
-                logging.info(f"We are done in iteration {iteration} with all {self.expected_count} items")
+                logging.info(
+                    f"We are done in iteration {iteration} with all {self.expected_count} items"
+                )
                 found_in_total += found_in_iteration
                 break
 
@@ -153,7 +164,7 @@ class WaitForDataAndSave():
 
 def data_stats(data):
     if len(data) == 0:
-        return {'samples': 0}
+        return {"samples": 0}
     non_zero_data = [i for i in data if i != 0]
     if isinstance(data[0], int) or isinstance(data[0], float):
         q25 = numpy.percentile(data, 25)
@@ -162,30 +173,34 @@ def data_stats(data):
         q99 = numpy.percentile(data, 99)
         q999 = numpy.percentile(data, 99.9)
         return {
-            'samples': len(data),
-            'min': min(data),
-            'max': max(data),
-            'sum': sum(data),
-            'mean': statistics.mean(data),
-            'non_zero_mean': statistics.mean(non_zero_data) if len(non_zero_data) > 0 else 0.0,
-            'median': statistics.median(data),
-            'non_zero_median': statistics.median(non_zero_data) if len(non_zero_data) > 0 else 0.0,
-            'stdev': statistics.stdev(data) if len(data) > 1 else 0.0,
-            'range': max(data) - min(data),
-            'percentile25': q25,
-            'percentile75': q75,
-            'percentile90': q90,
-            'percentile99': q99,
-            'percentile999': q999,
-            'iqr': q75 - q25,
+            "samples": len(data),
+            "min": min(data),
+            "max": max(data),
+            "sum": sum(data),
+            "mean": statistics.mean(data),
+            "non_zero_mean": statistics.mean(non_zero_data)
+            if len(non_zero_data) > 0
+            else 0.0,
+            "median": statistics.median(data),
+            "non_zero_median": statistics.median(non_zero_data)
+            if len(non_zero_data) > 0
+            else 0.0,
+            "stdev": statistics.stdev(data) if len(data) > 1 else 0.0,
+            "range": max(data) - min(data),
+            "percentile25": q25,
+            "percentile75": q75,
+            "percentile90": q90,
+            "percentile99": q99,
+            "percentile999": q999,
+            "iqr": q75 - q25,
         }
     elif isinstance(data[0], datetime.datetime):
         return {
-            'samples': len(data),
-            'min': min(data),
-            'max': max(data),
-            'mean': (max(data) - min(data)) / len(data),
-            'range': max(data) - min(data),
+            "samples": len(data),
+            "min": min(data),
+            "max": max(data),
+            "mean": (max(data) - min(data)) / len(data),
+            "range": max(data) - min(data),
         }
     else:
         raise Exception(f"Do not know how to get stats for list of {type(data[0])}")
@@ -225,7 +240,9 @@ def get_rps(data, bucket_size=None, granularity=None):
         granularity = bucket_size / 5
         granularity = max(granularity, 1)
     bucket_end = bucket_start + bucket_size
-    logging.debug(f"Counting RPS for {len(data)} data points with min {bucket_start} and max {data_max} with bucket_size={bucket_size} and granularity={granularity}")
+    logging.debug(
+        f"Counting RPS for {len(data)} data points with min {bucket_start} and max {data_max} with bucket_size={bucket_size} and granularity={granularity}"
+    )
 
     while bucket_start <= data_max:
         bucket = [i for i in data if bucket_start <= i < bucket_end]
@@ -242,7 +259,9 @@ def get_rps(data, bucket_size=None, granularity=None):
         try:
             rps = len(bucket) / bucket_duration
         except ZeroDivisionError:
-            logging.warning(f"Empty bucket {bucket_start} - {bucket_end} when counting RPS")
+            logging.warning(
+                f"Empty bucket {bucket_start} - {bucket_end} when counting RPS"
+            )
             out.append(0)
         else:
             out.append(rps)
