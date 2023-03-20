@@ -166,9 +166,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         }
         data.update(random.choice(self.relatives))  # add account and orgid
         if "os_tree_commits" in data:
-            data["os_tree_commit"] = random.choice(
-                data["os_tree_commits"]
-            )  # pick os_tree_commit
+            data["os_tree_commit"] = data["os_tree_commits"][0]
         data.update(
             {"b64_identity": self._get_b64_identity(data["account"], data["orgid"])}
         )
