@@ -20,9 +20,9 @@ def load(data_dir, data_matchers, paths):
     for path in paths:
         out[path] = []
 
-    for (dirpath, dirnames, filenames) in os.walk(data_dir):
+    for dirpath, dirnames, filenames in os.walk(data_dir):
         for f in filenames:
-            if not f.endswith('.json') or not os.path.isfile(os.path.join(dirpath, f)):
+            if not f.endswith(".json") or not os.path.isfile(os.path.join(dirpath, f)):
                 continue
 
             sd = opl.status_data.StatusData(os.path.join(dirpath, f))
