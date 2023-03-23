@@ -1,8 +1,8 @@
 import datetime
 import logging
 import statistics
-import numpy
 import time
+import numpy
 
 
 class WaitForDataAndSave:
@@ -241,8 +241,10 @@ def get_rps(data, bucket_size=None, granularity=None):
         granularity = max(granularity, 1)
     bucket_end = bucket_start + bucket_size
     logging.debug(
-        f"Counting RPS for {len(data)} data points with min {bucket_start} and max {data_max} with bucket_size={bucket_size} and granularity={granularity}"
+        "Counting RPS for %d data points with min %d and max %d with bucket_size=%d and granularity=%d",
+        len(data), bucket_start, data_max, bucket_size, granularity
     )
+
 
     while bucket_start <= data_max:
         bucket = [i for i in data if bucket_start <= i < bucket_end]
@@ -260,8 +262,11 @@ def get_rps(data, bucket_size=None, granularity=None):
             rps = len(bucket) / bucket_duration
         except ZeroDivisionError:
             logging.warning(
-                f"Empty bucket {bucket_start} - {bucket_end} when counting RPS"
+                "Empty bucket %s - %s when counting RPS",
+                bucket_start,
+                bucket_end
             )
+
             out.append(0)
         else:
             out.append(rps)
