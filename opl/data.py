@@ -242,9 +242,12 @@ def get_rps(data, bucket_size=None, granularity=None):
     bucket_end = bucket_start + bucket_size
     logging.debug(
         "Counting RPS for %d data points with min %d and max %d with bucket_size=%d and granularity=%d",
-        len(data), bucket_start, data_max, bucket_size, granularity
+        len(data),
+        bucket_start,
+        data_max,
+        bucket_size,
+        granularity,
     )
-
 
     while bucket_start <= data_max:
         bucket = [i for i in data if bucket_start <= i < bucket_end]
@@ -262,9 +265,7 @@ def get_rps(data, bucket_size=None, granularity=None):
             rps = len(bucket) / bucket_duration
         except ZeroDivisionError:
             logging.warning(
-                "Empty bucket %s - %s when counting RPS",
-                bucket_start,
-                bucket_end
+                "Empty bucket %s - %s when counting RPS", bucket_start, bucket_end
             )
 
             out.append(0)
