@@ -64,12 +64,13 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             "inventory_id": self._get_uuid(),
             "insights_id": self._get_uuid(),
             "account": account,
+            "orgid": account,
             "os_tree_commit": os_tree_commit,
             "fqdn": self._get_hostname(),
             "installed_packages": self.pg.generate(self.n_packages),
             "yum_repos": self.data["ENABLED_REPOS"]
             + random.sample(self.data["AVAILABLE_REPOS"], 10),  # noqa: W503
-            "b64_identity": self._get_b64_identity(account),
+            "b64_identity": self._get_b64_identity(account, account),
             "msg_type": self.msg_type,
             "machine_id": self._get_rhel_machine_id(),
             "subscription_manager_id": self._get_uuid(),
