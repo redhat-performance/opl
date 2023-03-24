@@ -45,14 +45,10 @@ class WaitForDataAndSave:
             self.save_here.add(row)
             count += 1
         return count
+    
+    @staticmethod
+    def common_db_change():
 
-    def wait_for_done_all(self):
-        """
-        It might take some time before finished messages lands in data DB,
-        so wait for some change (without checking that change we see is for
-        some system in question). If query returns 0, it is also indication
-        we are ready to go.
-        """
         logging.debug("Waiting for some change in the DB")
         count_old = None
         data_cursor = self.data_db.cursor()
@@ -67,17 +63,30 @@ class WaitForDataAndSave:
                 time.sleep(10)
                 continue
 
-            # Looks like all items are in place
+            # Finally, there was a change
+
             if count == 0:
-                logging.info(
-                    f"Finally, count is {count} (was {count_old}), so we can go on"
-                )
+                logging.info(f"Finally, count is {count} (was {count_old}), so we can go on")
+                break
+
+            if count != count_old:
+                logging.info(f"Finally, count {count_old} changed to {count}")
                 break
 
             # Wait some more
             logging.debug(f"Count is still only {count}, waiting")
             count_old = count
             time.sleep(10)
+
+
+    def wait_for_done_all(self):
+        """
+        It might take some time before finished messages lands in data DB,
+        so wait for some change (without checking that change we see is for
+        some system in question). If query returns 0, it is also indication
+        we are ready to go.
+        """
+
 
     def wait_for_done_change(self):
         """
