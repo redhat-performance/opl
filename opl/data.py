@@ -46,45 +46,14 @@ class WaitForDataAndSave:
             count += 1
         return count
 
-    def wait_for_done_all(self):
+    def wait_common_db_change(self):
         """
         It might take some time before finished messages lands in data DB,
         so wait for some change (without checking that change we see is for
         some system in question). If query returns 0, it is also indication
         we are ready to go.
         """
-        logging.debug("Waiting for some change in the DB")
-        count_old = None
-        data_cursor = self.data_db.cursor()
-        sql = self.queries["get_all_done_count"]
-        while True:
-            data_cursor.execute(sql)
-            count = data_cursor.fetchone()[0]
 
-            # This is first pass through the loop
-            if count_old is None:
-                count_old = count
-                time.sleep(10)
-                continue
-
-            # Looks like all items are in place
-            if count == 0:
-                logging.info(
-                    f"Finally, count is {count} (was {count_old}), so we can go on"
-                )
-                break
-
-            # Wait some more
-            logging.debug(f"Count is still only {count}, waiting")
-            count_old = count
-            time.sleep(10)
-
-    def wait_for_done_change(self):
-        """
-        It might take some time before finished messages lands in data DB,
-        so wait for some change (without checking that change we see is for
-        some system in question)
-        """
         logging.debug("Waiting for some change in the DB")
         count_old = None
         data_cursor = self.data_db.cursor()
@@ -100,6 +69,13 @@ class WaitForDataAndSave:
                 continue
 
             # Finally, there was a change
+
+            if count == 0:
+                logging.info(
+                    f"Finally, count is {count} (was {count_old}), so we can go on"
+                )
+                break
+
             if count != count_old:
                 logging.info(f"Finally, count {count_old} changed to {count}")
                 break
