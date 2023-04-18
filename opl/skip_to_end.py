@@ -21,7 +21,7 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group):
     and static group name, we would have problems when running concurrently
     on multiple pods.
     """
-    logging.info(f"Creating Kafka consumer for {kafka_hosts} in group {KAFKA_GROUP} with timeout {kafka_timeout} ms topic {kafka_topic}")
+    logging.info(f"Creating Kafka consumer for {kafka_hosts} in group {kafka_group} with timeout {kafka_timeout} ms topic {kafka_topic}")
     consumer = KafkaConsumer(
         kafka_topic,
         bootstrap_servers=kafka_hosts,
