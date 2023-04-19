@@ -11,6 +11,7 @@ import opl.data
 import opl.db
 import opl.skelet
 
+import uuid
 import psycopg2
 import psycopg2.extras
 
@@ -169,7 +170,10 @@ class GetDbTimes:
         """
         cursor = self.app_db.cursor()
         sql = self.queries_definition[self.config["query_app_get_hosts"]]
-        cursor.execute(sql, (batch_hosts,))
+        row=[]
+        for value in batch_hosts:
+            row.append(uuid.UUID(value))
+        cursor.execute(sql,(row,))
         timestamps = cursor.fetchall()
         cursor.close()
         logging.debug(f"Gathered {len(timestamps)} timestamps for the hosts")
