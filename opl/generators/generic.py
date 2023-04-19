@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import base64
 import logging
 import string
 import json
@@ -9,7 +8,6 @@ import random
 import jinja2
 import jinja2.meta
 import datetime
-import uuid
 import os
 
 import opl.gen
@@ -20,18 +18,20 @@ class GenericGenerator:
 
     def __init__(self, count, template, dump_message=False):
         assert count >= 1
-        self.count = count   # how many messages to generate
-        self.template_file = template   # what template file to use
-        self.dump_message = dump_message   # stould we generate message as a struct (False, default) or as a byte encoded json string (True)
+        self.count = count  # how many messages to generate
+        self.template_file = template  # what template file to use
+        self.dump_message = dump_message  # stould we generate message as a struct (False, default) or as a byte encoded json string (True)
 
         self.counter = 0
 
         data_dirname = os.path.dirname(__file__)
         self.env = jinja2.Environment(
-            loader = jinja2.ChoiceLoader([
-                jinja2.FileSystemLoader(data_dirname),
-                jinja2.FileSystemLoader('/home/')
-            ])
+            loader=jinja2.ChoiceLoader(
+                [
+                    jinja2.FileSystemLoader(data_dirname),
+                    jinja2.FileSystemLoader("/home/"),
+                ]
+            )
         )
         self.template = self.env.get_template(self.template_file)
 
@@ -51,19 +51,19 @@ class GenericGenerator:
         data = self._data()
         mid = self._mid(data)
         if self.dump_message:
-            msg = self.template.render(**data).encode('UTF-8')
+            msg = self.template.render(**data).encode("UTF-8")
         else:
             msg = json.loads(self.template.render(**data))
         return mid, msg
 
     def _mid(self, data):
         """Choose what data do we return as a message ID"""
-        return data['subscription_manager_id']
+        return data["subscription_manager_id"]
 
     def _data(self):
         """Prepare data to use in the template"""
         return {
-            'subscription_manager_id': self._get_uuid(),
+            "subscription_manager_id": self._get_uuid(),
         }
 
     def __next__(self):
@@ -76,14 +76,14 @@ class GenericGenerator:
 
     def dump(self, message):
         """Helper to dump python struct into json string and encode it
-           into bytes so it is ready to be produced to Kafka."""
-        return json.dumps(message).encode('UTF-8')
+        into bytes so it is ready to be produced to Kafka."""
+        return json.dumps(message).encode("UTF-8")
 
     def _get_uuid(self):
         return opl.gen.gen_uuid()
 
     def _get_rhel_machine_id(self):
-        return ''.join(random.choices(string.hexdigits, k=32)).lower()
+        return "".join(random.choices(string.hexdigits, k=32)).lower()
 
     def _get_bios_uuid(self):
         return opl.gen.gen_uuid().upper()
@@ -92,7 +92,10 @@ class GenericGenerator:
         return opl.gen.gen_hostname()
 
     def _get_metadata(self):
-        return {"request_id": self._get_uuid(), "archive_url": "http://s3.aws.com/redhat/insights/1234567"}
+        return {
+            "request_id": self._get_uuid(),
+            "archive_url": "http://s3.aws.com/redhat/insights/1234567",
+        }
 
     def _get_ipv4(self):
         return opl.gen.gen_ipv4()
@@ -104,23 +107,28 @@ class GenericGenerator:
         return opl.gen.gen_mac()
 
     def _get_now_iso(self):
-        return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()   # noqa: E501
+        return (
+            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+        )  # noqa: E501
 
     def _get_now_iso_z(self):
-        return self._get_now_iso().replace('+00:00', 'Z')
+        return self._get_now_iso().replace("+00:00", "Z")
 
     def _get_tommorow_iso(self):
-        return (datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) + datetime.timedelta(days=1)).isoformat()   # noqa: E501
+        return (
+            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+            + datetime.timedelta(days=1)
+        ).isoformat()  # noqa: E501
 
     def _get_tommorow_iso_z(self):
-        return self._get_tommorow_iso().replace('+00:00', 'Z')
+        return self._get_tommorow_iso().replace("+00:00", "Z")
 
     def _get_ips_macs(self, count):
-        ips = ['127.0.0.1']
+        ips = ["127.0.0.1"]
         macs = [self._get_mac()]
         count -= 1
         for i in range(count):
-            ips.append(self._get_ip())
+            ips.append(self._get_ipv4())
             macs.append(self._get_mac())
         return (ips, macs)
 
@@ -136,7 +144,9 @@ class GenericGenerator:
         return jinja2.meta.find_undeclared_variables(ast)
 
     def _get_b64_identity(self, account, orgid):
-        return opl.gen.get_auth_header(account=account, user=opl.gen.gen_string(), org_id=orgid).decode()
+        return opl.gen.get_auth_header(
+            account=account, user=opl.gen.gen_string(), org_id=orgid
+        ).decode()
 
     def _get_disk_devices(self):
         device = ["/dev/fdd2", "/dev/fdd0", "/dev/fdd1"]
@@ -147,17 +157,25 @@ class GenericGenerator:
             "device": random.choice(device),
             "label": random.choice(label),
             "mount_point": random.choice(mount_point),
-            "type": random.choice(type)
+            "type": random.choice(type),
         }
 
     def _get_rpm_ostree_deployment(self):
-        id = ["fedora-blackpink-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
-              "fedora-silverblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
-              "fedora-orangeblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0"]
-        checksum = ["83335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb", 
-                    "63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb",
-                     "73335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb"]
-        origin = ["fedora/31/x86_64/blackpink", "fedora/34/x86_64/orangeblue", "fedora/33/x86_64/silverblue"]
+        id = [
+            "fedora-blackpink-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
+            "fedora-silverblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
+            "fedora-orangeblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
+        ]
+        checksum = [
+            "83335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb",
+            "63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb",
+            "73335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb",
+        ]
+        origin = [
+            "fedora/31/x86_64/blackpink",
+            "fedora/34/x86_64/orangeblue",
+            "fedora/33/x86_64/silverblue",
+        ]
         osname = ["fedora-blackpink", "fedora-silveblue", "fedora-orangeblue"]
         version = ["33.45", "31.12", "33.21"]
         return {
@@ -167,62 +185,61 @@ class GenericGenerator:
             "osname": random.choice(osname),
             "version": random.choice(version),
             "booted": False,
-            "pinned": False
+            "pinned": False,
         }
 
     def _get_system_purpose(self):
-        purposes = [{"usage": "Production", "role": "Red Hat Enterprise Linux Server", "sla": "Premium"},\
-                    {"usage": "Development/Test", "role": "Red Hat Enterprise Linux Workstation", "sla": "Standard"}, \
-                    {"usage": "Disaster Recovery", "role": "Red Hat Enterprise Linux Compute Node", "sla": "Self-Support"}]
+        purposes = [
+            {
+                "usage": "Production",
+                "role": "Red Hat Enterprise Linux Server",
+                "sla": "Premium",
+            },
+            {
+                "usage": "Development/Test",
+                "role": "Red Hat Enterprise Linux Workstation",
+                "sla": "Standard",
+            },
+            {
+                "usage": "Disaster Recovery",
+                "role": "Red Hat Enterprise Linux Compute Node",
+                "sla": "Self-Support",
+            },
+        ]
         return random.choice(purposes)
 
     def _get_ansible(self):
-        ansible_profiles = [{
+        ansible_profiles = [
+            {
                 "controller_version": "1.2.3",
                 "hub_version": "1.2.3",
                 "catalog_worker_version": "1.2.3",
-                "sso_version": "1.2.3"
-            }, {
+                "sso_version": "1.2.3",
+            },
+            {
                 "controller_version": "4.5.6",
                 "hub_version": "4.5.6",
                 "catalog_worker_version": "4.5.6",
-                "sso_version": "4.5.6"
-            }, {
+                "sso_version": "4.5.6",
+            },
+            {
                 "controller_version": "7.8.9",
                 "hub_version": "7.8.9",
                 "catalog_worker_version": "7.8.9",
-                "sso_version": "7.8.9"
-            }]
+                "sso_version": "7.8.9",
+            },
+        ]
         return random.choice(ansible_profiles)
 
     def _get_operating_system(self):
-        operating_systems = [{
-                "major": 7,
-                "minor": 6,
-                "name": "RHEL"
-            }, {
-                "major": 7,
-                "minor": 7,
-                "name": "RHEL"
-            }, {
-                "major": 7,
-                "minor": 8,
-                "name": "RHEL"
-            }, {
-                "major": 7,
-                "minor": 9,
-                "name": "RHEL"
-            }
+        operating_systems = [
+            {"major": 7, "minor": 6, "name": "RHEL"},
+            {"major": 7, "minor": 7, "name": "RHEL"},
+            {"major": 7, "minor": 8, "name": "RHEL"},
+            {"major": 7, "minor": 9, "name": "RHEL"},
         ]
         return random.choice(operating_systems)
 
     def _get_rhsm(self):
-        rhsm_profiles = [{
-                "version": "8.1"
-            }, {
-                "version": "7.5"
-            }, {
-                "version": "9.9"
-            }
-        ]
+        rhsm_profiles = [{"version": "8.1"}, {"version": "7.5"}, {"version": "9.9"}]
         return random.choice(rhsm_profiles)

@@ -1,8 +1,6 @@
 import json
 import os.path
 import random
-import jinja2
-import jinja2.meta
 
 import opl.gen
 import opl.generators.packages

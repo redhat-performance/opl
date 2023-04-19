@@ -32,7 +32,7 @@ class QPCTarballSlice:
     def __init__(self):
         self.id = opl.gen.gen_uuid()
         self.hosts = []
-        self.dump_file = None   # once not None, do not temper with self.hosts
+        self.dump_file = None  # once not None, do not temper with self.hosts
         self.hosts_count = None
 
     def get_id(self):
@@ -45,7 +45,9 @@ class QPCTarballSlice:
             return self.hosts_count
 
     def add_host(self, host_json):
-        assert self.dump_file is None, "Slice already dumped, do not temper with hosts please"
+        assert (
+            self.dump_file is None
+        ), "Slice already dumped, do not temper with hosts please"
         self.hosts.append(host_json)
 
     def dump(self, dirname):
