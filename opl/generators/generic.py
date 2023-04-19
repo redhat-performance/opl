@@ -128,7 +128,7 @@ class GenericGenerator:
         macs = [self._get_mac()]
         count -= 1
         for i in range(count):
-            ips.append(self._get_ip())
+            ips.append(self._get_ipv4())
             macs.append(self._get_mac())
         return (ips, macs)
 
