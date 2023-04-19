@@ -201,7 +201,7 @@ def gen_send_verify(args, status_data):
         producer=producer,
         collect_info=collect_info,
     )
-    if not args.dry_run:
+    if not (args.dry_run or args.no_check):
         verify(
             args,
             exist_records_in_db,
@@ -278,6 +278,11 @@ def populate_main():
         "--dry-run",
         action="store_true",
         help="Use this for debugging if you do not want to actuall send the messages",
+    )
+    parser.add_argument(
+        "--no-check",
+        action="store_true",
+        help="Enable sending of hosts without checking if they appear in HBI. Good for Perf testing.",
     )
     opl.args.add_kafka_opts(parser)
     opl.args.add_inventory_db_opts(parser)

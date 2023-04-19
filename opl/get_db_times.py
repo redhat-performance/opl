@@ -207,6 +207,7 @@ class GetDbTimes:
                         f"No new host added for too long ({delay}), giving up"
                     )
 
+            self.save_here.commit()
             if self._storage_count_applicable_hosts() == 0:
                 logging.debug("All hosts processes")
                 break
