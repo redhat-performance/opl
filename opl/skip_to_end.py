@@ -2,7 +2,6 @@
 
 import logging
 import argparse
-import socket
 import os
 import time
 
@@ -54,7 +53,10 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group):
 
 def doit(args, status_data):
     doit_seek_to_end(
-        [f"{args.kafka_host}:{args.kafka_port}"], args.kafka_timeout, args.kafka_topic, args.kafka_group
+        [f"{args.kafka_host}:{args.kafka_port}"],
+        args.kafka_timeout,
+        args.kafka_topic,
+        args.kafka_group,
     )
 
     status_data.set("parameters.kafka.seek_topic", args.kafka_topic)
