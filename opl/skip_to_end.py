@@ -2,7 +2,6 @@
 
 import logging
 import argparse
-import socket
 import os
 import time
 
@@ -12,10 +11,7 @@ from . import args
 from . import skelet
 
 
-KAFKA_GROUP = f"perf-test-{socket.gethostname()}"
-
-
-def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic):
+def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group):
     """
     Create consumer and seek to end
 
@@ -25,14 +21,14 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic):
     on multiple pods.
     """
     logging.info(
-        f"Creating Kafka consumer for {kafka_hosts} in group {KAFKA_GROUP} with timeout {kafka_timeout} ms topic {kafka_topic}"
+        f"Creating Kafka consumer for {kafka_hosts} in group {kafka_group} with timeout {kafka_timeout} ms topic {kafka_topic}"
     )
     consumer = KafkaConsumer(
         kafka_topic,
         bootstrap_servers=kafka_hosts,
         auto_offset_reset="latest",
         enable_auto_commit=True,
-        group_id=KAFKA_GROUP,
+        group_id=kafka_group,
         session_timeout_ms=50000,
         heartbeat_interval_ms=10000,
         consumer_timeout_ms=kafka_timeout,
@@ -57,7 +53,10 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic):
 
 def doit(args, status_data):
     doit_seek_to_end(
-        [f"{args.kafka_host}:{args.kafka_port}"], args.kafka_timeout, args.kafka_topic
+        [f"{args.kafka_host}:{args.kafka_port}"],
+        args.kafka_timeout,
+        args.kafka_topic,
+        args.kafka_group,
     )
 
     status_data.set("parameters.kafka.seek_topic", args.kafka_topic)
