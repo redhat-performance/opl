@@ -13,23 +13,23 @@ from . import db
 from . import skelet
 
 
-def count_table(connection, table):
+def execute_query(connection, query):
     cursor = connection.cursor()
 
     try:
-        cursor.execute(f"SELECT COUNT(*) FROM {table}")
+        cursor.execute(query)
     except psycopg2.ProgrammingError as e:
-        logging.error(f"Failed to count(*) in {table}: {e}")
+        logging.error(f"Failed to execute query {query}: {e}")
         return None
     else:
         count = cursor.fetchone()[0]
         cursor.close()
         connection.commit()
-        logging.debug(f"Table {table} row count is {count}")
+        logging.debug(f"Query {query} returned {count}")
         return count
 
 
-def wait_for_count(connection, table, expected, timeout, progress):
+def wait_for_count(connection, query, expected, timeout, progress):
     start = time.perf_counter()
     count_before = None
     count_change_at = None
@@ -37,7 +37,7 @@ def wait_for_count(connection, table, expected, timeout, progress):
     while True:
         now = time.perf_counter()
 
-        count = count_table(connection, table)
+        count = execute_query(connection, query)
         if count >= expected:
             break
 
@@ -47,12 +47,12 @@ def wait_for_count(connection, table, expected, timeout, progress):
 
         if (now - start) >= timeout:
             raise Exception(
-                f"Timeout {now - start}/{timeout} reached when waiting for {count}/{expected} rows in {table}"
+                f"Timeout {now - start}/{timeout} reached when waiting for {count}/{expected} result from {query}"
             )
 
         if (now - count_change_at) >= progress:
             raise Exception(
-                f"No change for too long {now - count_change_at}/{progress} reached when waiting for {count}/{expected} rows in {table}"
+                f"No change for too long {now - count_change_at}/{progress} reached when waiting for {count}/{expected} result from {query}"
             )
 
         time.sleep(3)
@@ -124,12 +124,13 @@ def doit(args, status_data):
     # Process all the tables
     for table in args.tables:
         if args.count:
-            count = count_table(connection, table)
+            count = execute_query(connection, f"SELECT COUNT(*) FROM {table}")
             print(f"There is {count} records in the {table} table")
         if args.wait_for_count:
+            query = f"SELECT COUNT(*) FROM {table}"
             count = wait_for_count(
                 connection,
-                table,
+                query,
                 args.wait_for_count,
                 args.wait_for_count_timeout,
                 args.wait_for_count_progress,
@@ -137,6 +138,16 @@ def doit(args, status_data):
             print(
                 f"Table {table} reached {count} rows (goal was {args.wait_for_count})"
             )
+        if args.wait_for_result:
+            query = tables_definition["queries"][args.wait_for_result_query]
+            count = wait_for_count(
+                connection,
+                query,
+                args.wait_for_result,
+                args.wait_for_count_timeout,
+                args.wait_for_count_progress,
+            )
+            print(f"Query {query} returned {count} (goal was {args.wait_for_result})")
         if args.truncate:
             truncate_table(connection, table)
             status_data.set_now(f"parameters.storage.{table}.truncated_at")
@@ -168,6 +179,11 @@ def main():
         help="Wait till we have given number of rows in the table(s)",
     )
     parser.add_argument(
+        "--wait-for-result",
+        type=int,
+        help="Wait till given query (see --wait-for-result-query) returns given number",
+    )
+    parser.add_argument(
         "--wait-for-count-timeout",
         type=float,
         default=300,
@@ -178,6 +194,10 @@ def main():
         type=float,
         default=300,
         help="How long to wait for count to change before failing",
+    )
+    parser.add_argument(
+        "--wait-for-result-query",
+        help="What query from tables.yaml to use for --wait-for-result function",
     )
     parser.add_argument("--truncate", action="store_true", help="Truncate the table(s)")
     parser.add_argument(
