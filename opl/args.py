@@ -231,8 +231,8 @@ def add_locust_opts(parser):
     parser.add_argument(
         "--locust-hatch-rate",
         dest="hatch_rate",
-        type=int,
-        default=int(os.getenv("LOCUST_HATCH_RATE", 10)),
+        type=float,
+        default=float(os.getenv("LOCUST_HATCH_RATE", 10)),
         help="Locust hatch rate (also use env variable LOCUST_HATCH_RATE)",
     )
     parser.add_argument(
