@@ -170,6 +170,12 @@ class PostKafkaTimes:
         this_second = wait_for_next_second()  # second relevant for in_second
 
         for message_id, message in self.generator:
+            # If we have this function defined, allow custom message_id
+            if "func_return_message_id" in self.config:
+                message_id = self.config["func_return_message_id"](
+                    self.args, message_id, message
+                )
+
             # Message payload
             value = self.config["func_return_message_payload"](
                 self.args, message_id, message
