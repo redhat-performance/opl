@@ -79,7 +79,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             "ipv6_addr": self._get_ipv6(),
             "mac_addr": self._get_mac(),
             "request_id": self._get_uuid(),
-            "nowz": self._get_now_iso_z(),
-            "tommorowz": self._get_tommorow_iso_z(),
+            "nowz": self._get_now_rfc(),
+            "tommorowz": self._get_tommorow_rfc(),
             "s3_presigned_url": self.s3_presigned_url,
         }
