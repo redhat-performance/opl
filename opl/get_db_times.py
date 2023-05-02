@@ -203,6 +203,7 @@ class GetDbTimes:
                 delay = self.dt_now() - self.last_added
                 if delay.total_seconds() > self.activity_timeout:
                     self.save_here.commit()
+                    print(f"Unable to process {self._storage_count_applicable_hosts()} hosts")
                     raise Exception(
                         f"No new host added for too long ({delay}), giving up"
                     )
