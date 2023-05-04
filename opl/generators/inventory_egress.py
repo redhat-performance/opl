@@ -81,5 +81,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             "request_id": self._get_uuid(),
             "nowz": self._get_now_rfc(),
             "tommorowz": self._get_tommorow_rfc(),
+            "nowisoz": self._get_now_iso_z(),
+            "tommorowisoz": self._get_tommorow_iso_z(),
             "s3_presigned_url": self.s3_presigned_url,
         }
