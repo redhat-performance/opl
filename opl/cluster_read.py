@@ -499,16 +499,17 @@ class RequestedInfo:
 
 def doit(args):
     if args.requested_info_string:
-        string = f"""
+        config = f"""
             - name: requested-info-string
               command: {args.requested_info_string}
               output: {args.requested_info_outputtype}
         """
-        requested_info = RequestedInfo(string)
     else:
-        requested_info = RequestedInfo(
-            args.requested_info_config, args.monitoring_start, args.monitoring_end
-        )
+        config = args.requested_info_config
+
+    requested_info = RequestedInfo(
+        config, args.monitoring_start, args.monitoring_end, args=args,
+    )
 
     if args.render_config:
         print(yaml.dump(requested_info.get_config(), width=float("inf")))
