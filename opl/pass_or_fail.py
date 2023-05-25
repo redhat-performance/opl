@@ -129,6 +129,7 @@ def main():
 
     total = sum([len(v) for v in history.values()])
     if total == 0:
+        logging.info(f"Current result metrics: {current}")
         logging.fatal("No data available in historical results!")
         sys.exit(1)
 
