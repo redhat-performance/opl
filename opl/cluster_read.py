@@ -93,7 +93,7 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             "end": ri.end.timestamp(),
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        response = requests.get(url, headers=headers, params=params, verify=False)
+        response = requests.get(url, headers=headers, params=params, verify=False, timeout=60)
         if not response.ok or response.headers["Content-Type"] != "application/json":
             _debug_response(response)
 
@@ -187,7 +187,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             self.datasource,
         )
 
-        r = requests.post(url=url, headers=headers, params=params)
+        r = requests.post(url=url, headers=headers, params=params, timeout=60)
         if (
             not r.ok
             or r.headers["Content-Type"] != "application/json"
