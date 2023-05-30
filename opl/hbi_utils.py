@@ -55,7 +55,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
                 current_info["insights_id"] = message["data"]["insights_id"]
             collect_info["accounts"][message["data"]["account"]].append(current_info)
 
-            value = json.dumps(message).encode()
+        value = json.dumps(message).encode()
 
         if args.dry_run:
             handle_send_success(data_stats=data_stats, data_lock=data_lock)
