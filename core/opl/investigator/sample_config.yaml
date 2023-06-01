@@ -1,0 +1,44 @@
+# Get previous test results from here
+history:
+  # type: csv
+  # file: /tmp/data.csv
+
+  # type: sd_dir
+  # dir: /tmp/historical_sd_storage/
+  # matchers: |
+  #   name: "{{ current.get('name') }}"
+
+  type: elasticsearch
+  es_server: http://elasticsearch.example.com:9286
+  es_index: my-index
+  es_query:
+    query:
+      bool:
+        filter:
+          - term:
+              name.keyword: "something"
+    sort:
+      started:
+        order: asc
+    size: 30
+
+
+# Get results of test run to be compared to historical results
+current:
+  type: status_data
+  file: /tmp/status-data.json
+
+# columns in case of CSV input
+# JSON paths in case of status_data input
+sets:
+  - collumn1
+  - collumn2
+
+# Shuld we log our decisions somewhere?
+decisions:
+  # type: csv
+  # filename: /tmp/decisions.csv
+
+  type: elasticsearch
+  es_server: http://elasticsearch.example.com:9286
+  es_index: my_aa_decisions
