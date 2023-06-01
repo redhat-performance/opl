@@ -13,6 +13,7 @@ import opl.skelet
 
 import psycopg2
 
+
 # collect_info could be None
 def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     def handle_send_success(*args, **kwargs):
@@ -194,7 +195,7 @@ def gen_send_verify(args, status_data):
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
-    if args.no_check: # don't keep the account info since it's too big
+    if args.no_check:  # don't keep the account info since it's too big
         collect_info = None 
 
     gen_and_send(
