@@ -7,9 +7,9 @@ import random
 
 
 class PackagesGenerator:
-    def __init__(self):
+    def __init__(self, data_dir_name="packages_data.json"):
         data_dirname = os.path.dirname(__file__)
-        self.data_file = os.path.join(data_dirname, "packages_data.json")
+        self.data_file = os.path.join(data_dirname, data_dir_name)
 
         # Load data
         with open(self.data_file, "r") as fp:
