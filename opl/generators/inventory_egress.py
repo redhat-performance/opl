@@ -29,7 +29,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         self.per_account_data = per_account_data
 
         # Load package profile generator
-        self.pg = opl.generators.packages.PackagesGenerator()
+        self.pg = opl.generators.packages.PackagesGenerator("package_data_rhel88.json")
 
         # Load data file
         data_dirname = os.path.dirname(__file__)
