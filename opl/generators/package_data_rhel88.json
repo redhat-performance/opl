@@ -122,7 +122,6 @@
   "dejavu-serif-fonts": ["dejavu-serif-fonts-0:2.35-7.el8.noarch"],
   "device-mapper": ["device-mapper-8:1.02.181-6.el8.x86_64"],
   "device-mapper-event": ["device-mapper-event-8:1.02.181-6.el8.x86_64"],
-  "device-mapper-event-libs": [],
   "device-mapper-multipath": ["device-mapper-multipath-0:0.8.4-28.el8.x86_64"],
   "device-mapper-multipath-libs": [
     "device-mapper-multipath-libs-0:0.8.4-28.el8.x86_64"
