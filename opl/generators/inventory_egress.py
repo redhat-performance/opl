@@ -25,7 +25,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         super().__init__(count=count, template=template, dump_message=False)
 
         self.n_packages = n_packages  # how many packages to put into profile
-        self.package_file=package_file
+        self.package_file = package_file
         self.msg_type = msg_type
         self.s3_presigned_url = s3_presigned_url
         self.per_account_data = per_account_data
