@@ -14,7 +14,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         n_packages=300,
         template="inventory_egress_template.json.j2",
         msg_type="created",
-        package_file="package_data.json",
+        package_file="packages_data.json",
         s3_presigned_url=None,
         per_account_data=[],
     ):
