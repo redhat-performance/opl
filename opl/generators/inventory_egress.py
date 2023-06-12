@@ -15,6 +15,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         template="inventory_egress_template.json.j2",
         msg_type="created",
         package_file="packages_data.json",
+        egress_data_file="inventory_egress_data.json",
         s3_presigned_url=None,
         per_account_data=[],
     ):
@@ -26,6 +27,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
 
         self.n_packages = n_packages  # how many packages to put into profile
         self.package_file = package_file
+        self.egress_data_file = egress_data_file
         self.msg_type = msg_type
         self.s3_presigned_url = s3_presigned_url
         self.per_account_data = per_account_data
@@ -35,7 +37,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
 
         # Load data file
         data_dirname = os.path.dirname(__file__)
-        data_file = os.path.join(data_dirname, "inventory_egress_data.json")
+        data_file = os.path.join(data_dirname, self.egress_data_file)
         with open(data_file, "r") as fp:
             self.data = json.load(fp)
 
