@@ -454,21 +454,22 @@ def doit_rp_to_dashboard_new(args):
     run_id = args.dashboard_run_id
     result = args.dashboard_result
 
-    # Ensure there are no results for this run_id in ElasticSearch yet
-    try:
-        dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
-            session, args, run_id
-        )
-    except requests.exceptions.HTTPError as e:
-        matching = "No mapping found for [date] in order to sort on" in e.response.text
-        if e.response.status_code == 400 and matching:
-            logging.debug(
-                "Request failed, but I guess it was because index is still empty"
+    if not args.dashboard_skip_uniqness_check:
+        # Ensure there are no results for this run_id in ElasticSearch yet
+        try:
+            dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
+                session, args, run_id
             )
-            dashboard = None
-        else:
-            raise
-    assert dashboard is None, f"Result {run_id} already exists: {dashboard}"
+        except requests.exceptions.HTTPError as e:
+            matching = "No mapping found for [date] in order to sort on" in e.response.text
+            if e.response.status_code == 400 and matching:
+                logging.debug(
+                    "Request failed, but I guess it was because index is still empty"
+                )
+                dashboard = None
+            else:
+                raise
+        assert dashboard is None, f"Result {run_id} already exists: {dashboard}"
 
     # Create new result in the dashboard
     url = f"{args.es_server}/{args.es_index}/_doc/"
@@ -797,6 +798,11 @@ def main():
         .replace(tzinfo=datetime.timezone.utc)
         .isoformat(),
         help="When the test was executed for result dashboard",
+    )
+    parser.add_argument(
+        "--dashboard-skip-uniqness-check",
+        action="store_true",
+        help="Do not check that result with this run ID exists in result dashboard",
     )
 
     parser.add_argument(
