@@ -114,6 +114,13 @@ class GenericGenerator:
     def _get_now_iso_z(self):
         return self._get_now_iso().replace("+00:00", "Z")
 
+    def _get_now_rfc(self):
+        rfc_time = (
+            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+        )
+        rfc_time = (rfc_time.replace("T", " "))[: len(rfc_time) - 3]
+        return rfc_time
+
     def _get_tommorow_iso(self):
         return (
             datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
@@ -122,6 +129,16 @@ class GenericGenerator:
 
     def _get_tommorow_iso_z(self):
         return self._get_tommorow_iso().replace("+00:00", "Z")
+
+    def _get_tommorow_rfc(self):
+        rfc_time_tommorow = (
+            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+            + datetime.timedelta(days=1)
+        ).isoformat()
+        rfc_time_tommorow = (rfc_time_tommorow.replace("T", " "))[
+            : len(rfc_time_tommorow) - 3
+        ]
+        return rfc_time_tommorow
 
     def _get_ips_macs(self, count):
         ips = ["127.0.0.1"]

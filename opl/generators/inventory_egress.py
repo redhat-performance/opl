@@ -14,6 +14,8 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         n_packages=300,
         template="inventory_egress_template.json.j2",
         msg_type="created",
+        package_file="packages_data.json",
+        egress_data_file="inventory_egress_data.json",
         s3_presigned_url=None,
         per_account_data=[],
     ):
@@ -24,16 +26,18 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         super().__init__(count=count, template=template, dump_message=False)
 
         self.n_packages = n_packages  # how many packages to put into profile
+        self.package_file = package_file
+        self.egress_data_file = egress_data_file
         self.msg_type = msg_type
         self.s3_presigned_url = s3_presigned_url
         self.per_account_data = per_account_data
 
         # Load package profile generator
-        self.pg = opl.generators.packages.PackagesGenerator()
+        self.pg = opl.generators.packages.PackagesGenerator(self.package_file)
 
         # Load data file
         data_dirname = os.path.dirname(__file__)
-        data_file = os.path.join(data_dirname, "inventory_egress_data.json")
+        data_file = os.path.join(data_dirname, self.egress_data_file)
         with open(data_file, "r") as fp:
             self.data = json.load(fp)
 
@@ -79,7 +83,9 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             "ipv6_addr": self._get_ipv6(),
             "mac_addr": self._get_mac(),
             "request_id": self._get_uuid(),
-            "nowz": self._get_now_iso_z(),
-            "tommorowz": self._get_tommorow_iso_z(),
+            "nowz": self._get_now_rfc(),
+            "tommorowz": self._get_tommorow_rfc(),
+            "nowisoz": self._get_now_iso_z(),
+            "tommorowisoz": self._get_tommorow_iso_z(),
             "s3_presigned_url": self.s3_presigned_url,
         }

@@ -14,6 +14,7 @@ import opl.skelet
 import psycopg2
 
 
+# collect_info could be None
 def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     def handle_send_success(*args, **kwargs):
         with kwargs["data_lock"]:
@@ -42,17 +43,18 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     for mid, message in payload_generator:
         logging.debug(f"Processing message {mid}: {message}")
 
-        # Add currently processed host to data
-        if message["data"]["account"] not in collect_info["accounts"]:
-            collect_info["accounts"][message["data"]["account"]] = []
-        current_info = {
-            "fqdn": message["data"]["fqdn"],
-            "subscription_manager_id": message["data"]["subscription_manager_id"],
-            "org_id": message["data"]["org_id"],
-        }
-        if "insights_id" in message["data"]:
-            current_info["insights_id"] = message["data"]["insights_id"]
-        collect_info["accounts"][message["data"]["account"]].append(current_info)
+        if collect_info is not None:
+            # Add currently processed host to data
+            if message["data"]["account"] not in collect_info["accounts"]:
+                collect_info["accounts"][message["data"]["account"]] = []
+            current_info = {
+                "fqdn": message["data"]["fqdn"],
+                "subscription_manager_id": message["data"]["subscription_manager_id"],
+                "org_id": message["data"]["org_id"],
+            }
+            if "insights_id" in message["data"]:
+                current_info["insights_id"] = message["data"]["insights_id"]
+            collect_info["accounts"][message["data"]["account"]].append(current_info)
 
         value = json.dumps(message).encode()
 
@@ -193,6 +195,8 @@ def gen_send_verify(args, status_data):
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
+    if args.no_check:  # don't keep the account info since it's too big
+        collect_info = None
 
     gen_and_send(
         args,
