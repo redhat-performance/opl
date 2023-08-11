@@ -41,7 +41,7 @@ def _debug_response(r):
     logging.error("Request headers = %s" % r.request.headers)
     logging.error("Response headers = %s" % r.headers)
     logging.error("Response status code = %s" % r.status_code)
-    logging.error("Response content = %s" % r.content)
+    logging.error("Response content = %s" % r.content[:500])
     raise Exception("Request failed")
 
 
