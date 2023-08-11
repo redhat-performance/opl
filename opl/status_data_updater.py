@@ -311,10 +311,15 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
     return (sd, es_type, es_id)
 
 
-def _get_es_dashboard_result_for_run_id(session, args, run_id):
-    response = _es_get_test(
-        session, args, ["result_id.keyword"], [run_id], sort_by="date"
-    )
+def _get_es_dashboard_result_for_run_id(session, args, run_id, test=None):
+    if test is not None:
+        response = _es_get_test(
+            session, args, ["result_id.keyword", "test.keyword"], [run_id, test], sort_by="date"
+        )
+    else:
+        response = _es_get_test(
+            session, args, ["result_id.keyword"], [run_id], sort_by="date"
+        )
     if response["hits"]["total"]["value"] == 0:
         return (None, None, None)
     else:
@@ -554,34 +559,30 @@ def doit_rp_to_dashboard_update(args):
         print(f"Going to compare {len(results)} results for launch {launch['id']}")
 
         # Process individual results to get final result
-        result_final = "PASS"
         for result in results:
             logging.debug(f"Processing RP result {result}")
 
             result_string = _get_rp_result_result_string(result)
 
-            if STATE_WEIGHTS[result_string] > STATE_WEIGHTS[result_final]:
-                result_final = result_string
-
-        # Get relevant dashboard result from ElasticSearch
-        dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
-            session, args, run_id
-        )
-        if dashboard is None:
-            logging.warning(
-                f"Result {run_id} does not exist in the dashboard, skipping updating it"
+            # Get relevant dashboard result from ElasticSearch
+            dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
+                session, args, run_id, result["name"],
             )
-            continue
+            if dashboard is None:
+                logging.warning(
+                    f"Result {run_id} '{result['name']}' does not exist in the dashboard, skipping updating it"
+                )
+                continue
 
-        # Update the result in dashboard if needed
-        stats["results"] += 1
-        if dashboard["result"] == result_final:
-            pass  # data in the dashboard are correct, no action needed
-        else:
-            _update_es_dashboard_result(
-                session, args, result_string,
-            )
-            stats["results_changed"] += 1
+            # Update the result in dashboard if needed
+            stats["results"] += 1
+            if dashboard["result"] == result_string:
+                pass  # data in the dashboard are correct, no action needed
+            else:
+                _update_es_dashboard_result(
+                    session, args, result_string,
+                )
+                stats["results_changed"] += 1
 
     print(tabulate.tabulate(stats.items()))
 
