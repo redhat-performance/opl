@@ -503,7 +503,7 @@ def doit_rp_to_dashboard_new(args):
     )
     print(f"Created result {run_id} in the dashboard with value {result}")
 
-def _update_es_dashboard_result(session, args, result_string):
+def _update_es_dashboard_result(session, args, es_id, result_string):
     url = f"{args.es_server}/{args.es_index}/_doc/{es_id}/_update"
     headers = {
         "Content-Type": "application/json",
@@ -580,7 +580,7 @@ def doit_rp_to_dashboard_update(args):
                 pass  # data in the dashboard are correct, no action needed
             else:
                 _update_es_dashboard_result(
-                    session, args, result_string,
+                    session, args, es_id, result_string,
                 )
                 stats["results_changed"] += 1
 
