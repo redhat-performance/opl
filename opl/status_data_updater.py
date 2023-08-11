@@ -498,6 +498,28 @@ def doit_rp_to_dashboard_new(args):
     )
     print(f"Created result {run_id} in the dashboard with value {result}")
 
+def _update_es_dashboard_result(session, args, result_string):
+    url = f"{args.es_server}/{args.es_index}/_doc/{es_id}/_update"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {args.rp_token}",
+    }
+    data = {
+        "doc": {
+            "result": result_string,
+        },
+    }
+    logging.debug(f"Going to do POST request to {url} with {data}")
+    if args.dry_run:
+        logging.debug("Skipped because of dry-run")
+    else:
+        response = session.post(
+            url, json=data, headers=headers, verify=not args.rp_noverify
+        )
+        response.raise_for_status()
+        logging.debug(
+            f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
+        )
 
 def doit_rp_to_dashboard_update(args):
     assert args.es_server is not None
@@ -556,28 +578,10 @@ def doit_rp_to_dashboard_update(args):
         if dashboard["result"] == result_final:
             pass  # data in the dashboard are correct, no action needed
         else:
-            url = f"{args.es_server}/{args.es_index}/_doc/{es_id}/_update"
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {args.rp_token}",
-            }
-            data = {
-                "doc": {
-                    "result": result_string,
-                },
-            }
-            logging.debug(f"Going to do POST request to {url} with {data}")
-            if args.dry_run:
-                logging.debug("Skipped because of dry-run")
-            else:
-                response = session.post(
-                    url, json=data, headers=headers, verify=not args.rp_noverify
-                )
-                response.raise_for_status()
-                logging.debug(
-                    f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
-                )
-                stats["results_changed"] += 1
+            _update_es_dashboard_result(
+                session, args, result_string,
+            )
+            stats["results_changed"] += 1
 
     print(tabulate.tabulate(stats.items()))
 
