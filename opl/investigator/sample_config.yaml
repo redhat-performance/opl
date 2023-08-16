@@ -11,7 +11,7 @@ history:
   type: elasticsearch
   es_server: http://elasticsearch.example.com:9286
   es_index: my-index
-  es_query:
+  es_query: |
     query:
       bool:
         filter:
@@ -33,6 +33,11 @@ current:
 sets:
   - collumn1
   - collumn2
+
+methods:
+  - check_by_min_max_0_1
+  #  - check_by_iqr
+  #  - check_by_stdev_1
 
 # Shuld we log our decisions somewhere?
 decisions:
