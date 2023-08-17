@@ -6,6 +6,7 @@ import sys
 import opl.investigator.check
 import opl.investigator.config
 import opl.investigator.csv_decisions
+import opl.investigator.graph_decisions
 import opl.investigator.csv_loader
 import opl.investigator.elasticsearch_decisions
 import opl.investigator.elasticsearch_loader
@@ -180,6 +181,7 @@ def main():
                 if k not in info_headers:
                     del i[k]
 
+    raw_info = info_all
     info_headers_tabulate = dict(
         zip(info_headers, info_headers)
     )  # https://bitbucket.org/astanin/python-tabulate/issues/39/valueerror-headers-for-a-list-of-dicts-is
@@ -204,6 +206,9 @@ def main():
             )
         if args.decisions_type == "csv":
             opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
+        if args.decisions_type == "graph":
+            opl.investigator.graph_decisions.store(args.decisions_dir, raw_info)                                                                        
+                                                                                                                       
 
     if not args.dry_run:
         if exit_code == 0:

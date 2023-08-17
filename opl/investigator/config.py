@@ -90,3 +90,5 @@ def load_config(conf, fp):
         conf.decisions_es_index = data["decisions"]["es_index"]
     if conf.decisions_type == "csv":
         conf.decisions_filename = data["decisions"]["filename"]
+    if conf.decisions_type == "graph":                                                                                                              
+        conf.decisions_dir = data["decisions"]["dir"] 
