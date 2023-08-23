@@ -310,7 +310,7 @@ def main():
     parser.add_argument(
         "--application",
         type=list,
-        default=["approval", "advisor"],
+        default=["inventory", "advisor"],
         help="application permissions to be considered",
     )
 
