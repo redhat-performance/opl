@@ -181,13 +181,9 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             "until": round(ri.end.timestamp()),
             "format": "json",
         }
-        url = "http://%s:%s/api/datasources/proxy/%s/render" % (
-            self.host,
-            self.port,
-            self.datasource,
-        )
+        url = f"{self.host}:{self.port}/api/datasources/proxy/{self.datasource}/render"
 
-        r = requests.post(url=url, headers=headers, params=params, timeout=60)
+        r = requests.post(url=url, headers=headers, params=params, timeout=60, verify=False)
         if (
             not r.ok
             or r.headers["Content-Type"] != "application/json"
