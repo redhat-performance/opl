@@ -42,13 +42,13 @@ def _check_by_min_max(data, value):
     return lower_boundary <= value <= upper_boundary, info
 
 
-def _check_by_max(data, value):
+def _check_by_lte_max(data, value):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
-    lower_boundary = float(mean - (mean - min(data)))
+    lower_boundary = None
     upper_boundary = float(mean + (max(data) - mean))
     logging.info(
-        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
+        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary}--{upper_boundary:.03f}"
     )
     info = collections.OrderedDict(
         [
@@ -65,13 +65,13 @@ def _check_by_max(data, value):
     return value <= upper_boundary, info
 
 
-def _check_by_min(data, value):
+def _check_by_gte_min(data, value):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
     lower_boundary = float(mean - (mean - min(data)))
-    upper_boundary = float(mean + (max(data) - mean))
+    upper_boundary = None
     logging.info(
-        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
+        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary}"
     )
     info = collections.OrderedDict(
         [
@@ -144,13 +144,16 @@ def check_by_min_max_0_1(data, value):
     """Checks if the current value is within the min/max range of previous values"""
     return _check_by_min_max(data, value)
 
-def check_by_max(data, value):
-    """Checks if the current value is less than max range of previous values"""
-    return _check_by_max(data, value)
 
-def check_by_min(data, value):
+def check_by_lte_max(data, value):
+    """Checks if the current value is less than max range of previous values"""
+    return _check_by_lte_max(data, value)
+
+
+def check_by_gte_min(data, value):
     """Checks if the current value is more than min range of previous values"""
-    return _check_by_min(data, value)
+    return _check_by_gte_min(data, value)
+
 
 def check_by_stdev_1(data, value):
     """Checks if the current value is within 1 standard deviations of the mean of previous values"""
