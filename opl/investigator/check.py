@@ -19,11 +19,23 @@ def _count_deviation(value, lower_boundary, upper_boundary):
         return frac
 
 
+def calculate_lower_upper_boundary(comparator, mean, data):
+    lower_boundary = float(mean - (mean - min(data)))
+    upper_boundary = float(mean + (max(data) - mean))
+    if comparator == "lte_max":
+        return (float("-inf"), upper_boundary)
+    elif comparator == "gte_min":
+        return (lower_boundary, float("inf"))
+    else:
+        return (lower_boundary, upper_boundary)
+
+
 def _check_by_min_max(data, value, comparator):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
-    lower_boundary = float(mean - (mean - min(data)))
-    upper_boundary = float(mean + (max(data) - mean))
+    lower_boundary, upper_boundary = calculate_lower_upper_boundary(
+        comparator, mean, data
+    )
     logging.info(
         f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
     )
