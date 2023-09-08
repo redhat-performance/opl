@@ -45,10 +45,10 @@ def _check_by_min_max(data, value):
 def _check_by_lte_max(data, value):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
-    lower_boundary = None
+    lower_boundary = float('-inf')
     upper_boundary = float(mean + (max(data) - mean))
     logging.info(
-        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary}--{upper_boundary:.03f}"
+        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
     )
     info = collections.OrderedDict(
         [
@@ -69,9 +69,9 @@ def _check_by_gte_min(data, value):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
     lower_boundary = float(mean - (mean - min(data)))
-    upper_boundary = None
+    upper_boundary = float('inf')
     logging.info(
-        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary}"
+        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
     )
     info = collections.OrderedDict(
         [
