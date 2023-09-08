@@ -19,7 +19,7 @@ def _count_deviation(value, lower_boundary, upper_boundary):
         return frac
 
 
-def _check_by_min_max(data, value):
+def _check_by_min_max(data, value, comparator):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
     lower_boundary = float(mean - (mean - min(data)))
@@ -39,53 +39,12 @@ def _check_by_min_max(data, value):
             ("upper_boundary", upper_boundary),
         ]
     )
-    return lower_boundary <= value <= upper_boundary, info
-
-
-def _check_by_lte_max(data, value):
-    logging.debug(f"data={data} and value={value}")
-    mean = statistics.mean(data)
-    lower_boundary = float("-inf")
-    upper_boundary = float(mean + (max(data) - mean))
-    logging.info(
-        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
-    )
-    info = collections.OrderedDict(
-        [
-            ("method", inspect.stack()[1][3]),
-            ("value", value),
-            ("data len", len(data)),
-            ("data mean", mean),
-            ("data min", float(min(data))),
-            ("data max", float(max(data))),
-            ("lower_boundary", lower_boundary),
-            ("upper_boundary", upper_boundary),
-        ]
-    )
-    return value <= upper_boundary, info
-
-
-def _check_by_gte_min(data, value):
-    logging.debug(f"data={data} and value={value}")
-    mean = statistics.mean(data)
-    lower_boundary = float(mean - (mean - min(data)))
-    upper_boundary = float("inf")
-    logging.info(
-        f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
-    )
-    info = collections.OrderedDict(
-        [
-            ("method", inspect.stack()[1][3]),
-            ("value", value),
-            ("data len", len(data)),
-            ("data mean", mean),
-            ("data min", float(min(data))),
-            ("data max", float(max(data))),
-            ("lower_boundary", lower_boundary),
-            ("upper_boundary", upper_boundary),
-        ]
-    )
-    return lower_boundary <= value, info
+    if comparator == "lte_max":
+        return value <= upper_boundary, info
+    elif comparator == "gte_min":
+        return lower_boundary <= value, info
+    else:
+        return lower_boundary <= value <= upper_boundary, info
 
 
 def _check_by_stdev(data, value, num_deviations):
@@ -142,17 +101,17 @@ def check_by_iqr(data, value):
 
 def check_by_min_max_0_1(data, value):
     """Checks if the current value is within the min/max range of previous values"""
-    return _check_by_min_max(data, value)
+    return _check_by_min_max(data, value, None)
 
 
 def check_by_lte_max(data, value):
     """Checks if the current value is less than max range of previous values"""
-    return _check_by_lte_max(data, value)
+    return _check_by_min_max(data, value, "lte_max")
 
 
 def check_by_gte_min(data, value):
     """Checks if the current value is more than min range of previous values"""
-    return _check_by_gte_min(data, value)
+    return _check_by_min_max(data, value, "gte_min")
 
 
 def check_by_stdev_1(data, value):
