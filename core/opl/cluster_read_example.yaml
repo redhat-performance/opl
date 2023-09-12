@@ -19,3 +19,6 @@
 
 - name: parameters.test_description
   constant: This test is about this and that
+
+- name: parameters.env.JOB_NAME_ID
+  env_variable: JOB_NAME_ID
