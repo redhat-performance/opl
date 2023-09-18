@@ -30,6 +30,7 @@ def calculate_lower_upper_boundary(data, mean, comparator):
     Returns:
         tuple with lower and upper boundary
     """
+    assert isinstance(data, list), "Data provided have to be a list"
     lower_boundary = float(mean - (mean - min(data)))
     upper_boundary = float(mean + (max(data) - mean))
     if comparator == "lte_max":
