@@ -73,12 +73,7 @@ def _check_by_min_max(data, value, comparator):
             ("upper_boundary", upper_boundary),
         ]
     )
-    if comparator == "lte_max":
-        return value <= upper_boundary, info
-    elif comparator == "gte_min":
-        return lower_boundary <= value, info
-    else:
-        return lower_boundary <= value <= upper_boundary, info
+    return lower_boundary <= value <= upper_boundary, info
 
 
 def _check_by_stdev(data, value, num_deviations):
