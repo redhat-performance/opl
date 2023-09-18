@@ -19,7 +19,7 @@ def _count_deviation(value, lower_boundary, upper_boundary):
         return frac
 
 
-def calculate_lower_upper_boundary(data, mean, comparator):
+def _calculate_lower_upper_boundary(data, mean, comparator):
     """Returns the calculated lower and upper boundary of the data
 
     Args:
@@ -55,7 +55,7 @@ def _check_by_min_max(data, value, comparator):
     """
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
-    lower_boundary, upper_boundary = calculate_lower_upper_boundary(
+    lower_boundary, upper_boundary = _calculate_lower_upper_boundary(
         data, mean, comparator
     )
     logging.info(
