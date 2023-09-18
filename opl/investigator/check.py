@@ -55,7 +55,7 @@ def _check_by_min_max(data, value, comparator):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
     lower_boundary, upper_boundary = calculate_lower_upper_boundary(
-        comparator, mean, data
+        data, mean, comparator
     )
     logging.info(
         f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
