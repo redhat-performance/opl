@@ -81,6 +81,7 @@ def add_remediations_db_opts(parser):
 def add_vulnerability_db_opts(parser):
     _add_generic_db_opts(parser, "vulnerability")
 
+
 def add_ros_db_opts(parser):
     _add_generic_db_opts(parser, "ros")
 
