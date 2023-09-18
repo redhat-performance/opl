@@ -325,6 +325,14 @@ class ConstantPlugin(BasePlugin):
         return name, constant
 
 
+class EnvironmentPlugin(BasePlugin):
+    def measure(self, ri, name, env_variable):
+        """
+        Just get value of given environment variable
+        """
+        return name, os.environ.get(env_variable, None)
+
+
 class CommandPlugin(BasePlugin):
     def measure(self, ri, name, command, output="text"):
         """
@@ -369,6 +377,7 @@ class TestFailMePlugin(BasePlugin):
 PLUGINS = {
     "test_fail_me": TestFailMePlugin,
     "constant": ConstantPlugin,
+    "env_variable": EnvironmentPlugin,
     "command": CommandPlugin,
     "copy_from": CopyFromPlugin,
     "monitoring_query": PrometheusMeasurementsPlugin,

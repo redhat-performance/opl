@@ -19,11 +19,60 @@ def _count_deviation(value, lower_boundary, upper_boundary):
         return frac
 
 
-def _check_by_min_max(data, value):
-    logging.debug(f"data={data} and value={value}")
-    mean = statistics.mean(data)
+def _calculate_lower_upper_boundary(data, mean, comparator):
+    """Returns the calculated lower and upper boundary of the data
+
+    Args:
+        data: collected history data
+        mean: mean of the collected history data
+        comparator: defines the type of comparison to be done
+
+    Returns:
+        tuple with lower and upper boundary
+    """
+    assert isinstance(data, list), "Data provided have to be a list"
     lower_boundary = float(mean - (mean - min(data)))
     upper_boundary = float(mean + (max(data) - mean))
+    if comparator == "lte_max":
+        return (float("-inf"), upper_boundary)
+    elif comparator == "gte_min":
+        return (lower_boundary, float("inf"))
+    else:
+        return (lower_boundary, upper_boundary)
+
+
+def _check_by_min_max(data, value, comparator):
+    """Checks the value range using lower and upper boundary.
+    If the value is within given range it is a PASS else a FAIL
+
+    Be cautions when using comparator other than None:
+
+        Imagine these historical data measurements.memory_used:
+
+            100, 105, 95, 102, 98
+
+        And check configured with comparator  being lte_max.
+
+        Now imagine your new value, the value you are checking is 0.
+        That check would say PASS even though it clearly looks
+        suspicious. Not only because "memory can not be 0", but more
+        importantly because "the improvement is so massive, that is
+        looks suspicious and most probably just point on some error
+        with collecting that data".
+
+    Args:
+        data: collected history data
+        value: value to be checked against
+        comparator: defines the type of comparison to be done
+
+    Returns:
+        Boolean value
+    """
+    logging.debug(f"data={data} and value={value}")
+    mean = statistics.mean(data)
+    lower_boundary, upper_boundary = _calculate_lower_upper_boundary(
+        data, mean, comparator
+    )
     logging.info(
         f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
     )
@@ -96,7 +145,17 @@ def check_by_iqr(data, value):
 
 def check_by_min_max_0_1(data, value):
     """Checks if the current value is within the min/max range of previous values"""
-    return _check_by_min_max(data, value)
+    return _check_by_min_max(data, value, None)
+
+
+def check_by_lte_max(data, value):
+    """Checks if the current value is less than max range of previous values"""
+    return _check_by_min_max(data, value, "lte_max")
+
+
+def check_by_gte_min(data, value):
+    """Checks if the current value is more than min range of previous values"""
+    return _check_by_min_max(data, value, "gte_min")
 
 
 def check_by_stdev_1(data, value):
