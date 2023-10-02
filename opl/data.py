@@ -1,5 +1,6 @@
 import datetime
 import logging
+import math
 import statistics
 import time
 import numpy
@@ -138,16 +139,33 @@ class WaitForDataAndSave:
         return found_in_total
 
 
+def percentile(data, percent):
+    if not data:
+        return None
+
+    data.sort()
+    k = (len(data) - 1) * percent / 100
+    # Python 2.x returns float for floor an ceil, so cast to int
+    f = int(math.floor(k))
+    c = int(math.ceil(k))
+    if f == c:
+        return data[int(k)]
+
+    d0 = data[f] * (c - k)
+    d1 = data[c] * (k - f)
+    return d0 + d1
+
+
 def data_stats(data):
     if len(data) == 0:
         return {"samples": 0}
     non_zero_data = [i for i in data if i != 0]
     if isinstance(data[0], int) or isinstance(data[0], float):
-        q25 = numpy.percentile(data, 25)
-        q75 = numpy.percentile(data, 75)
-        q90 = numpy.percentile(data, 90)
-        q99 = numpy.percentile(data, 99)
-        q999 = numpy.percentile(data, 99.9)
+        q25 = percentile(data, 25)
+        q75 = percentile(data, 75)
+        q90 = percentile(data, 90)
+        q99 = percentile(data, 99)
+        q999 = percentile(data, 99.9)
         return {
             "samples": len(data),
             "min": min(data),
