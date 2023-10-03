@@ -3,7 +3,6 @@ import logging
 import math
 import statistics
 import time
-import numpy
 
 
 class WaitForDataAndSave:
