@@ -156,6 +156,39 @@ def percentile(data, percent):
     return d0 + d1
 
 
+def create_bins(data, precision, bins_number=10):
+    bins = []
+    borders = []
+    min_data = min(data)
+    max_data = max(data)
+    bin_size = (max_data - min_data) / bins_number
+
+    borders.append(min_data)
+    for x in range(bins_number):
+        bins.append((min_data + (bin_size * x), min_data + (bin_size * (x + 1))))
+        borders.append(min_data + (bin_size * (x + 1)))
+
+    return bins, borders
+
+
+def find_bin(value, bins):
+    for i in range(0, len(bins)):
+        if bins[i][0] <= value < bins[i][1]:
+            return i
+    return -1
+
+
+def histogram(data, precision=1):
+    bins, borders = create_bins(data, precision)
+    counts = [0] * len(bins)
+
+    for value in data:
+        bin_index = find_bin(value, bins)
+        counts[bin_index] += 1
+
+    return counts, borders
+
+
 def data_stats(data):
     if len(data) == 0:
         return {"samples": 0}
@@ -201,7 +234,7 @@ def data_stats(data):
 
 
 def get_hist(data):
-    hist_counts, hist_borders = numpy.histogram(data)
+    hist_counts, hist_borders = histogram(data)
     hist_counts = [float(i) for i in hist_counts]
     hist_borders = [float(i) for i in hist_borders]
     out = []
