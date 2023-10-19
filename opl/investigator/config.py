@@ -91,11 +91,11 @@ def load_config(conf, fp):
     if conf.decisions_type == "csv":
         conf.decisions_filename = data["decisions"]["filename"]
 
-    decision_type = conf.decisions_type.split(",")
-    for d_type in decision_type:
-        if d_type.strip() == "elasticsearch":
+    conf.decisions_type = [d_type.strip() for d_type in conf.decisions_type.split(",")]
+    for d_type in conf.decisions_type:
+        if d_type == "elasticsearch":
             conf.decisions_es_server = data["decisions"]["es_server"]
             assert not conf.decisions_es_server.endswith("/")
             conf.decisions_es_index = data["decisions"]["es_index"]
-        if d_type.strip() == "csv":
+        if d_type == "csv":
             conf.decisions_filename = data["decisions"]["filename"]
