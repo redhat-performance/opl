@@ -198,12 +198,14 @@ def main():
         get_stats(info_all, "method")
 
     if not args.dry_run:
-        if args.decisions_type == "elasticsearch":
-            opl.investigator.elasticsearch_decisions.store(
-                args.decisions_es_server, args.decisions_es_index, info_all
-            )
-        if args.decisions_type == "csv":
-            opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
+        decision_type = args.decisions_type.split(",")
+        for d_type in decision_type:
+            if d_type.strip() == "elasticsearch":
+                opl.investigator.elasticsearch_decisions.store(
+                    args.decisions_es_server, args.decisions_es_index, info_all
+                )
+            if d_type.strip() == "csv":
+                opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
 
     if not args.dry_run:
         if exit_code == 0:
