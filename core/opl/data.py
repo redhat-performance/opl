@@ -1,8 +1,8 @@
 import datetime
 import logging
+import math
 import statistics
 import time
-import numpy
 
 
 class WaitForDataAndSave:
@@ -138,16 +138,66 @@ class WaitForDataAndSave:
         return found_in_total
 
 
+def percentile(data, percent):
+    if not data:
+        return None
+
+    data.sort()
+    k = (len(data) - 1) * percent / 100
+    # Python 2.x returns float for floor an ceil, so cast to int
+    f = int(math.floor(k))
+    c = int(math.ceil(k))
+    if f == c:
+        return data[int(k)]
+
+    d0 = data[f] * (c - k)
+    d1 = data[c] * (k - f)
+    return d0 + d1
+
+
+def create_bins(data, precision, bins_number=10):
+    bins = []
+    borders = []
+    min_data = min(data)
+    max_data = max(data)
+    bin_size = (max_data - min_data) / bins_number
+
+    borders.append(min_data)
+    for x in range(bins_number):
+        bins.append((min_data + (bin_size * x), min_data + (bin_size * (x + 1))))
+        borders.append(min_data + (bin_size * (x + 1)))
+
+    return bins, borders
+
+
+def find_bin(value, bins):
+    for i in range(0, len(bins)):
+        if bins[i][0] <= value < bins[i][1]:
+            return i
+    return -1
+
+
+def histogram(data, precision=1):
+    bins, borders = create_bins(data, precision)
+    counts = [0] * len(bins)
+
+    for value in data:
+        bin_index = find_bin(value, bins)
+        counts[bin_index] += 1
+
+    return counts, borders
+
+
 def data_stats(data):
     if len(data) == 0:
         return {"samples": 0}
     non_zero_data = [i for i in data if i != 0]
     if isinstance(data[0], int) or isinstance(data[0], float):
-        q25 = numpy.percentile(data, 25)
-        q75 = numpy.percentile(data, 75)
-        q90 = numpy.percentile(data, 90)
-        q99 = numpy.percentile(data, 99)
-        q999 = numpy.percentile(data, 99.9)
+        q25 = percentile(data, 25)
+        q75 = percentile(data, 75)
+        q90 = percentile(data, 90)
+        q99 = percentile(data, 99)
+        q999 = percentile(data, 99.9)
         return {
             "samples": len(data),
             "min": min(data),
@@ -183,7 +233,7 @@ def data_stats(data):
 
 
 def get_hist(data):
-    hist_counts, hist_borders = numpy.histogram(data)
+    hist_counts, hist_borders = histogram(data)
     hist_counts = [float(i) for i in hist_counts]
     hist_borders = [float(i) for i in hist_borders]
     out = []
