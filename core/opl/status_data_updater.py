@@ -311,10 +311,15 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
     return (sd, es_type, es_id)
 
 
-def _get_es_dashboard_result_for_run_id(session, args, run_id):
-    response = _es_get_test(
-        session, args, ["result_id.keyword"], [run_id], sort_by="date"
-    )
+def _get_es_dashboard_result_for_run_id(session, args, run_id, test=None):
+    if test is not None:
+        response = _es_get_test(
+            session, args, ["result_id.keyword", "test.keyword"], [run_id, test], sort_by="date"
+        )
+    else:
+        response = _es_get_test(
+            session, args, ["result_id.keyword"], [run_id], sort_by="date"
+        )
     if response["hits"]["total"]["value"] == 0:
         return (None, None, None)
     else:
@@ -454,21 +459,22 @@ def doit_rp_to_dashboard_new(args):
     run_id = args.dashboard_run_id
     result = args.dashboard_result
 
-    # Ensure there are no results for this run_id in ElasticSearch yet
-    try:
-        dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
-            session, args, run_id
-        )
-    except requests.exceptions.HTTPError as e:
-        matching = "No mapping found for [date] in order to sort on" in e.response.text
-        if e.response.status_code == 400 and matching:
-            logging.debug(
-                "Request failed, but I guess it was because index is still empty"
+    if not args.dashboard_skip_uniqness_check:
+        # Ensure there are no results for this run_id in ElasticSearch yet
+        try:
+            dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
+                session, args, run_id
             )
-            dashboard = None
-        else:
-            raise
-    assert dashboard is None, f"Result {run_id} already exists: {dashboard}"
+        except requests.exceptions.HTTPError as e:
+            matching = "No mapping found for [date] in order to sort on" in e.response.text
+            if e.response.status_code == 400 and matching:
+                logging.debug(
+                    "Request failed, but I guess it was because index is still empty"
+                )
+                dashboard = None
+            else:
+                raise
+        assert dashboard is None, f"Result {run_id} already exists: {dashboard}"
 
     # Create new result in the dashboard
     url = f"{args.es_server}/{args.es_index}/_doc/"
@@ -497,6 +503,28 @@ def doit_rp_to_dashboard_new(args):
     )
     print(f"Created result {run_id} in the dashboard with value {result}")
 
+def _update_es_dashboard_result(session, args, es_id, result_string):
+    url = f"{args.es_server}/{args.es_index}/_doc/{es_id}/_update"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {args.rp_token}",
+    }
+    data = {
+        "doc": {
+            "result": result_string,
+        },
+    }
+    logging.debug(f"Going to do POST request to {url} with {data}")
+    if args.dry_run:
+        logging.debug("Skipped because of dry-run")
+    else:
+        response = session.post(
+            url, json=data, headers=headers, verify=not args.rp_noverify
+        )
+        response.raise_for_status()
+        logging.debug(
+            f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
+        )
 
 def doit_rp_to_dashboard_update(args):
     assert args.es_server is not None
@@ -531,50 +559,28 @@ def doit_rp_to_dashboard_update(args):
         print(f"Going to compare {len(results)} results for launch {launch['id']}")
 
         # Process individual results to get final result
-        result_final = "PASS"
         for result in results:
             logging.debug(f"Processing RP result {result}")
 
             result_string = _get_rp_result_result_string(result)
 
-            if STATE_WEIGHTS[result_string] > STATE_WEIGHTS[result_final]:
-                result_final = result_string
-
-        # Get relevant dashboard result from ElasticSearch
-        dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
-            session, args, run_id
-        )
-        if dashboard is None:
-            logging.warning(
-                f"Result {run_id} does not exist in the dashboard, skipping updating it"
+            # Get relevant dashboard result from ElasticSearch
+            dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
+                session, args, run_id, result["name"],
             )
-            continue
-
-        # Update the result in dashboard if needed
-        stats["results"] += 1
-        if dashboard["result"] == result_final:
-            pass  # data in the dashboard are correct, no action needed
-        else:
-            url = f"{args.es_server}/{args.es_index}/_doc/{es_id}/_update"
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {args.rp_token}",
-            }
-            data = {
-                "doc": {
-                    "result": result_string,
-                },
-            }
-            logging.debug(f"Going to do POST request to {url} with {data}")
-            if args.dry_run:
-                logging.debug("Skipped because of dry-run")
-            else:
-                response = session.post(
-                    url, json=data, headers=headers, verify=not args.rp_noverify
+            if dashboard is None:
+                logging.warning(
+                    f"Result {run_id} '{result['name']}' does not exist in the dashboard, skipping updating it"
                 )
-                response.raise_for_status()
-                logging.debug(
-                    f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
+                continue
+
+            # Update the result in dashboard if needed
+            stats["results"] += 1
+            if dashboard["result"] == result_string:
+                pass  # data in the dashboard are correct, no action needed
+            else:
+                _update_es_dashboard_result(
+                    session, args, es_id, result_string,
                 )
                 stats["results_changed"] += 1
 
@@ -797,6 +803,11 @@ def main():
         .replace(tzinfo=datetime.timezone.utc)
         .isoformat(),
         help="When the test was executed for result dashboard",
+    )
+    parser.add_argument(
+        "--dashboard-skip-uniqness-check",
+        action="store_true",
+        help="Do not check that result with this run ID exists in result dashboard",
     )
 
     parser.add_argument(
