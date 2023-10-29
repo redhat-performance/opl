@@ -1,8 +1,10 @@
 import logging
 import argparse
+import csv
 import yaml
 import json
 import subprocess
+import re
 import requests
 import os
 import jinja2
@@ -45,12 +47,39 @@ def _debug_response(r):
     raise Exception("Request failed")
 
 
+def dir_path(path):
+    """
+    Utility function to be used in Argparse to check for argument is a directory.
+    """
+    if os.path.isdir(path):
+        return path
+    else:
+        raise argparse.ArgumentTypeError(f"{path} is not directory")
+
+
 class BasePlugin:
     def __init__(self, args):
-        pass
+        self.args = args
 
     def measure(self, ri, **args):
         pass
+
+    def _dump_raw_data(self, name, mydata):
+        """
+        Dumps raw data for monitoring plagins into CSV files (first column
+        for timestamp, second for value) into provided directory.
+        """
+        if self.args.monitoring_raw_data_dir is None:
+            return
+
+        file_name = re.sub("[^a-zA-Z0-9-]+", "_", name) + ".csv"
+        file_path = os.path.join(self.args.monitoring_raw_data_dir, file_name)
+
+        logging.debug(f"Dumping raw data ({len(mydata)} rows) to {file_path}")
+        with open(file_path, "w", newline="") as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(["timestamp", name])
+            csvwriter.writerows(mydata)
 
     @staticmethod
     def add_args(parser):
@@ -59,6 +88,7 @@ class BasePlugin:
 
 class PrometheusMeasurementsPlugin(BasePlugin):
     def __init__(self, args):
+        super().__init__(args)
         self.host = args.prometheus_host
         self.port = args.prometheus_port
         self.token = args.prometheus_token
@@ -93,7 +123,9 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             "end": ri.end.timestamp(),
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        response = requests.get(url, headers=headers, params=params, verify=False, timeout=60)
+        response = requests.get(
+            url, headers=headers, params=params, verify=False, timeout=60
+        )
         if not response.ok or response.headers["Content-Type"] != "application/json":
             _debug_response(response)
 
@@ -115,8 +147,11 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             "values" in json_response["data"]["result"][0]
         ), "we need expected form of response"
 
-        points = [float(i[1]) for i in json_response["data"]["result"][0]["values"]]
-        stats = data.data_stats(points)
+        mydata = [
+            (i[0], float(i[1])) for i in json_response["data"]["result"][0]["values"]
+        ]
+        stats = data.data_stats([i[1] for i in mydata])
+        self._dump_raw_data(name, mydata)
         return name, stats
 
     @staticmethod
@@ -183,7 +218,9 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         }
         url = f"{self.host}:{self.port}/api/datasources/proxy/{self.datasource}/render"
 
-        r = requests.post(url=url, headers=headers, params=params, timeout=60, verify=False)
+        r = requests.post(
+            url=url, headers=headers, params=params, timeout=60, verify=False
+        )
         if (
             not r.ok
             or r.headers["Content-Type"] != "application/json"
@@ -513,7 +550,10 @@ def doit(args):
         config = args.requested_info_config
 
     requested_info = RequestedInfo(
-        config, args.monitoring_start, args.monitoring_end, args=args,
+        config,
+        args.monitoring_start,
+        args.monitoring_end,
+        args=args,
     )
 
     if args.render_config:
@@ -551,6 +591,11 @@ def main():
         "--monitoring-end",
         type=date.my_fromisoformat,
         help="End of monitoring interval in ISO 8601 format in UTC with seconds precision",
+    )
+    parser.add_argument(
+        "--monitoring-raw-data-dir",
+        type=dir_path,
+        help="Provide a direcotory if you want raw monitoring data to be dumped in CSV files form",
     )
     parser.add_argument(
         "--render-config", action="store_true", help="Just render config"

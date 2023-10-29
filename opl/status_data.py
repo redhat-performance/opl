@@ -379,6 +379,11 @@ def main():
         help="End of monitoring interval in ISO 8601 format in UTC with seconds precision",
     )
     parser.add_argument(
+        "--monitoring-raw-data-dir",
+        type=cluster_read.dir_path,
+        help="Provide a direcotory if you want raw monitoring data to be dumped in CSV files form",
+    )
+    parser.add_argument(
         "--end",
         action="store_true",
         help='"started" is set when the status data file is created, "ended" is set when this is used',
