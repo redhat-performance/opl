@@ -87,19 +87,12 @@ class BasePlugin:
 
 
 class PrometheusMeasurementsPlugin(BasePlugin):
-    def __init__(self, args):
-        super().__init__(args)
-        self.host = args.prometheus_host
-        self.port = args.prometheus_port
-        self.token = args.prometheus_token
-        self.no_auth = args.prometheus_no_auth
-
     def _get_token(self):
-        if self.token is None:
-            self.token = execute("oc whoami -t")
-            if self.token is None:
+        if self.args.prometheus_token is None:
+            self.args.prometheus_token = execute("oc whoami -t")
+            if self.args.prometheus_token is None:
                 raise Exception("Failsed to get token")
-        return self.token
+        return self.args.prometheus_token
 
     def measure(self, ri, name, monitoring_query, monitoring_step):
         logging.debug(
@@ -110,11 +103,11 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             ri.start is not None and ri.end is not None
         ), "We need timerange to approach Prometheus"
         # Get data from Prometheus
-        url = f"{self.host}:{self.port}/api/v1/query_range"
+        url = f"{self.args.prometheus_host}:{self.args.prometheus_port}/api/v1/query_range"
         headers = {
             "Content-Type": "application/json",
         }
-        if not self.no_auth:
+        if not self.args.prometheus_no_auth:
             headers["Authorization"] = f"Bearer {self._get_token()}"
         params = {
             "query": monitoring_query,
