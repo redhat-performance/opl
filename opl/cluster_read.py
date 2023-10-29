@@ -173,21 +173,10 @@ class PrometheusMeasurementsPlugin(BasePlugin):
 
 
 class GrafanaMeasurementsPlugin(BasePlugin):
-    def __init__(self, args):
-        self.host = args.grafana_host
-        self.port = args.grafana_port
-        self.token = args.grafana_token
-        self.datasource = args.grafana_datasource
-        self.chunk_size = args.grafana_chunk_size
-        self.variables = {
-            "$Node": args.grafana_node,
-            "$Interface": args.grafana_interface,
-            "$Cloud": args.grafana_prefix,
-        }
-
     def _sanitize_target(self, target):
-        for k, v in self.variables.items():
-            target = target.replace(k, v)
+        target = target.replace("$Node", self.args.grafana_node)
+        target = target.replace("$Interface", self.args.grafana_interface)
+        target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
     def measure(self, ri, name, grafana_target):
@@ -201,15 +190,15 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         headers = {
             "Accept": "application/json, text/plain, */*",
         }
-        if self.token is not None:
-            headers["Authorization"] = "Bearer %s" % self.token
+        if self.args.grafana_token is not None:
+            headers["Authorization"] = "Bearer %s" % self.args.grafana_token
         params = {
             "target": [self._sanitize_target(grafana_target)],
             "from": int(ri.start.timestamp()),
             "until": round(ri.end.timestamp()),
             "format": "json",
         }
-        url = f"{self.host}:{self.port}/api/datasources/proxy/{self.datasource}/render"
+        url = f"{self.args.grafana_host}:{self.args.grafana_port}/api/datasources/proxy/{self.args.grafana_datasource}/render"
 
         r = requests.post(
             url=url, headers=headers, params=params, timeout=60, verify=False
@@ -269,11 +258,6 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
 
 class PerformanceInsightsMeasurementPlugin(BasePlugin):
-    def __init__(self, args):
-        self.pi_access_key = args.aws_pi_access_key_id
-        self.pi_access_secret = args.aws_pi_secret_access_key
-        self.pi_region_name = args.aws_pi_region_name
-
     def get_formatted_metric_query(self, metric_query):
         return [{"Metric": metric_query}]
 
@@ -287,14 +271,15 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         ), "We need timerange to approach AWS PI service"
 
         assert (
-            self.pi_access_key is not None and self.pi_access_secret is not None
+            self.args.aws_pi_access_key is not None
+            and self.args.aws_pi_access_secret is not None
         ), "We need AWS access key and secret key to create the client for accessing PI service"
 
         # Create a low-level service client
         aws_session = boto3.session.Session(
-            aws_access_key_id=self.pi_access_key,
-            aws_secret_access_key=self.pi_access_secret,
-            region_name=self.pi_region_name,
+            aws_access_key_id=self.args.aws_pi_access_key,
+            aws_secret_access_key=self.args.aws_pi_access_secret,
+            region_name=self.args.aws_pi_region_name,
         )
         aws_client = aws_session.client("pi")
         response = aws_client.get_resource_metrics(
