@@ -1,8 +1,10 @@
 import logging
 import argparse
+import csv
 import yaml
 import json
 import subprocess
+import re
 import requests
 import os
 import jinja2
@@ -45,12 +47,39 @@ def _debug_response(r):
     raise Exception("Request failed")
 
 
+def dir_path(path):
+    """
+    Utility function to be used in Argparse to check for argument is a directory.
+    """
+    if os.path.isdir(path):
+        return path
+    else:
+        raise argparse.ArgumentTypeError(f"{path} is not directory")
+
+
 class BasePlugin:
     def __init__(self, args):
-        pass
+        self.args = args
 
     def measure(self, ri, **args):
         pass
+
+    def _dump_raw_data(self, name, mydata):
+        """
+        Dumps raw data for monitoring plagins into CSV files (first column
+        for timestamp, second for value) into provided directory.
+        """
+        if self.args.monitoring_raw_data_dir is None:
+            return
+
+        file_name = re.sub("[^a-zA-Z0-9-]+", "_", name) + ".csv"
+        file_path = os.path.join(self.args.monitoring_raw_data_dir, file_name)
+
+        logging.debug(f"Dumping raw data ({len(mydata)} rows) to {file_path}")
+        with open(file_path, "w", newline="") as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(["timestamp", name])
+            csvwriter.writerows(mydata)
 
     @staticmethod
     def add_args(parser):
@@ -58,18 +87,12 @@ class BasePlugin:
 
 
 class PrometheusMeasurementsPlugin(BasePlugin):
-    def __init__(self, args):
-        self.host = args.prometheus_host
-        self.port = args.prometheus_port
-        self.token = args.prometheus_token
-        self.no_auth = args.prometheus_no_auth
-
     def _get_token(self):
-        if self.token is None:
-            self.token = execute("oc whoami -t")
-            if self.token is None:
+        if self.args.prometheus_token is None:
+            self.args.prometheus_token = execute("oc whoami -t")
+            if self.args.prometheus_token is None:
                 raise Exception("Failsed to get token")
-        return self.token
+        return self.args.prometheus_token
 
     def measure(self, ri, name, monitoring_query, monitoring_step):
         logging.debug(
@@ -80,11 +103,11 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             ri.start is not None and ri.end is not None
         ), "We need timerange to approach Prometheus"
         # Get data from Prometheus
-        url = f"{self.host}:{self.port}/api/v1/query_range"
+        url = f"{self.args.prometheus_host}:{self.args.prometheus_port}/api/v1/query_range"
         headers = {
             "Content-Type": "application/json",
         }
-        if not self.no_auth:
+        if not self.args.prometheus_no_auth:
             headers["Authorization"] = f"Bearer {self._get_token()}"
         params = {
             "query": monitoring_query,
@@ -93,7 +116,9 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             "end": ri.end.timestamp(),
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        response = requests.get(url, headers=headers, params=params, verify=False, timeout=60)
+        response = requests.get(
+            url, headers=headers, params=params, verify=False, timeout=60
+        )
         if not response.ok or response.headers["Content-Type"] != "application/json":
             _debug_response(response)
 
@@ -115,8 +140,11 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             "values" in json_response["data"]["result"][0]
         ), "we need expected form of response"
 
-        points = [float(i[1]) for i in json_response["data"]["result"][0]["values"]]
-        stats = data.data_stats(points)
+        mydata = [
+            (i[0], float(i[1])) for i in json_response["data"]["result"][0]["values"]
+        ]
+        stats = data.data_stats([i[1] for i in mydata])
+        self._dump_raw_data(name, mydata)
         return name, stats
 
     @staticmethod
@@ -145,21 +173,10 @@ class PrometheusMeasurementsPlugin(BasePlugin):
 
 
 class GrafanaMeasurementsPlugin(BasePlugin):
-    def __init__(self, args):
-        self.host = args.grafana_host
-        self.port = args.grafana_port
-        self.token = args.grafana_token
-        self.datasource = args.grafana_datasource
-        self.chunk_size = args.grafana_chunk_size
-        self.variables = {
-            "$Node": args.grafana_node,
-            "$Interface": args.grafana_interface,
-            "$Cloud": args.grafana_prefix,
-        }
-
     def _sanitize_target(self, target):
-        for k, v in self.variables.items():
-            target = target.replace(k, v)
+        target = target.replace("$Node", self.args.grafana_node)
+        target = target.replace("$Interface", self.args.grafana_interface)
+        target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
     def measure(self, ri, name, grafana_target):
@@ -173,17 +190,19 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         headers = {
             "Accept": "application/json, text/plain, */*",
         }
-        if self.token is not None:
-            headers["Authorization"] = "Bearer %s" % self.token
+        if self.args.grafana_token is not None:
+            headers["Authorization"] = "Bearer %s" % self.args.grafana_token
         params = {
             "target": [self._sanitize_target(grafana_target)],
             "from": int(ri.start.timestamp()),
             "until": round(ri.end.timestamp()),
             "format": "json",
         }
-        url = f"{self.host}:{self.port}/api/datasources/proxy/{self.datasource}/render"
+        url = f"{self.args.grafana_host}:{self.args.grafana_port}/api/datasources/proxy/{self.args.grafana_datasource}/render"
 
-        r = requests.post(url=url, headers=headers, params=params, timeout=60, verify=False)
+        r = requests.post(
+            url=url, headers=headers, params=params, timeout=60, verify=False
+        )
         if (
             not r.ok
             or r.headers["Content-Type"] != "application/json"
@@ -239,11 +258,6 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
 
 class PerformanceInsightsMeasurementPlugin(BasePlugin):
-    def __init__(self, args):
-        self.pi_access_key = args.aws_pi_access_key_id
-        self.pi_access_secret = args.aws_pi_secret_access_key
-        self.pi_region_name = args.aws_pi_region_name
-
     def get_formatted_metric_query(self, metric_query):
         return [{"Metric": metric_query}]
 
@@ -257,14 +271,15 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         ), "We need timerange to approach AWS PI service"
 
         assert (
-            self.pi_access_key is not None and self.pi_access_secret is not None
+            self.args.aws_pi_access_key is not None
+            and self.args.aws_pi_access_secret is not None
         ), "We need AWS access key and secret key to create the client for accessing PI service"
 
         # Create a low-level service client
         aws_session = boto3.session.Session(
-            aws_access_key_id=self.pi_access_key,
-            aws_secret_access_key=self.pi_access_secret,
-            region_name=self.pi_region_name,
+            aws_access_key_id=self.args.aws_pi_access_key,
+            aws_secret_access_key=self.args.aws_pi_access_secret,
+            region_name=self.args.aws_pi_region_name,
         )
         aws_client = aws_session.client("pi")
         response = aws_client.get_resource_metrics(
@@ -513,7 +528,10 @@ def doit(args):
         config = args.requested_info_config
 
     requested_info = RequestedInfo(
-        config, args.monitoring_start, args.monitoring_end, args=args,
+        config,
+        args.monitoring_start,
+        args.monitoring_end,
+        args=args,
     )
 
     if args.render_config:
@@ -551,6 +569,11 @@ def main():
         "--monitoring-end",
         type=date.my_fromisoformat,
         help="End of monitoring interval in ISO 8601 format in UTC with seconds precision",
+    )
+    parser.add_argument(
+        "--monitoring-raw-data-dir",
+        type=dir_path,
+        help="Provide a direcotory if you want raw monitoring data to be dumped in CSV files form",
     )
     parser.add_argument(
         "--render-config", action="store_true", help="Just render config"
