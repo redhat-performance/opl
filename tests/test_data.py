@@ -47,6 +47,21 @@ class TestSkelet(unittest.TestCase):
         )
         self.assertEqual(stats["range"].total_seconds(), 3600)
 
+    def test_data_stats_strange(self):
+        data = [
+            -1,
+            0,
+            float("NaN"),
+            1.0,
+            float("Inf"),
+            float("-Inf"),
+        ]
+        stats = opl.data.data_stats(data)
+        self.assertEqual(stats["samples"], 3)
+        self.assertEqual(stats["max"], 1)
+        self.assertEqual(stats["min"], -1)
+        self.assertEqual(stats["mean"], 0)
+
     def test_get_hist(self):
         hist = opl.data.get_hist([0, 1, 1, 2, 2, 1, 1, 0])
         self.assertEqual(

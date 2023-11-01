@@ -191,7 +191,15 @@ def histogram(data, precision=1):
 def data_stats(data):
     if len(data) == 0:
         return {"samples": 0}
+
+    data_len_before = len(data)
+    data = [i for i in data if isinstance(i, datetime.datetime) or math.isfinite(i)]
+    count_strange = data_len_before - len(data)
+    if count_strange > 0:
+        logging.warning(f"There were {count_strange} NaN/Inf values in the data. Filtered them out.")
+
     non_zero_data = [i for i in data if i != 0]
+
     if isinstance(data[0], int) or isinstance(data[0], float):
         q25 = percentile(data, 25)
         q75 = percentile(data, 75)
