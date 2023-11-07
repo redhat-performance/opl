@@ -29,14 +29,11 @@ setuptools.setup(
         "junitparser",
         "kafka-python",
         "locust",
-        "numpy",
         "psycopg2-binary",
-        "pyyaml",
         "PyYAML",
         "requests",
         "tabulate",
         "deepdiff",
-        "paho-mqtt",
     ],
     package_data={
         "opl": [
