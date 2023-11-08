@@ -196,7 +196,9 @@ def data_stats(data):
     data = [i for i in data if isinstance(i, datetime.datetime) or math.isfinite(i)]
     count_strange = data_len_before - len(data)
     if count_strange > 0:
-        logging.warning(f"There were {count_strange} NaN/Inf values in the data. Filtered them out.")
+        logging.warning(
+            f"There were {count_strange} NaN/Inf values in the data. Filtered them out."
+        )
 
     non_zero_data = [i for i in data if i != 0]
 

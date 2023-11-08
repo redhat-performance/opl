@@ -14,12 +14,11 @@ class TestPayloadGenerator(unittest.TestCase):
 
     def test_counting(self):
         pg = opl.generators.inventory_egress.EgressHostsGenerator(
-            count=3,
-            n_packages=10,
-            msg_type='created')
+            count=3, n_packages=10, msg_type="created"
+        )
         self.assertEqual(pg.count, 3)
         self.assertEqual(pg.n_packages, 10)
-        self.assertEqual(pg.msg_type, 'created')
+        self.assertEqual(pg.msg_type, "created")
 
     def test_count(self):
         pg = opl.generators.inventory_egress.EgressHostsGenerator()

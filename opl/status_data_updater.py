@@ -314,7 +314,11 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
 def _get_es_dashboard_result_for_run_id(session, args, run_id, test=None):
     if test is not None:
         response = _es_get_test(
-            session, args, ["result_id.keyword", "test.keyword"], [run_id, test], sort_by="date"
+            session,
+            args,
+            ["result_id.keyword", "test.keyword"],
+            [run_id, test],
+            sort_by="date",
         )
     else:
         response = _es_get_test(
@@ -466,7 +470,9 @@ def doit_rp_to_dashboard_new(args):
                 session, args, run_id
             )
         except requests.exceptions.HTTPError as e:
-            matching = "No mapping found for [date] in order to sort on" in e.response.text
+            matching = (
+                "No mapping found for [date] in order to sort on" in e.response.text
+            )
             if e.response.status_code == 400 and matching:
                 logging.debug(
                     "Request failed, but I guess it was because index is still empty"
@@ -503,6 +509,7 @@ def doit_rp_to_dashboard_new(args):
     )
     print(f"Created result {run_id} in the dashboard with value {result}")
 
+
 def _update_es_dashboard_result(session, args, es_id, result_string):
     url = f"{args.es_server}/{args.es_index}/_doc/{es_id}/_update"
     headers = {
@@ -525,6 +532,7 @@ def _update_es_dashboard_result(session, args, es_id, result_string):
         logging.debug(
             f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
         )
+
 
 def doit_rp_to_dashboard_update(args):
     assert args.es_server is not None
@@ -566,7 +574,10 @@ def doit_rp_to_dashboard_update(args):
 
             # Get relevant dashboard result from ElasticSearch
             dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
-                session, args, run_id, result["name"],
+                session,
+                args,
+                run_id,
+                result["name"],
             )
             if dashboard is None:
                 logging.warning(
@@ -580,7 +591,10 @@ def doit_rp_to_dashboard_update(args):
                 pass  # data in the dashboard are correct, no action needed
             else:
                 _update_es_dashboard_result(
-                    session, args, es_id, result_string,
+                    session,
+                    args,
+                    es_id,
+                    result_string,
                 )
                 stats["results_changed"] += 1
 
