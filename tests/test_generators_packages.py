@@ -25,6 +25,8 @@ class TestPayloadGenerator(unittest.TestCase):
         pg = opl.generators.packages.PackagesGenerator()
         for p in pg.generate(10):
             self.assertIsInstance(p, str)
-            self.assertTrue(p.endswith('x86_64') or p.endswith('i686') or p.endswith('noarch'))
-            self.assertTrue(' ' not in p)
-            self.assertGreater(len(p), 9)   # minimum is 'a-1.noarch' I think
+            self.assertTrue(
+                p.endswith("x86_64") or p.endswith("i686") or p.endswith("noarch")
+            )
+            self.assertTrue(" " not in p)
+            self.assertGreater(len(p), 9)  # minimum is 'a-1.noarch' I think
