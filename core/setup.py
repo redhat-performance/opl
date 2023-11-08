@@ -27,7 +27,6 @@ setuptools.setup(
         "Jinja2>=3.0",
         "boto3",
         "junitparser",
-        "numpy",
         "PyYAML",
         "requests",
         "tabulate",
