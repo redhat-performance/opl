@@ -26,10 +26,10 @@ class TestPayloadGenerator(unittest.TestCase):
 
     def test_templates(self):
         pg = opl.generators.inventory_ingress.PayloadRHSMGenerator(
-            count=1,
-            template='inventory_ingress_RHSM_template.json.j2')
+            count=1, template="inventory_ingress_RHSM_template.json.j2"
+        )
         mid, msg = next(pg)
         pg = opl.generators.inventory_ingress.PayloadRHSMGenerator(
-            count=1,
-            template='inventory_ingress_yupana_template.json.j2')
+            count=1, template="inventory_ingress_yupana_template.json.j2"
+        )
         mid, msg = next(pg)

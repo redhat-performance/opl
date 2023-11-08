@@ -60,7 +60,6 @@ class TestPayloadGenerator(unittest.TestCase):
             tarball_slice.add_host({"fqdn": f"host{i}.example.com"})
         self.assertEqual(tarball_slice.get_host_count(), 4)
 
-
     def test_slice_after_dump(self):
         pg = opl.generators.qpc_tarball.QPCTarballGenerator(
             count=2, tarball_conf=self.tarball_conf
