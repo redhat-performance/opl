@@ -210,21 +210,21 @@ class TestStatusData(unittest.TestCase):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
             f_name = f.name
             f.write(b'{"hello":"world","foo":42,"bar":{"baz":1}}')
-        self.status_data.set_subtree_json("results.xxx", f_name)
+        self.status_data.set_subtree_json("results.xxx_json", f_name)
         os.unlink(f_name)
-        self.assertEqual(self.status_data.get("results.xxx.hello"), "world")
-        self.assertEqual(self.status_data.get("results.xxx.foo"), 42)
-        self.assertEqual(self.status_data.get("results.xxx.bar.baz"), 1)
+        self.assertEqual(self.status_data.get("results.xxx_json.hello"), "world")
+        self.assertEqual(self.status_data.get("results.xxx_json.foo"), 42)
+        self.assertEqual(self.status_data.get("results.xxx_json.bar.baz"), 1)
 
     def test_set_subtree_yaml(self):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".yaml") as f:
             f_name = f.name
             f.write(b"hello: world\nfoo: 42\nbar:\n  baz: 1")
-        self.status_data.set_subtree_json("results.xxx", f_name)
+        self.status_data.set_subtree_json("results.xxx_yaml", f_name)
         os.unlink(f_name)
-        self.assertEqual(self.status_data.get("results.xxx.hello"), "world")
-        self.assertEqual(self.status_data.get("results.xxx.foo"), 42)
-        self.assertEqual(self.status_data.get("results.xxx.bar.baz"), 1)
+        self.assertEqual(self.status_data.get("results.xxx_yaml.hello"), "world")
+        self.assertEqual(self.status_data.get("results.xxx_yaml.foo"), 42)
+        self.assertEqual(self.status_data.get("results.xxx_yaml.bar.baz"), 1)
 
     def test_remove_simple(self):
         self.status_data.set("results.xxx", "should not be here")
