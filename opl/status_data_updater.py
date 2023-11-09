@@ -120,11 +120,7 @@ def doit_list(args):
     table = []
 
     for item in response["hits"]["hits"]:
-        logging.debug(
-            f"Loading data from document ID {item['_id']} with field id={item['_source']['id'] if 'id' in item['_source'] else None}"
-        )
-        tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
-        sd = opl.status_data.StatusData(tmpfile, data=item["_source"])
+        sd = _create_sd_from_es_response(item)
         row = [
             sd.get("id"),
             sd.get("started"),
@@ -146,11 +142,7 @@ def doit_change(args):
     source = response["hits"]["hits"][0]
     es_type = source["_type"]
     es_id = source["_id"]
-    logging.debug(
-        f"Loading data from document ID {source['_id']} with field id={source['_source']['id']}"
-    )
-    tmpfile = tempfile.NamedTemporaryFile(prefix=source["_id"], delete=False).name
-    sd = opl.status_data.StatusData(tmpfile, data=source["_source"])
+    sd = _create_sd_from_es_response(source)
 
     for item in args.change_set:
         if item == "":
@@ -274,6 +266,15 @@ def _get_rp_launch_results(session, args, launch):
     return results
 
 
+def _create_sd_from_es_response(response):
+    """Convert ElasticSearch response data structure to StatusData object."""
+    logging.debug(
+        f"Loading data from document ID {response['_id']} with field id={response['_source']['id'] if 'id' in response['_source'] else None}"
+    )
+    tmpfile = tempfile.NamedTemporaryFile(prefix=response["_id"], delete=False).name
+    return opl.status_data.StatusData(tmpfile, data=response["_source"])
+
+
 def _get_es_result_for_rp_result(session, args, run_id, result):
     if args.rp_project == "satcpt":
         # OK, I agree we need a better way here.
@@ -303,11 +304,7 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
         raise Exception(f"Failed to find test result in ES for {run_id}")
     es_type = source["_type"]
     es_id = source["_id"]
-    logging.debug(
-        f"Loading data from document ID {source['_id']} with field id={source['_source']['id']}"
-    )
-    tmpfile = tempfile.NamedTemporaryFile(prefix=source["_id"], delete=False).name
-    sd = opl.status_data.StatusData(tmpfile, data=source["_source"])
+    sd = _create_sd_from_es_response(source)
     return (sd, es_type, es_id)
 
 
