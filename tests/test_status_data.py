@@ -86,7 +86,7 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get_date("aaa"), now_plus2)
         self.assertEqual(self.status_data.get_date("bbb"), now_utc)
 
-    def test_datetime(self):
+    def test_datetime_format(self):
         refference = datetime.datetime(
             2020,
             12,
