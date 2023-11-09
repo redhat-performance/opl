@@ -239,7 +239,7 @@ class TestStatusData(unittest.TestCase):
 
     def test_file_on_http(self):
         with self.assertRaises(requests.exceptions.ConnectionError):
-            status_data = opl.status_data.StatusData(
+            _ = opl.status_data.StatusData(
                 "http://does.not.exist/status-data-file.json"
             )
 
