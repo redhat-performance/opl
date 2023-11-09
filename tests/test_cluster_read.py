@@ -130,22 +130,9 @@ class TestRequestedInfo(unittest.TestCase):
         string = """
             - name: somevalue
               constant: Hello world
-            - name: mycopyfrom
+            - name: mycopyfrom_exists
               copy_from: somevalue
-        """
-        ri = opl.cluster_read.RequestedInfo(string)
-        k, v = next(ri)
-        self.assertEqual(k, "somevalue")
-        self.assertEqual(v, "Hello world")
-        k, v = next(ri)
-        self.assertEqual(k, "mycopyfrom")
-        self.assertEqual(v, "Hello world")
-
-    def test_copy_from_negative(self):
-        string = """
-            - name: somevalue
-              constant: Hello world
-            - name: mycopyfrom
+            - name: mycopyfrom_missing
               copy_from: somevalue_that_does_not_exist
         """
         ri = opl.cluster_read.RequestedInfo(string)
@@ -153,7 +140,10 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(k, "somevalue")
         self.assertEqual(v, "Hello world")
         k, v = next(ri)
-        self.assertEqual(k, "mycopyfrom")
+        self.assertEqual(k, "mycopyfrom_exists")
+        self.assertEqual(v, "Hello world")
+        k, v = next(ri)
+        self.assertEqual(k, "mycopyfrom_missing")
         self.assertEqual(v, None)
 
     def test_wrong_config(self):
