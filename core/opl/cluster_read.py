@@ -271,14 +271,14 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         ), "We need timerange to approach AWS PI service"
 
         assert (
-            self.args.aws_pi_access_key is not None
-            and self.args.aws_pi_access_secret is not None
+            self.args.aws_pi_access_key_id is not None
+            and self.args.aws_pi_secret_access_key is not None
         ), "We need AWS access key and secret key to create the client for accessing PI service"
 
         # Create a low-level service client
         aws_session = boto3.session.Session(
-            aws_access_key_id=self.args.aws_pi_access_key,
-            aws_secret_access_key=self.args.aws_pi_access_secret,
+            aws_access_key_id=self.args.aws_pi_access_key_id,
+            aws_secret_access_key=self.args.aws_pi_secret_access_key,
             region_name=self.args.aws_pi_region_name,
         )
         aws_client = aws_session.client("pi")
