@@ -181,7 +181,7 @@ def create_principal(cursor, account):
     user_type = "user"
     logging.info(f"Creating principal username = {user_name}")
     cursor.execute(
-        "INSERT INTO public.management_principal (uuid, username, tenant_id) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE tenant_name = 'acct' || %s), %s) RETURNING id",
+        "INSERT INTO public.management_principal (uuid, username, tenant_id, type) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE tenant_name = 'acct' || %s), %s) RETURNING id",
         (user_uuid, user_name, account, user_type),
     )
     user_id = cursor.fetchone()[0]
