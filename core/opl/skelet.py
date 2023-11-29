@@ -12,7 +12,7 @@ def setup_logger(app_name, stderr_log_lvl):
     Create logger that logs to both stderr and log file but with different log level
     """
     # Remove all handlers from root logger if any
-    logging.basicConfig(level=logging.NOTSET, handlers=[], force=True)
+    logging.basicConfig(level=logging.NOTSET, handlers=[])
     # Change root logger level from WARNING (default) to NOTSET in order for all messages to be delegated.
     logging.getLogger().setLevel(logging.NOTSET)
 
