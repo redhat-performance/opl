@@ -52,6 +52,7 @@ setuptools.setup(
             "status_data.py = opl.status_data:main",
             "status_data_report.py = opl.status_data:main_report",
             "status_data_updater.py = opl.status_data_updater:main",
+            "shovel.py = opl.shovel:main",
         ],
     },
 )
