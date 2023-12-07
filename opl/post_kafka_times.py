@@ -328,18 +328,41 @@ def post_kafka_times(config):
         if args.acks != "all":
             args.acks = int(args.acks)
 
-        logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
-        produce_here = KafkaProducer(
-            bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
-            acks=args.acks,
-            retries=args.retries,
-            batch_size=args.batch_size,
-            buffer_memory=args.buffer_memory,
-            linger_ms=args.linger_ms,
-            max_block_ms=args.max_block_ms,
-            request_timeout_ms=args.request_timeout_ms,
-            compression_type=args.compression_type,
-        )
+        if args.kafka_username == "" or args.kafka_password == "":
+            logging.info(
+                f"Creating passwordless producer to {args.kafka_host}:{args.kafka_port}"
+            )
+            logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
+            produce_here = KafkaProducer(
+                bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
+                acks=args.acks,
+                retries=args.retries,
+                batch_size=args.batch_size,
+                buffer_memory=args.buffer_memory,
+                linger_ms=args.linger_ms,
+                max_block_ms=args.max_block_ms,
+                request_timeout_ms=args.request_timeout_ms,
+                compression_type=args.compression_type,
+            )
+        else:
+            logging.info(
+                f"Creating SASL password-protected producer to {args.kafka_host}:{args.kafka_port}"
+            )
+            produce_here = KafkaProducer(
+                bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
+                acks=args.acks,
+                retries=args.retries,
+                batch_size=args.batch_size,
+                buffer_memory=args.buffer_memory,
+                linger_ms=args.linger_ms,
+                max_block_ms=args.max_block_ms,
+                request_timeout_ms=args.request_timeout_ms,
+                compression_type=args.compression_type,
+                security_protocol="SASL_SSL",
+                sasl_mechanism="SCRAM-SHA-512",
+                sasl_plain_username=args.kafka_username,
+                sasl_plain_password=args.kafka_password,
+            )
 
         logging.info(f"Loading queries definition from {args.tables_definition}")
         queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)[
