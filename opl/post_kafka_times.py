@@ -332,7 +332,6 @@ def post_kafka_times(config):
             logging.info(
                 f"Creating passwordless producer to {args.kafka_host}:{args.kafka_port}"
             )
-            logging.info(f"Creating producer to {args.kafka_host}:{args.kafka_port}")
             produce_here = KafkaProducer(
                 bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
                 acks=args.acks,
