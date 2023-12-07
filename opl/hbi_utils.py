@@ -189,9 +189,26 @@ def gen_send_verify(args, status_data):
         producer = None
     else:
         status_data.set("parameters.kafka.bootstrap", kafka_host)
-        producer = kafka.KafkaProducer(
-            bootstrap_servers=kafka_host, api_version=(0, 10)
-        )
+        if args.kafka_username == "" or args.kafka_password == "":
+            logging.info(
+                f"Creating passwordless producer to {args.kafka_host}:{args.kafka_port}"
+            )
+            producer = kafka.KafkaProducer(
+                bootstrap_servers=kafka_host,
+                api_version=(0, 10),
+            )
+        else:
+            logging.info(
+                f"Creating SASL password-protected producer to {args.kafka_host}:{args.kafka_port}"
+            )
+            producer = kafka.KafkaProducer(
+                bootstrap_servers=kafka_host,
+                api_version=(0, 10),
+                security_protocol="SASL_SSL",
+                sasl_mechanism="SCRAM-SHA-512",
+                sasl_plain_username=args.kafka_username,
+                sasl_plain_password=args.kafka_password,
+            )
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
