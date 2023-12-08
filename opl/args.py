@@ -109,6 +109,16 @@ def add_kafka_opts(parser):
         default=os.getenv("KAFKA_GROUP", f"perf-test-{socket.gethostname()}"),
         help="Kafka consumer group (also use env variable KAFKA_GROUP)",
     )
+    parser.add_argument(
+        "--kafka-username",
+        default=os.getenv("KAFKA_USERNAME"),
+        help="Kafka username when logging into SASL cluster like MSK (also use env variable KAFKA_USERNAME)",
+    )
+    parser.add_argument(
+        "--kafka-password",
+        default=os.getenv("KAFKA_PASSWORD"),
+        help="Kafka password when logging into SASL cluster like MSK (also use env variable KAFKA_PASSWORD)",
+    )
 
 
 def add_mosquitto_opts(parser):

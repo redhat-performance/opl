@@ -111,12 +111,12 @@ def add_kafka_opts(parser):
     )
     parser.add_argument(
         "--kafka-username",
-        default=os.getenv("KAFKA_USERNAME", f"perf-test-{socket.gethostname()}"),
+        default=os.getenv("KAFKA_USERNAME"),
         help="Kafka username when logging into SASL cluster like MSK (also use env variable KAFKA_USERNAME)",
     )
     parser.add_argument(
         "--kafka-password",
-        default=os.getenv("KAFKA_PASSWORD", f"perf-test-{socket.gethostname()}"),
+        default=os.getenv("KAFKA_PASSWORD"),
         help="Kafka password when logging into SASL cluster like MSK (also use env variable KAFKA_PASSWORD)",
     )
 
