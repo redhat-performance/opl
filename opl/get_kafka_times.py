@@ -29,7 +29,7 @@ class GetKafkaTimes:
         }
         self.connection = psycopg2.connect(**storage_db_conf)
         self.status_data = status_data
-        self.kafka_hosts = [f"{args.kafka_host}:{args.kafka_port}"]
+        self.kafka_host = f"{args.kafka_host}:{args.kafka_port}"
         self.kafka_group = args.kafka_group
         self.kafka_topic = args.kafka_topic
         self.kafka_timeout = args.kafka_timeout
@@ -80,18 +80,18 @@ class GetKafkaTimes:
 
     def create_consumer(self):
         # Store Kafka config to status data
-        self.status_data.set("parameters.kafka.bootstrap", self.kafka_hosts[0])
+        self.status_data.set("parameters.kafka.bootstrap", self.kafka_host)
         self.status_data.set("parameters.kafka.group", self.kafka_group)
         self.status_data.set("parameters.kafka.topic", self.kafka_topic)
         self.status_data.set("parameters.kafka.timeout", self.kafka_timeout)
 
         try:
             logging.info(
-                f"Creating consumer with sasl username&pasword to {self.kafka_host}:{self.kafka_port}"
+                f"Creating consumer with sasl username&pasword to {self.kafka_host}"
             )
             consumer = KafkaConsumer(
                 self.kafka_topic,
-                bootstrap_servers=self.kafka_hosts,
+                bootstrap_servers=self.kafka_host # self.kafka_hosts,
                 auto_offset_reset="earliest",
                 enable_auto_commit=True,
                 group_id=self.kafka_group,
@@ -106,11 +106,11 @@ class GetKafkaTimes:
             )
         except AttributeError:
             logging.info(
-                f"Creating passwordless consumer to {self.kafka_host}:{self.kafka_port}"
+                f"Creating passwordless consumer to {self.kafka_host}"
             )
             consumer = KafkaConsumer(
                 self.kafka_topic,
-                bootstrap_servers=self.kafka_hosts,
+                bootstrap_servers=self.kafka_host,
                 auto_offset_reset="earliest",
                 enable_auto_commit=True,
                 group_id=self.kafka_group,

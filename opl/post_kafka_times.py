@@ -328,12 +328,14 @@ def post_kafka_times(config):
         if args.acks != "all":
             args.acks = int(args.acks)
 
+        kafka_host = f"{args.kafka_host}:{args.kafka_port}"
+    
         try:
             logging.info(
-                f"Creating SASL password-protected producer to {args.kafka_host}:{args.kafka_port}"
+                f"Creating SASL password-protected producer to {kafka_host}"
             )
             produce_here = KafkaProducer(
-                bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
+                bootstrap_servers=kafka_host # [args.kafka_host + ":" + str(args.kafka_port)],
                 acks=args.acks,
                 retries=args.retries,
                 batch_size=args.batch_size,
@@ -352,7 +354,7 @@ def post_kafka_times(config):
                 f"Creating passwordless producer to {args.kafka_host}:{args.kafka_port}"
             )
             produce_here = KafkaProducer(
-                bootstrap_servers=[args.kafka_host + ":" + str(args.kafka_port)],
+                bootstrap_servers=kafka_host #[args.kafka_host + ":" + str(args.kafka_port)],
                 acks=args.acks,
                 retries=args.retries,
                 batch_size=args.batch_size,
