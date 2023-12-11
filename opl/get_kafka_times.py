@@ -91,7 +91,7 @@ class GetKafkaTimes:
             )
             consumer = KafkaConsumer(
                 self.kafka_topic,
-                bootstrap_servers=self.kafka_host # self.kafka_hosts,
+                bootstrap_servers=self.kafka_host,  # self.kafka_hosts,
                 auto_offset_reset="earliest",
                 enable_auto_commit=True,
                 group_id=self.kafka_group,
@@ -105,9 +105,7 @@ class GetKafkaTimes:
                 sasl_plain_password=self.kafka_password,
             )
         except AttributeError:
-            logging.info(
-                f"Creating passwordless consumer to {self.kafka_host}"
-            )
+            logging.info(f"Creating passwordless consumer to {self.kafka_host}")
             consumer = KafkaConsumer(
                 self.kafka_topic,
                 bootstrap_servers=self.kafka_host,
