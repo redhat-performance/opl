@@ -85,22 +85,7 @@ class GetKafkaTimes:
         self.status_data.set("parameters.kafka.topic", self.kafka_topic)
         self.status_data.set("parameters.kafka.timeout", self.kafka_timeout)
 
-        if self.kafka_username == "" or self.kafka_password == "":
-            logging.info(
-                f"Creating passwordless consumer to {self.kafka_host}:{self.kafka_port}"
-            )
-            consumer = KafkaConsumer(
-                self.kafka_topic,
-                bootstrap_servers=self.kafka_hosts,
-                auto_offset_reset="earliest",
-                enable_auto_commit=True,
-                group_id=self.kafka_group,
-                max_poll_records=self.kafka_max_poll_records,
-                session_timeout_ms=50000,
-                heartbeat_interval_ms=10000,
-                consumer_timeout_ms=self.kafka_timeout,
-            )
-        else:
+        try:
             logging.info(
                 f"Creating consumer with sasl username&pasword to {self.kafka_host}:{self.kafka_port}"
             )
@@ -119,10 +104,21 @@ class GetKafkaTimes:
                 sasl_plain_username=self.kafka_username,
                 sasl_plain_password=self.kafka_password,
             )
-
-        logging.debug(
-            f"Created Kafka consumer for {self.kafka_hosts} for {self.kafka_topic} topic in group {self.kafka_group} with {self.kafka_timeout} ms timeout"
-        )
+        except AttributeError:
+            logging.info(
+                f"Creating passwordless consumer to {self.kafka_host}:{self.kafka_port}"
+            )
+            consumer = KafkaConsumer(
+                self.kafka_topic,
+                bootstrap_servers=self.kafka_hosts,
+                auto_offset_reset="earliest",
+                enable_auto_commit=True,
+                group_id=self.kafka_group,
+                max_poll_records=self.kafka_max_poll_records,
+                session_timeout_ms=50000,
+                heartbeat_interval_ms=10000,
+                consumer_timeout_ms=self.kafka_timeout,
+            )
         return consumer
 
     def store_now(self):
