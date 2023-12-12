@@ -23,7 +23,7 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group, args=
 
     # Common parameters for both cases
     common_params = {
-        kafka_topic,
+        topics: kafka_topic,
         bootstrap_servers: kafka_hosts,
         auto_offset_reset: "latest",
         enable_auto_commit: True,
@@ -75,7 +75,7 @@ def doit(args, status_data):
         args.kafka_timeout,
         args.kafka_topic,
         args.kafka_group,
-        args
+        args,
     )
 
     status_data.set("parameters.kafka.seek_topic", args.kafka_topic)
