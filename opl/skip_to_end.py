@@ -23,7 +23,6 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group, args=
 
     # Common parameters for both cases
     common_params = {
-        topics: kafka_topic,
         bootstrap_servers: kafka_hosts,
         auto_offset_reset: "latest",
         enable_auto_commit: True,
@@ -50,6 +49,8 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group, args=
             f"Creating passwordless producer for for {kafka_hosts} in group {kafka_group} with timeout {kafka_timeout} ms topic {kafka_topic}"
         )
         consumer = KafkaConsumer(**common_params)
+
+    consumer.subscribe(kafka_topic)
 
     # Seek to end
     for attempt in range(10):
