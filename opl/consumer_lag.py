@@ -26,7 +26,6 @@ class ConsumerLag:
     def _getconsumer(self):
         # Common parameters for both cases
         common_params = {
-            topic: self.topic,
             bootstrap_servers: self.bootstrap_servers,
             auto_offset_reset: "latest",
             enable_auto_commit: False,
