@@ -40,7 +40,7 @@ class ConsumerLag:
         # Kafka consumer creation: SASL or noauth
         try:
             logging.info(
-                f"Creating SASL password-protected Kafka consumer for {self.bootstrap_servers} in group {self.group} with timeout {self.kafka_timeout} ms"
+                f"Creating SASL password-protected Kafka consumer for {self.bootstrap_servers} in group {self.group} with timeout {common_params['session_timeout_ms']} ms"
             )
             if self.username == "" or self.password == "":
                 raise ValueError("Password or username not provided!")
@@ -53,7 +53,7 @@ class ConsumerLag:
             consumer = KafkaConsumer(**common_params, **sasl_params)
         except (ValueError, AttributeError) as e:
             logging.info(
-                f"Creating passwordless Kafka consumer for {self.bootstrap_servers} in group {self.group} with timeout {self.kafka_timeout} ms"
+                f"Creating passwordless Kafka consumer for {self.bootstrap_servers} in group {self.group_id} with timeout {common_params['session_timeout_ms']} ms"
             )
             consumer = KafkaConsumer(**common_params)
         return consumer
