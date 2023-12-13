@@ -32,7 +32,7 @@ def setup_logger(app_name, stderr_log_lvl):
     console = logging.StreamHandler()
     console.setFormatter(formatter)
     console.setLevel(stderr_log_lvl)
-    logging.getLogger(app_name).addHandler(console)
+    logging.getLogger().addHandler(console)
 
     # Add file rotating handler, with level DEBUG
     rotating_handler = logging.handlers.RotatingFileHandler(
