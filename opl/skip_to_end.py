@@ -23,13 +23,13 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group, args=
 
     # Common parameters for both cases
     common_params = {
-        bootstrap_servers: kafka_hosts,
-        auto_offset_reset: "latest",
-        enable_auto_commit: True,
-        group_id: kafka_group,
-        session_timeout_ms: 50000,
-        heartbeat_interval_ms: 10000,
-        consumer_timeout_ms: kafka_timeout,
+        "bootstrap_servers": kafka_hosts,
+        "auto_offset_reset": "latest",
+        "enable_auto_commit": True,
+        "group_id": kafka_group,
+        "session_timeout_ms": 50000,
+        "heartbeat_interval_ms": 10000,
+        "consumer_timeout_ms": kafka_timeout,
     }
 
     # Kafka consumer creation: SASL or noauth
