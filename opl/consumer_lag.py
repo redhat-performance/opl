@@ -26,15 +26,15 @@ class ConsumerLag:
     def _getconsumer(self):
         # Common parameters for both cases
         common_params = {
-            bootstrap_servers: self.bootstrap_servers,
-            auto_offset_reset: "latest",
-            enable_auto_commit: False,
-            max_poll_records: 50,
-            max_poll_interval_ms: 300000,
-            group_id: self.group,
-            session_timeout_ms: 50000,
-            heartbeat_interval_ms: 10000,
-            consumer_timeout_ms: 100000,
+            "bootstrap_servers": self.bootstrap_servers,
+            "auto_offset_reset": "latest",
+            "enable_auto_commit": False,
+            "max_poll_records": 50,
+            "max_poll_interval_ms": 300000,
+            "group_id": self.group,
+            "session_timeout_ms": 50000,
+            "heartbeat_interval_ms": 10000,
+            "consumer_timeout_ms": 100000,
         }
 
         # Kafka consumer creation: SASL or noauth
