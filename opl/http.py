@@ -1,7 +1,7 @@
 import logging
 
 import requests
-
+from requests import HTTPBasicAuth
 import urllib3
 
 
@@ -10,7 +10,7 @@ password = "4pcc@z3Mi62#"
 session = requests.Session()
 # adding basic authentication to support new cluster
 session.auth = HTTPBasicAuth(username, password)
-session.verify = False  
+session.verify = False
 
 
 def disable_insecure_request_warnings(disable_it):
