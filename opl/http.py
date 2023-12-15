@@ -5,7 +5,12 @@ import requests
 import urllib3
 
 
+username = "insights_perf"
+password = "4pcc@z3Mi62#"
 session = requests.Session()
+# adding basic authentication to support new cluster
+session.auth = HTTPBasicAuth(username, password)
+session.verify = False  
 
 
 def disable_insecure_request_warnings(disable_it):
