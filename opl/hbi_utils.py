@@ -188,7 +188,7 @@ def gen_send_verify(args, status_data):
     if args.dry_run:
         producer = None
     else:
-        try:
+        if args.kafka_username != "" and args.kafka_password != "":
             logging.info(
                 f"Creating SASL password-protected producer to {args.kafka_host}"
             )
@@ -200,7 +200,7 @@ def gen_send_verify(args, status_data):
                 sasl_plain_username=args.kafka_username,
                 sasl_plain_password=args.kafka_password,
             )
-        except AttributeError:
+        else:
             logging.info(f"Creating passwordless producer to {args.kafka_host}")
             producer = kafka.KafkaProducer(
                 bootstrap_servers=kafka_host,

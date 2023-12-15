@@ -341,7 +341,7 @@ def post_kafka_times(config):
             "compression_type": args.compression_type,
         }
 
-        try:
+        if args.kafka_username != "" and args.kafka_password != "":
             logging.info(
                 f"Creating SASL password-protected producer to {args.kafka_host}"
             )
@@ -352,7 +352,7 @@ def post_kafka_times(config):
                 "sasl_plain_password": args.kafka_password,
             }
             produce_here = KafkaProducer(**common_params, **sasl_params)
-        except AttributeError:
+        else:
             logging.info(
                 f"Creating passwordless producer to {args.kafka_host}:{args.kafka_port}"
             )
