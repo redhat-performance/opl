@@ -1,12 +1,23 @@
 import logging
 
 import requests
-
+from requests.auth import HTTPBasicAuth
 import urllib3
+import os
 
+enable_new_search = os.getenv('NEW_SEARCH_ENABLED', 'false').lower() == 'true'
 
-session = requests.Session()
-
+if enable_new_search:
+    username = os.getenv('OPEN_SEARCH_DASBOARD')
+    password = os.getenv('OPEN_SEARCH_PASSWORD')
+    session = requests.Session()
+    session.auth = HTTPBasicAuth(username, password)
+    session.verify = False
+    session.headers.update({
+        "Content-Type": "application/json",
+    })
+else:
+    session = requests.Session()
 
 def disable_insecure_request_warnings(disable_it):
     if disable_it:
