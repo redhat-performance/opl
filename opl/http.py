@@ -19,6 +19,7 @@ if enable_new_search:
 else:
     session = requests.Session()
 
+
 def disable_insecure_request_warnings(disable_it):
     if disable_it:
         logging.debug("Disabling insecure request warnings")
