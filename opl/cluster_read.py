@@ -10,8 +10,7 @@ import os
 import jinja2
 import jinja2.exceptions
 import boto3
-
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from . import data
 from . import date
@@ -115,7 +114,7 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             "start": ri.start.timestamp(),
             "end": ri.end.timestamp(),
         }
-        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         response = requests.get(
             url, headers=headers, params=params, verify=False, timeout=60
         )
@@ -200,6 +199,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         }
         url = f"{self.args.grafana_host}:{self.args.grafana_port}/api/datasources/proxy/{self.args.grafana_datasource}/render"
 
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         r = requests.post(
             url=url, headers=headers, params=params, timeout=60, verify=False
         )
