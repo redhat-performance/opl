@@ -2,8 +2,22 @@ Results investigator
 ====================
 
 This tool (see `../pass_or_fail.py` in one level up directory) is supposed
-to check historical results of some given test, compare with new result
-and decide if new test result is PASS or FAIL.
+to load historical results of given test, compare it with new result for
+the same test and decide if new test result is PASS or FAIL.
+
+You can configure multiple things as of now:
+
+1. How to get historical results of the test (supports ElasticSearch, CSV
+   and directory of JSON files)
+3. How to load new result (support just JSON file)
+4. What method to use to actually find if new result is out of safe bounds
+   (we mostly use `if new result is biggeer than max or smaller than min
+   of historical data, it is FAIL`, but it is easy to implement more)
+6. What metrics from the JSONs to compare (e.g. `results.rps`,
+   `monitoring.pod.cpu.mean` and `monitoring.pod.memory.mean`)
+8. Optionally you can also configure where to store metadata about
+   decision the script done. This is useful to keep track about trends
+   (supports ElasticSearch and CSV)
 
 See `sample_config.yaml` for example configuration. This is what each
 section is for:
