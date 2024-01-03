@@ -14,7 +14,7 @@ from . import skelet
 def create_consumer(args):
     # Common parameters for both cases
     common_params = {
-        "bootstrap_servers": args.kafka_hosts,
+        "bootstrap_servers": args.kafka_host,
         "auto_offset_reset": "latest",
         "enable_auto_commit": True,
         "group_id": args.kafka_group,
@@ -26,7 +26,7 @@ def create_consumer(args):
     # Kafka consumer creation: SASL or noauth
     if args.kafka_username != "" and args.kafka_password != "":
         logging.info(
-            f"Creating SASL password-protected Kafka consumer for {args.kafka_hosts} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
+            f"Creating SASL password-protected Kafka consumer for {args.kafka_host} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
         )
         sasl_params = {
             "security_protocol": "SASL_SSL",
@@ -37,7 +37,7 @@ def create_consumer(args):
         consumer = KafkaConsumer([args.kafka_topic], **common_params, **sasl_params)
     else:
         logging.info(
-            f"Creating passwordless producer for for {args.kafka_hosts} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
+            f"Creating passwordless producer for for {args.kafka_host} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
         )
         consumer = KafkaConsumer([args.kafka_topic], **common_params)
     return consumer
