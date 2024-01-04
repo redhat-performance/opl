@@ -281,12 +281,6 @@ def post_kafka_times(config):
         help="Memory the producer can use at max for batching.",
     )
     parser.add_argument(
-        "--acks",
-        choices=["all", "1", "0"],
-        default="1",
-        help="How many acknowledgments the producer requires.",
-    )
-    parser.add_argument(
         "--retries",
         type=int,
         default=0,
@@ -325,13 +319,13 @@ def post_kafka_times(config):
         status_data.set("parameters.produce_messages", args_copy)
 
         # Sanitize acks setting
-        if args.acks != "all":
-            args.acks = int(args.acks)
+        if args.kafka_acks != "all":
+            args.kafka_acks = int(args.kafka_acks)
 
         # Common parameters for both cases
         common_params = {
             "bootstrap_servers": [f"{args.kafka_host}:{args.kafka_port}"],
-            "acks": args.acks,
+            "acks": args.kafka_acks,
             "retries": args.retries,
             "batch_size": args.batch_size,
             "buffer_memory": args.buffer_memory,

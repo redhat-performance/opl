@@ -99,6 +99,11 @@ def add_kafka_opts(parser):
         help="Kafka port (also use env variable KAFKA_PORT)",
     )
     parser.add_argument(
+        "--kafka-acks",
+        default=os.getenv("KAFKA_ACKS", "all"),
+        help="How many acknowledgments the producer requires, either all, 1 or 0 (also use env variable KAFKA_ACKS)",
+    )
+    parser.add_argument(
         "--kafka-timeout",
         type=int,
         default=int(os.getenv("KAFKA_TIMEOUT", 100000)),
