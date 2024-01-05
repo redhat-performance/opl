@@ -24,11 +24,11 @@ def setup_logger(app_name, stderr_log_lvl):
 
     # Silence loggers of some chatty libraries we use
     urllib_logger = logging.getLogger("urllib3.connectionpool")
-    urllib_logger.setLevel(stderr_log_lvl)
+    urllib_logger.setLevel(logging.WARNING)
     selenium_logger = logging.getLogger("selenium.webdriver.remote.remote_connection")
-    selenium_logger.setLevel(stderr_log_lvl)
+    selenium_logger.setLevel(logging.WARNING)
     kafka_logger = logging.getLogger("kafka")
-    kafka_logger.setLevel(stderr_log_lvl)
+    kafka_logger.setLevel(logging.WARNING)
 
     # Add stderr handler, with provided level
     console_handler = logging.StreamHandler()
