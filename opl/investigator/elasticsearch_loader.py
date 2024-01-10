@@ -1,9 +1,14 @@
 import json
 import logging
 import tempfile
+from requests.auth import HTTPBasicAuth
 
 import opl.http
 import opl.status_data
+
+# Environment variables for OpenSearch credentials
+open_search_username = "insights_perf"
+open_search_password = os.environ.get('OPEN_SEARCH_PASSWORD')
 
 
 def load(server, index, query, paths):
@@ -21,7 +26,7 @@ def load(server, index, query, paths):
         f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}"
     )
 
-    response = opl.http.get(url, headers=headers, json=data)
+    response = opl.http.get(url, auth=HTTPBasicAuth(open_search_username, open_search_password), headers=headers, json=data)
 
     for item in response["hits"]["hits"]:
         logging.debug(
