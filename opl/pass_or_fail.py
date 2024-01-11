@@ -114,12 +114,18 @@ def main():
     if args.history_type == "csv":
         history = opl.investigator.csv_loader.load(args.history_file, args.sets)
     elif args.history_type == "elasticsearch":
+        if hasattr(args, "es_server_user"):
+            # if new elasticsearch credentials are provided, use them
+            opl.http.disable_insecure_request_warnings(args.es_server_verify)
         history = opl.investigator.elasticsearch_loader.load(
             args.history_es_server,
             args.history_es_index,
             args.history_es_query,
             args.sets,
+            es_server_user=getattr(args, "es_server_user", None),
+            es_server_pass=getattr(args, "es_server_pass", None),
         )
+
     elif args.history_type == "sd_dir":
         history = opl.investigator.sd_dir_loader.load(
             args.history_dir, args.history_matchers, args.sets
@@ -200,8 +206,17 @@ def main():
     if not args.dry_run:
         for d_type in args.decisions_type:
             if d_type == "elasticsearch":
+                if hasattr(args, "es_server_user"):
+                    # if new elasticsearch credentials are provided, use them
+                    opl.http.disable_insecure_request_warnings(
+                        args.decisions_es_server_verify
+                    )
                 opl.investigator.elasticsearch_decisions.store(
-                    args.decisions_es_server, args.decisions_es_index, info_all
+                    args.decisions_es_server,
+                    args.decisions_es_index,
+                    info_all,
+                    es_server_user=getattr(args, "decisions_es_server_user", None),
+                    es_server_pass=getattr(args, "decisions_es_server_pass", None),
                 )
             if d_type == "csv":
                 opl.investigator.csv_decisions.store(args.decisions_filename, info_all)

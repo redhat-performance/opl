@@ -6,7 +6,9 @@ import os
 import requests
 
 
-def store(server, index, decisions):
+def store(server, index, decisions, **kwargs):
+    es_server_user = kwargs.get("es_server_user")
+    es_server_pass = kwargs.get("es_server_pass")
     # This is our workaround on how to add additional metadata about the decision
     job_name = os.environ.get("JOB_NAME", "")
     build_url = os.environ.get("BUILD_URL", "")
@@ -26,7 +28,17 @@ def store(server, index, decisions):
             f"Storing decision to ES url={url}, headers={headers} and json={json.dumps(decision)}"
         )
 
-        response = requests.post(url, headers=headers, json=decision)
+        if es_server_user and es_server_pass:
+            # fetch the password from Jenkins credentials
+            open_search_password = os.environ.get(es_server_pass)
+            response = requests.post(
+                url,
+                auth=requests.auth.HTTPBasicAuth(es_server_user, open_search_password),
+                headers=headers,
+                json=decision,
+            )
+        else:
+            response = requests.post(url, headers=headers, json=decision)
 
         if not response.ok:
             logging.warning(f"Failed to store decision to ES: {response.text}")
