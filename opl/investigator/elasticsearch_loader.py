@@ -10,7 +10,7 @@ from requests.auth import HTTPBasicAuth
 
 def load(server, index, query, paths, **kwargs):
     es_server_user = kwargs.get("es_server_user")
-    es_server_pass = kwargs.get("es_server_pass")
+    es_server_pass_env_var = kwargs.get("es_server_pass")
 
     out = {}
 
@@ -26,9 +26,9 @@ def load(server, index, query, paths, **kwargs):
         f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}"
     )
 
-    if es_server_user and es_server_pass:
+    if es_server_user and es_server_pass_env_var:
         # fetch the password from Jenkins credentials
-        open_search_password = os.environ.get(es_server_pass)
+        open_search_password = os.environ.get(es_server_pass_env_var)
         response = opl.http.get(
             url,
             auth=HTTPBasicAuth(es_server_user, open_search_password),

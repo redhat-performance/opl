@@ -123,7 +123,7 @@ def main():
             args.history_es_query,
             args.sets,
             es_server_user=getattr(args, "es_server_user", None),
-            es_server_pass=getattr(args, "es_server_pass_env_var", None),
+            es_server_pass_env_var=getattr(args, "es_server_pass_env_var", None),
         )
 
     elif args.history_type == "sd_dir":
@@ -214,7 +214,9 @@ def main():
                     args.decisions_es_index,
                     info_all,
                     es_server_user=getattr(args, "decisions_es_server_user", None),
-                    es_server_pass=getattr(args, "decisions_es_server_pass_env_var", None),
+                    decisions_es_server_pass_env_var=getattr(
+                        args, "decisions_es_server_pass_env_var", None
+                    ),
                 )
             if d_type == "csv":
                 opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
