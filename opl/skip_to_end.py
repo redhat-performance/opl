@@ -93,10 +93,6 @@ def main():
         help="Topic for which to skip to end (also use env variable KAFKA_TOPIC)",
     )
     args.add_kafka_opts(parser)
-    if args.debug:
-        logging.basicConfig(format=fmt, level=logging.DEBUG)
-
-    logging.basicConfig(level=logging.INFO)
 
     with skelet.test_setup(parser) as (params, status_data):
         doit(params, status_data)
