@@ -284,14 +284,14 @@ def post_kafka_times(config):
         # Common parameters for both cases
         common_params = {
             "bootstrap_servers": kafka_host,
-            "acks": args.acks,
-            "retries": args.retries,
-            "batch_size": args.batch_size,
-            "buffer_memory": args.buffer_memory,
-            "linger_ms": args.linger_ms,
-            "max_block_ms": args.max_block_ms,
-            "request_timeout_ms": args.request_timeout_ms,
-            "compression_type": args.compression_type,
+            "acks": args.kafka_acks,
+            "retries": args.kafka_retries,
+            "batch_size": args.kafka_batch_size,
+            "buffer_memory": args.kafka_buffer_memory,
+            "linger_ms": args.kafka_linger_ms,
+            "max_block_ms": args.kafka_max_block_ms,
+            "request_timeout_ms": args.kafka_request_timeout_ms,
+            "compression_type": args.kafka_compression_type,
         }
 
         if args.kafka_username != "" and args.kafka_password != "":
