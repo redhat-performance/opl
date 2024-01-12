@@ -79,9 +79,9 @@ class pluginOpenSearch:
 
     def upload(self, args):
         print("Hello from pluginOpenSearch upload")
-        if args.data_file == None:
+        if args.data_file is None:
             raise Exception("A Data file is needed to work with --opensearch-upload")
-        elif args.end_timestamp == None:
+        elif args.end_timestamp is None:
             raise Exception("End timestamp is needed to work with --opensearch-upload")
         else:
             json_data = json.dumps(
@@ -135,17 +135,17 @@ class pluginHorreum:
         self.logger = logging.getLogger("opl.showel.pluginHorreum")
 
     def upload(self, args):
-        if args.horreum_data_file == None:
+        if args.horreum_data_file is None:
             raise Exception(
                 "Horreum data file is required to work with --horreum-upload"
             )
-        elif args.horreum_host == None:
+        elif args.horreum_host is None:
             raise Exception("Horreum host is required to work with --horreum-upload")
-        elif args.token == None:
+        elif args.token is None:
             raise Exception(
                 "Authorisation Token is required to work with --horreum-upload"
             )
-        elif args.job_name == None:
+        elif args.job_name is None:
             raise Exception("Job name is required to work with --horreum-upload")
         else:
             headers = {
@@ -238,11 +238,11 @@ class pluginHorreum:
 
     def result(self, args):
         print("Hello from pluginHorreum result")
-        if args.id_array == None:
+        if args.id_array is None:
             raise Exception(
                 "Id array json file is needed to work with --horreum-result"
             )
-        elif args.horreum_data_file == None:
+        elif args.horreum_data_file is None:
             raise Exception(
                 "Horreum data file is required to work with --horreum-result"
             )
