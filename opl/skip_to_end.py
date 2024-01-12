@@ -11,7 +11,39 @@ from . import args
 from . import skelet
 
 
-def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group):
+def create_consumer(args):
+    # Common parameters for both cases
+    common_params = {
+        "bootstrap_servers": args.kafka_host,
+        "auto_offset_reset": "latest",
+        "enable_auto_commit": True,
+        "group_id": args.kafka_group,
+        "session_timeout_ms": 50000,
+        "heartbeat_interval_ms": 10000,
+        "consumer_timeout_ms": args.kafka_timeout,
+    }
+
+    # Kafka consumer creation: SASL or noauth
+    if args.kafka_username != "" and args.kafka_password != "":
+        logging.info(
+            f"Creating SASL password-protected Kafka consumer for {args.kafka_host} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
+        )
+        sasl_params = {
+            "security_protocol": "SASL_SSL",
+            "sasl_mechanism": "SCRAM-SHA-512",
+            "sasl_plain_username": args.kafka_username,
+            "sasl_plain_password": args.kafka_password,
+        }
+        consumer = KafkaConsumer([args.kafka_topic], **common_params, **sasl_params)
+    else:
+        logging.info(
+            f"Creating passwordless producer for for {args.kafka_host} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
+        )
+        consumer = KafkaConsumer([args.kafka_topic], **common_params)
+    return consumer
+
+
+def doit_seek_to_end(args):
     """
     Create consumer and seek to end
 
@@ -20,20 +52,10 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group):
     and static group name, we would have problems when running concurrently
     on multiple pods.
     """
-    logging.info(
-        f"Creating Kafka consumer for {kafka_hosts} in group {kafka_group} with timeout {kafka_timeout} ms topic {kafka_topic}"
-    )
-    consumer = KafkaConsumer(
-        kafka_topic,
-        bootstrap_servers=kafka_hosts,
-        auto_offset_reset="latest",
-        enable_auto_commit=True,
-        group_id=kafka_group,
-        session_timeout_ms=50000,
-        heartbeat_interval_ms=10000,
-        consumer_timeout_ms=kafka_timeout,
-    )
 
+    consumer = create_consumer(args)
+
+    # Seek to end
     for attempt in range(10):
         try:
             consumer.poll(timeout_ms=0)
@@ -52,12 +74,7 @@ def doit_seek_to_end(kafka_hosts, kafka_timeout, kafka_topic, kafka_group):
 
 
 def doit(args, status_data):
-    doit_seek_to_end(
-        [f"{args.kafka_host}:{args.kafka_port}"],
-        args.kafka_timeout,
-        args.kafka_topic,
-        args.kafka_group,
-    )
+    doit_seek_to_end(args)
 
     status_data.set("parameters.kafka.seek_topic", args.kafka_topic)
     status_data.set("parameters.kafka.seek_timeout", args.kafka_timeout)
