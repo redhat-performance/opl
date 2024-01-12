@@ -14,7 +14,7 @@ import urllib3
 
 from . import data
 from . import date
-from tenacity import *
+from tenacity import *  # noqa: F403
 
 
 def execute(command):
@@ -179,7 +179,8 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
-    @retry(stop=(stop_after_delay(10) | stop_after_attempt(10)))
+    # pylint: disable-next=undefined-variable
+    @retry(stop=(stop_after_delay(10) | stop_after_attempt(10)))  # noqa: F405
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
