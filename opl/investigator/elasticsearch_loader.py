@@ -38,17 +38,16 @@ def load(server, index, query, paths, **kwargs):
     else:
         response = opl.http.get(url, headers=headers, json=data)
 
-    if response:
-        for item in response["hits"]["hits"]:
-            logging.debug(
-                f"Loading data from document ID {item['_id']} with field id={item['_source']['id'] if 'id' in item['_source'] else None} or parameters.run={item['_source']['parameters']['run'] if 'run' in item['_source']['parameters'] else None}"
-            )
-            tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
-            sd = opl.status_data.StatusData(tmpfile, data=item["_source"])
-            for path in paths:
-                tmp = sd.get(path)
-                if tmp is not None:
-                    out[path].append(tmp)
+    for item in response["hits"]["hits"]:
+        logging.debug(
+            f"Loading data from document ID {item['_id']} with field id={item['_source']['id'] if 'id' in item['_source'] else None} or parameters.run={item['_source']['parameters']['run'] if 'run' in item['_source']['parameters'] else None}"
+        )
+        tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
+        sd = opl.status_data.StatusData(tmpfile, data=item["_source"])
+        for path in paths:
+            tmp = sd.get(path)
+            if tmp is not None:
+                out[path].append(tmp)
 
     logging.debug(f"Loaded {out}")
     return out

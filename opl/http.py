@@ -8,11 +8,16 @@ import urllib3
 session = requests.Session()
 
 
+def insecure():
+    session.verify = False
+    logging.debug("Disabling insecure request warnings")
+    disable_insecure_request_warnings(True)
+
+
 def disable_insecure_request_warnings(disable_it):
     if disable_it:
         logging.debug("Disabling insecure request warnings")
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        session.verify = False
 
 
 def req(method, url, **kwargs):

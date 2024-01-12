@@ -77,7 +77,7 @@ def load_config(conf, fp):
         conf.history_es_query = data["history"]["es_query"]
         if "es_server_user" in data["history"]:
             conf.es_server_user = data["history"]["es_server_user"]
-            conf.es_server_pass = data["history"]["es_server_pass"]
+            conf.es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
             conf.es_server_verify = data["history"]["es_server_verify"]
 
     if conf.history_type == "sd_dir":
@@ -94,7 +94,9 @@ def load_config(conf, fp):
         conf.decisions_es_index = data["decisions"]["es_index"]
         if "es_server_user" in data["decisions"]:
             conf.decisions_es_server_user = data["decisions"]["es_server_user"]
-            conf.decisions_es_server_pass = data["decisions"]["es_server_pass"]
+            conf.decisions_es_server_pass_env_var = data["decisions"][
+                "decisions_es_server_pass_env_var"
+            ]
             conf.decisions_es_server_verify = data["decisions"]["es_server_verify"]
     if conf.decisions_type == "csv":
         conf.decisions_filename = data["decisions"]["filename"]
