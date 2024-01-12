@@ -95,7 +95,7 @@ def main():
     args.add_kafka_opts(parser)
     if args.debug:
         logging.basicConfig(format=fmt, level=logging.DEBUG)
-    
+
     logging.basicConfig(level=logging.INFO)
 
     with skelet.test_setup(parser) as (params, status_data):
