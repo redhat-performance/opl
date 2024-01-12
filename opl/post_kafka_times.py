@@ -280,23 +280,22 @@ def post_kafka_times(config):
         if args.kafka_acks != "all":
             args.kafka_acks = int(args.kafka_acks)
 
+        kafka_host = f"{args.kafka_host}:{args.kafka_port}"
         # Common parameters for both cases
         common_params = {
-            "bootstrap_servers": [f"{args.kafka_host}:{args.kafka_port}"],
-            "acks": args.kafka_acks,
-            "retries": args.kafka_retries,
-            "batch_size": args.kafka_batch_size,
-            "buffer_memory": args.kafka_buffer_memory,
-            "linger_ms": args.kafka_linger_ms,
-            "max_block_ms": args.kafka_max_block_ms,
-            "request_timeout_ms": args.kafka_request_timeout_ms,
-            "compression_type": args.kafka_compression_type,
+            "bootstrap_servers": kafka_host,
+            "acks": args.acks,
+            "retries": args.retries,
+            "batch_size": args.batch_size,
+            "buffer_memory": args.buffer_memory,
+            "linger_ms": args.linger_ms,
+            "max_block_ms": args.max_block_ms,
+            "request_timeout_ms": args.request_timeout_ms,
+            "compression_type": args.compression_type,
         }
 
         if args.kafka_username != "" and args.kafka_password != "":
-            logging.info(
-                f"Creating SASL password-protected producer to {args.kafka_host}"
-            )
+            logging.info(f"Creating SASL password-protected producer to {kafka_host}")
             sasl_params = {
                 "security_protocol": "SASL_SSL",
                 "sasl_mechanism": "SCRAM-SHA-512",
@@ -305,9 +304,7 @@ def post_kafka_times(config):
             }
             produce_here = KafkaProducer(**common_params, **sasl_params)
         else:
-            logging.info(
-                f"Creating passwordless producer to {args.kafka_host}:{args.kafka_port}"
-            )
+            logging.info(f"Creating passwordless producer to {kafka_host}")
             produce_here = KafkaProducer(**common_params)
 
         logging.info(f"Loading queries definition from {args.tables_definition}")
