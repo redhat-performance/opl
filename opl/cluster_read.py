@@ -14,6 +14,7 @@ import urllib3
 
 from . import data
 from . import date
+from tenacity import *
 
 
 def execute(command):
@@ -178,6 +179,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
+    @retry(stop=(stop_after_delay(10) | stop_after_attempt(10)))
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
