@@ -77,7 +77,9 @@ def load_config(conf, fp):
         conf.history_es_query = data["history"]["es_query"]
         if "es_server_user" in data["history"]:
             conf.history_es_server_user = data["history"]["es_server_user"]
-            conf.history_es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
+            conf.history_es_server_pass_env_var = data["history"][
+                "es_server_pass_env_var"
+            ]
         if "es_server_verify" in data["history"]:
             conf.history_es_server_verify = data["history"]["es_server_verify"]
         else:
@@ -97,7 +99,9 @@ def load_config(conf, fp):
         conf.decisions_es_index = data["decisions"]["es_index"]
         if "es_server_user" in data["decisions"]:
             conf.decisions_es_server_user = data["decisions"]["es_server_user"]
-            conf.decisions_es_server_pass_env_var = data["decisions"]["es_server_pass_env_var"]
+            conf.decisions_es_server_pass_env_var = data["decisions"][
+                "es_server_pass_env_var"
+            ]
         if "es_server_verify" in data["decisions"]:
             conf.decisions_es_server_verify = data["decisions"]["es_server_verify"]
         else:

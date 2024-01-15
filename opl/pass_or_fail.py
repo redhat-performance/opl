@@ -114,7 +114,10 @@ def main():
     if args.history_type == "csv":
         history = opl.investigator.csv_loader.load(args.history_file, args.sets)
     elif args.history_type == "elasticsearch":
-        if hasattr(args, "history_es_server_verify") and not args.history_es_server_verify:
+        if (
+            hasattr(args, "history_es_server_verify")
+            and not args.history_es_server_verify
+        ):
             # SSL verification is disabled by default
             opl.http.insecure()
         history = opl.investigator.elasticsearch_loader.load(
@@ -123,7 +126,9 @@ def main():
             args.history_es_query,
             args.sets,
             es_server_user=getattr(args, "history_es_server_user", None),
-            es_server_pass_env_var=getattr(args, "history_es_server_pass_env_var", None),
+            es_server_pass_env_var=getattr(
+                args, "history_es_server_pass_env_var", None
+            ),
         )
 
     elif args.history_type == "sd_dir":
