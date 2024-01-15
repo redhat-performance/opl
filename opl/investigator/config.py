@@ -75,10 +75,9 @@ def load_config(conf, fp):
         assert not conf.history_es_server.endswith("/")
         conf.history_es_index = data["history"]["es_index"]
         conf.history_es_query = data["history"]["es_query"]
-        if "es_server_user" in data["history"]:
-            conf.history_es_server_user = data["history"]["es_server_user"]
-            conf.history_es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
-            conf.history_es_server_verify = data["history"]["es_server_verify"]
+        conf.history_es_server_user = data["history"]["es_server_user"]
+        conf.history_es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
+        conf.history_es_server_verify = data["history"]["es_server_verify"]
 
     if conf.history_type == "sd_dir":
         conf.history_dir = data["history"]["dir"]
@@ -92,12 +91,11 @@ def load_config(conf, fp):
         conf.decisions_es_server = data["decisions"]["es_server"]
         assert not conf.decisions_es_server.endswith("/")
         conf.decisions_es_index = data["decisions"]["es_index"]
-        if "es_server_user" in data["decisions"]:
-            conf.decisions_es_server_user = data["decisions"]["es_server_user"]
-            conf.decisions_es_server_pass_env_var = data["decisions"][
-                "decisions_es_server_pass_env_var"
-            ]
-            conf.decisions_es_server_verify = data["decisions"]["es_server_verify"]
+        conf.decisions_es_server_user = data["decisions"]["es_server_user"]
+        conf.decisions_es_server_pass_env_var = data["decisions"][
+            "decisions_es_server_pass_env_var"
+        ]
+        conf.decisions_es_server_verify = data["decisions"]["es_server_verify"]
     if conf.decisions_type == "csv":
         conf.decisions_filename = data["decisions"]["filename"]
 
