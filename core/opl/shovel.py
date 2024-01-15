@@ -16,7 +16,7 @@ class pluginProw:
     def list(self):
         response = requests.get(f"{self.args.prow_base_url}/{self.args.prow_job_name}")
         # Extract 19-digit numbers using regular expression
-        numbers = re.findall(r"\b[0-9]{19}\b", response.json())
+        numbers = re.findall(r"\b[0-9]{19}\b", response.text)
 
         # Sort the numbers in natural order and get the last 10 unique numbers
         sorted_numbers = sorted(set(numbers), key=lambda x: int(x))
@@ -36,7 +36,7 @@ class pluginProw:
             logging.info(f"DEBUG: File {to_path} already present, skipping download")
 
     @staticmethod
-    def args(parser, group_actions):
+    def set_args(parser, group_actions):
         group_actions.add_argument(
             "--prow-list",
             dest="actions",
@@ -124,7 +124,7 @@ class pluginOpenSearch:
                 logging.info("INFO: Already in ES, skipping upload")
 
     @staticmethod
-    def args(parser, group_actions):
+    def set_args(parser, group_actions):
         group_actions.add_argument(
             "--opensearch-upload",
             dest="actions",
@@ -267,7 +267,7 @@ class pluginHorreum:
                 status_data.doit_set(self.args.horreum_data_file, {"result": "PASS"})
 
     @staticmethod
-    def args(parser, group_actions):
+    def set_args(parser, group_actions):
         group_actions.add_argument(
             "--horreum-upload",
             dest="actions",
@@ -379,7 +379,7 @@ class pluginResultsDashboard:
                 logging.info("INFO: Already in Results Dashboard ES, skipping upload")
 
     @staticmethod
-    def args(parser, group_actions):
+    def set_args(parser, group_actions):
         group_actions.add_argument(
             "--resultsdashboard-upload",
             dest="actions",
@@ -440,7 +440,7 @@ def main():
         description="Various high level things you can do",
     )
     for name, plugin in PLUGINS.items():
-        plugin.args(parser, group_actions)
+        plugin.set_args(parser, group_actions)
 
     with skelet.test_setup(parser) as (args, status_data):
         logger = logging.getLogger("main")
