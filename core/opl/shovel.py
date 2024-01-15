@@ -2,7 +2,6 @@ import argparse
 import logging
 import requests
 import json
-import subprocess
 import os
 import re
 
@@ -17,7 +16,7 @@ class pluginProw:
     def list(self):
         response = requests.get(f"{self.args.prow_base_url}/{self.args.prow_job_name}")
         # Extract 19-digit numbers using regular expression
-        numbers = re.findall(r"\b[0-9]{19}\b", response)
+        numbers = re.findall(r"\b[0-9]{19}\b", response.json())
 
         # Sort the numbers in natural order and get the last 10 unique numbers
         sorted_numbers = sorted(set(numbers), key=lambda x: int(x))
