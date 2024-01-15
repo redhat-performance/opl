@@ -178,6 +178,9 @@ def find_bin(value, bins):
 
 
 def histogram(data, precision=1):
+    if len(data) == 0:
+        return [0], [0, 1]
+
     bins, borders = create_bins(data, precision)
     counts = [0] * len(bins)
 

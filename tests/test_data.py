@@ -80,6 +80,15 @@ class TestSkelet(unittest.TestCase):
             ],
         )
 
+    def test_get_hist_empty(self):
+        hist = opl.data.get_hist([])
+        self.assertEqual(
+            hist,
+            [
+                ((0.0, 1.0), 0.0),
+            ],
+        )
+
     def test_get_rps(self):
         rps_vals = opl.data.get_rps(
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bucket_size=10, granularity=1
