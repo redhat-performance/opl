@@ -13,11 +13,16 @@ def test_setup(parser):
         help='File where we maintain metadata, results, parameters and measurements for this test run (also use env variable STATUS_DATA_FILE, default to "/tmp/status-data.json")',
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Be verbose - show info output"
+    )
     args = parser.parse_args()
 
     fmt = "%(asctime)s %(name)s %(levelname)s %(message)s"
     if args.debug:
         logging.basicConfig(format=fmt, level=logging.DEBUG)
+    elif args.verbose:
+        logging.basicConfig(format=fmt, level=logging.INFO)
     else:
         logging.basicConfig(format=fmt)
 

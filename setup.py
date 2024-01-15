@@ -34,6 +34,7 @@ setuptools.setup(
         "requests",
         "tabulate",
         "deepdiff",
+        "tenacity",
     ],
     package_data={
         "opl": [

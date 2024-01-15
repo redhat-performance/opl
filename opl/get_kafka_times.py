@@ -106,10 +106,10 @@ class GetKafkaTimes:
                 "sasl_plain_username": self.kafka_username,
                 "sasl_plain_password": self.kafka_password,
             }
-            consumer = KafkaConsumer([self.kafka_topic], **common_params, **sasl_params)
+            consumer = KafkaConsumer(self.kafka_topic, **common_params, **sasl_params)
         else:
             logging.info(f"Creating passwordless consumer to {self.kafka_host}")
-            consumer = KafkaConsumer([self.kafka_topic], **common_params)
+            consumer = KafkaConsumer(self.kafka_topic, **common_params)
         return consumer
 
     def store_now(self):
