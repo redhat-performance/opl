@@ -12,26 +12,48 @@ class ConsumerLag:
     bootstrap_server and kafka group as input.
     """
 
-    def __init__(self, topic, bootstrap_servers, group) -> None:
+    def __init__(
+        self, topic, bootstrap_servers, group, username="", password=""
+    ) -> None:
         self.topic = topic
         self.group = group
         self.bootstrap_servers = bootstrap_servers
         self.logger = logging.getLogger("consumer_lag")
         self.offset_records = {}
+        self.username = username
+        self.password = password
 
     def _getconsumer(self):
-        consumer = KafkaConsumer(
-            bootstrap_servers=self.bootstrap_servers,
-            auto_offset_reset="latest",
-            enable_auto_commit=False,
-            max_poll_records=50,
-            max_poll_interval_ms=300000,
-            group_id=self.group,
-            session_timeout_ms=50000,
-            heartbeat_interval_ms=10000,
-            consumer_timeout_ms=100000,
-        )
+        # Common parameters for both cases
+        common_params = {
+            "bootstrap_servers": self.bootstrap_servers,
+            "auto_offset_reset": "latest",
+            "enable_auto_commit": False,
+            "max_poll_records": 50,
+            "max_poll_interval_ms": 300000,
+            "group_id": self.group,
+            "session_timeout_ms": 50000,
+            "heartbeat_interval_ms": 10000,
+            "consumer_timeout_ms": 100000,
+        }
 
+        # Kafka consumer creation: SASL or noauth
+        if self.username != "" and self.password != "":
+            logging.info(
+                f"Creating SASL password-protected Kafka consumer for {self.bootstrap_servers} in group {self.group} with timeout {common_params['session_timeout_ms']} ms"
+            )
+            sasl_params = {
+                "security_protocol": "SASL_SSL",
+                "sasl_mechanism": "SCRAM-SHA-512",
+                "sasl_plain_username": self.username,
+                "sasl_plain_password": self.password,
+            }
+            consumer = KafkaConsumer(**common_params, **sasl_params)
+        else:
+            logging.info(
+                f"Creating passwordless Kafka consumer for {self.bootstrap_servers} in group {self.group} with timeout {common_params['session_timeout_ms']} ms"
+            )
+            consumer = KafkaConsumer(**common_params)
         return consumer
 
     def store_offset_records(self):

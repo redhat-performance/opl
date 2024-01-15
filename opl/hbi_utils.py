@@ -142,7 +142,7 @@ def verify(args, previous_records, status_data, inventory, collect_info):
         attempt += 1
         if attempt > attempts_max:
             raise Exception(
-                f"After {attempt} attempts, we still need to check {existing_ids} out of {args.count}"
+                f"After {attempt} attempts, we only have {existing_ids} out of {args.count}"
             )
 
         # If there were no new hosts now, wait a bit
@@ -188,10 +188,26 @@ def gen_send_verify(args, status_data):
     if args.dry_run:
         producer = None
     else:
+        if args.kafka_username != "" and args.kafka_password != "":
+            logging.info(
+                f"Creating SASL password-protected producer to {args.kafka_host}"
+            )
+            producer = kafka.KafkaProducer(
+                bootstrap_servers=kafka_host,
+                # api_version=(0, 10),
+                security_protocol="SASL_SSL",
+                sasl_mechanism="SCRAM-SHA-512",
+                sasl_plain_username=args.kafka_username,
+                sasl_plain_password=args.kafka_password,
+            )
+        else:
+            logging.info(f"Creating passwordless producer to {args.kafka_host}")
+            producer = kafka.KafkaProducer(
+                bootstrap_servers=kafka_host,
+                api_version=(0, 10),
+            )
+
         status_data.set("parameters.kafka.bootstrap", kafka_host)
-        producer = kafka.KafkaProducer(
-            bootstrap_servers=[kafka_host], api_version=(0, 10)
-        )
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts

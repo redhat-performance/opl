@@ -9,11 +9,11 @@ from . import status_data
 
 def setup_logger(app_name, stderr_log_lvl):
     """
-    Create logger that logs to both stderr and log file but with different log level
+    Create logger that logs to both stderr and log file but with different log levels
     """
     # Remove all handlers from root logger if any
-    logging.basicConfig(level=logging.NOTSET, handlers=[])
-    # Change root logger level from WARNING (default) to NOTSET in order for all messages to be delegated.
+    logging.basicConfig(level=logging.NOTSET, handlers=[])   # `force=True` was added in Python 3.8 :-(
+    # Change root logger level from WARNING (default) to NOTSET in order for all messages to be delegated
     logging.getLogger().setLevel(logging.NOTSET)
 
     # Log message format
@@ -22,30 +22,32 @@ def setup_logger(app_name, stderr_log_lvl):
     )
     formatter.converter = time.gmtime
 
-    # Configure loggers of libraries we use
+    # Silence loggers of some chatty libraries we use
     urllib_logger = logging.getLogger("urllib3.connectionpool")
-    urllib_logger.setLevel(stderr_log_lvl)
+    urllib_logger.setLevel(logging.WARNING)
     selenium_logger = logging.getLogger("selenium.webdriver.remote.remote_connection")
-    selenium_logger.setLevel(stderr_log_lvl)
+    selenium_logger.setLevel(logging.WARNING)
+    kafka_logger = logging.getLogger("kafka")
+    kafka_logger.setLevel(logging.WARNING)
 
-    # Add stderr handler, with level INFO
-    console = logging.StreamHandler()
-    console.setFormatter(formatter)
-    console.setLevel(stderr_log_lvl)
-    logging.getLogger(app_name).addHandler(console)
+    # Add stderr handler, with provided level
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(stderr_log_lvl)
+    logging.getLogger().addHandler(console_handler)
 
     # Add file rotating handler, with level DEBUG
     rotating_handler = logging.handlers.RotatingFileHandler(
         filename=f"/tmp/{app_name}.log", maxBytes=100 * 1000, backupCount=2
     )
-    rotating_handler.setLevel(logging.DEBUG)
     rotating_handler.setFormatter(formatter)
+    rotating_handler.setLevel(logging.DEBUG)
     logging.getLogger().addHandler(rotating_handler)
 
     return logging.getLogger(app_name)
 
 @contextmanager
-def test_setup(parser, logger_name=None):
+def test_setup(parser, logger_name="root"):
     parser.add_argument(
         "--status-data-file",
         default=os.getenv("STATUS_DATA_FILE", "/tmp/status-data.json"),
@@ -62,9 +64,6 @@ def test_setup(parser, logger_name=None):
         help="Show debug output",
     )
     args = parser.parse_args()
-
-    if logger_name is None:
-        logger_name = "root"
 
     if args.debug:
         logger = setup_logger(logger_name, logging.DEBUG)
