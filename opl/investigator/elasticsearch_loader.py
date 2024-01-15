@@ -10,7 +10,7 @@ from requests.auth import HTTPBasicAuth
 
 def load(server, index, query, paths, **kwargs):
     es_server_user = kwargs.get("es_server_user")
-    es_server_pass_env_var = kwargs.get("es_server_pass")
+    es_server_pass_env_var = kwargs.get("es_server_pass_env_var")
 
     out = {}
 

@@ -213,7 +213,7 @@ def main():
                     args.decisions_es_server,
                     args.decisions_es_index,
                     info_all,
-                    decisions_es_server_user=getattr(args, "decisions_es_server_user", None),
+                    es_server_user=getattr(args, "decisions_es_server_user", None),
                     es_server_pass_env_var=getattr(
                         args, "decisions_es_server_pass_env_var", None
                     ),
