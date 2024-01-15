@@ -76,9 +76,9 @@ def load_config(conf, fp):
         conf.history_es_index = data["history"]["es_index"]
         conf.history_es_query = data["history"]["es_query"]
         if "es_server_user" in data["history"]:
-            conf.es_server_user = data["history"]["es_server_user"]
-            conf.es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
-            conf.es_server_verify = data["history"]["es_server_verify"]
+            conf.history_es_server_user = data["history"]["es_server_user"]
+            conf.history_es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
+            conf.history_es_server_verify = data["history"]["es_server_verify"]
 
     if conf.history_type == "sd_dir":
         conf.history_dir = data["history"]["dir"]

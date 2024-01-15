@@ -7,8 +7,8 @@ import requests
 
 
 def store(server, index, decisions, **kwargs):
-    es_server_user = kwargs.get("es_server_user")
-    decisions_es_server_pass_env_var = kwargs.get("es_server_pass")
+    es_server_user = kwargs.get("decisions_es_server_user")
+    decisions_es_server_pass_env_var = kwargs.get("es_server_pass_env_var")
     # This is our workaround on how to add additional metadata about the decision
     job_name = os.environ.get("JOB_NAME", "")
     build_url = os.environ.get("BUILD_URL", "")
