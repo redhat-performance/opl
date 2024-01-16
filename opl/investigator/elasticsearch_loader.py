@@ -2,11 +2,16 @@ import json
 import logging
 import tempfile
 
+import os
 import opl.http
 import opl.status_data
+from requests.auth import HTTPBasicAuth
 
 
-def load(server, index, query, paths):
+def load(server, index, query, paths, **kwargs):
+    es_server_user = kwargs.get("es_server_user")
+    es_server_pass_env_var = kwargs.get("es_server_pass_env_var")
+
     out = {}
 
     for path in paths:
@@ -21,7 +26,17 @@ def load(server, index, query, paths):
         f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}"
     )
 
-    response = opl.http.get(url, headers=headers, json=data)
+    if es_server_user and es_server_pass_env_var:
+        # fetch the password from Jenkins credentials
+        open_search_password = os.environ.get(es_server_pass_env_var)
+        response = opl.http.get(
+            url,
+            auth=HTTPBasicAuth(es_server_user, open_search_password),
+            headers=headers,
+            json=data,
+        )
+    else:
+        response = opl.http.get(url, headers=headers, json=data)
 
     for item in response["hits"]["hits"]:
         logging.debug(
