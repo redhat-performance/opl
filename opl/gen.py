@@ -78,3 +78,7 @@ def gen_hostname():
 
 def gen_string(size=10):
     return "".join(random.choice(string.printable) for i in range(size))
+
+def gen_safe_string(size=10):
+    # starting with "u" to specify it is a username
+    return 'u' + ''.join(random.choice(string.ascii_lowercase) for _ in range(size-1))

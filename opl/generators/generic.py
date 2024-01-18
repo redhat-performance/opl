@@ -162,7 +162,7 @@ class GenericGenerator:
 
     def _get_b64_identity(self, account, orgid):
         return opl.gen.get_auth_header(
-            account=account, user=opl.gen.gen_string(), org_id=orgid
+            account=account, user=opl.gen.gen_safe_string(), org_id=orgid
         ).decode()
 
     def _get_disk_devices(self):
