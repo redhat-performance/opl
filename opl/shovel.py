@@ -20,7 +20,7 @@ class pluginProw:
         # Sort the numbers in natural order and get the last 10 unique numbers
         sorted_numbers = sorted(set(numbers), key=lambda x: int(x))
         last_10_numbers = sorted_numbers[-10:]
-        return last_10_numbers
+        print(" ".join(last_10_numbers))
 
     def download(self):
         from_url = f"{self.args.prow_base_url}/{self.args.prow_job_name}/{self.args.prow_test_name}/{self.args.prow_artifact_path}"
