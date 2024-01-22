@@ -17,7 +17,6 @@ class pluginProw:
         response = requests.get(f"{self.args.prow_base_url}/{self.args.prow_job_name}")
         # Extract 19-digit numbers using regular expression
         numbers = re.findall(r"\b[0-9]{19}\b", response.text)
-
         # Sort the numbers in natural order and get the last 10 unique numbers
         sorted_numbers = sorted(set(numbers), key=lambda x: int(x))
         last_10_numbers = sorted_numbers[-10:]
@@ -27,10 +26,10 @@ class pluginProw:
         from_url = f"{self.args.prow_base_url}/{self.args.prow_job_name}/{self.args.prow_test_name}/{self.args.prow_artifact_path}"
         to_path = f"{self.args.prow_data_file}"
         if not os.path.isfile(to_path):
-            logging.info(f"INFO: Downloading {from_url} ... ", end="")
+            logging.info(f"INFO: Downloading {from_url} ... ")
             response = requests.get(f"{from_url}")
             with open(to_path, "w") as f:
-                f.write(response.content)
+                f.write(json.dumps(response.json()))
             logging.info("DONE")
         else:
             logging.info(f"DEBUG: File {to_path} already present, skipping download")
