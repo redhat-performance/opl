@@ -184,15 +184,15 @@ class pluginHorreum:
             response = requests.get(
                 f"{self.args.horreum_host}/api/test/byName/{self.args.test_name_horreum}",
                 headers=headers,
-                verify=False
+                verify=False,
             )
-            test_id = json.load(response.text)["id"]
+            test_id = json.loads(response.text)["id"]
             filter_data = {f"{self.args.test_matcher}": f"{test_matcher}"}
             response = requests.get(
                 f"{self.args.horreum_host}/api/dataset/list/{test_id}",
                 headers=headers,
                 params={"filter": json.dumps(filter_data)},
-                verify=False
+                verify=False,
             )
             datasets = response.json().get("datasets", [])
             if len(datasets) > 0:
@@ -212,6 +212,7 @@ class pluginHorreum:
                 params=params,
                 headers=headers,
                 data=json.dumps(values),
+                verify=False,
             )
 
     def result(self):
@@ -233,13 +234,14 @@ class pluginHorreum:
             values = requests.get(
                 f"https://{self.args.horreum_host}/api/alerting/variables",
                 params={"test": self.args.test_id},
+                verify=False,
             )
             id_array = values.json()
             is_fail = 0
             for i in id_array:
                 id_value = i["id"]
                 jsonFile = open(self.args.horreum_data_file, "r")
-                values = json.load(jsonFile)
+                values = json.loads(jsonFile)
                 jsonFile.close()
                 range_data = {
                     "range": {
@@ -255,6 +257,7 @@ class pluginHorreum:
                     f"https://{self.args.horreum_host}/api/changes/annotations",
                     headers={"content-type: application/json"},
                     data=json.dumps(range_data),
+                    verify=False,
                 )
 
                 # Check if the result is not an empty list
@@ -335,7 +338,7 @@ class pluginResultsDashboard:
             )
         else:
             jsonFile = open(self.args.status_data, "r")
-            values = json.load(jsonFile)
+            values = json.loads(jsonFile)
             jsonFile.close()
             date = values["timestamp"]
             link = values["jobLink"]
