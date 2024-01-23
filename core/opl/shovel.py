@@ -106,7 +106,7 @@ class pluginOpenSearch:
             )
             headers = {"Content-Type": "application/json"}
             jsonFile = open(self.args.data_file, "r")
-            values = json.load(jsonFile)
+            values = json.loads(jsonFile)
             current_doc_in_es = requests.get(
                 f"{self.args.es_host_url}/{self.args.es_index}/_search",
                 headers=headers,
@@ -178,21 +178,21 @@ class pluginHorreum:
                 "Authorization": f"Bearer {self.args.token}",
             }
             jsonFile = open(self.args.horreum_data_file, "r")
-            values = json.load(jsonFile)
+            values = json.loads(jsonFile)
             jsonFile.close()
             test_matcher = values[self.args.test_job_matcher]
             response = requests.get(
                 f"{self.args.horreum_host}/api/test/byName/{self.args.test_name_horreum}",
                 headers=headers,
-                verify=False
+                verify=False,
             )
-            test_id = json.load(response.text)["id"]
+            test_id = json.loads(response.text)["id"]
             filter_data = {f"{self.args.test_matcher}": f"{test_matcher}"}
             response = requests.get(
                 f"{self.args.horreum_host}/api/dataset/list/{test_id}",
                 headers=headers,
                 params={"filter": json.dumps(filter_data)},
-                verify=False
+                verify=False,
             )
             datasets = response.json().get("datasets", [])
             if len(datasets) > 0:
@@ -239,7 +239,7 @@ class pluginHorreum:
             for i in id_array:
                 id_value = i["id"]
                 jsonFile = open(self.args.horreum_data_file, "r")
-                values = json.load(jsonFile)
+                values = json.loads(jsonFile)
                 jsonFile.close()
                 range_data = {
                     "range": {
@@ -335,7 +335,7 @@ class pluginResultsDashboard:
             )
         else:
             jsonFile = open(self.args.status_data, "r")
-            values = json.load(jsonFile)
+            values = json.loads(jsonFile)
             jsonFile.close()
             date = values["timestamp"]
             link = values["jobLink"]
