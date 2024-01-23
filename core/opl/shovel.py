@@ -187,7 +187,7 @@ class pluginHorreum:
                 verify=False,
             )
             test_id = json.loads(response.text)["id"]
-            filter_data = {f"{self.args.test_matcher}": f"{test_matcher}"}
+            filter_data = {f"{self.args.test_job_matcher}": f"{test_matcher}"}
             response = requests.get(
                 f"{self.args.horreum_host}/api/dataset/list/{test_id}",
                 headers=headers,
@@ -197,7 +197,7 @@ class pluginHorreum:
             datasets = response.json().get("datasets", [])
             if len(datasets) > 0:
                 raise Exception(
-                    f"Test result {self.args.test_matcher}={test_matcher} found in Horreum {datasets}, skipping upload"
+                    f"Test result {self.args.test_job_matcher}={test_matcher} found in Horreum {datasets}, skipping upload"
                 )
             logging.info("INFO: Uploading to Horreum ... ")
             params = {
