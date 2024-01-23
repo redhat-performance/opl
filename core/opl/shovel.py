@@ -106,7 +106,7 @@ class pluginOpenSearch:
             )
             headers = {"Content-Type": "application/json"}
             jsonFile = open(self.args.data_file, "r")
-            values = json.loads(jsonFile)
+            values = json.load(jsonFile)
             current_doc_in_es = requests.get(
                 f"{self.args.es_host_url}/{self.args.es_index}/_search",
                 headers=headers,
@@ -178,13 +178,13 @@ class pluginHorreum:
                 "Authorization": f"Bearer {self.args.token}",
             }
             jsonFile = open(self.args.horreum_data_file, "r")
-            values = json.loads(jsonFile)
+            values = json.load(jsonFile)
             jsonFile.close()
             test_matcher = values[self.args.test_job_matcher]
             response = requests.get(
                 f"{self.args.horreum_host}/api/test/byName/{self.args.test_name_horreum}",
                 headers=headers,
-                verify=False,
+                verify=False
             )
             test_id = json.loads(response.text)["id"]
             filter_data = {f"{self.args.test_matcher}": f"{test_matcher}"}
@@ -192,7 +192,7 @@ class pluginHorreum:
                 f"{self.args.horreum_host}/api/dataset/list/{test_id}",
                 headers=headers,
                 params={"filter": json.dumps(filter_data)},
-                verify=False,
+                verify=False
             )
             datasets = response.json().get("datasets", [])
             if len(datasets) > 0:
@@ -212,6 +212,7 @@ class pluginHorreum:
                 params=params,
                 headers=headers,
                 data=json.dumps(values),
+                verify=False
             )
 
     def result(self):
@@ -233,13 +234,14 @@ class pluginHorreum:
             values = requests.get(
                 f"https://{self.args.horreum_host}/api/alerting/variables",
                 params={"test": self.args.test_id},
+                verify=False
             )
             id_array = values.json()
             is_fail = 0
             for i in id_array:
                 id_value = i["id"]
                 jsonFile = open(self.args.horreum_data_file, "r")
-                values = json.loads(jsonFile)
+                values = json.load(jsonFile)
                 jsonFile.close()
                 range_data = {
                     "range": {
@@ -255,6 +257,7 @@ class pluginHorreum:
                     f"https://{self.args.horreum_host}/api/changes/annotations",
                     headers={"content-type: application/json"},
                     data=json.dumps(range_data),
+                    verify=False
                 )
 
                 # Check if the result is not an empty list
@@ -335,7 +338,7 @@ class pluginResultsDashboard:
             )
         else:
             jsonFile = open(self.args.status_data, "r")
-            values = json.loads(jsonFile)
+            values = json.load(jsonFile)
             jsonFile.close()
             date = values["timestamp"]
             link = values["jobLink"]
