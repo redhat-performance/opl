@@ -241,7 +241,7 @@ class pluginHorreum:
             for i in id_array:
                 id_value = i["id"]
                 jsonFile = open(self.args.horreum_data_file, "r")
-                values = json.loads(jsonFile)
+                values = json.load(jsonFile)
                 jsonFile.close()
                 range_data = {
                     "range": {
@@ -338,7 +338,7 @@ class pluginResultsDashboard:
             )
         else:
             jsonFile = open(self.args.status_data, "r")
-            values = json.loads(jsonFile)
+            values = json.load(jsonFile)
             jsonFile.close()
             date = values["timestamp"]
             link = values["jobLink"]
