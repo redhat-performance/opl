@@ -184,6 +184,7 @@ class pluginHorreum:
             response = requests.get(
                 f"{self.args.horreum_host}/api/test/byName/{self.args.test_name_horreum}",
                 headers=headers,
+                verify=False
             )
             test_id = json.load(response.text)["id"]
             filter_data = {f"{self.args.test_matcher}": f"{test_matcher}"}
@@ -191,6 +192,7 @@ class pluginHorreum:
                 f"{self.args.horreum_host}/api/dataset/list/{test_id}",
                 headers=headers,
                 params={"filter": json.dumps(filter_data)},
+                verify=False
             )
             datasets = response.json().get("datasets", [])
             if len(datasets) > 0:
