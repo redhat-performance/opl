@@ -31,7 +31,9 @@ class pluginProw:
             with open(self.args.prow_data_file, "wb") as f:
                 f.write(response.content)
         else:
-            logging.info(f"File {self.args.prow_data_file} already present, skipping download")
+            logging.info(
+                f"File {self.args.prow_data_file} already present, skipping download"
+            )
 
     @staticmethod
     def set_args(parser, group_actions):
@@ -354,7 +356,9 @@ class pluginResultsDashboard:
             date = values["timestamp"]
             link = values["jobLink"]
             if "result" not in values:
-                self.logger.warning(f"Result not found in {self.args.status_data}, skipping upload")
+                self.logger.warning(
+                    f"Result not found in {self.args.status_data}, skipping upload"
+                )
                 return
             result = values["result"]
             result_id = values["metadata"]["env"]["BUILD_ID"]
