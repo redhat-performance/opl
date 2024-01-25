@@ -353,15 +353,16 @@ class pluginResultsDashboard:
             jsonFile = open(self.args.status_data, "r")
             values = json.load(jsonFile)
             jsonFile.close()
-            date = values["timestamp"]
-            link = values["jobLink"]
-            if "result" not in values:
+            try:
+                date = values["timestamp"]
+                link = values["jobLink"]
+                result = values["result"]
+                result_id = values["metadata"]["env"]["BUILD_ID"]
+            except KeyError as e:
                 self.logger.warning(
-                    f"Result not found in {self.args.status_data}, skipping upload"
+                    f"Something missing in {self.args.status_data}, skipping upload: {e}"
                 )
                 return
-            result = values["result"]
-            result_id = values["metadata"]["env"]["BUILD_ID"]
             json_data = json.dumps(
                 {
                     "query": {
