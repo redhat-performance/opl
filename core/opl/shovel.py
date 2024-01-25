@@ -94,31 +94,32 @@ class pluginOpenSearch:
                 "Matcher field value is needed to work with --opensearch-upload"
             )
         else:
-            json_data = json.dumps(
-                {
-                    "query": {
-                        "match": {
-                            f"{self.args.matcher_field}": self.args.matcher_field_value
-                        }
+            query = {
+                "query": {
+                    "match": {
+                        f"{self.args.matcher_field}": self.args.matcher_field_value
                     }
                 }
-            )
+            }
             headers = {"Content-Type": "application/json"}
-            jsonFile = open(self.args.data_file, "r")
-            values = json.load(jsonFile)
-            current_doc_in_es = requests.get(
+            current_doc_in_es = requests.post(
                 f"{self.args.es_host_url}/{self.args.es_index}/_search",
                 headers=headers,
-                data=json_data,
+                json=query,
             )
             current_doc_in_es.raise_for_status()
             current_doc_in_es = current_doc_in_es.json()
+
             if current_doc_in_es["hits"]["total"]["value"] == 0:
                 logging.info("Uploading to ES...")
+
+                with open(self.args.data_file, "r") as fp:
+                    values = json.load(fp)
+
                 requests.post(
                     f"{self.args.es_host_url}/{self.args.es_index}/_doc",
                     headers=headers,
-                    data=json.dumps(values),
+                    json=values,
                 )
             else:
                 logging.info("Already in ES, skipping upload")
