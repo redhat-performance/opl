@@ -111,7 +111,9 @@ class pluginOpenSearch:
                 headers=headers,
                 data=json_data,
             )
-            if json.loads(current_doc_in_es.text)["hits"]["total"]["value"] == 0:
+            current_doc_in_es.raise_for_status()
+            current_doc_in_es = current_doc_in_es.json()
+            if current_doc_in_es["hits"]["total"]["value"] == 0:
                 logging.info("Uploading to ES...")
                 requests.post(
                     f"{self.args.es_host_url}/{self.args.es_index}/_doc",
@@ -138,7 +140,7 @@ class pluginOpenSearch:
         )
         group.add_argument(
             "--es-index",
-            default="rhtap-ci-status-data",
+            default="rhtap_ci_status_data",
             help="Elastic search index where the data will be stored",
         )
         group.add_argument("--data-file", help="json file to upload to elastic search")
@@ -350,6 +352,9 @@ class pluginResultsDashboard:
             jsonFile.close()
             date = values["timestamp"]
             link = values["jobLink"]
+            if "result" not in values:
+                self.logger.warning(f"Result not found in {self.args.status_data}, skipping upload")
+                return
             result = values["result"]
             result_id = values["metadata"]["env"]["BUILD_ID"]
             json_data = json.dumps(
@@ -367,7 +372,9 @@ class pluginResultsDashboard:
                 headers=headers,
                 data=json_data,
             )
-            if json.loads(current_doc_in_es.text)["hits"]["total"]["value"] == 0:
+            current_doc_in_es.raise_for_status()
+            current_doc_in_es = current_doc_in_es.json()
+            if current_doc_in_es["hits"]["total"]["value"] == 0:
                 logging.info("Uploading to results dashboard")
                 upload_data = json.dumps(
                     {
