@@ -190,8 +190,6 @@ class pluginHorreum:
             )
         elif self.args.horreum_host is None:
             raise Exception("Horreum host is required to work with --horreum-upload")
-        elif self.args.job_name is None:
-            raise Exception("Job name is required to work with --horreum-upload")
         elif self.args.test_start is None:
             raise Exception("Test start is required to work with --horreum-upload")
         elif self.args.test_end is None:
@@ -310,7 +308,6 @@ class pluginHorreum:
         group.add_argument("--horreum-keycloak-host", help="Horreum Keycloak host url")
         group.add_argument("--horreum-keycloak-user", help="Horreum Keycloak username")
         group.add_argument("--horreum-keycloak-pass", help="Horreum Keycloak password")
-        group.add_argument("--job-name", help="Job name")
         group.add_argument(
             "--test-name-horreum", default="load-tests-result", help="Test Name"
         )
