@@ -26,13 +26,13 @@ class pluginProw:
         from_url = f"{self.args.prow_base_url}/{self.args.prow_job_name}/{self.args.prow_test_name}/{self.args.prow_artifact_path}"
         to_path = f"{self.args.prow_data_file}"
         if not os.path.isfile(to_path):
-            logging.info(f"INFO: Downloading {from_url} ... ")
+            logging.info(f"Downloading {from_url} ... ")
             response = requests.get(f"{from_url}")
             with open(to_path, "w") as f:
                 f.write(json.dumps(response.json()))
             logging.info("DONE")
         else:
-            logging.info(f"DEBUG: File {to_path} already present, skipping download")
+            logging.info(f"File {to_path} already present, skipping download")
 
     @staticmethod
     def set_args(parser, group_actions):
@@ -120,7 +120,7 @@ class pluginOpenSearch:
                     data=json.dumps(values),
                 )
             else:
-                logging.info("INFO: Already in ES, skipping upload")
+                logging.info("Already in ES, skipping upload")
 
     @staticmethod
     def set_args(parser, group_actions):
@@ -199,7 +199,7 @@ class pluginHorreum:
                 raise Exception(
                     f"Test result {self.args.test_job_matcher}={test_matcher} found in Horreum {datasets}, skipping upload"
                 )
-            logging.info("INFO: Uploading to Horreum ... ")
+            logging.info("Uploading to Horreum ... ")
             params = {
                 "test": self.args.test_name_horreum,
                 "start": self.args.test_start,
@@ -380,7 +380,7 @@ class pluginResultsDashboard:
                     data=upload_data,
                 )
             else:
-                logging.info("INFO: Already in Results Dashboard ES, skipping upload")
+                logging.info("Already in Results Dashboard ES, skipping upload")
 
     @staticmethod
     def set_args(parser, group_actions):
