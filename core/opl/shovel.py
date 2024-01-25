@@ -4,6 +4,7 @@ import requests
 import json
 import os
 import re
+import urllib3
 
 from . import skelet, status_data
 
@@ -153,6 +154,35 @@ class pluginHorreum:
         self.logger = logging.getLogger("opl.showel.pluginHorreum")
         self.args = args
 
+        # FIXME
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        self.logger.debug("Getting access token from Keycloak")
+        response = requests.post(
+            f"{self.args.horreum_keycloak_host}/realms/horreum/protocol/openid-connect/token",
+            data={
+                "username": self.args.horreum_keycloak_user,
+                "password": self.args.horreum_keycloak_pass,
+                "grant_type": "password",
+                "client_id": "horreum-ui",
+            },
+            verify=False,
+        )
+        response.raise_for_status()
+        self.token = response.json()["access_token"]
+        self.headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.token}",
+        }
+
+        self.logger.debug(f"Getting test id for {self.args.test_name_horreum}")
+        response = requests.get(
+            f"{self.args.horreum_host}/api/test/byName/{self.args.test_name_horreum}",
+            headers=self.headers,
+            verify=False,
+        )
+        self.test_id = json.loads(response.text)["id"]
+
     def upload(self):
         if self.args.horreum_data_file is None:
             raise Exception(
@@ -160,10 +190,6 @@ class pluginHorreum:
             )
         elif self.args.horreum_host is None:
             raise Exception("Horreum host is required to work with --horreum-upload")
-        elif self.args.token is None:
-            raise Exception(
-                "Authorisation Token is required to work with --horreum-upload"
-            )
         elif self.args.job_name is None:
             raise Exception("Job name is required to work with --horreum-upload")
         elif self.args.test_start is None:
@@ -171,24 +197,14 @@ class pluginHorreum:
         elif self.args.test_end is None:
             raise Exception("Test end is required to work with --horreum-upload")
         else:
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.args.token}",
-            }
             jsonFile = open(self.args.horreum_data_file, "r")
             values = json.load(jsonFile)
             jsonFile.close()
             test_matcher = values[self.args.test_job_matcher]
-            response = requests.get(
-                f"{self.args.horreum_host}/api/test/byName/{self.args.test_name_horreum}",
-                headers=headers,
-                verify=False,
-            )
-            test_id = json.loads(response.text)["id"]
             filter_data = {f"{self.args.test_job_matcher}": f"{test_matcher}"}
             response = requests.get(
-                f"{self.args.horreum_host}/api/dataset/list/{test_id}",
-                headers=headers,
+                f"{self.args.horreum_host}/api/dataset/list/{self.test_id}",
+                headers=self.headers,
                 params={"filter": json.dumps(filter_data)},
                 verify=False,
             )
@@ -208,17 +224,13 @@ class pluginHorreum:
             requests.post(
                 f"{self.args.horreum_host}/api/run/data",
                 params=params,
-                headers=headers,
+                headers=self.headers,
                 data=json.dumps(values),
                 verify=False,
             )
 
     def result(self):
-        if self.args.id_array is None:
-            raise Exception(
-                "Id array json file is needed to work with --horreum-result"
-            )
-        elif self.args.horreum_data_file is None:
+        if self.args.horreum_data_file is None:
             raise Exception(
                 "Horreum data file is required to work with --horreum-result"
             )
@@ -226,12 +238,10 @@ class pluginHorreum:
             raise Exception("Test start is required to work with --horreum-result")
         elif self.args.test_end is None:
             raise Exception("Test end is required to work with --horreum-result")
-        elif self.args.test_id is None:
-            raise Exception("Test id is required to work with --horreum-result")
         else:
             values = requests.get(
-                f"https://{self.args.horreum_host}/api/alerting/variables",
-                params={"test": self.args.test_id},
+                f"{self.args.horreum_host}/api/alerting/variables",
+                params={"test": self.test_id},
                 verify=False,
             )
             id_array = values.json()
@@ -251,22 +261,26 @@ class pluginHorreum:
                 }
 
                 # Send a POST request to the API and retrieve the result using curl and jq
-                result = requests.get(
-                    f"https://{self.args.horreum_host}/api/changes/annotations",
-                    headers={"content-type: application/json"},
-                    data=json.dumps(range_data),
+                self.logger.debug("Getting changes")
+                result = requests.post(
+                    f"{self.args.horreum_host}/api/changes/annotations",
+                    headers=self.headers,
+                    json=range_data,
                     verify=False,
                 )
+                result.raise_for_status()
+                result = result.json()
 
                 # Check if the result is not an empty list
-                if result != "[]":
+                if result != []:
                     is_fail = 1
-                    status_data.doit_set(
-                        self.args.horreum_data_file, {"result": "FAIL"}
-                    )
                     break
-            if is_fail != 1:
-                status_data.doit_set(self.args.horreum_data_file, {"result": "PASS"})
+
+            data = status_data.StatusData(self.args.horreum_data_file)
+            if is_fail == 1:
+                status_data.doit_set(data, ["result=FAIL"])
+            else:
+                status_data.doit_set(data, ["result=PASS"])
 
     @staticmethod
     def set_args(parser, group_actions):
@@ -293,7 +307,9 @@ class pluginHorreum:
         )
         group.add_argument("--horreum-data-file", help="Data file to upload to Horreum")
         group.add_argument("--horreum-host", help="Horreum host url")
-        group.add_argument("--token", help="Authorisation token")
+        group.add_argument("--horreum-keycloak-host", help="Horreum Keycloak host url")
+        group.add_argument("--horreum-keycloak-user", help="Horreum Keycloak username")
+        group.add_argument("--horreum-keycloak-pass", help="Horreum Keycloak password")
         group.add_argument("--job-name", help="Job name")
         group.add_argument(
             "--test-name-horreum", default="load-tests-result", help="Test Name"
@@ -303,9 +319,6 @@ class pluginHorreum:
         group.add_argument("--test-access", default="PUBLIC")
         group.add_argument("--test-start", help="time when the test started")
         group.add_argument("--test-end", help="time when the test ended")
-        group.add_argument(
-            "--test-id", help="Id of the test for which we want to check Pass or Fail"
-        )
 
 
 class pluginResultsDashboard:
