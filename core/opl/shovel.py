@@ -24,15 +24,13 @@ class pluginProw:
 
     def download(self):
         from_url = f"{self.args.prow_base_url}/{self.args.prow_job_name}/{self.args.prow_test_name}/{self.args.prow_artifact_path}"
-        to_path = f"{self.args.prow_data_file}"
-        if not os.path.isfile(to_path):
-            logging.info(f"Downloading {from_url} ... ")
-            response = requests.get(f"{from_url}")
-            with open(to_path, "w") as f:
-                f.write(json.dumps(response.json()))
-            logging.info("DONE")
+        if not os.path.isfile(self.args.prow_data_file):
+            logging.info(f"Downloading {from_url} to {self.args.prow_data_file} ... ")
+            response = requests.get(from_url)
+            with open(self.args.prow_data_file, "wb") as f:
+                f.write(response.content)
         else:
-            logging.info(f"File {to_path} already present, skipping download")
+            logging.info(f"File {self.args.prow_data_file} already present, skipping download")
 
     @staticmethod
     def set_args(parser, group_actions):
