@@ -269,7 +269,7 @@ class pluginHorreum:
         sd = status_data.StatusData(self.args.horreum_data_file)
         if sd.get("result") is not None:
             print(
-                f"Result field already there in {self.args.horreum_data_file}, skipping changes detection"
+                f"Result field ({sd.get('result')}) already there in {self.args.horreum_data_file}, skipping changes detection"
             )
             return
 
@@ -311,7 +311,7 @@ class pluginHorreum:
                 change_detected = True
                 break
 
-        print(f"Writing result to {self.args.horreum_data_file}: {change_detected}")
+        print(f"Writing result to {self.args.horreum_data_file}: {'FAIL' if change_detected else 'PASS'}")
         if change_detected:
             sd.set("result", "FAIL")
         else:
@@ -383,6 +383,7 @@ class pluginResultsDashboard:
                 "Test Name is mandatory to work with --results-dashboard-upload"
             )
 
+        # FIXME: Field names where to get these should come from params
         self.logger.debug(f"Loading data from {self.args.status_data}")
         with open(self.args.status_data, "r") as fd:
             values = json.load(fd)
