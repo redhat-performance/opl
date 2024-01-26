@@ -16,24 +16,29 @@ class pluginProw:
 
     def list(self):
         response = requests.get(f"{self.args.prow_base_url}/{self.args.prow_job_name}")
+        response.raise_for_status()
+
         # Extract 19-digit numbers using regular expression
         numbers = re.findall(r"\b[0-9]{19}\b", response.text)
-        # Sort the numbers in natural order and get the last 10 unique numbers
+
+        # Sort the numbers in numerical order and get the last 10 unique numbers
         sorted_numbers = sorted(set(numbers), key=lambda x: int(x))
         last_10_numbers = sorted_numbers[-10:]
-        print(" ".join(last_10_numbers))
+        for n in last_10_numbers:
+            print(n)
 
     def download(self):
-        from_url = f"{self.args.prow_base_url}/{self.args.prow_job_name}/{self.args.prow_test_name}/{self.args.prow_artifact_path}"
-        if not os.path.isfile(self.args.prow_data_file):
-            logging.info(f"Downloading {from_url} to {self.args.prow_data_file} ... ")
-            response = requests.get(from_url)
-            with open(self.args.prow_data_file, "wb") as f:
-                f.write(response.content)
-        else:
-            logging.info(
-                f"File {self.args.prow_data_file} already present, skipping download"
-            )
+        if os.path.isfile(self.args.prow_data_file):
+            print(f"File {self.args.prow_data_file} already present, skipping download")
+            return
+
+        from_url = f"{self.args.prow_base_url}/{self.args.prow_job_name}/{self.args.prow_run_name}/{self.args.prow_artifact_path}"
+        logging.info(f"Downloading {from_url} to {self.args.prow_data_file}")
+        response = requests.get(from_url)
+        response.raise_for_status()
+
+        with open(self.args.prow_data_file, "wb") as f:
+            f.write(response.content)
 
     @staticmethod
     def set_args(parser, group_actions):
@@ -69,7 +74,7 @@ class pluginProw:
             help="Job name as available in ci-operator/jobs/...",
         )
         group.add_argument(
-            "--prow-test-name",
+            "--prow-run-name",
             default="load-test-ci-daily-10u-10t",
             help="Test name as configured in ci-operator/config/...",
         )
@@ -95,36 +100,42 @@ class pluginOpenSearch:
             raise Exception(
                 "Matcher field value is needed to work with --opensearch-upload"
             )
-        else:
-            query = {
-                "query": {
-                    "match": {
-                        f"{self.args.matcher_field}": self.args.matcher_field_value
-                    }
-                }
+
+        logging.info("Searching if already present")
+
+        query = {
+            "query": {
+                "match": {f"{self.args.matcher_field}": self.args.matcher_field_value}
             }
-            headers = {"Content-Type": "application/json"}
-            current_doc_in_es = requests.post(
-                f"{self.args.es_host_url}/{self.args.es_index}/_search",
-                headers=headers,
-                json=query,
+        }
+        headers = {"Content-Type": "application/json"}
+
+        current_doc_in_es = requests.post(
+            f"{self.args.es_host_url}/{self.args.es_index}/_search",
+            headers=headers,
+            json=query,
+        )
+        current_doc_in_es.raise_for_status()
+        current_doc_in_es = current_doc_in_es.json()
+
+        if current_doc_in_es["hits"]["total"]["value"] > 0:
+            print(
+                f"Document with {self.args.matcher_field}={self.args.matcher_field_value} already present, skipping upload"
             )
-            current_doc_in_es.raise_for_status()
-            current_doc_in_es = current_doc_in_es.json()
+            return
 
-            if current_doc_in_es["hits"]["total"]["value"] == 0:
-                logging.info("Uploading to ES...")
+        logging.info("Uploading")
 
-                with open(self.args.data_file, "r") as fp:
-                    values = json.load(fp)
+        with open(self.args.data_file, "r") as fp:
+            values = json.load(fp)
 
-                requests.post(
-                    f"{self.args.es_host_url}/{self.args.es_index}/_doc",
-                    headers=headers,
-                    json=values,
-                )
-            else:
-                logging.info("Already in ES, skipping upload")
+        response = requests.post(
+            f"{self.args.es_host_url}/{self.args.es_index}/_doc",
+            headers=headers,
+            json=values,
+        )
+        response.raise_for_status()
+        print(f"Uploaded: {response.content}")
 
     @staticmethod
     def set_args(parser, group_actions):
@@ -174,6 +185,7 @@ class pluginHorreum:
             verify=False,
         )
         response.raise_for_status()
+
         self.token = response.json()["access_token"]
         self.headers = {
             "Content-Type": "application/json",
@@ -186,7 +198,8 @@ class pluginHorreum:
             headers=self.headers,
             verify=False,
         )
-        self.test_id = json.loads(response.text)["id"]
+        response.raise_for_status()
+        self.test_id = response.json()["id"]
 
     def upload(self):
         if self.args.horreum_data_file is None:
@@ -199,38 +212,49 @@ class pluginHorreum:
             raise Exception("Test start is required to work with --horreum-upload")
         elif self.args.test_end is None:
             raise Exception("Test end is required to work with --horreum-upload")
-        else:
-            jsonFile = open(self.args.horreum_data_file, "r")
-            values = json.load(jsonFile)
-            jsonFile.close()
-            test_matcher = values[self.args.test_job_matcher]
-            filter_data = {f"{self.args.test_job_matcher}": f"{test_matcher}"}
-            response = requests.get(
-                f"{self.args.horreum_host}/api/dataset/list/{self.test_id}",
-                headers=self.headers,
-                params={"filter": json.dumps(filter_data)},
-                verify=False,
+
+        self.logger.debug(f"Loading file {self.args.horreum_data_file}")
+        with open(self.args.horreum_data_file, "r") as fd:
+            values = json.load(fd)
+
+        test_matcher = values[self.args.test_job_matcher]
+        self.logger.debug(
+            f"Searching if result with {self.args.test_job_matcher}={test_matcher} is already there"
+        )
+        filter_data = {self.args.test_job_matcher: test_matcher}
+        response = requests.get(
+            f"{self.args.horreum_host}/api/dataset/list/{self.test_id}",
+            headers=self.headers,
+            params={"filter": json.dumps(filter_data)},
+            verify=False,
+        )
+        response.raise_for_status()
+        datasets = response.json().get("datasets", [])
+        if len(datasets) > 0:
+            print(
+                f"Result {self.args.test_job_matcher}={test_matcher} is already there, skipping upload"
             )
-            datasets = response.json().get("datasets", [])
-            if len(datasets) > 0:
-                raise Exception(
-                    f"Test result {self.args.test_job_matcher}={test_matcher} found in Horreum {datasets}, skipping upload"
-                )
-            logging.info("Uploading to Horreum ... ")
-            params = {
-                "test": self.args.test_name_horreum,
-                "start": self.args.test_start,
-                "stop": self.args.test_end,
-                "owner": self.args.test_owner,
-                "access": self.args.test_access,
-            }
-            requests.post(
-                f"{self.args.horreum_host}/api/run/data",
-                params=params,
-                headers=self.headers,
-                data=json.dumps(values),
-                verify=False,
-            )
+            return
+
+        logging.info("Uploading")
+
+        params = {
+            "test": self.args.test_name_horreum,
+            "start": self.args.test_start,
+            "stop": self.args.test_end,
+            "owner": self.args.test_owner,
+            "access": self.args.test_access,
+        }
+        response = requests.post(
+            f"{self.args.horreum_host}/api/run/data",
+            params=params,
+            headers=self.headers,
+            data=json.dumps(values),
+            verify=False,
+        )
+        response.raise_for_status()
+
+        print(f"Uploaded {self.args.horreum_data_file}: {response.content}")
 
     def result(self):
         if self.args.horreum_data_file is None:
@@ -241,49 +265,58 @@ class pluginHorreum:
             raise Exception("Test start is required to work with --horreum-result")
         elif self.args.test_end is None:
             raise Exception("Test end is required to work with --horreum-result")
-        else:
-            values = requests.get(
-                f"{self.args.horreum_host}/api/alerting/variables",
-                params={"test": self.test_id},
+
+        sd = status_data.StatusData(self.args.horreum_data_file)
+        if sd.get("result") is not None:
+            print(
+                f"Result field already there in {self.args.horreum_data_file}, skipping changes detection"
+            )
+            return
+
+        self.logger.debug(f"Loading list of alerting variables for test {self.test_id}")
+        response = requests.get(
+            f"{self.args.horreum_host}/api/alerting/variables",
+            params={"test": self.test_id},
+            verify=False,
+        )
+        response.raise_for_status()
+        alerting_variables = response.json()
+
+        change_detected = False
+        for alerting_variable in alerting_variables:
+            self.logger.debug(
+                f"Getting changes for alerting variable {alerting_variable}"
+            )
+
+            range_data = {
+                "range": {
+                    "from": self.args.test_start,
+                    "to": self.args.test_end,
+                    "oneBeforeAndAfter": True,
+                },
+                "annotation": {"query": alerting_variable["id"]},
+            }
+            response = requests.post(
+                f"{self.args.horreum_host}/api/changes/annotations",
+                headers=self.headers,
+                json=range_data,
                 verify=False,
             )
-            id_array = values.json()
-            is_fail = 0
-            for i in id_array:
-                id_value = i["id"]
-                jsonFile = open(self.args.horreum_data_file, "r")
-                values = json.load(jsonFile)
-                jsonFile.close()
-                range_data = {
-                    "range": {
-                        "from": self.args.test_start,
-                        "to": self.args.test_end,
-                        "oneBeforeAndAfter": True,
-                    },
-                    "annotation": {"query": id_value},
-                }
+            response.raise_for_status()
+            response = response.json()
 
-                # Send a POST request to the API and retrieve the result using curl and jq
-                self.logger.debug("Getting changes")
-                result = requests.post(
-                    f"{self.args.horreum_host}/api/changes/annotations",
-                    headers=self.headers,
-                    json=range_data,
-                    verify=False,
-                )
-                result.raise_for_status()
-                result = result.json()
+            # Check if the result is not an empty list
+            if len(response) > 0:
+                self.logger.debug(f"Detected change {response}")
+                change_detected = True
+                break
 
-                # Check if the result is not an empty list
-                if result != []:
-                    is_fail = 1
-                    break
-
-            data = status_data.StatusData(self.args.horreum_data_file)
-            if is_fail == 1:
-                status_data.doit_set(data, ["result=FAIL"])
-            else:
-                status_data.doit_set(data, ["result=PASS"])
+        print(f"Writing result to {self.args.horreum_data_file}: {change_detected}")
+        if change_detected:
+            sd.set("result", "FAIL")
+        else:
+            sd.set("result", "PASS")
+        sd.save()
 
     @staticmethod
     def set_args(parser, group_actions):
@@ -349,59 +382,63 @@ class pluginResultsDashboard:
             raise Exception(
                 "Test Name is mandatory to work with --results-dashboard-upload"
             )
-        else:
-            jsonFile = open(self.args.status_data, "r")
-            values = json.load(jsonFile)
-            jsonFile.close()
-            try:
-                date = values["timestamp"]
-                link = values["jobLink"]
-                result = values["result"]
-                result_id = values["metadata"]["env"]["BUILD_ID"]
-            except KeyError as e:
-                self.logger.warning(
-                    f"Something missing in {self.args.status_data}, skipping upload: {e}"
-                )
-                return
-            json_data = json.dumps(
-                {
-                    "query": {
-                        "bool": {
-                            "filter": [{"term": {"result_id.keyword": f"{result_id}"}}]
-                        }
+
+        self.logger.debug(f"Loading data from {self.args.status_data}")
+        with open(self.args.status_data, "r") as fd:
+            values = json.load(fd)
+        date = values["timestamp"]
+        link = values["jobLink"]
+        result = values["result"]
+        result_id = values["metadata"]["env"]["BUILD_ID"]
+
+        self.logger.debug(
+            f"Checking if result with result_id={result_id} is already there"
+        )
+        json_data = json.dumps(
+            {
+                "query": {
+                    "bool": {
+                        "filter": [{"term": {"result_id.keyword": f"{result_id}"}}]
                     }
                 }
+            }
+        )
+        headers = {"Content-Type": "application/json"}
+        current_doc_in_es = requests.get(
+            f"{self.args.es_host_url}/{self.args.dashboard_es_index}/_search",
+            headers=headers,
+            data=json_data,
+        )
+        current_doc_in_es.raise_for_status()
+        current_doc_in_es = current_doc_in_es.json()
+
+        if current_doc_in_es["hits"]["total"]["value"] > 0:
+            print(
+                f"Result result_id={result_id} already in Results Dashboard, skipping upload"
             )
-            headers = {"Content-Type": "application/json"}
-            current_doc_in_es = requests.get(
-                f"{self.args.es_host_url}/{self.args.dashboard_es_index}/_search",
-                headers=headers,
-                data=json_data,
-            )
-            current_doc_in_es.raise_for_status()
-            current_doc_in_es = current_doc_in_es.json()
-            if current_doc_in_es["hits"]["total"]["value"] == 0:
-                logging.info("Uploading to results dashboard")
-                upload_data = json.dumps(
-                    {
-                        "date": date,
-                        "group": self.args.group_name,
-                        "link": link,
-                        "product": self.args.product_name,
-                        "release": self.args.release,
-                        "result": result,
-                        "result_id": result_id,
-                        "test": self.args.test_name,
-                        "version": self.args.version,
-                    }
-                )
-                requests.post(
-                    f"{self.args.es_host_url}/{self.args.dashboard_es_index}/_doc",
-                    headers=headers,
-                    data=upload_data,
-                )
-            else:
-                logging.info("Already in Results Dashboard ES, skipping upload")
+            return
+
+        logging.info("Uploading result to Results Dashboard")
+
+        upload_data = {
+            "date": date,
+            "group": self.args.group_name,
+            "link": link,
+            "product": self.args.product_name,
+            "release": self.args.release,
+            "result": result,
+            "result_id": result_id,
+            "test": self.args.test_name,
+            "version": self.args.version,
+        }
+        response = requests.post(
+            f"{self.args.es_host_url}/{self.args.dashboard_es_index}/_doc",
+            headers=headers,
+            json=upload_data,
+        )
+        response.raise_for_status()
+
+        print(f"Uploaded: {response.content}")
 
     @staticmethod
     def set_args(parser, group_actions):
