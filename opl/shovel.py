@@ -212,6 +212,8 @@ class pluginHorreum:
             raise Exception("Test start is required to work with --horreum-upload")
         elif self.args.test_end is None:
             raise Exception("Test end is required to work with --horreum-upload")
+        elif self.args.test_job_matcher_label is None:
+            raise Exception("Test job matcher Horreum label name is required to work with --horreum-upload")
 
         self.logger.debug(f"Loading file {self.args.horreum_data_file}")
         with open(self.args.horreum_data_file, "r") as fd:
@@ -219,9 +221,9 @@ class pluginHorreum:
 
         test_matcher = values[self.args.test_job_matcher]
         self.logger.debug(
-            f"Searching if result with {self.args.test_job_matcher}={test_matcher} is already there"
+            f"Searching if result with {self.args.test_job_matcher_label}={test_matcher} is already there"
         )
-        filter_data = {self.args.test_job_matcher: test_matcher}
+        filter_data = {self.args.test_job_matcher_label: test_matcher}
         response = requests.get(
             f"{self.args.horreum_host}/api/dataset/list/{self.test_id}",
             headers=self.headers,
@@ -232,7 +234,7 @@ class pluginHorreum:
         datasets = response.json().get("datasets", [])
         if len(datasets) > 0:
             print(
-                f"Result {self.args.test_job_matcher}={test_matcher} is already there, skipping upload"
+                f"Result {self.args.test_job_matcher_label}={test_matcher} is already there, skipping upload"
             )
             return
 
@@ -349,7 +351,8 @@ class pluginHorreum:
         group.add_argument(
             "--test-name-horreum", default="load-tests-result", help="Test Name"
         )
-        group.add_argument("--test-job-matcher", default="jobName")
+        group.add_argument("--test-job-matcher", default="jobName", help="Field name in JSON with unique enough value we use to detect if document is already in Horreum")
+        group.add_argument("--test-job-matcher-label", help="Label name in Horreum with unique enough value we use to detect if document is already in Horreum")
         group.add_argument("--test-owner", default="rhtap-perf-test-team")
         group.add_argument("--test-access", default="PUBLIC")
         group.add_argument("--test-start", help="time when the test started")
