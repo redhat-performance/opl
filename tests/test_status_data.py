@@ -3,7 +3,9 @@
 import datetime
 import os
 import unittest
+import json
 import tempfile
+import time
 
 import requests.exceptions
 
@@ -258,3 +260,81 @@ class TestStatusData(unittest.TestCase):
         data = self.status_data.dump()
         sd_new = opl.status_data.StatusData("/tmp/aaa.json", data=data)
         self.assertEqual(sd_new.get("comments")[0], comment)
+
+    def test_save(self):
+        tmp = tempfile.mktemp()
+        with open(tmp, "w") as fp:
+            fp.write('{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}')
+        sd = opl.status_data.StatusData(tmp)
+        self.assertEqual(sd.get("name"), "test")
+        self.assertEqual(sd.get("started"), "2024-01-31T12:19:42,794470088+00:00")
+        self.assertEqual(sd.get("results.number"), 42)
+        self.assertEqual(sd.get("results.number_new"), None)
+        sd.set("results.number_new", -3.14)
+        sd.save()
+        sd_new = opl.status_data.StatusData(tmp)
+        self.assertEqual(sd_new.get("name"), "test")
+        self.assertEqual(sd_new.get("started"), "2024-01-31T12:19:42,794470088+00:00")
+        self.assertEqual(sd_new.get("results.number"), 42)
+        self.assertEqual(sd_new.get("results.number_new"), -3.14)
+
+    def test_load(self):
+        tmp = tempfile.mktemp()
+        with open(tmp, "w") as fp:
+            fp.write('{"name":"test","results":{"number":42}}')
+        sd = opl.status_data.StatusData(tmp)
+        with open(tmp, "w") as fp:
+            fp.write('{"name":"test","results":{"number":42,"number_new":-3.14}}')
+        self.assertEqual(sd.get("name"), "test")
+        self.assertEqual(sd.get("results.number"), 42)
+        self.assertEqual(sd.get("results.number_new"), None)
+        sd.load()
+        self.assertEqual(sd.get("name"), "test")
+        self.assertEqual(sd.get("results.number"), 42)
+        self.assertEqual(sd.get("results.number_new"), -3.14)
+
+    def test_override(self):
+        tmp = tempfile.mktemp()
+        with open(tmp, "w") as fp:
+            fp.write('{"name":"test","results":{"number":42}}')
+        sd = opl.status_data.StatusData(tmp)
+        sd.set("results.number_new", -3.14)
+
+        time.sleep(0.001)   # workaround, see https://stackoverflow.com/a/77913929/2229885
+        with open(tmp, "w") as fp:
+            fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')   # file on the disk changed
+
+        with self.assertRaises(Exception) as context:
+            sd.save()   # file changed since last load so this will raise exception
+
+        tmp_new = str(context.exception).split(" ")[-1]   # exception message contains emergency file with current object data
+        with open(tmp_new, "r") as fd:
+            tmp_new_data = json.load(fd)
+            self.assertEqual(tmp_new_data["results"]["number_new"], -3.14)   # changes made before emergency save are there
+        self.assertEqual(sd.get("results.number_new"), -3.14)
+
+        sd.load()   # load changed file, drop changes in the object
+
+        self.assertEqual(sd.get("results.number_new"), None)   # changes made to old object are lost
+        self.assertEqual(sd.get("results.foo"), "bar")   # this was loaded from modified file
+
+        sd.save()   # save should work now as file did not changed since last load
+
+    def test_force_save(self):
+        tmp = tempfile.mktemp()
+        with open(tmp, "w") as fp:
+            fp.write('{"name":"test","results":{"number":42}}')
+        sd = opl.status_data.StatusData(tmp)
+        sd.set("results.number_new", -3.14)
+
+        time.sleep(0.001)   # workaround, see https://stackoverflow.com/a/77913929/2229885
+        with open(tmp, "w") as fp:
+            fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')   # file on the disk changed
+
+        with self.assertRaises(Exception) as context:
+            sd.save()   # file changed since last load so this will raise exception
+        sd.save(tmp)   # providing a path means forcing save
+
+        sd_new = opl.status_data.StatusData(tmp)
+        self.assertEqual(sd.get("results.number_new"), -3.14)
+        self.assertEqual(sd.get("results.foo"), None)
