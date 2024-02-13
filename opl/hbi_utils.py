@@ -199,12 +199,16 @@ def gen_send_verify(args, status_data):
                 sasl_mechanism="SCRAM-SHA-512",
                 sasl_plain_username=args.kafka_username,
                 sasl_plain_password=args.kafka_password,
+                request_timeout_ms=args.kafka_request_timeout_ms,
+                retries=args.kafka_retries,
             )
         else:
             logging.info(f"Creating passwordless producer to {args.kafka_host}")
             producer = kafka.KafkaProducer(
                 bootstrap_servers=kafka_host,
                 api_version=(0, 10),
+                request_timeout_ms=args.kafka_request_timeout_ms,
+                retries=args.kafka_retries,
             )
 
         status_data.set("parameters.kafka.bootstrap", kafka_host)
