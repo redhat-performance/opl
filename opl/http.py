@@ -8,6 +8,12 @@ import urllib3
 session = requests.Session()
 
 
+def insecure():
+    session.verify = False
+    logging.debug("Disabling SSL verifications for this session")
+    disable_insecure_request_warnings(True)
+
+
 def disable_insecure_request_warnings(disable_it):
     if disable_it:
         logging.debug("Disabling insecure request warnings")

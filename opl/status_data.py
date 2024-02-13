@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import os
+import os.path
 import pprint
 import tempfile
 
@@ -24,6 +25,7 @@ from . import skelet
 
 class StatusData:
     def __init__(self, filename, data=None):
+        self.filename = filename
         if filename.startswith("http://") or filename.startswith("https://"):
             tmp = tempfile.mktemp()
             logging.info(
@@ -35,20 +37,25 @@ class StatusData:
             filename = tmp
 
         self._filename = filename
+        self._filename_mtime = None
         if data is None:
-            try:
-                with open(self._filename, "r") as fp:
-                    self._data = json.load(fp)
-                logging.debug(f"Loaded status data from {self._filename}")
-            except FileNotFoundError:
-                self.clear()
-                logging.info(f"Opening empty status data file {self._filename}")
+            self.load()
         else:
             self._data = data
             assert "name" in data
             assert "started" in data
             assert "ended" in data
             assert "result" in data
+
+    def load(self):
+        try:
+            self._filename_mtime = os.path.getmtime(self._filename)
+            with open(self._filename, "r") as fp:
+                self._data = json.load(fp)
+            logging.debug(f"Loaded status data from {self._filename}")
+        except FileNotFoundError:
+            self.clear()
+            logging.info(f"Opening empty status data file {self._filename}")
 
     def __getitem__(self, key):
         logging.debug(f"Getting item {key} from {self._filename}")
@@ -245,11 +252,30 @@ class StatusData:
         return self._data
 
     def save(self, filename=None):
-        if filename is not None:
+        """Save this status data document.
+
+        It makes sure that on disk file was not modified since we loaded it,
+        but if you provide a filename, this check is skipped.
+        """
+        if filename is None:
+            if self._filename_mtime is not None:
+                current_mtime = os.path.getmtime(self._filename)
+                if self._filename_mtime != current_mtime:
+                    tmp = tempfile.mktemp()
+                    self._save(tmp)
+                    raise Exception(f"Status data file {self._filename} was modified since we loaded it so I do not want to overwrite it. Instead, saved to {tmp}")
+        else:
             self._filename = filename
-        with open(self._filename, "w+") as fp:
+
+        self._save(self._filename)
+
+    def _save(self, filename):
+        """Just save status data document to JSON file on disk"""
+        with open(filename, "w+") as fp:
             json.dump(self.dump(), fp, sort_keys=True, indent=4)
-            logging.debug(f"Saved status data to {self._filename}")
+        if filename == self._filename:
+            self._filename_mtime = os.path.getmtime(filename)
+        logging.debug(f"Saved status data to {filename}")
 
 
 def get_now_str():
