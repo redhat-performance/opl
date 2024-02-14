@@ -7,12 +7,11 @@ import os
 import threading
 import time
 
-from kafka import KafkaProducer
-
 import opl.args
 import opl.data
 import opl.db
 import opl.skelet
+import opl.kafka_init as kafka_init
 
 import psycopg2
 import psycopg2.extras
@@ -276,36 +275,7 @@ def post_kafka_times(config):
         args_copy["tables_definition"] = args_copy["tables_definition"].name
         status_data.set("parameters.produce_messages", args_copy)
 
-        # Sanitize acks setting
-        if args.kafka_acks != "all":
-            args.kafka_acks = int(args.kafka_acks)
-
-        kafka_host = f"{args.kafka_host}:{args.kafka_port}"
-        # Common parameters for both cases
-        common_params = {
-            "bootstrap_servers": kafka_host,
-            "acks": args.kafka_acks,
-            "retries": args.kafka_retries,
-            "batch_size": args.kafka_batch_size,
-            "buffer_memory": args.kafka_buffer_memory,
-            "linger_ms": args.kafka_linger_ms,
-            "max_block_ms": args.kafka_max_block_ms,
-            "request_timeout_ms": args.kafka_request_timeout_ms,
-            "compression_type": args.kafka_compression_type,
-        }
-
-        if args.kafka_username != "" and args.kafka_password != "":
-            logging.info(f"Creating SASL password-protected producer to {kafka_host}")
-            sasl_params = {
-                "security_protocol": "SASL_SSL",
-                "sasl_mechanism": "SCRAM-SHA-512",
-                "sasl_plain_username": args.kafka_username,
-                "sasl_plain_password": args.kafka_password,
-            }
-            produce_here = KafkaProducer(**common_params, **sasl_params)
-        else:
-            logging.info(f"Creating passwordless producer to {kafka_host}")
-            produce_here = KafkaProducer(**common_params)
+        produce_here = kafka_init.get_producer(args)
 
         logging.info(f"Loading queries definition from {args.tables_definition}")
         queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)[

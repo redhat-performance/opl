@@ -10,6 +10,7 @@ import opl.args
 import opl.db
 import opl.generators.inventory_ingress
 import opl.skelet
+import opl.kafka_init as kafka_init
 
 import psycopg2
 
@@ -183,35 +184,13 @@ def gen_send_verify(args, status_data):
             inventory
         )  # fetch existing records count
 
-    kafka_host = f"{args.kafka_host}:{args.kafka_port}"
-    logging.info(f"Creating producer to {kafka_host}")
-    if args.dry_run:
-        producer = None
-    else:
-        if args.kafka_username != "" and args.kafka_password != "":
-            logging.info(
-                f"Creating SASL password-protected producer to {args.kafka_host}"
-            )
-            producer = kafka.KafkaProducer(
-                bootstrap_servers=kafka_host,
-                # api_version=(0, 10),
-                security_protocol="SASL_SSL",
-                sasl_mechanism="SCRAM-SHA-512",
-                sasl_plain_username=args.kafka_username,
-                sasl_plain_password=args.kafka_password,
-                request_timeout_ms=args.kafka_request_timeout_ms,
-                retries=args.kafka_retries,
-            )
-        else:
-            logging.info(f"Creating passwordless producer to {args.kafka_host}")
-            producer = kafka.KafkaProducer(
-                bootstrap_servers=kafka_host,
-                api_version=(0, 10),
-                request_timeout_ms=args.kafka_request_timeout_ms,
-                retries=args.kafka_retries,
-            )
+    logging.info(f"Creating producer to {args.kafka_host}")
 
-        status_data.set("parameters.kafka.bootstrap", kafka_host)
+    # With MSK, a few % of connections usually drop with BrokerNotAvailable error so we need to retry here.
+    # This oneliner below overrides args.py's default of 0 retries to 3.
+    args.kafka_retries = 3 if args.kafka_retries == 0 else args.kafka_retries
+
+    producer = kafka_init.get_producer(args)
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
