@@ -15,7 +15,7 @@ def kafka_bootstrap(args):
         return f"{args.kafka_host}:{args.kafka_port}"
 
 
-# From args, obtain
+# Based on the args, obtain KafkaProducer instance
 def get_producer(args, status_data=None):
     bootstrap_servers = kafka_bootstrap(args)
 
@@ -63,6 +63,8 @@ def get_producer(args, status_data=None):
         return producer
 
 
+# Based on the args, obtain KafkaConsumer instance.
+# If args.kafka_topic is supplied, subscribe to the topic.
 def get_consumer(args, status_data=None):
     bootstrap_servers = kafka_bootstrap(args)
 
