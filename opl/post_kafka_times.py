@@ -134,7 +134,6 @@ class PostKafkaTimes:
         self.config = config
         self.produce_here = produce_here
         self.save_here = save_here
-        self.kafka_topic = args.kafka_topic
         self.show_processed_messages = args.show_processed_messages
         self.rate = args.rate
 
@@ -196,7 +195,7 @@ class PostKafkaTimes:
             if self.show_processed_messages:
                 print(f"Producing {json.dumps(send_params, sort_keys=True)}")
 
-            future = self.produce_here.send(self.kafka_topic, **send_params)
+            future = self.produce_here.send(self.args.kafka_topic, **send_params)
             future.add_callback(handle_send_success, message_id=message_id)
             future.add_errback(handle_send_error, message_id=message_id)
 
