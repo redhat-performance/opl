@@ -90,12 +90,12 @@ def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-host",
         default=os.getenv("KAFKA_HOST", "localhost"),
-        help="Kafka host (also use env variable KAFKA_HOST)",
+        help="Kafka host (also use env variable KAFKA_HOST). Can get overriden by --kafka-hosts arg or KAFKA_HOSTS envvar.",
     )
     parser.add_argument(
         "--kafka-hosts",
         default=os.getenv("KAFKA_HOSTS", ""),
-        help="Comma-separated list of hosts, including their ports (also use env variable KAFKA_HOSTS)",
+        help="Comma-separated list of hosts, including their ports (also use env variable KAFKA_HOSTS). Takes precedence over --kafka-host and --kafka-port or their envvar variants.",
     )
     parser.add_argument(
         "--kafka-port",
