@@ -14,6 +14,7 @@ class TestSkelet(unittest.TestCase):
         self.assertEqual(stats["mean"], 1)
         self.assertEqual(stats["max"], 2)
         self.assertEqual(stats["range"], 2)
+        self.assertEqual(stats["change"], 0)
         self.assertEqual(stats["percentile25"], 0.75)
         self.assertEqual(stats["percentile75"], 1.25)
         self.assertEqual(stats["iqr"], 0.5)
@@ -46,6 +47,7 @@ class TestSkelet(unittest.TestCase):
             datetime.datetime.fromisoformat("2021-03-22T11:00:00.000000+00:00"),
         )
         self.assertEqual(stats["range"].total_seconds(), 3600)
+        self.assertEqual(stats["change"].total_seconds(), -3600)
 
     def test_data_stats_strange(self):
         data = [
@@ -99,3 +101,11 @@ class TestSkelet(unittest.TestCase):
         rps_vals = opl.data.get_rps([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         self.assertEqual(len(rps_vals), 5)
         self.assertEqual(sum(rps_vals) / len(rps_vals), 1.0)
+
+    def test_percentile(self):
+        data = [0, 1, 1, 2, 2, 1, 1, 0]
+        perc25 = opl.data.percentile(data, 25)
+        perc75 = opl.data.percentile(data, 75)
+        self.assertEqual(data, [0, 1, 1, 2, 2, 1, 1, 0])   # make sure data is not reordered
+        self.assertEqual(perc25, 0.75)
+        self.assertEqual(perc75, 1.25)

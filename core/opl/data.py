@@ -142,7 +142,7 @@ def percentile(data, percent):
     if not data:
         return None
 
-    data.sort()
+    data = sorted(data)
     k = (len(data) - 1) * percent / 100
     # Python 2.x returns float for floor an ceil, so cast to int
     f = int(math.floor(k))
@@ -226,6 +226,7 @@ def data_stats(data):
             else 0.0,
             "stdev": statistics.stdev(data) if len(data) > 1 else 0.0,
             "range": max(data) - min(data),
+            "change": data[-1] - data[0],
             "percentile25": q25,
             "percentile75": q75,
             "percentile90": q90,
@@ -240,6 +241,7 @@ def data_stats(data):
             "max": max(data),
             "mean": (max(data) - min(data)) / len(data),
             "range": max(data) - min(data),
+            "change": data[-1] - data[0],
         }
     else:
         raise Exception(f"Do not know how to get stats for list of {type(data[0])}")
