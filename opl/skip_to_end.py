@@ -42,7 +42,7 @@ def doit_seek_to_end(args):
 
 
 def doit(args, status_data):
-    doit_seek_to_end(args, status_data)
+    doit_seek_to_end(args)
 
     status_data.set("parameters.kafka.seek_topic", args.kafka_topic)
     status_data.set("parameters.kafka.seek_timeout", args.kafka_timeout)
