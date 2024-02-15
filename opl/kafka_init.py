@@ -1,4 +1,4 @@
-import kafka
+from kafka import KafkaProducer, KafkaConsumer
 
 # from . import status_data
 import logging
@@ -7,12 +7,14 @@ import logging
 
 
 def kafka_bootstrap(args):
-    if args.kafka_bootstrap:
+    try:
         return args.kafka_bootstrap
-    if args.kafka_hosts != None and args.kafka_hosts != "":
-        return args.kafka_hosts.split(",")
-    else:
-        return f"{args.kafka_host}:{args.kafka_port}"
+    except AttributeError:
+        try:
+            if args.kafka_hosts != "":
+                return args.kafka_hosts.split(",")
+        except AttributeError:
+            return f"{args.kafka_host}:{args.kafka_port}"
 
 
 # Based on the args, obtain KafkaProducer instance
@@ -23,7 +25,7 @@ def get_producer(args, status_data=None):
     if args.kafka_acks != "all":
         args.kafka_acks = int(args.kafka_acks)
 
-    if args.dry_run:
+    if hasattr(args, "dry_run") and args.dry_run:
         logging.info(f"NOT creating a producer as this is a dry run")
         producer = None
     else:
