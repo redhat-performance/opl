@@ -4,6 +4,7 @@ import logging
 
 # Common instantiators for KafkaProducer and KafkaConsumer
 
+
 def kafka_bootstrap(args):
     try:
         return args.kafka_bootstrap
