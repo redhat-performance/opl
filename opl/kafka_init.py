@@ -3,7 +3,7 @@ from kafka import KafkaProducer, KafkaConsumer
 # from . import status_data
 import logging
 
-### Common instantiators for KafkaProducer and KafkaConsumer
+## Common instantiators for KafkaProducer and KafkaConsumer
 
 
 def kafka_bootstrap(args):
@@ -27,7 +27,7 @@ def get_producer(args, status_data=None):
         args.kafka_acks = int(args.kafka_acks)
 
     if hasattr(args, "dry_run") and args.dry_run:
-        logging.info(f"NOT creating a producer as this is a dry run")
+        logging.info("NOT creating a producer as this is a dry run")
         producer = None
     else:
         common_params = {
@@ -57,7 +57,7 @@ def get_producer(args, status_data=None):
             logging.info(f"Creating passwordless producer to {bootstrap_servers}")
             producer = KafkaProducer(**common_params)
 
-        if status_data != None:
+        if status_data is not None:
             status_data.set("parameters.kafka.bootstrap", bootstrap_servers)
             status_data.set("parameters.kafka.group", args.kafka_group)
             status_data.set("parameters.kafka.topic", args.kafka_topic)
@@ -102,7 +102,7 @@ def get_consumer(args, status_data=None):
         )
         consumer = KafkaConsumer(**common_params)
 
-    if status_data != None:
+    if status_data is not None:
         status_data.set("parameters.kafka.bootstrap", bootstrap_servers)
         status_data.set("parameters.kafka.group", args.kafka_group)
         status_data.set("parameters.kafka.topic", args.kafka_topic or "")

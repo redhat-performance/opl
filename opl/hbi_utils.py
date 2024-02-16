@@ -4,8 +4,6 @@ import logging
 import threading
 import time
 
-import kafka
-
 import opl.args
 import opl.db
 import opl.generators.inventory_ingress
