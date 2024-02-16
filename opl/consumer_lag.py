@@ -13,7 +13,7 @@ class ConsumerLag:
     bootstrap_server and kafka group as input.
     """
 
-    def __init__(args, kafka_topic) -> None:
+    def __init__(self, args, kafka_topic) -> None:
         self.args = args
         self.args.kafka_topic = kafka_topic
         self.logger = logging.getLogger("consumer_lag")
