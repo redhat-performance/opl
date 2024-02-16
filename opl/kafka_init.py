@@ -72,7 +72,7 @@ def get_consumer(args, status_data=None):
 
     # Common parameters for both cases
     common_params = {
-        "bootstrap_servers": args.bootstrap_servers,
+        "bootstrap_servers": bootstrap_servers,
         "auto_offset_reset": args.auto_offset_reset or "latest",
         "enable_auto_commit": args.enable_auto_commit or False,
         "max_poll_records": args.max_poll_records or 50,
