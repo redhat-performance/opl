@@ -30,6 +30,7 @@ class GetKafkaTimes:
 
         self.status_data = status_data
         self.args = args
+        self.args.kafka_max_poll_records = 100
 
         self.queries_definition = yaml.load(
             args.tables_definition, Loader=yaml.SafeLoader
@@ -134,7 +135,7 @@ class GetKafkaTimes:
             while True:
                 msg_pack = consumer.poll(
                     timeout_ms=5000,
-                    max_records=self.kafka_max_poll_records,
+                    max_records=self.args.kafka_max_poll_records,
                     update_offsets=True,
                 )
                 for topic, messages in msg_pack.items():
