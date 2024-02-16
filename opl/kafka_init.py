@@ -14,7 +14,8 @@ def kafka_bootstrap(args):
             if args.kafka_hosts != "":
                 return args.kafka_hosts.split(",")
         except AttributeError:
-            return f"{args.kafka_host}:{args.kafka_port}"
+            pass
+    return f"{args.kafka_host}:{args.kafka_port}"
 
 
 # Based on the args, obtain KafkaProducer instance
