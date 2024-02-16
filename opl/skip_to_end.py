@@ -20,7 +20,7 @@ def doit_seek_to_end(args):
     on multiple pods.
     """
 
-    args.enable_auto_commit = True
+    args.kafka_enable_auto_commit = True
     consumer = kafka_init.get_consumer(args)
 
     # Seek to end

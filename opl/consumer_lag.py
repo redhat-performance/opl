@@ -20,10 +20,10 @@ class ConsumerLag:
         self.offset_records = {}
 
     def _getconsumer(self):
-        self.args.max_poll_records = 50
-        self.args.max_poll_interval_ms = 300000
-        self.args.session_timeout_ms = 50000
-        self.args.heartbeat_interval_ms = 10000
+        self.args.kafka_max_poll_records = 50
+        self.args.kafka_max_poll_interval_ms = 300000
+        self.args.kafka_session_timeout_ms = 50000
+        self.args.kafka_heartbeat_interval_ms = 10000
         self.args.kafka_timeout = 100000
 
         return kafka_init.get_consumer(self.args)

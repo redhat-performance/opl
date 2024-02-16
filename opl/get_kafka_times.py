@@ -74,8 +74,8 @@ class GetKafkaTimes:
         )
 
     def create_consumer(self):
-        self.args.auto_offset_reset = "earliest"
-        self.args.enable_auto_commit = True
+        self.args.kafka_auto_offset_reset = "earliest"
+        self.args.kafka_enable_auto_commit = True
         return kafka_init.get_consumer(self.args, self.status_data)
 
     def store_now(self):

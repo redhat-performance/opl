@@ -74,13 +74,13 @@ def get_consumer(args, status_data=None):
     # Common parameters for both cases
     common_params = {
         "bootstrap_servers": bootstrap_servers,
-        "auto_offset_reset": args.auto_offset_reset or "latest",
-        "enable_auto_commit": args.enable_auto_commit or False,
-        "max_poll_records": args.max_poll_records or 50,
-        "max_poll_interval_ms": args.max_poll_interval_ms or 300000,
+        "auto_offset_reset": args.kafka_auto_offset_reset or "latest",
+        "enable_auto_commit": args.kafka_enable_auto_commit or False,
+        "max_poll_records": args.kafka_max_poll_records or 50,
+        "max_poll_interval_ms": args.kafka_max_poll_interval_ms or 300000,
         "group_id": args.kafka_group,
-        "session_timeout_ms": args.session_timeout_ms or 50000,
-        "heartbeat_interval_ms": args.heartbeat_interval_ms or 10000,
+        "session_timeout_ms": args.kafka_session_timeout_ms or 50000,
+        "heartbeat_interval_ms": args.kafka_heartbeat_interval_ms or 10000,
         "consumer_timeout_ms": args.kafka_timeout or 100000,
     }
 
