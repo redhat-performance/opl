@@ -86,7 +86,7 @@ def get_consumer(args, status_data=None):
     # Kafka consumer creation: SASL or noauth
     if args.kafka_username != "" and args.kafka_password != "":
         logging.info(
-            f"Creating SASL password-protected Kafka consumer for {bootstrap_servers} in group {args.kafka_group} with timeout {args.session_timeout_ms or 50000} ms"
+            f"Creating SASL password-protected Kafka consumer for {bootstrap_servers} in group {common_params['group_id']} with timeout {common_params['session_timeout_ms']} ms"
         )
         sasl_params = {
             "security_protocol": "SASL_SSL",
@@ -97,7 +97,7 @@ def get_consumer(args, status_data=None):
         consumer = KafkaConsumer(**common_params, **sasl_params)
     else:
         logging.info(
-            f"Creating passwordless Kafka consumer for {bootstrap_servers} in group {args.kafka_group} with timeout {args.kafka_session_timeout_ms} ms"
+            f"Creating passwordless Kafka consumer for {bootstrap_servers} in group {common_params['group_id']} with timeout {common_params['session_timeout_ms']} ms"
         )
         consumer = KafkaConsumer(**common_params)
 
