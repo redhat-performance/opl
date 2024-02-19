@@ -31,14 +31,14 @@ def get_producer(args, status_data=None):
     else:
         common_params = {
             "bootstrap_servers": bootstrap_servers,
-            "acks": args.kafka_acks,
-            "request_timeout_ms": args.kafka_request_timeout_ms or 30000,
-            "max_block_ms": args.kafka_max_block_ms or 60000,
-            "linger_ms": args.kafka_linger_ms or 0,
-            "compression_type": args.kafka_compression_type or None,
-            "batch_size": args.kafka_batch_size or 16384,
-            "buffer_memory": args.kafka_buffer_memory or 33554432,
-            "retries": args.kafka_retries or 0,
+            "acks": getattr(args, "kafka_acks", None),
+            "request_timeout_ms": getattr(args, "kafka_request_timeout_ms", 30000),
+            "max_block_ms": getattr(args, "kafka_max_block_ms", 60000),
+            "linger_ms": getattr(args, "kafka_linger_ms", 0),
+            "compression_type": getattr(args, "kafka_compression_type", None),
+            "batch_size": getattr(args, "kafka_batch_size", 16384),
+            "buffer_memory": getattr(args, "kafka_buffer_memory", 33554432),
+            "retries": getattr(args, "kafka_retries", 0),
         }
 
         if args.kafka_username != "" and args.kafka_password != "":
@@ -73,14 +73,14 @@ def get_consumer(args, status_data=None):
     # Common parameters for both cases
     common_params = {
         "bootstrap_servers": bootstrap_servers,
-        "auto_offset_reset": args.kafka_auto_offset_reset or "latest",
-        "enable_auto_commit": args.kafka_enable_auto_commit or False,
-        "max_poll_records": args.kafka_max_poll_records or 50,
-        "max_poll_interval_ms": args.kafka_max_poll_interval_ms or 300000,
-        "group_id": args.kafka_group,
-        "session_timeout_ms": args.kafka_session_timeout_ms or 50000,
-        "heartbeat_interval_ms": args.kafka_heartbeat_interval_ms or 10000,
-        "consumer_timeout_ms": args.kafka_timeout or 100000,
+        "auto_offset_reset": getattr(args, "kafka_auto_offset_reset", "latest"),
+        "enable_auto_commit": getattr(args, "kafka_enable_auto_commit", False),
+        "max_poll_records": getattr(args, "kafka_max_poll_records", 50),
+        "max_poll_interval_ms": getattr(args, "kafka_max_poll_interval_ms", 300000),
+        "group_id": getattr(args, "kafka_group", None),
+        "session_timeout_ms": getattr(args, "kafka_session_timeout_ms", 50000),
+        "heartbeat_interval_ms": getattr(args, "kafka_heartbeat_interval_ms", 10000),
+        "consumer_timeout_ms": getattr(args, "kafka_timeout", 100000),
     }
 
     # Kafka consumer creation: SASL or noauth
