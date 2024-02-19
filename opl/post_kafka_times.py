@@ -11,7 +11,7 @@ import opl.args
 import opl.data
 import opl.db
 import opl.skelet
-import opl.kafka_init as kafka_init
+from opl.kafka_init import kafka_init
 
 import psycopg2
 import psycopg2.extras

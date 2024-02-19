@@ -5,7 +5,7 @@ import argparse
 import os
 import time
 
-from . import kafka_init
+from .kafka_init import kafka_init
 from . import args
 from . import skelet
 
