@@ -20,6 +20,7 @@ class kafka_init:
         return f"{args.kafka_host}:{args.kafka_port}"
 
     # Based on the args, obtain KafkaProducer instance
+    @staticmethod
     def get_producer(args, status_data=None):
         bootstrap_servers = kafka_init.kafka_bootstrap(args)
 
@@ -68,6 +69,7 @@ class kafka_init:
 
     # Based on the args, obtain KafkaConsumer instance.
     # If args.kafka_topic is supplied, subscribe to the topic.
+    @staticmethod
     def get_consumer(args, status_data=None):
         bootstrap_servers = kafka_init.kafka_bootstrap(args)
 
