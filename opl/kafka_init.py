@@ -7,6 +7,7 @@ import logging
 
 class kafka_init:
 
+    @staticmethod
     def kafka_bootstrap(args):
         try:
             return args.kafka_bootstrap
@@ -20,7 +21,7 @@ class kafka_init:
 
     # Based on the args, obtain KafkaProducer instance
     def get_producer(args, status_data=None):
-        bootstrap_servers = kafka_bootstrap(args)
+        bootstrap_servers = kafka_init.kafka_bootstrap(args)
 
         # Sanitize acks setting
         if args.kafka_acks != "all":
@@ -68,7 +69,7 @@ class kafka_init:
     # Based on the args, obtain KafkaConsumer instance.
     # If args.kafka_topic is supplied, subscribe to the topic.
     def get_consumer(args, status_data=None):
-        bootstrap_servers = kafka_bootstrap(args)
+        bootstrap_servers = kafka_init.kafka_bootstrap(args)
 
         # Common parameters for both cases
         common_params = {
