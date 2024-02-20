@@ -3,8 +3,7 @@
 import logging
 import time
 from kafka import TopicPartition
-
-import opl.kafka_init as kafka_init
+from opl.kafka_init import kafka_init
 
 
 class ConsumerLag:

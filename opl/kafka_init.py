@@ -6,7 +6,6 @@ import logging
 
 
 class kafka_init:
-
     @staticmethod
     def kafka_bootstrap(args):
         try:
