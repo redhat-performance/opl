@@ -22,9 +22,35 @@
 # SOFTWARE.
 
 
+import unittest.mock
 import pytest
 import subprocess
-from unittest.mock import patch, capture_logs
+import os
+import csv
+import logging
+import argparse
+import pd
+import requests
+import boto3
+from collections import namedtuple
+
+# Move import statements to beginning of each file
+
+# BasePlugin
+from ..BasePlugin import BasePlugin
+from ..data import data
+
+# PerformanceInsightsMeasurementPlugin
+from ..aws_client import get_resource_metrics
+
+# Test plugins
+from .ConstantPlugin import ConstantPlugin
+from .EnvironmentPlugin import EnvironmentPlugin
+from .CommandPlugin import CommandPlugin
+from .CopyFromPlugin import CopyFromPlugin
+from .TestFailMePlugin import TestFailMePlugin
+from .config_stuff import config_stuff
+from .RequestedInfo import RequestedInfo
 
 
 def test_execute_success(mocker):
@@ -97,10 +123,6 @@ def test_execute_non_string_command(mocker):
 
 
 
-import pytest
-from unittest.mock import Mock
-
-
 def test_debug_response_with_response():
     # Mock response object with attributes
     response = Mock()
@@ -128,11 +150,6 @@ def test_debug_response_with_response():
     for log_record in logging.getLogger().handlers[0].buffer:
         assert log_record.message in expected_logs
 
-
-
-
-import pytest
-import os
 
 
 def test_dir_path_existing_directory(mocker):
@@ -177,12 +194,6 @@ def test_dir_path_non_string_path():
 
 
 
-import pytest
-import os
-import csv
-from unittest.mock import patch, Mock
-
-
 class TestBasePlugin:
 
     @pytest.fixture
@@ -216,11 +227,6 @@ class TestBasePlugin:
         parser.add_argument.assert_not_called()
 
 
-
-import pytest
-from unittest.mock import patch, Mock
-from ..BasePlugin import BasePlugin
-from ..data import data
 
 # pylint: disable=unused-argument,redefined-outer-name
 
