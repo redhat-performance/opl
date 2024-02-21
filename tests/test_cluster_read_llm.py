@@ -73,7 +73,10 @@ def test_execute_failure_with_stdout(mocker):
     mocker.patch(
         "subprocess.run",
         return_value=subprocess.CompletedProcess(
-            args=["invalid_command"], stdout=b"some error message\n", stderr=b"", returncode=1
+            args=["invalid_command"],
+            stdout=b"some error message\n",
+            stderr=b"",
+            returncode=1,
         ),
     )
     # Capture logging calls
@@ -81,8 +84,7 @@ def test_execute_failure_with_stdout(mocker):
         execute("invalid_command")
     # Assert logging error with expected message
     assert any(
-        record.level == logging.ERROR
-        and "Failed to execute command" in record.message
+        record.level == logging.ERROR and "Failed to execute command" in record.message
         for record in log_records
     )
 
@@ -92,7 +94,10 @@ def test_execute_failure_with_stderr(mocker):
     mocker.patch(
         "subprocess.run",
         return_value=subprocess.CompletedProcess(
-            args=["invalid_command"], stdout=b"", stderr=b"some error message\n", returncode=1
+            args=["invalid_command"],
+            stdout=b"",
+            stderr=b"some error message\n",
+            returncode=1,
         ),
     )
     # Capture logging calls
@@ -100,8 +105,7 @@ def test_execute_failure_with_stderr(mocker):
         execute("invalid_command")
     # Assert logging error with expected message
     assert any(
-        record.level == logging.ERROR
-        and "Failed to execute command" in record.message
+        record.level == logging.ERROR and "Failed to execute command" in record.message
         for record in log_records
     )
 
@@ -120,7 +124,6 @@ def test_execute_non_string_command(mocker):
     # Call the function
     with pytest.raises(TypeError):
         execute(123)
-
 
 
 def test_debug_response_with_response():
@@ -149,7 +152,6 @@ def test_debug_response_with_response():
     # Assert logged messages
     for log_record in logging.getLogger().handlers[0].buffer:
         assert log_record.message in expected_logs
-
 
 
 def test_dir_path_existing_directory(mocker):
@@ -193,7 +195,6 @@ def test_dir_path_non_string_path():
         dir_path(path)
 
 
-
 class TestBasePlugin:
 
     @pytest.fixture
@@ -216,10 +217,9 @@ class TestBasePlugin:
         data = [["1", "2"], ["3", "4"]]
         plugin._dump_raw_data("mydata", data)
         mock_open.assert_called_once_with("/tmp/data/mydata.csv", "w", newline="")
-        mock_csv_writer.assert_has_calls([
-            mock.call(["timestamp", "mydata"]),
-            mock.call.writerows(data)
-        ])
+        mock_csv_writer.assert_has_calls(
+            [mock.call(["timestamp", "mydata"]), mock.call.writerows(data)]
+        )
 
     def test_add_args_does_nothing(self, plugin):
         parser = Mock()
@@ -227,8 +227,8 @@ class TestBasePlugin:
         parser.add_argument.assert_not_called()
 
 
-
 # pylint: disable=unused-argument,redefined-outer-name
+
 
 class TestGrafanaMeasurementsPlugin(BasePlugin):
 
@@ -285,37 +285,71 @@ class TestGrafanaMeasurementsPlugin(BasePlugin):
     def test_add_args(self, plugin):
         parser = Mock()
         plugin.add_args(parser)
-        parser.add_argument.assert_has_calls([
-            mock.call("--grafana-host", default="", help="Grafana server to talk to"),
-            mock.call("--grafana-chunk-size", type=int, default=10,
-                      help="How many metrices to obtain from Grafana at one request"),
-            mock.call("--grafana-port", type=int, default=11202,
-                      help="Port Grafana is listening on"),
-            mock.call("--grafana-prefix", default="satellite62",
-                      help="Prefix for data in Graphite"),
-            mock.call("--grafana-datasource", type=int, default=1,
-                      help="Datasource ID in Grafana"),
-            mock.call("--grafana-token", default=None,
-                      help='Authorization token without the "Bearer: " part'),
-            mock.call("--grafana-node", default="satellite_satperf_local",
-                      help="Monitored host node name in Graphite"),
-            mock.call("--grafana-interface", default="interface-em1",
-                      help="Monitored host network interface name in Graphite"),
-        ])
-
+        parser.add_argument.assert_has_calls(
+            [
+                mock.call(
+                    "--grafana-host", default="", help="Grafana server to talk to"
+                ),
+                mock.call(
+                    "--grafana-chunk-size",
+                    type=int,
+                    default=10,
+                    help="How many metrices to obtain from Grafana at one request",
+                ),
+                mock.call(
+                    "--grafana-port",
+                    type=int,
+                    default=11202,
+                    help="Port Grafana is listening on",
+                ),
+                mock.call(
+                    "--grafana-prefix",
+                    default="satellite62",
+                    help="Prefix for data in Graphite",
+                ),
+                mock.call(
+                    "--grafana-datasource",
+                    type=int,
+                    default=1,
+                    help="Datasource ID in Grafana",
+                ),
+                mock.call(
+                    "--grafana-token",
+                    default=None,
+                    help='Authorization token without the "Bearer: " part',
+                ),
+                mock.call(
+                    "--grafana-node",
+                    default="satellite_satperf_local",
+                    help="Monitored host node name in Graphite",
+                ),
+                mock.call(
+                    "--grafana-interface",
+                    default="interface-em1",
+                    help="Monitored host network interface name in Graphite",
+                ),
+            ]
+        )
 
 
 def test_get_formatted_metric_query(self):
     # Test with simple metric query
     metric_query = "CPUUtilization"
     expected_result = [{"Metric": metric_query}]
-    assert PerformanceInsightsMeasurementPlugin().get_formatted_metric_query(metric_query) == expected_result
+    assert (
+        PerformanceInsightsMeasurementPlugin().get_formatted_metric_query(metric_query)
+        == expected_result
+    )
 
     # Test with multiple metrics
     metric_queries = ["CPUUtilization", "NetworkIn", "NetworkOut"]
     expected_result = [{"Metric": metric} for metric in metric_queries]
-    assert PerformanceInsightsMeasurementPlugin().get_formatted_metric_query(metric_queries) == expected_result
-
+    assert (
+        PerformanceInsightsMeasurementPlugin().get_formatted_metric_query(
+            metric_queries
+        )
+        == expected_result
+    )
 
 
 @patch("boto3.session.Session")
@@ -337,7 +371,9 @@ def test_measure_success(self, mock_get_resource_metrics, mock_session):
     plugin.args.aws_pi_access_key_id = "my_access_key"
     plugin.args.aws_pi_secret_access_key = "my_secret_key"
     plugin.args.aws_pi_region_name = "us-east-1"
-    mock_session.return_value = Mock(client=Mock(return_value=mock_get_resource_metrics()))
+    mock_session.return_value = Mock(
+        client=Mock(return_value=mock_get_resource_metrics())
+    )
 
     # Call the function with mocked data
     requested_info = Mock()
@@ -346,7 +382,9 @@ def test_measure_success(self, mock_get_resource_metrics, mock_session):
     identifier = "instance_id"
     metric_query = "CPUUtilization"
     metric_step = 300
-    result, stats = plugin.measure(requested_info, "cpu_usage", identifier, metric_query, metric_step)
+    result, stats = plugin.measure(
+        requested_info, "cpu_usage", identifier, metric_query, metric_step
+    )
 
     # Assert successful execution and data processing
     assert result == "cpu_usage"
@@ -363,17 +401,21 @@ def test_measure_success(self, mock_get_resource_metrics, mock_session):
     )
     assert len(logging.getLogger().handlers[0].buffer) == 2  # Expected logging messages
 
+
 @patch("boto3.session.Session")
 @patch("aws_client.get_resource_metrics")
 def test_measure_missing_access_keys(self, mock_get_resource_metrics, mock_session):
     # Test with missing access keys
     plugin = PerformanceInsightsMeasurementPlugin()
     plugin.args.aws_pi_region_name = "us-east-1"
-    mock_session.return_value = Mock(client=Mock(return_value=mock_get_resource_metrics()))
+    mock_session.return_value = Mock(
+        client=Mock(return_value=mock_get_resource_metrics())
+    )
 
     # Call the function and expect assertion error
     with pytest.raises(AssertionError):
         plugin.measure(Mock(), "cpu_usage", "instance_id", "CPUUtilization", 300)
+
 
 @patch("boto3.session.Session")
 @patch("aws_client.get_resource_metrics")
@@ -381,7 +423,6 @@ def test_measure_empty_response(self, mock_get_resource_metrics, mock_session):
     # Mock empty response from AWS
     mock_response = {"MetricList": []}
     mock_get_resource_metrics.return_value = mock_
-
 
 
 def test_constant_plugin(self):
@@ -394,7 +435,6 @@ def test_constant_plugin(self):
     assert value == constant
 
 
-
 def test_environment_plugin_existing_variable(self):
     os.environ["TEST_ENV_VAR"] = "my_value"
     plugin = EnvironmentPlugin()
@@ -405,6 +445,7 @@ def test_environment_plugin_existing_variable(self):
     assert result == name
     assert value == "my_value"
 
+
 def test_environment_plugin_missing_variable(self):
     plugin = EnvironmentPlugin()
     ri = Mock()
@@ -413,7 +454,6 @@ def test_environment_plugin_missing_variable(self):
     result, value = plugin.measure(ri, name, env_variable)
     assert result == name
     assert value is None
-
 
 
 @patch("subprocess.run")
@@ -427,17 +467,19 @@ def test_command_plugin_text_output(self, mock_run):
     assert result == name
     assert value == "this is the output"
 
+
 @patch("subprocess.run")
 def test_command_plugin_json_output(self, mock_run):
     mock_run.return_value = Mock(stdout=b'{"key": "value"}')
     plugin = CommandPlugin()
     ri = Mock()
     name = "test_command"
-    command = "echo '{\"key\": \"value\"}'"
+    command = 'echo \'{"key": "value"}\''
     output = "json"
     result, value = plugin.measure(ri, name, command, output=output)
     assert result == name
     assert value == {"key": "value"}
+
 
 # Add similar tests for YAML output and error handling
 
@@ -451,6 +493,7 @@ def test_copy_from_plugin(self):
     result, value = plugin.measure(ri, name, copy_from)
     assert result == name
     assert value == "previous_value"
+
 
 def test_copy_from_plugin_missing_item(self):
     ri = Mock()
@@ -471,17 +514,16 @@ def test_test_fail_me_plugin(self):
         plugin.measure(ri, name)
 
 
-
 def test_config_stuff_string_config(self):
     config = """
     test_var: "{{ env.TEST_VAR }}"
     """
-    with patch.dict("os.environ", {"TEST_VAR": "test_value"}), \
-         patch("yaml.safe_load") as mock_yaml_load:
+    with patch.dict("os.environ", {"TEST_VAR": "test_value"}), patch(
+        "yaml.safe_load"
+    ) as mock_yaml_load:
         config = config_stuff(config)
         assert config["test_var"] == "test_value"
         mock_yaml_load.assert_called_once()
-
 
 
 @patch("os.path.exists")
@@ -494,22 +536,20 @@ def test_config_stuff_file_config(self, mock_exists):
     assert config["test_var"] == "some_value"
 
 
-
 def test_config_stuff_template_rendering(self):
     config = """
     test_var: "{{ 'prefix_' + env.TEST_VAR }}"
     """
-    with patch.dict("os.environ", {"TEST_VAR": "value"}), \
-         patch("yaml.safe_load") as mock_yaml_load:
+    with patch.dict("os.environ", {"TEST_VAR": "value"}), patch(
+        "yaml.safe_load"
+    ) as mock_yaml_load:
         config = config_stuff(config)
         assert config["test_var"] == "prefix_value"
-
 
 
 def test_config_stuff_missing_file(self):
     with pytest.raises(jinja2.exceptions.TemplateNotFound):
         config_stuff("nonexistent_file.yaml")
-
 
 
 def test_init_with_string_config(self):
@@ -523,6 +563,7 @@ def test_init_with_string_config(self):
     assert requested_info.config["test_item"]["name"] == "cpu_usage"
     assert requested_info.measurement_plugins["constant"] is not None
 
+
 def test_init_with_file_config(self):
     with open("test_config.yaml", "w") as f:
         f.write("test_item: ...")
@@ -532,11 +573,11 @@ def test_init_with_file_config(self):
     os.remove("test_config.yaml")  # Cleanup
 
 
-
 def test_register_measurement_plugin(self):
     requested_info = RequestedInfo({})
     requested_info.register_measurement_plugin("test", Mock())
     assert requested_info.measurement_plugins["test"] is not None
+
 
 def test_register_measurement_plugin_failure(self):
     requested_info = RequestedInfo({})
@@ -544,12 +585,10 @@ def test_register_measurement_plugin_failure(self):
         requested_info.register_measurement_plugin("invalid", None)
 
 
-
 def test_get_config(self):
     config = {"test_item": {"name": "cpu_usage"}}
     requested_info = RequestedInfo(config)
     assert requested_info.get_config() == config
-
 
 
 def test_iteration_with_constant_plugin(self):
@@ -563,11 +602,13 @@ def test_iteration_with_constant_plugin(self):
     item = next(requested_info)
     assert item == ("cpu_usage", 50)
 
+
 def test_iteration_with_unknown_plugin(self):
     config = {"test_item": {"name": "cpu_usage", "plugin": "invalid"}}
     requested_info = RequestedInfo(config)
     with pytest.raises(Exception):
         next(requested_info)
+
 
 def test_iteration_with_plugin_failure(self):
     config = """
@@ -577,15 +618,15 @@ def test_iteration_with_plugin_failure(self):
       value: 50
     """
     requested_info = RequestedInfo(config)
-    with patch.object(ConstantPlugin, "measure", side_effect=Exception("error")) as mock_measure:
+    with patch.object(
+        ConstantPlugin, "measure", side_effect=Exception("error")
+    ) as mock_measure:
         item = next(requested_info)
         assert item == (None, None)
         mock_measure.assert_called_once()
-
 
 
 def test_missing_start_end_for_monitoring_items(self):
     config = {"test_item": {"name": "cpu_usage", "plugin": "monitoring_query"}}
     with pytest.raises(ValueError):
         RequestedInfo(config)
-
