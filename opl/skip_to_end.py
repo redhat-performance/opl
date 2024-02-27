@@ -5,43 +5,9 @@ import argparse
 import os
 import time
 
-from kafka import KafkaConsumer
-
+from .kafka_init import kafka_init
 from . import args
 from . import skelet
-
-
-def create_consumer(args):
-    # Common parameters for both cases
-    kafka_host = f"{args.kafka_host}:{args.kafka_port}"
-    common_params = {
-        "bootstrap_servers": kafka_host,
-        "auto_offset_reset": "latest",
-        "enable_auto_commit": True,
-        "group_id": args.kafka_group,
-        "session_timeout_ms": 50000,
-        "heartbeat_interval_ms": 10000,
-        "consumer_timeout_ms": args.kafka_timeout,
-    }
-
-    # Kafka consumer creation: SASL or noauth
-    if args.kafka_username != "" and args.kafka_password != "":
-        logging.info(
-            f"Creating SASL password-protected Kafka consumer for {kafka_host} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
-        )
-        sasl_params = {
-            "security_protocol": "SASL_SSL",
-            "sasl_mechanism": "SCRAM-SHA-512",
-            "sasl_plain_username": args.kafka_username,
-            "sasl_plain_password": args.kafka_password,
-        }
-        consumer = KafkaConsumer(args.kafka_topic, **common_params, **sasl_params)
-    else:
-        logging.info(
-            f"Creating passwordless producer for for {kafka_host} in group {args.kafka_group} with timeout {args.kafka_timeout} ms topic {args.kafka_topic}"
-        )
-        consumer = KafkaConsumer(args.kafka_topic, **common_params)
-    return consumer
 
 
 def doit_seek_to_end(args):
@@ -54,7 +20,8 @@ def doit_seek_to_end(args):
     on multiple pods.
     """
 
-    consumer = create_consumer(args)
+    args.kafka_enable_auto_commit = True
+    consumer = kafka_init.get_consumer(args)
 
     # Seek to end
     for attempt in range(10):

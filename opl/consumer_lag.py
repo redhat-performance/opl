@@ -2,8 +2,8 @@
 
 import logging
 import time
-from kafka import KafkaConsumer
 from kafka import TopicPartition
+from opl.kafka_init import kafka_init
 
 
 class ConsumerLag:
@@ -12,57 +12,28 @@ class ConsumerLag:
     bootstrap_server and kafka group as input.
     """
 
-    def __init__(
-        self, topic, bootstrap_servers, group, username="", password=""
-    ) -> None:
-        self.topic = topic
-        self.group = group
-        self.bootstrap_servers = bootstrap_servers
+    def __init__(self, args, kafka_topic) -> None:
+        self.args = args
+        self.args.kafka_topic = kafka_topic
         self.logger = logging.getLogger("consumer_lag")
         self.offset_records = {}
-        self.username = username
-        self.password = password
 
     def _getconsumer(self):
-        # Common parameters for both cases
-        common_params = {
-            "bootstrap_servers": self.bootstrap_servers,
-            "auto_offset_reset": "latest",
-            "enable_auto_commit": False,
-            "max_poll_records": 50,
-            "max_poll_interval_ms": 300000,
-            "group_id": self.group,
-            "session_timeout_ms": 50000,
-            "heartbeat_interval_ms": 10000,
-            "consumer_timeout_ms": 100000,
-        }
+        self.args.kafka_max_poll_records = 50
+        self.args.kafka_max_poll_interval_ms = 300000
+        self.args.kafka_session_timeout_ms = 50000
+        self.args.kafka_heartbeat_interval_ms = 10000
+        self.args.kafka_timeout = 100000
 
-        # Kafka consumer creation: SASL or noauth
-        if self.username != "" and self.password != "":
-            logging.info(
-                f"Creating SASL password-protected Kafka consumer for {self.bootstrap_servers} in group {self.group} with timeout {common_params['session_timeout_ms']} ms"
-            )
-            sasl_params = {
-                "security_protocol": "SASL_SSL",
-                "sasl_mechanism": "SCRAM-SHA-512",
-                "sasl_plain_username": self.username,
-                "sasl_plain_password": self.password,
-            }
-            consumer = KafkaConsumer(**common_params, **sasl_params)
-        else:
-            logging.info(
-                f"Creating passwordless Kafka consumer for {self.bootstrap_servers} in group {self.group} with timeout {common_params['session_timeout_ms']} ms"
-            )
-            consumer = KafkaConsumer(**common_params)
-        return consumer
+        return kafka_init.get_consumer(self.args)
 
     def store_offset_records(self):
         consumer = self._getconsumer()
-        partition_set = consumer.partitions_for_topic(self.topic)
+        partition_set = consumer.partitions_for_topic(self.args.kafka_topic)
         counter = 0
         while counter < 5:
             counter += 1
-            partition_set = consumer.partitions_for_topic(self.topic)
+            partition_set = consumer.partitions_for_topic(self.args.kafka_topic)
             if partition_set:
                 break
             else:
@@ -70,7 +41,7 @@ class ConsumerLag:
 
         partitions = []
         for partition_id in partition_set:
-            partitions.append(TopicPartition(self.topic, partition_id))
+            partitions.append(TopicPartition(self.args.kafka_topic, partition_id))
 
         curr_offsets = {}
         for partition in partitions:
@@ -83,7 +54,7 @@ class ConsumerLag:
             record = {
                 "curr_offset": value,
                 "end_offset": end_offsets[
-                    TopicPartition(topic=self.topic, partition=partition_id)
+                    TopicPartition(topic=self.args.kafka_topic, partition=partition_id)
                 ],
             }
             self.offset_records[partition_id] = record

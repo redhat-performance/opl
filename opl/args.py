@@ -90,7 +90,12 @@ def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-host",
         default=os.getenv("KAFKA_HOST", "localhost"),
-        help="Kafka host (also use env variable KAFKA_HOST)",
+        help="Kafka host (also use env variable KAFKA_HOST). Can get overriden by --kafka-hosts arg or KAFKA_HOSTS envvar.",
+    )
+    parser.add_argument(
+        "--kafka-hosts",
+        default=os.getenv("KAFKA_HOSTS", ""),
+        help="Comma-separated list of hosts, including their ports (also use env variable KAFKA_HOSTS). Takes precedence over --kafka-host and --kafka-port or their envvar variants.",
     )
     parser.add_argument(
         "--kafka-port",
@@ -131,7 +136,7 @@ def add_kafka_opts(parser):
         help="The client is going to wait this much time for the server to respond to a request (also use env variable KAFKA_REQUEST_TIMEOUT_MS)",
     )
     parser.add_argument(
-        "--kafka-max_block_ms",
+        "--kafka-max-block-ms",
         type=int,
         default=int(os.getenv("KAFKA_MAX_BLOCK_MS", 60000)),
         help="Max time to block send e.g. because buffer is full (also use env variable KAFKA_MAX_BLOCK_MS)",
