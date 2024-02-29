@@ -78,6 +78,8 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         return data["subscription_manager_id"]
 
     def _data(self):
+        
+        packages_generated = self.pg.generate(self.packages)
         data = {
             "inventory_id": self._get_uuid(),
             "subscription_manager_id": self._get_uuid(),
@@ -92,17 +94,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 ]
             ),
             "operating_system": json.dumps(self._get_operating_system()),
-            "installed_packages": json.dumps(
-                [
-                    random.choice(
-                        [
-                            "krb5-libs-0:-1.16.1-23.fc29.i686",
-                            "arb5-libs-0:-1.16.1-23.fc29.i686",
-                            "brb5-libs-0:-1.16.1-23.fc29.i686",
-                        ]
-                    )
-                ]
-            ),
+            "installed_packages": json.dumps(packages_generated),
             "tuned_profile": random.choice(["desktop", "example", "laptop"]),
             "selinux_current_mode": random.choice(
                 ["enforcing", "permissive", "disabled"]
@@ -152,7 +144,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             "fqdn": self._get_hostname(),
             "nowz": self._get_now_iso_z(),  # well, this is in nano-seconds, but should be in mili-seconds
             "tommorowz": self._get_tommorow_iso_z(),
-            "packages": self.pg.generate(self.packages),
+            "packages": packages_generated,
             "yum_repos": opl.generators.packages.YumReposGenerator().generate(137),
             "enabled_services": opl.generators.packages.EnabledServicesGenerator().generate(
                 139
