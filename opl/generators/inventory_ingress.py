@@ -78,7 +78,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         return data["subscription_manager_id"]
 
     def _data(self):
-        
+
         packages_generated = self.pg.generate(self.packages)
         data = {
             "inventory_id": self._get_uuid(),
