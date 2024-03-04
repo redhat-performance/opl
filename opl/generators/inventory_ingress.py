@@ -84,7 +84,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
     def _data(self):
 
         if not self.per_host_random_packages:
-            packages_generated = self.packages.generated
+            packages_generated = self.packages_generated
         else:
             packages_generated = self.pg.generate(self.packages)
             
