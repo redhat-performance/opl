@@ -22,6 +22,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         template="inventory_ingress_RHSM_template.json.j2",
         per_account_data=[],
         per_account_data_add_filed=None,
+        per_host_random_packages=True,
     ):
         super().__init__(count=count, template=template, dump_message=False)
 
@@ -52,6 +53,8 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         # This will be used to generate list of packages
         self.packages = packages
         self.pg = opl.generators.packages.PackagesGenerator()
+        if not per_host_random_packages:
+            self.packages_generated = self.pg.generate(self.packages)
 
     def _get_relatives(self, relatives):
         if len(self.per_account_data) > 0:
@@ -79,7 +82,11 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 
     def _data(self):
 
-        packages_generated = self.pg.generate(self.packages)
+        if not per_host_random_packages:
+            packages_generated = self.packages.generated
+        else:
+            packages_generated = self.pg.generate(self.packages)
+            
         data = {
             "inventory_id": self._get_uuid(),
             "subscription_manager_id": self._get_uuid(),
