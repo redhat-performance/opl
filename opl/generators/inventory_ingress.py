@@ -51,9 +51,10 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         ), "'fraction' handling not yet implemented, please just use 1"
 
         # This will be used to generate list of packages
+        self.per_host_random_packages = per_host_random_packages
         self.packages = packages
         self.pg = opl.generators.packages.PackagesGenerator()
-        if not per_host_random_packages:
+        if not self.per_host_random_packages:
             self.packages_generated = self.pg.generate(self.packages)
 
     def _get_relatives(self, relatives):
@@ -82,7 +83,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 
     def _data(self):
 
-        if not per_host_random_packages:
+        if not self.per_host_random_packages:
             packages_generated = self.packages.generated
         else:
             packages_generated = self.pg.generate(self.packages)
