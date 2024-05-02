@@ -82,7 +82,6 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         return data["subscription_manager_id"]
 
     def _data(self):
-
         if not self.per_host_random_packages:
             packages_generated = self.packages_generated
         else:

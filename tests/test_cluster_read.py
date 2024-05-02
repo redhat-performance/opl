@@ -37,7 +37,9 @@ class TestRequestedInfo(unittest.TestCase):
         """
         ri = opl.cluster_read.RequestedInfo(string)
         k, v = next(ri)
-        self.assertEqual(k, "measurements.logs.openshift-pipelines.pipelines-as-code-controller")
+        self.assertEqual(
+            k, "measurements.logs.openshift-pipelines.pipelines-as-code-controller"
+        )
         self.assertEqual(v, None)
 
     def test_json(self):

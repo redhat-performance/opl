@@ -382,30 +382,30 @@ class CountLinePlugin(BasePlugin):
         error_count = 0
         warning_count = 0
         line_count = 0
-        
+
         # Execute the command
         result = execute(command)
         result_lines = result.splitlines()
 
         for line in result_lines:
-            line_count+=1
+            line_count += 1
             if line["level"] == "error":
-                error_count+=1
+                error_count += 1
             elif line["level"] == "warning":
-                warning_count+=1
-        
+                warning_count += 1
+
         final_result = {
-        "measurements": 
-            { "logs": 
-                {"openshift-pipelines": 
-                    {"pipelines-as-code-controller": 
-                        {"all": line_count,
-                        "error": error_count,
-                        "warning": warning_count,
+            "measurements": {
+                "logs": {
+                    "openshift-pipelines": {
+                        "pipelines-as-code-controller": {
+                            "all": line_count,
+                            "error": error_count,
+                            "warning": warning_count,
+                        }
                     }
                 }
             }
-        }
         }
         return final_result
 
