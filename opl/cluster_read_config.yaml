@@ -1,0 +1,4 @@
+- name: measurements.logs.openshift-pipelines.pipelines-as-code-controller
+  log_source_command: oc -n openshift-pipelines logs --since=10h --all-containers --selector app.kubernetes.io/component=controller,app.kubernetes.io/instance=default,app.kubernetes.io/name=controller,app.kubernetes.io/part-of=pipelines-as-code,app=pipelines-as-code-controller
+  log_regexp_error: '"level":"error"'
+  log_regexp_warning: '"level":"warning"'

@@ -28,6 +28,18 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertGreaterEqual(int(v), before)
         self.assertGreaterEqual(after, int(v))
 
+    def test_count(self):
+        string = """
+            - name: measurements.logs.openshift-pipelines.pipelines-as-code-controller
+              log_source_command: oc -n openshift-pipelines logs --since=10h --all-containers --selector app.kubernetes.io/component=controller,app.kubernetes.io/instance=default
+              log_regexp_error: '"level":"error"'
+              log_regexp_warning: '"level":"warning"'
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, "measurements.logs.openshift-pipelines.pipelines-as-code-controller")
+        self.assertEqual(v, None)
+
     def test_json(self):
         string = """
             - name: myjson

@@ -374,6 +374,42 @@ class CommandPlugin(BasePlugin):
         return name, result
 
 
+class CountLinePlugin(BasePlugin):
+    def measure(self, ri, name, command, output="text"):
+        """
+        Execute command "command" and return result as per its "output" configuration
+        """
+        error_count = 0
+        warning_count = 0
+        line_count = 0
+        
+        # Execute the command
+        result = execute(command)
+        result_lines = result.splitlines()
+
+        for line in result_lines:
+            line_count+=1
+            if line["level"] == "error":
+                error_count+=1
+            elif line["level"] == "warning":
+                warning_count+=1
+        
+        final_result = {
+        "measurements": 
+            { "logs": 
+                {"openshift-pipelines": 
+                    {"pipelines-as-code-controller": 
+                        {"all": line_count,
+                        "error": error_count,
+                        "warning": warning_count,
+                    }
+                }
+            }
+        }
+        }
+        return final_result
+
+
 class CopyFromPlugin(BasePlugin):
     def measure(self, ri, name, copy_from):
         """
@@ -399,6 +435,7 @@ PLUGINS = {
     "env_variable": EnvironmentPlugin,
     "command": CommandPlugin,
     "copy_from": CopyFromPlugin,
+    "count_line": CountLinePlugin,
     "monitoring_query": PrometheusMeasurementsPlugin,
     "grafana_target": GrafanaMeasurementsPlugin,
     "metric_query": PerformanceInsightsMeasurementPlugin,
