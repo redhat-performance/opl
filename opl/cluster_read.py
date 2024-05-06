@@ -18,6 +18,8 @@ from . import date
 from . import status_data
 from . import retry
 
+from collections import Counter
+
 
 def execute(command):
     p = subprocess.run(
@@ -68,7 +70,7 @@ class BasePlugin:
 
     def _dump_raw_data(self, name, mydata):
         """
-        Dumps raw data for monitoring plagins into CSV files (first column
+        Dumps raw data for monitoring plugins into CSV files (first column
         for timestamp, second for value) into provided directory.
         """
         if self.args.monitoring_raw_data_dir is None:
@@ -375,39 +377,47 @@ class CommandPlugin(BasePlugin):
 
 
 class CountLinePlugin(BasePlugin):
-    def measure(self, ri, name, command, output="text"):
+    def check_word_presence(self, word, line):
+        pattern = r"\b{}\b".format(re.escape(word))
+        return bool(re.search(pattern, line))
+
+    def measure(
+        self,
+        ri,
+        name,
+        log_source_command,
+        log_regexp_error,
+        log_regexp_warning,
+        output="text",
+    ):
         """
         Execute command "command" and return result as per its "output" configuration
         """
-        error_count = 0
-        warning_count = 0
-        line_count = 0
+        result = execute(log_source_command)
 
-        # Execute the command
-        result = execute(command)
-        result_lines = result.splitlines()
+        regex_lst = ["log_regexp_error"[len("log_regexp_") :]]
+        regex_lst.append("log_regexp_warning"[len("log_regexp_") :])
 
-        for line in result_lines:
-            line_count += 1
-            if line["level"] == "error":
-                error_count += 1
-            elif line["level"] == "warning":
-                warning_count += 1
+        countLine = Counter()
 
-        final_result = {
-            "measurements": {
-                "logs": {
-                    "openshift-pipelines": {
-                        "pipelines-as-code-controller": {
-                            "all": line_count,
-                            "error": error_count,
-                            "warning": warning_count,
-                        }
-                    }
-                }
-            }
-        }
-        return final_result
+        for line in result.splitlines():
+            countLine["all"] += 1
+            for rex in regex_lst:
+                rex_split = rex.split("_")
+                if len(rex_split) > 1:
+                    flag = 0
+                    for word in rex_split:
+                        if not self.check_word_presence(word, line):
+                            flag = 1
+                            break
+                    if flag == 1:
+                        continue
+                else:
+                    if not self.check_word_presence(rex, line):
+                        continue
+                countLine[rex] += 1
+
+        return name, countLine
 
 
 class CopyFromPlugin(BasePlugin):
@@ -435,7 +445,7 @@ PLUGINS = {
     "env_variable": EnvironmentPlugin,
     "command": CommandPlugin,
     "copy_from": CopyFromPlugin,
-    "count_line": CountLinePlugin,
+    "log_source_command": CountLinePlugin,
     "monitoring_query": PrometheusMeasurementsPlugin,
     "grafana_target": GrafanaMeasurementsPlugin,
     "metric_query": PerformanceInsightsMeasurementPlugin,

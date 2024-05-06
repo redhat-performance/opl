@@ -30,17 +30,15 @@ class TestRequestedInfo(unittest.TestCase):
 
     def test_count(self):
         string = """
-            - name: measurements.logs.openshift-pipelines.pipelines-as-code-controller
-              log_source_command: oc -n openshift-pipelines logs --since=10h --all-containers --selector app.kubernetes.io/component=controller,app.kubernetes.io/instance=default
+            - name: print.output
+              log_source_command: echo -e "error line_1log_line4"
               log_regexp_error: '"level":"error"'
               log_regexp_warning: '"level":"warning"'
         """
         ri = opl.cluster_read.RequestedInfo(string)
         k, v = next(ri)
-        self.assertEqual(
-            k, "measurements.logs.openshift-pipelines.pipelines-as-code-controller"
-        )
-        self.assertEqual(v, None)
+        self.assertEqual(k, "print.output")
+        self.assertEqual(v, {"all": 1, "error": 1})
 
     def test_json(self):
         string = """
