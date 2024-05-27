@@ -345,6 +345,7 @@ def doit_additional(status_data, additional, monitoring_start, monitoring_end, a
         start=monitoring_start,
         end=monitoring_end,
         args=args,
+        sd=status_data,
     )
 
     counter_ok = 0

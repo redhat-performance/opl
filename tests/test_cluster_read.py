@@ -135,10 +135,37 @@ class TestRequestedInfo(unittest.TestCase):
             - name: mycopyfrom_missing
               copy_from: somevalue_that_does_not_exist
         """
-        ri = opl.cluster_read.RequestedInfo(string)
+        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
+        ri = opl.cluster_read.RequestedInfo(string, sd=sd)
         k, v = next(ri)
         self.assertEqual(k, "somevalue")
         self.assertEqual(v, "Hello world")
+        sd.set(k, v)
+
+        k, v = next(ri)
+        self.assertEqual(k, "mycopyfrom_exists")
+        self.assertEqual(v, "Hello world")
+        k, v = next(ri)
+        self.assertEqual(k, "mycopyfrom_missing")
+        self.assertEqual(v, None)
+
+    def test_copy_from_previous(self):
+        string = """
+            - name: somevalue
+              constant: Hello world
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
+        k, v = next(ri)
+        sd.set(k, v)
+
+        string = """
+            - name: mycopyfrom_exists
+              copy_from: somevalue
+            - name: mycopyfrom_missing
+              copy_from: somevalue_that_does_not_exist
+        """
+        ri = opl.cluster_read.RequestedInfo(string, sd=sd)
         k, v = next(ri)
         self.assertEqual(k, "mycopyfrom_exists")
         self.assertEqual(v, "Hello world")
