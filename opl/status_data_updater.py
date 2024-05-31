@@ -37,6 +37,13 @@ STATE_WEIGHTS = {
 }
 
 
+def get_session():
+    session = requests.Session()
+    retry_adapter = requests.adapters.HTTPAdapter(max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1))
+    session.mount('https://', retry_adapter)
+    session.mount('http://', retry_adapter)
+    return session
+
 def _es_get_test(session, args, key, val, size=1, sort_by="started"):
     url = f"{args.es_server}/{args.es_index}/_search"
     headers = {
@@ -66,10 +73,7 @@ def _es_get_test(session, args, key, val, size=1, sort_by="started"):
         )
 
     if session is None:
-        session = requests.Session()
-        retry_adapter = requests.adapters.HTTPAdapter(max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1))
-        session.mount('https://', retry_adapter)
-        session.mount('http://', retry_adapter)
+        session = get_session()
 
     logging.info(
         f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}"
@@ -362,7 +366,7 @@ def doit_rp_to_es(args):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     # Start a session
-    session = requests.Session()
+    session = get_session()
 
     # Get 10 newest launches
     launches = _get_rp_launches(session, args)
@@ -459,7 +463,7 @@ def doit_rp_to_dashboard_new(args):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     # Start a session
-    session = requests.Session()
+    session = get_session()
 
     run_id = args.dashboard_run_id
     result = args.dashboard_result
