@@ -13,6 +13,7 @@ from collections import OrderedDict
 import opl.status_data
 
 import requests
+import requests.adapters
 
 import tabulate
 
@@ -66,6 +67,9 @@ def _es_get_test(session, args, key, val, size=1, sort_by="started"):
 
     if session is None:
         session = requests.Session()
+        retry_adapter = requests.adapters.HTTPAdapter(max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1))
+        session.mount('https://', retry_adapter)
+        session.mount('http://', retry_adapter)
 
     logging.info(
         f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}"
