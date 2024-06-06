@@ -27,7 +27,8 @@ class ChromeNotificationsGenerator(opl.generators.generic.GenericGenerator):
 
     def _data(self):
         return {
-            "id": self._get_uuid(),
-            "payload_id": self._get_uuid(),
-            "time": self._get_now_iso_z(),
+            "id": self.gen_uuid(),
+            "payload_id": self.gen_uuid(),
+            "time": self.gen_datetime(),
+            "title": self.gen_string(),
         }
