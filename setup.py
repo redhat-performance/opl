@@ -13,7 +13,7 @@ setuptools.setup(
     description="Our performance library",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/TODO/TODO",
+    url="https://github.com/redhat-performance/opl",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -62,6 +62,7 @@ setuptools.setup(
             "installed_services.txt",
             "running_processes.txt",
             "yum_repos.txt",
+            "chrome_notifications_template.json.j2",
         ],
         "opl.investigator": [
             "sample_config.yaml",
