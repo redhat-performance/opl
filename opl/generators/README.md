@@ -101,3 +101,8 @@ Example usage:
         
         tarball.upload()
 
+`chrome_notifications.py`: `ChromeNotificationsGenerator`
+---------------------------------------
+Generate Chrome notifications Kafka messages.
+
+Just supply the count of messages to be generated.
