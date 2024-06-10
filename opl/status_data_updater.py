@@ -78,7 +78,18 @@ def _es_get_test(session, args, key, val, size=1, sort_by="started"):
     logging.info(
         f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}"
     )
-    response = session.get(url, headers=headers, json=data)
+    attempt = 0
+    attempt_max = 10
+    while True:
+        try:
+            response = session.get(url, headers=headers, json=data)
+        except requests.exceptions.ConnectionError:
+            if attempt >= attempt_max:
+                raise
+            attempt += 1
+            time.sleep(attempt)
+        else:
+            break
     response.raise_for_status()
     logging.debug(
         f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
