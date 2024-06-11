@@ -541,9 +541,20 @@ def _update_es_dashboard_result(session, args, es_id, result_string):
     if args.dry_run:
         logging.debug("Skipped because of dry-run")
     else:
-        response = session.post(
-            url, json=data, headers=headers, verify=not args.rp_noverify
-        )
+        attempt = 0
+        attempt_max = 10
+        while True:
+            try:
+                response = session.post(
+                    url, json=data, headers=headers, verify=not args.rp_noverify
+                )
+            except requests.exceptions.ConnectionError:
+                if attempt >= attempt_max:
+                    raise
+                attempt += 1
+                time.sleep(attempt)
+            else:
+                break
         response.raise_for_status()
         logging.debug(
             f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
