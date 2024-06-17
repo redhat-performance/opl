@@ -11,10 +11,12 @@ import jinja2
 import jinja2.exceptions
 import boto3
 import urllib3
+import tempfile
 
 from . import data
 from . import date
-from tenacity import *  # noqa: F403
+from . import status_data
+from . import skelet
 
 
 def execute(command):
@@ -179,8 +181,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
-    # pylint: disable-next=undefined-variable
-    @retry(stop=(stop_after_delay(10) | stop_after_attempt(10)))  # noqa: F405
+    @skelet.retry_on_traceback(max_attempts=10, wait_seconds=1)
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
@@ -378,10 +379,10 @@ class CopyFromPlugin(BasePlugin):
         """
         Just return value from previously answered item
         """
-        try:
-            return name, dict(ri._responses)[copy_from]
-        except KeyError:
+        if ri.sd is None:
             return name, None
+        else:
+            return name, ri.sd.get(copy_from)
 
 
 class TestFailMePlugin(BasePlugin):
@@ -455,7 +456,7 @@ def config_stuff(config):
 
 
 class RequestedInfo:
-    def __init__(self, config, start=None, end=None, args=argparse.Namespace()):
+    def __init__(self, config, start=None, end=None, args=argparse.Namespace(), sd=None):
         """
         "config" is input for config_stuff function
         "start" and "end" are datetimes needed if config file contains some
@@ -466,9 +467,9 @@ class RequestedInfo:
         self.start = start
         self.end = end
         self.args = args
+        self.sd = sd
 
         self._index = 0  # which config item are we processing?
-        self._responses = []  # what responses we have gave so far
         self._token = None  # OCP token - we will take it from `oc whoami -t` if needed
         self.measurement_plugins = (
             {}
@@ -512,7 +513,6 @@ class RequestedInfo:
                         f"Failed to measure {self.config[i]['name']}: {e}"
                     )
                     output = (None, None)
-                self._responses.append(output)
                 return output
             else:
                 raise Exception(f"Unknown config '{self.config[i]}'")
@@ -530,11 +530,14 @@ def doit(args):
     else:
         config = args.requested_info_config
 
+    sd = status_data.StatusData(tempfile.NamedTemporaryFile().name)
+
     requested_info = RequestedInfo(
         config,
         args.monitoring_start,
         args.monitoring_end,
         args=args,
+        sd=sd,
     )
 
     if args.render_config:

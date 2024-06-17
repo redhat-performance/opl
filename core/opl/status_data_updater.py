@@ -13,6 +13,7 @@ from collections import OrderedDict
 import opl.status_data
 
 import requests
+import requests.adapters
 
 import tabulate
 
@@ -35,6 +36,13 @@ STATE_WEIGHTS = {
     "ERROR": 2,
 }
 
+
+def get_session():
+    session = requests.Session()
+    retry_adapter = requests.adapters.HTTPAdapter(max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1))
+    session.mount('https://', retry_adapter)
+    session.mount('http://', retry_adapter)
+    return session
 
 def _es_get_test(session, args, key, val, size=1, sort_by="started"):
     url = f"{args.es_server}/{args.es_index}/_search"
@@ -65,12 +73,23 @@ def _es_get_test(session, args, key, val, size=1, sort_by="started"):
         )
 
     if session is None:
-        session = requests.Session()
+        session = get_session()
 
     logging.info(
         f"Querying ES with url={url}, headers={headers} and json={json.dumps(data)}"
     )
-    response = session.get(url, headers=headers, json=data)
+    attempt = 0
+    attempt_max = 10
+    while True:
+        try:
+            response = session.get(url, headers=headers, json=data)
+        except requests.exceptions.ConnectionError:
+            if attempt >= attempt_max:
+                raise
+            attempt += 1
+            time.sleep(attempt)
+        else:
+            break
     response.raise_for_status()
     logging.debug(
         f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
@@ -358,7 +377,7 @@ def doit_rp_to_es(args):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     # Start a session
-    session = requests.Session()
+    session = get_session()
 
     # Get 10 newest launches
     launches = _get_rp_launches(session, args)
@@ -455,7 +474,7 @@ def doit_rp_to_dashboard_new(args):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     # Start a session
-    session = requests.Session()
+    session = get_session()
 
     run_id = args.dashboard_run_id
     result = args.dashboard_result
@@ -522,9 +541,20 @@ def _update_es_dashboard_result(session, args, es_id, result_string):
     if args.dry_run:
         logging.debug("Skipped because of dry-run")
     else:
-        response = session.post(
-            url, json=data, headers=headers, verify=not args.rp_noverify
-        )
+        attempt = 0
+        attempt_max = 10
+        while True:
+            try:
+                response = session.post(
+                    url, json=data, headers=headers, verify=not args.rp_noverify
+                )
+            except requests.exceptions.ConnectionError:
+                if attempt >= attempt_max:
+                    raise
+                attempt += 1
+                time.sleep(attempt)
+            else:
+                break
         response.raise_for_status()
         logging.debug(
             f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
