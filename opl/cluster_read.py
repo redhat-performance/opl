@@ -16,7 +16,7 @@ import tempfile
 from . import data
 from . import date
 from . import status_data
-from tenacity import *  # noqa: F403
+from . import skelet
 
 
 def execute(command):
@@ -181,8 +181,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
-    # pylint: disable-next=undefined-variable
-    @retry(stop=(stop_after_delay(10) | stop_after_attempt(10)))  # noqa: F405
+    @skelet.retry_on_traceback(max_attempts=10, wait_seconds=1)
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
