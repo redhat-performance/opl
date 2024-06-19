@@ -1,7 +1,7 @@
-
 import time
 import logging
 from functools import wraps
+
 
 def retry_on_traceback(max_attempts=10, wait_seconds=1):
     """
@@ -33,8 +33,11 @@ def retry_on_traceback(max_attempts=10, wait_seconds=1):
                         raise  # Reraise the exception after all retries are exhausted
 
                     attempt += 1
-                    logging.debug(f"Retrying in {wait_seconds} seconds. Attempt {attempt}/{max_attempts} failed with: {e}")
+                    logging.debug(
+                        f"Retrying in {wait_seconds} seconds. Attempt {attempt}/{max_attempts} failed with: {e}"
+                    )
                     time.sleep(wait_seconds)
 
         return wrapper
+
     return decorator
