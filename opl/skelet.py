@@ -4,8 +4,6 @@ import os
 import time
 from contextlib import contextmanager
 
-from .retry import retry_on_traceback  # Import moved to use the new file
-
 
 def setup_logger(app_name, stderr_log_lvl):
     """
