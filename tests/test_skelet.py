@@ -19,7 +19,7 @@ class TestSkelet(unittest.TestCase):
     def test_retry_on_traceback(self):
         wait_seconds = 0.1
 
-        @opl.skelet.retry_on_traceback(max_attempts=0, wait_seconds=wait_seconds)
+        @opl.retry.retry_on_traceback(max_attempts=0, wait_seconds=wait_seconds)
         def failing1():
             return 1 / 0
 
@@ -30,7 +30,7 @@ class TestSkelet(unittest.TestCase):
 
         self.assertGreaterEqual(wait_seconds, (after - before).total_seconds())
 
-        @opl.skelet.retry_on_traceback(max_attempts=1, wait_seconds=wait_seconds)
+        @opl.retry.retry_on_traceback(max_attempts=1, wait_seconds=wait_seconds)
         def failing2():
             return 1 / 0
 
@@ -45,9 +45,11 @@ class TestSkelet(unittest.TestCase):
 
         before = datetime.datetime.now()
         with self.assertRaises(AssertionError) as context:
-            @opl.skelet.retry_on_traceback(max_attempts=-1, wait_seconds=wait_seconds)
+
+            @opl.retry.retry_on_traceback(max_attempts=-1, wait_seconds=wait_seconds)
             def failing():
                 return 1 / 0
+
         after = datetime.datetime.now()
 
         self.assertLess((after - before).total_seconds(), wait_seconds)

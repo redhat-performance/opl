@@ -39,10 +39,13 @@ STATE_WEIGHTS = {
 
 def get_session():
     session = requests.Session()
-    retry_adapter = requests.adapters.HTTPAdapter(max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1))
-    session.mount('https://', retry_adapter)
-    session.mount('http://', retry_adapter)
+    retry_adapter = requests.adapters.HTTPAdapter(
+        max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1)
+    )
+    session.mount("https://", retry_adapter)
+    session.mount("http://", retry_adapter)
     return session
+
 
 def _es_get_test(session, args, key, val, size=1, sort_by="started"):
     url = f"{args.es_server}/{args.es_index}/_search"

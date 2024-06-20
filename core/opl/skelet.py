@@ -3,9 +3,7 @@ import logging.handlers
 import os
 import time
 from contextlib import contextmanager
-from functools import wraps
-
-from . import status_data
+from .StatusData import StatusData
 
 
 def setup_logger(app_name, stderr_log_lvl):
@@ -13,7 +11,9 @@ def setup_logger(app_name, stderr_log_lvl):
     Create logger that logs to both stderr and log file but with different log levels
     """
     # Remove all handlers from root logger if any
-    logging.basicConfig(level=logging.NOTSET, handlers=[])   # `force=True` was added in Python 3.8 :-(
+    logging.basicConfig(
+        level=logging.NOTSET, handlers=[]
+    )  # `force=True` was added in Python 3.8 :-(
     # Change root logger level from WARNING (default) to NOTSET in order for all messages to be delegated
     logging.getLogger().setLevel(logging.NOTSET)
 
@@ -47,6 +47,7 @@ def setup_logger(app_name, stderr_log_lvl):
 
     return logging.getLogger(app_name)
 
+
 @contextmanager
 def test_setup(parser, logger_name="root"):
     parser.add_argument(
@@ -55,12 +56,14 @@ def test_setup(parser, logger_name="root"):
         help='File where we maintain metadata, results, parameters and measurements for this test run (also use env variable STATUS_DATA_FILE, default to "/tmp/status-data.json")',
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
         help="Show verbose output",
     )
     parser.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         action="store_true",
         help="Show debug output",
     )
@@ -75,46 +78,9 @@ def test_setup(parser, logger_name="root"):
 
     logger.debug(f"Args: {args}")
 
-    sdata = status_data.StatusData(args.status_data_file)
+    sdata = StatusData(args.status_data_file)
 
     try:
         yield (args, sdata)
     finally:
         sdata.save()
-
-
-def retry_on_traceback(max_attempts=10, wait_seconds=1):
-    """
-    Retries a function until it succeeds or the maximum number of attempts
-    or wait time is reached.
-
-    This is to mimic `@retry` decorator from Tenacity so we do not depend
-    on it.
-
-    Args:
-        max_attempts: The maximum number of attempts to retry the function.
-        wait_seconds: The number of seconds to wait between retries.
-
-    Returns:
-        A decorator that retries the wrapped function.
-    """
-    assert max_attempts >= 0, "It does not make sense to have less than 0 retries"
-    assert wait_seconds >= 0, "It does not make sense to wait les than 0 seconds"
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            attempt = 0
-            while True:
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    if attempt >= max_attempts:
-                        raise  # Reraise the exception after all retries are exhausted
-
-                    attempt += 1
-                    logging.debug(f"Retrying in {wait_seconds} seconds. Attempt {attempt}/{max_attempts} failed with: {e}")
-                    time.sleep(wait_seconds)
-
-        return wrapper
-    return decorator
