@@ -2,7 +2,6 @@
 
 import yaml
 import unittest
-import datetime
 import tempfile
 import os
 
@@ -22,9 +21,9 @@ class TestRequestedInfo(unittest.TestCase):
               command: date --utc +%Y
         """
         ri = opl.cluster_read.RequestedInfo(string)
-        before = datetime.datetime.utcnow().year
+        before = opl.date.get_now().year
         k, v = next(ri)
-        after = datetime.datetime.utcnow().year
+        after = opl.date.get_now().year
         self.assertEqual(k, "mydate")
         self.assertGreaterEqual(int(v), before)
         self.assertGreaterEqual(after, int(v))

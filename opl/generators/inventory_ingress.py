@@ -87,7 +87,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             packages_generated = self.packages_generated
         else:
             packages_generated = self.pg.generate(self.packages)
-            
+
         data = {
             "inventory_id": self._get_uuid(),
             "subscription_manager_id": self._get_uuid(),

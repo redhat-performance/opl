@@ -456,7 +456,9 @@ def config_stuff(config):
 
 
 class RequestedInfo:
-    def __init__(self, config, start=None, end=None, args=argparse.Namespace(), sd=None):
+    def __init__(
+        self, config, start=None, end=None, args=argparse.Namespace(), sd=None
+    ):
         """
         "config" is input for config_stuff function
         "start" and "end" are datetimes needed if config file contains some

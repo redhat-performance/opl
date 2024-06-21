@@ -13,7 +13,9 @@ def setup_logger(app_name, stderr_log_lvl):
     Create logger that logs to both stderr and log file but with different log levels
     """
     # Remove all handlers from root logger if any
-    logging.basicConfig(level=logging.NOTSET, handlers=[])   # `force=True` was added in Python 3.8 :-(
+    logging.basicConfig(
+        level=logging.NOTSET, handlers=[]
+    )  # `force=True` was added in Python 3.8 :-(
     # Change root logger level from WARNING (default) to NOTSET in order for all messages to be delegated
     logging.getLogger().setLevel(logging.NOTSET)
 
@@ -47,6 +49,7 @@ def setup_logger(app_name, stderr_log_lvl):
 
     return logging.getLogger(app_name)
 
+
 @contextmanager
 def test_setup(parser, logger_name="root"):
     parser.add_argument(
@@ -55,12 +58,14 @@ def test_setup(parser, logger_name="root"):
         help='File where we maintain metadata, results, parameters and measurements for this test run (also use env variable STATUS_DATA_FILE, default to "/tmp/status-data.json")',
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
         help="Show verbose output",
     )
     parser.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         action="store_true",
         help="Show debug output",
     )
@@ -113,8 +118,11 @@ def retry_on_traceback(max_attempts=10, wait_seconds=1):
                         raise  # Reraise the exception after all retries are exhausted
 
                     attempt += 1
-                    logging.debug(f"Retrying in {wait_seconds} seconds. Attempt {attempt}/{max_attempts} failed with: {e}")
+                    logging.debug(
+                        f"Retrying in {wait_seconds} seconds. Attempt {attempt}/{max_attempts} failed with: {e}"
+                    )
                     time.sleep(wait_seconds)
 
         return wrapper
+
     return decorator
