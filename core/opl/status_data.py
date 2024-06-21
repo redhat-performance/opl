@@ -231,7 +231,7 @@ class StatusData:
         """
         self._data = {
             "name": None,
-            "started": get_now_str(),
+            "started": date.get_now_str(),
             "ended": None,
             "owner": None,
             "result": None,
@@ -263,7 +263,9 @@ class StatusData:
                 if self._filename_mtime != current_mtime:
                     tmp = tempfile.mktemp()
                     self._save(tmp)
-                    raise Exception(f"Status data file {self._filename} was modified since we loaded it so I do not want to overwrite it. Instead, saved to {tmp}")
+                    raise Exception(
+                        f"Status data file {self._filename} was modified since we loaded it so I do not want to overwrite it. Instead, saved to {tmp}"
+                    )
         else:
             self._filename = filename
 
@@ -278,12 +280,6 @@ class StatusData:
         logging.debug(f"Saved status data to {filename}")
 
 
-def get_now_str():
-    now = datetime.datetime.utcnow()
-    now = now.replace(tzinfo=datetime.timezone.utc)
-    return now.isoformat()
-
-
 def doit_set(status_data, set_this):
     for item in set_this:
         if item == "":
@@ -296,7 +292,7 @@ def doit_set(status_data, set_this):
             value = value[1:-1]
 
         if value == "%NOW%":
-            value = get_now_str()
+            value = date.get_now_str()
         else:
             try:
                 value = int(value)

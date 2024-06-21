@@ -24,7 +24,7 @@ class TestSkelet(unittest.TestCase):
             return 1 / 0
 
         before = datetime.datetime.now()
-        with self.assertRaises(ZeroDivisionError) as context:
+        with self.assertRaises(ZeroDivisionError) as _:
             failing1()
         after = datetime.datetime.now()
 
@@ -35,7 +35,7 @@ class TestSkelet(unittest.TestCase):
             return 1 / 0
 
         before = datetime.datetime.now()
-        with self.assertRaises(ZeroDivisionError) as context:
+        with self.assertRaises(ZeroDivisionError) as _:
             failing2()
         after = datetime.datetime.now()
 
@@ -44,10 +44,12 @@ class TestSkelet(unittest.TestCase):
         wait_seconds = 10
 
         before = datetime.datetime.now()
-        with self.assertRaises(AssertionError) as context:
+        with self.assertRaises(AssertionError) as _:
+
             @opl.skelet.retry_on_traceback(max_attempts=-1, wait_seconds=wait_seconds)
             def failing():
                 return 1 / 0
+
         after = datetime.datetime.now()
 
         self.assertLess((after - before).total_seconds(), wait_seconds)

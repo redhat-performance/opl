@@ -30,3 +30,17 @@ def my_fromisoformat(string):
         out = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S")
     out = out.replace(tzinfo=string_tz)
     return out
+
+
+def get_now_str() -> str:
+    """
+    return current datetime in UTC string format
+    """
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def get_now() -> datetime.datetime:
+    """
+    return current datetime in UTC datetime format
+    """
+    return datetime.datetime.now(datetime.timezone.utc)

@@ -34,7 +34,16 @@ setuptools.setup(
         "requests",
         "tabulate",
         "deepdiff",
+        # Other package dependencies
     ],
+    extras_require={
+        "dev": [
+            "pytest",
+            "black",
+            "flake8",
+            # Other development dependencies
+        ]
+    },
     package_data={
         "opl": [
             "status_data_report.txt",
