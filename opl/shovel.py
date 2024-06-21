@@ -5,8 +5,8 @@ import json
 import os
 import re
 import urllib3
-
-from . import skelet, status_data
+from opl import skelet
+from opl.status import StatusData
 
 
 class pluginProw:
@@ -270,7 +270,7 @@ class pluginHorreum:
         elif self.args.test_end is None:
             raise Exception("Test end is required to work with --horreum-result")
 
-        sd = status_data.StatusData(self.args.horreum_data_file)
+        sd = StatusData(self.args.horreum_data_file)
         if sd.get("result") is not None:
             print(
                 f"Result field ({sd.get('result')}) already there in {self.args.horreum_data_file}, skipping changes detection"

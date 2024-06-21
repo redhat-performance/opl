@@ -1,9 +1,6 @@
 import argparse
 import logging
-
 import opl.http
-import opl.status_data
-
 import tabulate
 
 

@@ -10,7 +10,7 @@ import tempfile
 import time
 from collections import OrderedDict
 
-import opl.status_data
+from opl.status import StatusData
 
 import requests
 import requests.adapters
@@ -294,7 +294,7 @@ def _create_sd_from_es_response(response):
         f"Loading data from document ID {response['_id']} with field id={response['_source']['id'] if 'id' in response['_source'] else None}"
     )
     tmpfile = tempfile.NamedTemporaryFile(prefix=response["_id"], delete=False).name
-    return opl.status_data.StatusData(tmpfile, data=response["_source"])
+    return StatusData(tmpfile, data=response["_source"])
 
 
 def _get_es_result_for_rp_result(session, args, run_id, result):

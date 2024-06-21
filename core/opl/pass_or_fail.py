@@ -2,16 +2,10 @@ import argparse
 import collections
 import logging
 import sys
-
-import opl.investigator.check
-import opl.investigator.config
-import opl.investigator.csv_decisions
-import opl.investigator.csv_loader
-import opl.investigator.elasticsearch_decisions
-import opl.investigator.elasticsearch_loader
-import opl.investigator.sd_dir_loader
-import opl.investigator.status_data_loader
-
+from opl.investigator import check, config, csv_decisions, csv_loader
+from opl.investigator import elasticsearch_decisions, elasticsearch_loader
+from opl.investigator import sd_dir_loader, status_data_loader
+from opl import http
 import tabulate
 
 
@@ -90,19 +84,19 @@ def main():
 
     logging.debug(f"Args: {args}")
 
-    opl.investigator.config.load_config(args, args.config)
+    config.load_config(args, args.config)
 
     # Load current data
     if args.current_type == "status_data":
-        current_sd = opl.investigator.status_data_loader.load(args.current_file)
+        current_sd = status_data_loader.load(args.current_file)
     else:
         raise Exception("Not supported data source type for current data")
 
     # Render what needs to be rendered to finish config loading
-    opl.investigator.config.load_config_finish(args, current_sd)
+    config.load_config_finish(args, current_sd)
 
     # Load data items from current data
-    current = opl.investigator.status_data_loader.load_data(current_sd, args.sets)
+    current = status_data_loader.load_data(current_sd, args.sets)
 
     total = len([v for v in current.values() if v is not None and v != ""])
     if total == 0:
@@ -112,15 +106,15 @@ def main():
 
     # Load historical data
     if args.history_type == "csv":
-        history = opl.investigator.csv_loader.load(args.history_file, args.sets)
+        history = csv_loader.load(args.history_file, args.sets)
     elif args.history_type == "elasticsearch":
         if (
             hasattr(args, "history_es_server_verify")
             and not args.history_es_server_verify
         ):
             # SSL verification is disabled by default
-            opl.http.insecure()
-        history = opl.investigator.elasticsearch_loader.load(
+            http.insecure()
+        history = elasticsearch_loader.load(
             args.history_es_server,
             args.history_es_index,
             args.history_es_query,
@@ -132,9 +126,7 @@ def main():
         )
 
     elif args.history_type == "sd_dir":
-        history = opl.investigator.sd_dir_loader.load(
-            args.history_dir, args.history_matchers, args.sets
-        )
+        history = sd_dir_loader.load(args.history_dir, args.history_matchers, args.sets)
     else:
         raise Exception("Not supported data source type for historical data")
 
@@ -150,7 +142,7 @@ def main():
     info_all = []
     for var in args.sets:
         try:
-            results, info = opl.investigator.check.check(
+            results, info = check.check(
                 args.methods, history[var], current[var], description=var
             )
         except Exception as e:
@@ -213,8 +205,8 @@ def main():
             if d_type == "elasticsearch":
                 if hasattr(args, "es_server_verify") and not args.es_server_verify:
                     # disable SSL verification
-                    opl.http.insecure()
-                opl.investigator.elasticsearch_decisions.store(
+                    http.insecure()
+                elasticsearch_decisions.store(
                     args.decisions_es_server,
                     args.decisions_es_index,
                     info_all,
@@ -224,7 +216,7 @@ def main():
                     ),
                 )
             if d_type == "csv":
-                opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
+                csv_decisions.store(args.decisions_filename, info_all)
 
     if not args.dry_run:
         if exit_code == 0:

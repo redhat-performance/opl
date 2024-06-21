@@ -134,7 +134,7 @@ class TestRequestedInfo(unittest.TestCase):
             - name: mycopyfrom_missing
               copy_from: somevalue_that_does_not_exist
         """
-        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
+        sd = opl.status.StatusData(tempfile.NamedTemporaryFile().name)
         ri = opl.cluster_read.RequestedInfo(string, sd=sd)
         k, v = next(ri)
         self.assertEqual(k, "somevalue")
@@ -154,7 +154,7 @@ class TestRequestedInfo(unittest.TestCase):
               constant: Hello world
         """
         ri = opl.cluster_read.RequestedInfo(string)
-        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
+        sd = opl.status.StatusData(tempfile.NamedTemporaryFile().name)
         k, v = next(ri)
         sd.set(k, v)
 

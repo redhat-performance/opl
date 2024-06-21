@@ -4,7 +4,7 @@ import tempfile
 
 import os
 import opl.http
-import opl.status_data
+from opl.status import StatusData
 from requests.auth import HTTPBasicAuth
 
 
@@ -43,7 +43,7 @@ def load(server, index, query, paths, **kwargs):
             f"Loading data from document ID {item['_id']} with field id={item['_source']['id'] if 'id' in item['_source'] else None} or parameters.run={item['_source']['parameters']['run'] if 'run' in item['_source']['parameters'] else None}"
         )
         tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
-        sd = opl.status_data.StatusData(tmpfile, data=item["_source"])
+        sd = StatusData(tmpfile, data=item["_source"])
         for path in paths:
             tmp = sd.get(path)
             if tmp is not None:

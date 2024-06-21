@@ -1,9 +1,6 @@
 import argparse
 import logging
-
-import opl.http
-import opl.status_data
-
+from opl import http
 import tabulate
 
 
@@ -22,7 +19,7 @@ def _get_all_items(args):
 
     items = []
     while True:
-        response = opl.http.get(
+        response = http.get(
             url, params=params, headers=headers, verify=not args.rp_noverify
         )
         items += response["content"]
@@ -96,7 +93,7 @@ def doit_change_defects(args):
             ]
         }
 
-        opl.http.put(url, headers=headers, data=data, verify=not args.rp_noverify)
+        http.put(url, headers=headers, data=data, verify=not args.rp_noverify)
         changes += 1
 
     print(f"Changed {changes} tests from {defect_id} to {defect_to_id}")
@@ -148,7 +145,7 @@ def main():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    opl.http.disable_insecure_request_warnings(args.rp_noverify)
+    http.disable_insecure_request_warnings(args.rp_noverify)
 
     logging.debug(f"Args: {args}")
 

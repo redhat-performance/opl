@@ -3,8 +3,8 @@ import logging
 import tempfile
 
 import os
-import opl.http
-import opl.status_data
+from opl import http
+from opl.status import StatusData
 from requests.auth import HTTPBasicAuth
 
 
@@ -29,21 +29,21 @@ def load(server, index, query, paths, **kwargs):
     if es_server_user and es_server_pass_env_var:
         # fetch the password from Jenkins credentials
         open_search_password = os.environ.get(es_server_pass_env_var)
-        response = opl.http.get(
+        response = http.get(
             url,
             auth=HTTPBasicAuth(es_server_user, open_search_password),
             headers=headers,
             json=data,
         )
     else:
-        response = opl.http.get(url, headers=headers, json=data)
+        response = http.get(url, headers=headers, json=data)
 
     for item in response["hits"]["hits"]:
         logging.debug(
             f"Loading data from document ID {item['_id']} with field id={item['_source']['id'] if 'id' in item['_source'] else None} or parameters.run={item['_source']['parameters']['run'] if 'run' in item['_source']['parameters'] else None}"
         )
         tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
-        sd = opl.status_data.StatusData(tmpfile, data=item["_source"])
+        sd = StatusData(tmpfile, data=item["_source"])
         for path in paths:
             tmp = sd.get(path)
             if tmp is not None:

@@ -21,7 +21,7 @@ class TestStatusData(unittest.TestCase):
 
     def setUp(self):
         self.tmpfile = tempfile.NamedTemporaryFile().name
-        self.status_data = opl.status_data.StatusData(self.tmpfile)
+        self.status_data = opl.status.StatusData(self.tmpfile)
 
     def tierDown(self):
         del self.status_data
@@ -160,7 +160,7 @@ class TestStatusData(unittest.TestCase):
             "ended": "",
             "result": "",
         }
-        sd = opl.status_data.StatusData(f, data=data)
+        sd = opl.status.StatusData(f, data=data)
         self.assertEqual(sd.get("aaa"), 123)
         self.assertEqual(sd.get("bbb.ccc"), 456)
 
@@ -176,7 +176,7 @@ class TestStatusData(unittest.TestCase):
             "ended": "",
             "result": "",
         }
-        sd = opl.status_data.StatusData(f, data=data)
+        sd = opl.status.StatusData(f, data=data)
         self.assertEqual(sd.get("aaa.ccc"), 123)
         self.assertEqual(sd.get("aaa.bbb"), {})
         self.assertEqual(sd.get("aaa.bbb.ddd"), None)
@@ -191,7 +191,7 @@ class TestStatusData(unittest.TestCase):
             "ended": "",
             "result": "",
         }
-        sd = opl.status_data.StatusData(f, data=data)
+        sd = opl.status.StatusData(f, data=data)
         self.assertEqual(sd.get("aaa"), None)
         self.assertEqual(sd.get("aaa.bbb"), None)
         self.assertEqual(sd.get("aaa.bbb.ccc"), None)
@@ -241,9 +241,7 @@ class TestStatusData(unittest.TestCase):
 
     def test_file_on_http(self):
         with self.assertRaises(requests.exceptions.ConnectionError):
-            _ = opl.status_data.StatusData(
-                "http://does.not.exist/status-data-file.json"
-            )
+            _ = opl.status.StatusData("http://does.not.exist/status-data-file.json")
 
     def test_comment(self):
         comment = {
@@ -256,7 +254,7 @@ class TestStatusData(unittest.TestCase):
         comments.append(comment)
         self.assertEqual(self.status_data.get("comments")[0], comment)
         data = self.status_data.dump()
-        sd_new = opl.status_data.StatusData("/tmp/aaa.json", data=data)
+        sd_new = opl.status.StatusData("/tmp/aaa.json", data=data)
         self.assertEqual(sd_new.get("comments")[0], comment)
 
     def test_save(self):
@@ -265,14 +263,14 @@ class TestStatusData(unittest.TestCase):
             fp.write(
                 '{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}'
             )
-        sd = opl.status_data.StatusData(tmp)
+        sd = opl.status.StatusData(tmp)
         self.assertEqual(sd.get("name"), "test")
         self.assertEqual(sd.get("started"), "2024-01-31T12:19:42,794470088+00:00")
         self.assertEqual(sd.get("results.number"), 42)
         self.assertEqual(sd.get("results.number_new"), None)
         sd.set("results.number_new", -3.14)
         sd.save()
-        sd_new = opl.status_data.StatusData(tmp)
+        sd_new = opl.status.StatusData(tmp)
         self.assertEqual(sd_new.get("name"), "test")
         self.assertEqual(sd_new.get("started"), "2024-01-31T12:19:42,794470088+00:00")
         self.assertEqual(sd_new.get("results.number"), 42)
@@ -282,7 +280,7 @@ class TestStatusData(unittest.TestCase):
         tmp = tempfile.mktemp()
         with open(tmp, "w") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
-        sd = opl.status_data.StatusData(tmp)
+        sd = opl.status.StatusData(tmp)
         with open(tmp, "w") as fp:
             fp.write('{"name":"test","results":{"number":42,"number_new":-3.14}}')
         self.assertEqual(sd.get("name"), "test")
@@ -297,7 +295,7 @@ class TestStatusData(unittest.TestCase):
         tmp = tempfile.mktemp()
         with open(tmp, "w") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
-        sd = opl.status_data.StatusData(tmp)
+        sd = opl.status.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
         time.sleep(
@@ -336,7 +334,7 @@ class TestStatusData(unittest.TestCase):
         tmp = tempfile.mktemp()
         with open(tmp, "w") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
-        sd = opl.status_data.StatusData(tmp)
+        sd = opl.status.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
         time.sleep(
@@ -352,6 +350,6 @@ class TestStatusData(unittest.TestCase):
         sd.save(tmp)  # providing a path means forcing save
 
         # sd_new = opl.status_data.StatusData(tmp)
-        opl.status_data.StatusData(tmp)
+        opl.status.StatusData(tmp)
         self.assertEqual(sd.get("results.number_new"), -3.14)
         self.assertEqual(sd.get("results.foo"), None)

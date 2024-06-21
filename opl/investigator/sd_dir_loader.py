@@ -1,7 +1,6 @@
 import logging
 import os
-
-import opl.status_data
+from opl.status import StatusData
 
 
 def _matches(sd, matchers):
@@ -25,7 +24,7 @@ def load(data_dir, data_matchers, paths):
             if not f.endswith(".json") or not os.path.isfile(os.path.join(dirpath, f)):
                 continue
 
-            sd = opl.status_data.StatusData(os.path.join(dirpath, f))
+            sd = StatusData(os.path.join(dirpath, f))
 
             if _matches(sd, data_matchers):
                 for path in paths:

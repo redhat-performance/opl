@@ -1,11 +1,9 @@
-
 import logging
 import logging.handlers
 import os
 import time
 from contextlib import contextmanager
-
-from .retry import retry_on_traceback  # Import moved to use the new file
+from opl.status import StatusData
 
 
 def setup_logger(app_name, stderr_log_lvl):
@@ -80,9 +78,7 @@ def test_setup(parser, logger_name="root"):
 
     logger.debug(f"Args: {args}")
 
-    from . import status_data  # Import moved inside the function
-
-    sdata = status_data.StatusData(args.status_data_file)
+    sdata = StatusData(args.status_data_file)
 
     try:
         yield (args, sdata)

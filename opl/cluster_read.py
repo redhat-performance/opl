@@ -12,11 +12,10 @@ import jinja2.exceptions
 import boto3
 import urllib3
 import tempfile
-
-from . import data
-from . import date
-from . import status_data
-from . import skelet
+from opl import data
+from opl import date
+from opl.status import StatusData
+from opl.retry import retry_on_traceback
 
 
 def execute(command):
@@ -181,7 +180,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
-    @skelet.retry_on_traceback(max_attempts=10, wait_seconds=1)
+    @retry_on_traceback(max_attempts=10, wait_seconds=1)
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
@@ -532,7 +531,7 @@ def doit(args):
     else:
         config = args.requested_info_config
 
-    sd = status_data.StatusData(tempfile.NamedTemporaryFile().name)
+    sd = StatusData(tempfile.NamedTemporaryFile().name)
 
     requested_info = RequestedInfo(
         config,

@@ -1,10 +1,9 @@
 import logging
-
-import opl.status_data
+from opl.status import StatusData
 
 
 def load(fp):
-    return opl.status_data.StatusData(fp.name)
+    return StatusData(fp.name)
 
 
 def load_data(sd, paths):
