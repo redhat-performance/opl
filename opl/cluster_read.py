@@ -15,9 +15,8 @@ import tempfile
 
 from . import data
 from . import date
-from . import status_interface
-from . import skelet
-
+from . import retry
+from . import status_data
 
 def execute(command):
     p = subprocess.run(
@@ -181,7 +180,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
-    @skelet.retry_on_traceback(max_attempts=10, wait_seconds=1)
+    @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
@@ -531,8 +530,8 @@ def doit(args):
         """
     else:
         config = args.requested_info_config
-
-    sd = status_interface.IStatusData(tempfile.NamedTemporaryFile().name)
+    
+    sd = status_data.create_status_data(tempfile.NamedTemporaryFile().name)
 
     requested_info = RequestedInfo(
         config,

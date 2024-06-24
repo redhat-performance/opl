@@ -4,9 +4,7 @@ import os
 import time
 from contextlib import contextmanager
 from functools import wraps
-
 from . import status_data
-
 
 def setup_logger(app_name, stderr_log_lvl):
     """
@@ -80,7 +78,7 @@ def test_setup(parser, logger_name="root"):
 
     logger.debug(f"Args: {args}")
 
-    sdata = status_data.StatusData(args.status_data_file)
+    sdata = status_data.create_status_data(args.status_data_file)
 
     try:
         yield (args, sdata)

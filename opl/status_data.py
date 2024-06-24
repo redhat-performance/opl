@@ -21,9 +21,8 @@ import yaml
 from . import cluster_read
 from . import date
 from . import skelet
-from . import status_interface
 
-class StatusData(status_interface.IStatusData):
+class StatusData():
     def __init__(self, filename, data=None):
         self.filename = filename
         if filename.startswith("http://") or filename.startswith("https://"):
@@ -279,6 +278,10 @@ class StatusData(status_interface.IStatusData):
             self._filename_mtime = os.path.getmtime(filename)
         logging.debug(f"Saved status data to {filename}")
 
+
+# Factory function to create StatusData instances
+def create_status_data(filename, data=None):
+    return StatusData(filename, data)
 
 def doit_set(status_data, set_this):
     for item in set_this:
