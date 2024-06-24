@@ -12,5 +12,6 @@ import opl.generators.packages  # noqa: E402
 import opl.status_data  # noqa: E402
 import opl.cluster_read  # noqa: E402
 import opl.junit_cli  # noqa: E402
+import opl.retry  # noqa: E402
 import opl.args  # noqa: E402
 import opl  # noqa: E402 F401

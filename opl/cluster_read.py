@@ -17,6 +17,7 @@ from . import data
 from . import date
 from . import status_data
 from . import skelet
+from . import retry
 
 
 def execute(command):
@@ -181,7 +182,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
-    @skelet.retry_on_traceback(max_attempts=10, wait_seconds=1)
+    @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
