@@ -15,7 +15,7 @@ import tempfile
 
 from . import data
 from . import date
-from . import status_data
+from . import status_interface
 from . import skelet
 
 
@@ -532,7 +532,7 @@ def doit(args):
     else:
         config = args.requested_info_config
 
-    sd = status_data.StatusData(tempfile.NamedTemporaryFile().name)
+    sd = status_interface.IStatusData(tempfile.NamedTemporaryFile().name)
 
     requested_info = RequestedInfo(
         config,

@@ -21,9 +21,9 @@ import yaml
 from . import cluster_read
 from . import date
 from . import skelet
+from . import status_interface
 
-
-class StatusData:
+class StatusData(status_interface.IStatusData):
     def __init__(self, filename, data=None):
         self.filename = filename
         if filename.startswith("http://") or filename.startswith("https://"):
