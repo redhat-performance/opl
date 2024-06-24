@@ -99,7 +99,7 @@ def load_apps_and_perms(url_base, x_rh_identity, application=[]):
 
     url = f"{url_base}/permissions/"
     headers = {
-        "X_RH_IDENTITY": x_rh_identity,
+        "X-RH-IDENTITY": x_rh_identity,
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
@@ -125,7 +125,7 @@ def create_tenant(url_base, x_rh_identity):
     # with unknown account will create new tenant for it
     url = f"{url_base}/roles/"
     headers = {
-        "X_RH_IDENTITY": x_rh_identity,
+        "X-RH-IDENTITY": x_rh_identity,
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
@@ -136,7 +136,7 @@ def create_tenant(url_base, x_rh_identity):
 def create_group(url_base, x_rh_identity):
     url = f"{url_base}/groups/"
     headers = {
-        "X_RH_IDENTITY": x_rh_identity,
+        "X-RH-IDENTITY": x_rh_identity,
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
@@ -151,7 +151,7 @@ def create_group(url_base, x_rh_identity):
 def create_role(url_base, x_rh_identity):
     url = f"{url_base}/roles/"
     headers = {
-        "X_RH_IDENTITY": x_rh_identity,
+        "X-RH-IDENTITY": x_rh_identity,
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
@@ -166,7 +166,7 @@ def create_role(url_base, x_rh_identity):
 def add_roles_to_group(url_base, x_rh_identity, role_list, group_uuid):
     url = f"{url_base}/groups/{group_uuid}/roles/"
     headers = {
-        "X_RH_IDENTITY": x_rh_identity,
+        "X-RH-IDENTITY": x_rh_identity,
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
