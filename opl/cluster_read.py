@@ -16,7 +16,7 @@ import tempfile
 from . import data
 from . import date
 from . import status_data
-from tenacity import *  # noqa: F403
+from . import retry
 
 
 def execute(command):
@@ -181,8 +181,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
 
-    # pylint: disable-next=undefined-variable
-    @retry(stop=(stop_after_delay(10) | stop_after_attempt(10)))  # noqa: F405
+    @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
     def measure(self, ri, name, grafana_target):
         assert (
             ri.start is not None and ri.end is not None
@@ -457,7 +456,9 @@ def config_stuff(config):
 
 
 class RequestedInfo:
-    def __init__(self, config, start=None, end=None, args=argparse.Namespace(), sd=None):
+    def __init__(
+        self, config, start=None, end=None, args=argparse.Namespace(), sd=None
+    ):
         """
         "config" is input for config_stuff function
         "start" and "end" are datetimes needed if config file contains some

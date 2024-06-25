@@ -213,7 +213,9 @@ class pluginHorreum:
         elif self.args.test_end is None:
             raise Exception("Test end is required to work with --horreum-upload")
         elif self.args.test_job_matcher_label is None:
-            raise Exception("Test job matcher Horreum label name is required to work with --horreum-upload")
+            raise Exception(
+                "Test job matcher Horreum label name is required to work with --horreum-upload"
+            )
 
         self.logger.debug(f"Loading file {self.args.horreum_data_file}")
         with open(self.args.horreum_data_file, "r") as fd:
@@ -313,7 +315,9 @@ class pluginHorreum:
                 change_detected = True
                 break
 
-        print(f"Writing result to {self.args.horreum_data_file}: {'FAIL' if change_detected else 'PASS'}")
+        print(
+            f"Writing result to {self.args.horreum_data_file}: {'FAIL' if change_detected else 'PASS'}"
+        )
         if change_detected:
             sd.set("result", "FAIL")
         else:
@@ -351,8 +355,15 @@ class pluginHorreum:
         group.add_argument(
             "--test-name-horreum", default="load-tests-result", help="Test Name"
         )
-        group.add_argument("--test-job-matcher", default="jobName", help="Field name in JSON with unique enough value we use to detect if document is already in Horreum")
-        group.add_argument("--test-job-matcher-label", help="Label name in Horreum with unique enough value we use to detect if document is already in Horreum")
+        group.add_argument(
+            "--test-job-matcher",
+            default="jobName",
+            help="Field name in JSON with unique enough value we use to detect if document is already in Horreum",
+        )
+        group.add_argument(
+            "--test-job-matcher-label",
+            help="Label name in Horreum with unique enough value we use to detect if document is already in Horreum",
+        )
         group.add_argument("--test-owner", default="rhtap-perf-test-team")
         group.add_argument("--test-access", default="PUBLIC")
         group.add_argument("--test-start", help="time when the test started")

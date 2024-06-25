@@ -11,6 +11,7 @@ import datetime
 import os
 
 import opl.gen
+import opl.date
 
 
 class GenericGenerator:
@@ -107,24 +108,19 @@ class GenericGenerator:
         return opl.gen.gen_mac()
 
     def _get_now_iso(self):
-        return (
-            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
-        )  # noqa: E501
+        return opl.date.get_now_str()  # noqa: E501
 
     def _get_now_iso_z(self):
         return self._get_now_iso().replace("+00:00", "Z")
 
     def _get_now_rfc(self):
-        rfc_time = (
-            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
-        )
+        rfc_time = opl.date.get_now_str()
         rfc_time = (rfc_time.replace("T", " "))[: len(rfc_time) - 3]
         return rfc_time
 
     def _get_tommorow_iso(self):
         return (
-            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-            + datetime.timedelta(days=1)
+            opl.date.get_now() + datetime.timedelta(days=1)
         ).isoformat()  # noqa: E501
 
     def _get_tommorow_iso_z(self):
@@ -132,8 +128,7 @@ class GenericGenerator:
 
     def _get_tommorow_rfc(self):
         rfc_time_tommorow = (
-            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-            + datetime.timedelta(days=1)
+            opl.date.get_now() + datetime.timedelta(days=1)
         ).isoformat()
         rfc_time_tommorow = (rfc_time_tommorow.replace("T", " "))[
             : len(rfc_time_tommorow) - 3

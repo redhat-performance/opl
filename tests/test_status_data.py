@@ -248,9 +248,7 @@ class TestStatusData(unittest.TestCase):
     def test_comment(self):
         comment = {
             "author": "Foo Bar",
-            "date": datetime.datetime.utcnow()
-            .replace(tzinfo=datetime.timezone.utc)
-            .isoformat(),
+            "date": opl.date.get_now_str(),
             "text": "Some comment",
         }
         self.status_data.set("comments", [])
@@ -264,7 +262,9 @@ class TestStatusData(unittest.TestCase):
     def test_save(self):
         tmp = tempfile.mktemp()
         with open(tmp, "w") as fp:
-            fp.write('{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}')
+            fp.write(
+                '{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}'
+            )
         sd = opl.status_data.StatusData(tmp)
         self.assertEqual(sd.get("name"), "test")
         self.assertEqual(sd.get("started"), "2024-01-31T12:19:42,794470088+00:00")
@@ -300,25 +300,37 @@ class TestStatusData(unittest.TestCase):
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
-        time.sleep(0.001)   # workaround, see https://stackoverflow.com/a/77913929/2229885
+        time.sleep(
+            0.001
+        )  # workaround, see https://stackoverflow.com/a/77913929/2229885
         with open(tmp, "w") as fp:
-            fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')   # file on the disk changed
+            fp.write(
+                '{"name":"test","results":{"number":42,"foo":"bar"}}'
+            )  # file on the disk changed
 
         with self.assertRaises(Exception) as context:
-            sd.save()   # file changed since last load so this will raise exception
+            sd.save()  # file changed since last load so this will raise exception
 
-        tmp_new = str(context.exception).split(" ")[-1]   # exception message contains emergency file with current object data
+        tmp_new = str(context.exception).split(" ")[
+            -1
+        ]  # exception message contains emergency file with current object data
         with open(tmp_new, "r") as fd:
             tmp_new_data = json.load(fd)
-            self.assertEqual(tmp_new_data["results"]["number_new"], -3.14)   # changes made before emergency save are there
+            self.assertEqual(
+                tmp_new_data["results"]["number_new"], -3.14
+            )  # changes made before emergency save are there
         self.assertEqual(sd.get("results.number_new"), -3.14)
 
-        sd.load()   # load changed file, drop changes in the object
+        sd.load()  # load changed file, drop changes in the object
 
-        self.assertEqual(sd.get("results.number_new"), None)   # changes made to old object are lost
-        self.assertEqual(sd.get("results.foo"), "bar")   # this was loaded from modified file
+        self.assertEqual(
+            sd.get("results.number_new"), None
+        )  # changes made to old object are lost
+        self.assertEqual(
+            sd.get("results.foo"), "bar"
+        )  # this was loaded from modified file
 
-        sd.save()   # save should work now as file did not changed since last load
+        sd.save()  # save should work now as file did not changed since last load
 
     def test_force_save(self):
         tmp = tempfile.mktemp()
@@ -327,14 +339,19 @@ class TestStatusData(unittest.TestCase):
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
-        time.sleep(0.001)   # workaround, see https://stackoverflow.com/a/77913929/2229885
+        time.sleep(
+            0.001
+        )  # workaround, see https://stackoverflow.com/a/77913929/2229885
         with open(tmp, "w") as fp:
-            fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')   # file on the disk changed
+            fp.write(
+                '{"name":"test","results":{"number":42,"foo":"bar"}}'
+            )  # file on the disk changed
 
-        with self.assertRaises(Exception) as context:
-            sd.save()   # file changed since last load so this will raise exception
-        sd.save(tmp)   # providing a path means forcing save
+        with self.assertRaises(Exception) as _:
+            sd.save()  # file changed since last load so this will raise exception
+        sd.save(tmp)  # providing a path means forcing save
 
-        sd_new = opl.status_data.StatusData(tmp)
+        # sd_new = opl.status_data.StatusData(tmp)
+        opl.status_data.StatusData(tmp)
         self.assertEqual(sd.get("results.number_new"), -3.14)
         self.assertEqual(sd.get("results.foo"), None)

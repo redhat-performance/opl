@@ -53,7 +53,7 @@ Install with:
 
 If you have cloned the git and want to develop locally, replace last step with:
 
-    python -m pip install --editable .
+    python -m pip install --editable .[dev]
 
 Running unit tests
 ------------------
