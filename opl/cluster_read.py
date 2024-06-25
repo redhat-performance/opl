@@ -16,7 +16,6 @@ import tempfile
 from . import data
 from . import date
 from . import status_data
-from . import skelet
 from . import retry
 
 

@@ -2,7 +2,6 @@
 
 import unittest
 import argparse
-import datetime
 
 from .context import opl
 
