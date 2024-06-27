@@ -31,14 +31,14 @@ class TestRequestedInfo(unittest.TestCase):
     def test_count(self):
         string = """
             - name: print.output
-              log_source_command: echo -e "error line_1log_line4"
-              log_regexp_error: '"level":"error"'
-              log_regexp_warning: '"level":"warning"'
+              log_source_command: echo -e "error line1\\ninfo line2\\nwarning line3\\nerror line4"
+              log_regexp_error: '^error '
+              log_regexp_warning: '^warning '
         """
         ri = opl.cluster_read.RequestedInfo(string)
         k, v = next(ri)
         self.assertEqual(k, "print.output")
-        self.assertEqual(v, {"all": 1, "error": 1})
+        self.assertEqual(v, {"all": 4, "error": 2, "warning": 1})
 
     def test_json(self):
         string = """

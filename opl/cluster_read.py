@@ -378,7 +378,7 @@ class CommandPlugin(BasePlugin):
 
 class CountLinePlugin(BasePlugin):
     def check_word_presence(self, word, line):
-        pattern = r"\b{}\b".format(re.escape(word))
+        pattern = r"{}".format(re.escape(word))
         return bool(re.search(pattern, line))
 
     def measure(
