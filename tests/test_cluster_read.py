@@ -28,6 +28,31 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertGreaterEqual(int(v), before)
         self.assertGreaterEqual(after, int(v))
 
+    def test_count(self):
+        string = """
+            - name: print.output
+              log_source_command: echo -e "error line1\\ninfo line2\\nwarning line3\\nerror line4"
+              log_regexp_error: '^error '
+              log_regexp_warning: '^warning '
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, "print.output")
+        self.assertEqual(v, {"all": 4, "error": 1, "warning": 1})
+
+    def test_count_large(self):
+        string = """
+            - name: print.output
+              log_source_command: echo -e '{"level":"error", "logger":"ABC", "msg":"Oh no"}\\n{"level":"info", "logger":"XYZ", "msg":"Hello!"}\\n{"level":"error", "logger":"XYZ", "msg":"Oh no"}\\n{"level":"warning", "logger":"XYZ", "msg":"Beware"}',
+              log_regexp_error_abc: '"level":"error", "logger":"ABC"'
+              log_regexp_error_xyz: '"level":"error", "logger":"XYZ"'
+              log_regexp_warning: '"level":"warning"'
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, "print.output")
+        self.assertEqual(v, {"all": 4, "error_abc": 1, "error_xyz": 1, "warning": 1})
+
     def test_json(self):
         string = """
             - name: myjson
