@@ -377,47 +377,34 @@ class CommandPlugin(BasePlugin):
 
 
 class CountLinePlugin(BasePlugin):
-    def check_word_presence(self, word, line):
-        pattern = r"{}".format(re.escape(word))
-        return bool(re.search(pattern, line))
-
     def measure(
         self,
         ri,
-        name,
-        log_source_command,
-        log_regexp_error,
-        log_regexp_warning,
+        config,
         output="text",
     ):
         """
         Execute command "command" and return result as per its "output" configuration
         """
-        result = execute(log_source_command)
+        name = config['name']
+        log_source_command = config['log_source_command']
+        result = execute(log_source_command).splitlines()
 
-        regex_lst = ["log_regexp_error"[len("log_regexp_") :]]
-        regex_lst.append("log_regexp_warning"[len("log_regexp_") :])
+        output = {}
+        output["all"] = len(result)
 
-        countLine = Counter()
+        for pattern_name, pattern_value in config.items():
+            if not pattern_name.startswith("log_regexp_"):
+                continue
+            pattern_key = pattern_name[len("log_regexp_"):]
+            pattern_regexp = re.compile(pattern_value)
+            counter = 0
+            for line in result:
+                if pattern_regexp.search(line):
+                    counter+=1
+            output[pattern_key] = counter
 
-        for line in result.splitlines():
-            countLine["all"] += 1
-            for rex in regex_lst:
-                rex_split = rex.split("_")
-                if len(rex_split) > 1:
-                    flag = 0
-                    for word in rex_split:
-                        if not self.check_word_presence(word, line):
-                            flag = 1
-                            break
-                    if flag == 1:
-                        continue
-                else:
-                    if not self.check_word_presence(rex, line):
-                        continue
-                countLine[rex] += 1
-
-        return name, countLine
+        return name, output
 
 
 class CopyFromPlugin(BasePlugin):
@@ -555,8 +542,12 @@ class RequestedInfo:
         if i < len(self.config):
             if self._find_plugin(self.config[i].keys()):
                 instance = self._find_plugin(self.config[i].keys())
+                name = list(self.config[i].keys())[1]
                 try:
-                    output = instance.measure(self, **self.config[i])
+                    if name == "log_source_command":
+                        output = instance.measure(self, self.config[i])
+                    else:
+                        output = instance.measure(self, **self.config[i])
                 except Exception as e:
                     logging.exception(
                         f"Failed to measure {self.config[i]['name']}: {e}"

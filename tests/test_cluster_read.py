@@ -38,7 +38,20 @@ class TestRequestedInfo(unittest.TestCase):
         ri = opl.cluster_read.RequestedInfo(string)
         k, v = next(ri)
         self.assertEqual(k, "print.output")
-        self.assertEqual(v, {"all": 4, "error": 2, "warning": 1})
+        self.assertEqual(v, {"all": 4, "error": 1, "warning": 1})
+    
+    def test_count_large(self):
+        string = """
+            - name: print.output
+              log_source_command: echo -e '{"level":"error", "logger":"ABC", "msg":"Oh no"}\\n{"level":"info", "logger":"XYZ", "msg":"Hello!"}\\n{"level":"error", "logger":"XYZ", "msg":"Oh no"}\\n{"level":"warning", "logger":"XYZ", "msg":"Beware"}',
+              log_regexp_error_abc: '"level":"error", "logger":"ABC"'
+              log_regexp_error_xyz: '"level":"error", "logger":"XYZ"'
+              log_regexp_warning: '"level":"warning"'
+        """
+        ri = opl.cluster_read.RequestedInfo(string)
+        k, v = next(ri)
+        self.assertEqual(k, "print.output")
+        self.assertEqual(v, {"all": 4, "error_abc": 1, "error_xyz": 1, "warning": 1})
 
     def test_json(self):
         string = """
