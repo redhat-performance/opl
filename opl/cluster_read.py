@@ -18,8 +18,6 @@ from . import date
 from . import status_data
 from . import retry
 
-from collections import Counter
-
 
 def execute(command):
     p = subprocess.run(
