@@ -38,7 +38,7 @@ class TestRequestedInfo(unittest.TestCase):
         ri = opl.cluster_read.RequestedInfo(string)
         k, v = next(ri)
         self.assertEqual(k, "print.output")
-        self.assertEqual(v, {"all": 4, "error": 1, "warning": 1})
+        self.assertEqual(v, {"all": 4, "error": 2, "warning": 1})
 
     def test_count_large(self):
         string = """
