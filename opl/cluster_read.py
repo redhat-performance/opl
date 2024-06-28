@@ -386,8 +386,8 @@ class CountLinePlugin(BasePlugin):
         """
         Execute command "command" and return result as per its "output" configuration
         """
-        name = config['name']
-        log_source_command = config['log_source_command']
+        name = config["name"]
+        log_source_command = config["log_source_command"]
         result = execute(log_source_command).splitlines()
 
         output = {}
@@ -396,12 +396,12 @@ class CountLinePlugin(BasePlugin):
         for pattern_name, pattern_value in config.items():
             if not pattern_name.startswith("log_regexp_"):
                 continue
-            pattern_key = pattern_name[len("log_regexp_"):]
+            pattern_key = pattern_name[len("log_regexp_") :]
             pattern_regexp = re.compile(pattern_value)
             counter = 0
             for line in result:
                 if pattern_regexp.search(line):
-                    counter+=1
+                    counter += 1
             output[pattern_key] = counter
 
         return name, output
