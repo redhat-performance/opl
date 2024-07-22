@@ -172,7 +172,7 @@ class StatusData:
         """
         Set given multikey to current datetime
         """
-        now = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        now = date.get_now()
         return self.set(multikey, now.isoformat())
 
     def set_subtree_json(self, multikey, file_path):
