@@ -273,17 +273,17 @@ def populate_main():
     parser.add_argument(
         "--data-file",
         default="/tmp/data-file.json",
-        help="Where to save list of accounts and so that were created",
+        help="Where to save list of accounts and so that were created. Disabled when --dry-run or --no-check is enabled.",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Use this for debugging if you do not want to actuall send the messages",
+        help="Use this for debugging if you do not want to actually send the messages",
     )
     parser.add_argument(
         "--no-check",
         action="store_true",
-        help="Enable sending of hosts without checking if they appear in HBI. Good for Perf testing.",
+        help="Enable sending of hosts without checking if they appear in HBI. Good for Perf testing. This also stops generating data-file.",
     )
     opl.args.add_kafka_opts(parser)
     opl.args.add_inventory_db_opts(parser)
