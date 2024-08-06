@@ -68,7 +68,7 @@ class BasePlugin:
 
     def _dump_raw_data(self, name, mydata):
         """
-        Dumps raw data for monitoring plagins into CSV files (first column
+        Dumps raw data for monitoring plugins into CSV files (first column
         for timestamp, second for value) into provided directory.
         """
         if self.args.monitoring_raw_data_dir is None:
@@ -374,6 +374,37 @@ class CommandPlugin(BasePlugin):
         return name, result
 
 
+class CountLinePlugin(BasePlugin):
+    def measure(
+        self,
+        ri,
+        config,
+        output="text",
+    ):
+        """
+        Execute command "command" and return result as per its "output" configuration
+        """
+        name = config["name"]
+        log_source_command = config["log_source_command"]
+        result = execute(log_source_command).splitlines()
+
+        output = {}
+        output["all"] = len(result)
+
+        for pattern_name, pattern_value in config.items():
+            if not pattern_name.startswith("log_regexp_"):
+                continue
+            pattern_key = pattern_name[len("log_regexp_") :]
+            pattern_regexp = re.compile(pattern_value)
+            counter = 0
+            for line in result:
+                if pattern_regexp.search(line):
+                    counter += 1
+            output[pattern_key] = counter
+
+        return name, output
+
+
 class CopyFromPlugin(BasePlugin):
     def measure(self, ri, name, copy_from):
         """
@@ -399,6 +430,7 @@ PLUGINS = {
     "env_variable": EnvironmentPlugin,
     "command": CommandPlugin,
     "copy_from": CopyFromPlugin,
+    "log_source_command": CountLinePlugin,
     "monitoring_query": PrometheusMeasurementsPlugin,
     "grafana_target": GrafanaMeasurementsPlugin,
     "metric_query": PerformanceInsightsMeasurementPlugin,
@@ -508,8 +540,12 @@ class RequestedInfo:
         if i < len(self.config):
             if self._find_plugin(self.config[i].keys()):
                 instance = self._find_plugin(self.config[i].keys())
+                name = list(self.config[i].keys())[1]
                 try:
-                    output = instance.measure(self, **self.config[i])
+                    if name == "log_source_command":
+                        output = instance.measure(self, self.config[i])
+                    else:
+                        output = instance.measure(self, **self.config[i])
                 except Exception as e:
                     logging.exception(
                         f"Failed to measure {self.config[i]['name']}: {e}"

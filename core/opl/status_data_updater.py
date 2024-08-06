@@ -47,7 +47,7 @@ def get_session():
     return session
 
 
-def _es_get_test(session, args, key, val, size=1, sort_by="started"):
+def _es_get_test(session, args, key, val, size=1, sort_by="started", sort_order="desc"):
     url = f"{args.es_server}/{args.es_index}/_search"
     headers = {
         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ def _es_get_test(session, args, key, val, size=1, sort_by="started"):
         },
         "sort": {
             sort_by: {
-                "order": "desc",
+                "order": sort_order,
             },
         },
         "size": size,
@@ -338,18 +338,21 @@ def _get_es_dashboard_result_for_run_id(session, args, run_id, test=None):
             ["result_id.keyword", "test.keyword"],
             [run_id, test],
             sort_by="date",
+            sort_order="asc",
         )
     else:
         response = _es_get_test(
-            session, args, ["result_id.keyword"], [run_id], sort_by="date"
+            session,
+            args,
+            ["result_id.keyword"],
+            [run_id],
+            sort_by="date",
+            sort_order="asc",
         )
     if response["hits"]["total"]["value"] == 0:
         return (None, None, None)
-    else:
-        assert (
-            response["hits"]["total"]["value"] == 1
-        ), "There have to be exactly one result"
     try:
+        # In combination with _es_get_test()'s sort_order="asc", get the oldest result.
         source = response["hits"]["hits"][0]
     except IndexError:
         logging.debug(f"Failed to find dashboard result in ES for {run_id}")
