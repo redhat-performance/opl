@@ -324,6 +324,7 @@ def add_locust_opts(parser):
     )
     parser.add_argument(
         "--test-requests",
+	dest="test_requests",
         type=int,
         default=os.getenv("TEST_REQUESTS", 0),
         help="Number of requests - if non-0, this overrides test duration (also use env variable TEST_REQUESTS)",
