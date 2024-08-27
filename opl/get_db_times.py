@@ -178,7 +178,7 @@ class GetDbTimes:
     def work(self):
         """
         1. Get host IDs from storage DB
-        2. Get timetamp from app DB
+        2. Get timestamp from app DB
         3. Store timestamps in storage DB
         4. Go to 1. until we have all hosts with their timestamps
         """
