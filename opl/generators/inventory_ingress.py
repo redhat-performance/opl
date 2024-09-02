@@ -45,7 +45,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         self.relatives = self._get_relatives(
             relatives
         )  # list of accounts/... to choose from
-        sel.relatives_index = 0   # into what account we should put a host
+        self.relatives_index = 0   # into what account we should put a host
 
         assert (
             fraction == 1
