@@ -34,6 +34,7 @@ setuptools.setup(
         "requests",
         "tabulate",
         "deepdiff",
+        "numpy",
         # Other package dependencies
     ],
     extras_require={
