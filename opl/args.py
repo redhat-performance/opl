@@ -320,7 +320,7 @@ def add_locust_opts(parser):
     )
     parser.add_argument(
         "--locust-wait-for-worker-timeout",
-        dest="worker_wait_timeout"
+        dest="worker_wait_timeout",
         type=int,
         default=int(os.getenv("LOCUST_WAIT_FOR_WORKER_TIMEOUT", 120)),
         help="Locust timeout [s] for waiting until worker pods are ready. (also use env variable LOCUST_WAIT_FOR_WORKER_TIMEOUT)",
