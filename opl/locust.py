@@ -93,6 +93,7 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
 
         env.runner.spawn_rate = args.hatch_rate
 
+        time_spent_waiting = 0
         while len(env.runner.clients.ready) < args.expect_workers:
             logging.info(
                 "Waiting for worker to become ready, %s of %s - %s",
@@ -101,6 +102,11 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
                 ",".join([i.state for i in env.runner.clients.values()]),
             )
             time.sleep(1)
+            time_spent_waiting += 1
+            if time_spent_waiting >= args.worker_wait_timeout:
+                raise TimeoutError(
+                    f"Timed out waiting for Locust workers to get ready: {len(env.runner.clients.ready)} out of {args.expect_workers}"
+                )
 
         # Start the test
         logging.info("Starting master Locust runer")
