@@ -86,6 +86,10 @@ def add_ros_db_opts(parser):
     _add_generic_db_opts(parser, "ros")
 
 
+def add_export_db_opts(parser):
+    _add_generic_db_opts(parser, "export")
+
+
 def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-host",
