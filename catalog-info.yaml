@@ -1,13 +1,5 @@
 ---
 apiVersion: backstage.io/v1alpha1
-kind: Domain
-metadata:
-  name: perf-dept
-  description: Performance and Scale department
-spec:
-  owner: perf-dept-team
----
-apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: opl
