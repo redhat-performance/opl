@@ -3,12 +3,15 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: opl
-  namespace: default
+  namespace: perfscale
   description: MBU products perf&scale library
 spec:
   type: library
   lifecycle: production
-  owner: hce-perfscale-team
-  system: hce-perfscale
+  domain: domain:perfscale/perf-dept
+  owner: group:redhat/hce-perfscale
+  system: system:perfscale/consoledot-testing
   dependencyOf:
-    - component:default/iperf
+    - component:perfscale/iperf
+  tags:
+    - consoledot
