@@ -2,7 +2,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: opl
+  name: OPL
   namespace: perfscale
   description: MBU products perf&scale library
 spec:
