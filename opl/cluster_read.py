@@ -38,12 +38,12 @@ def execute(command):
 
 def redact_sensitive_headers(data: dict):
     # Lower-case list of sensitive data in header
-    sensitive_headers = ['authorization', 'set-cookie', 'x-api-key', 'cookie']
+    sensitive_headers = ["authorization", "set-cookie", "x-api-key", "cookie"]
 
     redacted_headers = {}
     for header, value in data.items():
         if header.lower() in sensitive_headers:
-            redacted_headers[header] = '<REDACTED>'
+            redacted_headers[header] = "<REDACTED>"
         else:
             redacted_headers[header] = value
     return redacted_headers
