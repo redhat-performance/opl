@@ -36,14 +36,27 @@ def execute(command):
     return result
 
 
+def redact_sensitive_headers(data: dict):
+    # Lower-case list of sensitive data in header
+    sensitive_headers = ["authorization", "set-cookie", "x-api-key", "cookie"]
+
+    redacted_headers = {}
+    for header, value in data.items():
+        if header.lower() in sensitive_headers:
+            redacted_headers[header] = "<REDACTED>"
+        else:
+            redacted_headers[header] = value
+    return redacted_headers
+
+
 def _debug_response(r):
     """
     Print various info about the requests response. Should be called when
     request failed
     """
     logging.error("URL = %s" % r.url)
-    logging.error("Request headers = %s" % r.request.headers)
-    logging.error("Response headers = %s" % r.headers)
+    logging.error("Request headers = %s" % redact_sensitive_headers(r.request.headers))
+    logging.error("Response headers = %s" % redact_sensitive_headers(r.headers))
     logging.error("Response status code = %s" % r.status_code)
     logging.error("Response content = %s" % r.content[:500])
     raise Exception("Request failed")
