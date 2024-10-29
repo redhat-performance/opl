@@ -401,7 +401,7 @@ class pluginResultsDashboard:
         self.logger.debug(f"Loading data from {self.args.status_data}")
         with open(self.args.status_data, "r") as fd:
             values = json.load(fd)
-        date = values["timestamp"]
+        date = values["started"]
         link = values["jobLink"]
         result = values["result"]
         result_id = values["metadata"]["env"]["BUILD_ID"]
