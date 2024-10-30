@@ -221,7 +221,14 @@ class pluginHorreum:
         with open(self.args.horreum_data_file, "r") as fd:
             values = json.load(fd)
 
-        test_matcher = values[self.args.test_job_matcher]
+        test_matcher = None
+        for m in self.args.test_job_matcher.split("."):
+            if m == '':
+                continue
+            if test_matcher is None:
+                test_matcher = values[m]
+            else:
+                test_matcher = test_matcher[m]
         self.logger.debug(
             f"Searching if result with {self.args.test_job_matcher_label}={test_matcher} is already there"
         )
