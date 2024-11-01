@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+
 import argparse
+import datetime
 import logging
 import requests
 import json
@@ -6,16 +9,43 @@ import os
 import re
 import urllib3
 
-from . import skelet, status_data
+from opl import skelet, status_data
 
 
-class pluginProw:
-    def __init__(self, args):
-        self.logger = logging.getLogger("opl.showel.pluginProw")
-        self.args = args
+def _floor_datetime(obj):
+    """Floor datetime object to whole second."""
+    return obj.replace(microsecond=0)
 
-    def list(self):
-        response = requests.get(f"{self.args.prow_base_url}/{self.args.prow_job_name}")
+def _ceil_datetime(obj):
+    """Ceil datetime object to whole second."""
+    if obj.microsecond > 0:
+        obj += datetime.timedelta(seconds=1)
+    return obj.replace(microsecond=0)
+
+def _get_field_value(field, data):
+    """Return content of filed like foo.bar or .baz or so."""
+    value = None
+    for f in field.split("."):
+        if f == '':
+            continue   # skip empty field created e.g. by leading dot
+        if value is None:
+            value = data[f]
+        else:
+            value = value[f]
+    return value
+
+
+class pluginBase:
+    def __init__(self):
+        self.logger = logging.getLogger(str(self.__class__))
+
+    def set_args(parser, subparsers):
+        pass
+
+
+class pluginProw(pluginBase):
+    def list(self, args):
+        response = requests.get(f"{args.base_url}/{args.job_name}")
         response.raise_for_status()
 
         # Extract 19-digit numbers using regular expression
@@ -27,91 +57,83 @@ class pluginProw:
         for n in last_10_numbers:
             print(n)
 
-    def download(self):
-        if os.path.isfile(self.args.prow_data_file):
-            print(f"File {self.args.prow_data_file} already present, skipping download")
-            return
+    def download(self, args):
+        if os.path.isfile(args.output_path):
+            raise Exception(f"File {args.output_path} already present, refusing to overwrite it")
 
-        from_url = f"{self.args.prow_base_url}/{self.args.prow_job_name}/{self.args.prow_run_name}/{self.args.prow_artifact_path}"
-        logging.info(f"Downloading {from_url} to {self.args.prow_data_file}")
+        from_url = f"{args.base_url}/{args.job_name}/{args.job_run_id}/artifacts/{args.run_name}/{args.artifact_path}"
+        logging.info(f"Downloading {from_url} to {args.output_path}")
         response = requests.get(from_url)
         response.raise_for_status()
 
-        with open(self.args.prow_data_file, "wb") as f:
+        with open(args.output_path, "wb") as f:
             f.write(response.content)
 
-    @staticmethod
-    def set_args(parser, group_actions):
-        group_actions.add_argument(
-            "--prow-list",
-            dest="actions",
-            default=[],
-            action="append_const",
-            const=("prow", "list"),
-            help="List runs for specific Prow run",
+    def set_args(self, parser, subparsers):
+        # Generic Prow options
+        parser.add_argument(
+            "--base-url",
+            default="https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/test-platform-results/logs/",
+            help="Base URL of Prow exporter",
         )
-        group_actions.add_argument(
-            "--prow-download",
-            dest="actions",
-            default=[],
-            action="append_const",
-            const=("prow", "download"),
-            help="Download file from Prow run artifacts",
-        )
-
-        group = parser.add_argument_group(
-            title="prow",
-            description="Options needed to work with Prow",
-        )
-        group.add_argument(
-            "--prow-base-url",
-            default="https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/origin-ci-test/logs/",
-            help="Base URL",
-        )
-        group.add_argument(
-            "--prow-job-name",
-            default="periodic-ci-redhat-appstudio-e2e-tests-load-test-ci-daily-10u-10t",
+        parser.add_argument(
+            "--job-name",
+            default="periodic-ci-konflux-ci-e2e-tests-main-load-test-ci-daily-100u",
             help="Job name as available in ci-operator/jobs/...",
         )
-        group.add_argument(
-            "--prow-run-name",
-            default="load-test-ci-daily-10u-10t",
+
+        # Options for listing Prow runs
+        parser_list = subparsers.add_parser("list", help="List runs for specific Prow job")
+        parser_list.set_defaults(func=self.list)
+
+        # Options for downloading artifacts from Prow
+        parser_download = subparsers.add_parser("download", help="Download file from Prow run artifacts")
+        parser_download.set_defaults(func=self.download)
+        parser_download.add_argument(
+            "--job-run-id",
+            required=True,
+            help="Long run number identifier",
+        )
+        parser_download.add_argument(
+            "--run-name",
+            default="load-test-ci-daily-100u",
             help="Test name as configured in ci-operator/config/...",
         )
-        group.add_argument(
-            "--prow-artifact-path",
-            default="redhat-appstudio-load-test/artifacts/load-tests.json",
-            help="Path to the artifact",
+        parser_download.add_argument(
+            "--artifact-path",
+            default="redhat-appstudio-load-test/artifacts/load-test.json",
+            help="Path to the artifact in artifacts/ directory",
         )
-        group.add_argument("--prow-data-file", help="prow data json file")
+        parser_download.add_argument(
+            "--output-path",
+            required=True,
+            help="Filename where to put downloaded artifact",
+        )
 
 
-class pluginOpenSearch:
-    def __init__(self, args):
-        self.logger = logging.getLogger("opl.showel.pluginOpenSearch")
-        self.args = args
+class pluginOpenSearch(pluginBase):
+    def upload(self, args):
+        self.logger.info(f"Loading document {args.input_file}")
+        with open(args.input_file, "r") as fp:
+            values = json.load(fp)
 
-    def upload(self):
-        if self.args.data_file is None:
-            raise Exception("A Data file is needed to work with --opensearch-upload")
-        elif self.args.matcher_field is None:
-            raise Exception("Matcher field is needed to work with --opensearch-upload")
-        elif self.args.matcher_field_value is None:
-            raise Exception(
-                "Matcher field value is needed to work with --opensearch-upload"
-            )
+        if args.matcher_field.startswith("."):
+            args.matcher_field = args.matcher_field[1:]
+        self.logger.info(f"Looking for field {args.matcher_field}")
+        matcher_value = _get_field_value(args.matcher_field, values)
+        if matcher_value is None:
+            raise Exception(f"Failed to load {args.matcher_field} from {args.input_file}")
 
-        logging.info("Searching if already present")
-
+        self.logger.info(f"Checking if document {args.matcher_field}={matcher_value} is already present")
         query = {
             "query": {
-                "match": {f"{self.args.matcher_field}": self.args.matcher_field_value}
+                "match": {f"{args.matcher_field}": matcher_value}
             }
         }
         headers = {"Content-Type": "application/json"}
 
         current_doc_in_es = requests.post(
-            f"{self.args.es_host_url}/{self.args.es_index}/_search",
+            f"{args.base_url}/{args.index}/_search",
             headers=headers,
             json=query,
         )
@@ -120,65 +142,56 @@ class pluginOpenSearch:
 
         if current_doc_in_es["hits"]["total"]["value"] > 0:
             print(
-                f"Document with {self.args.matcher_field}={self.args.matcher_field_value} already present, skipping upload"
+                f"Document {args.matcher_field}={matcher_value} is already present, skipping upload"
             )
             return
 
-        logging.info("Uploading")
-
-        with open(self.args.data_file, "r") as fp:
-            values = json.load(fp)
-
+        self.logger.info("Uploading document")
         response = requests.post(
-            f"{self.args.es_host_url}/{self.args.es_index}/_doc",
+            f"{args.base_url}/{args.index}/_doc",
             headers=headers,
             json=values,
         )
         response.raise_for_status()
         print(f"Uploaded: {response.content}")
 
-    @staticmethod
-    def set_args(parser, group_actions):
-        group_actions.add_argument(
-            "--opensearch-upload",
-            dest="actions",
-            default=[],
-            action="append_const",
-            const=("opensearch", "upload"),
-            help="Upload file to OpenSearch if not already there",
+    def set_args(self, parser, subparsers):
+        parser.add_argument(
+            "--base-url",
+            default="http://elasticsearch.intlab.perf-infra.lab.eng.rdu2.redhat.com",
+            help="Base URL of OpenSearch server",
         )
-
-        group = parser.add_argument_group(
-            title="opensearch",
-            description="Options needed to work with OpenSearch",
-        )
-        group.add_argument(
-            "--es-index",
+        parser.add_argument(
+            "--index",
             default="rhtap_ci_status_data",
-            help="Elastic search index where the data will be stored",
+            help="Index to talk to",
         )
-        group.add_argument("--data-file", help="json file to upload to elastic search")
-        group.add_argument(
+
+        # Options for uploading document to OpenSearch
+        parser_upload = subparsers.add_parser("upload", help="Upload document to OpenSearch")
+        parser_upload.set_defaults(func=self.upload)
+        parser_upload.add_argument(
+            "--input-file",
+            required=True,
+            help="JSON file to upload",
+        )
+        parser_upload.add_argument(
             "--matcher-field",
-            help="json field which will be used for checking if data exists in ES or not",
+            help="Document field which holds unique value identifying the document. Will be used for checking if data exists on the server, value will be taken from input file.",
         )
-        group.add_argument("--matcher-field-value", help="value of the matcher field")
 
 
-class pluginHorreum:
-    def __init__(self, args):
-        self.logger = logging.getLogger("opl.showel.pluginHorreum")
-        self.args = args
-
+class pluginHorreum(pluginBase):
+    def _login(self, args):
         # FIXME
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         self.logger.debug("Getting access token from Keycloak")
         response = requests.post(
-            f"{self.args.horreum_keycloak_host}/realms/horreum/protocol/openid-connect/token",
+            f"{args.keycloak_url}/realms/horreum/protocol/openid-connect/token",
             data={
-                "username": self.args.horreum_keycloak_user,
-                "password": self.args.horreum_keycloak_pass,
+                "username": args.username,
+                "password": args.password,
                 "grant_type": "password",
                 "client_id": "horreum-ui",
             },
@@ -192,49 +205,35 @@ class pluginHorreum:
             "Authorization": f"Bearer {self.token}",
         }
 
-        self.logger.debug(f"Getting test id for {self.args.test_name_horreum}")
+        self.logger.debug(f"Getting test id for {args.test_name}")
         response = requests.get(
-            f"{self.args.horreum_host}/api/test/byName/{self.args.test_name_horreum}",
+            f"{args.base_url}/api/test/byName/{args.test_name}",
             headers=self.headers,
             verify=False,
         )
         response.raise_for_status()
         self.test_id = response.json()["id"]
 
-    def upload(self):
-        if self.args.horreum_data_file is None:
-            raise Exception(
-                "Horreum data file is required to work with --horreum-upload"
-            )
-        elif self.args.horreum_host is None:
-            raise Exception("Horreum host is required to work with --horreum-upload")
-        elif self.args.test_start is None:
-            raise Exception("Test start is required to work with --horreum-upload")
-        elif self.args.test_end is None:
-            raise Exception("Test end is required to work with --horreum-upload")
-        elif self.args.test_job_matcher_label is None:
-            raise Exception(
-                "Test job matcher Horreum label name is required to work with --horreum-upload"
-            )
+    def upload(self, args):
+        self._login(args)
 
-        self.logger.debug(f"Loading file {self.args.horreum_data_file}")
-        with open(self.args.horreum_data_file, "r") as fd:
+        self.logger.debug(f"Loading file {args.input_file}")
+        with open(args.input_file, "r") as fd:
             values = json.load(fd)
 
-        test_matcher = None
-        for m in self.args.test_job_matcher.split("."):
-            if m == '':
-                continue
-            if test_matcher is None:
-                test_matcher = values[m]
-            else:
-                test_matcher = test_matcher[m]
+        if args.matcher_field.startswith("."):
+            args.matcher_field = args.matcher_field[1:]
+        self.logger.info(f"Looking for field {args.matcher_field}")
+        matcher_value = _get_field_value(args.matcher_field, values)
+        if matcher_value is None:
+            raise Exception(f"Failed to load {args.matcher_field} from {args.input_file}")
+
         self.logger.debug(
-            f"Searching if result with {self.args.test_job_matcher_label}={test_matcher} is already there"
+            f"Searching if result with {args.matcher_label}={matcher_value} is already there"
         )
-        filter_data = {self.args.test_job_matcher_label: test_matcher}
+        filter_data = {args.matcher_label: matcher_value}
         response = requests.get(
-            f"{self.args.horreum_host}/api/dataset/list/{self.test_id}",
+            f"{args.base_url}/api/dataset/list/{self.test_id}",
             headers=self.headers,
             params={"filter": json.dumps(filter_data)},
             verify=False,
@@ -243,21 +242,20 @@ class pluginHorreum:
         datasets = response.json().get("datasets", [])
         if len(datasets) > 0:
             print(
-                f"Result {self.args.test_job_matcher_label}={test_matcher} is already there, skipping upload"
+                f"Result {args.matcher_label}={matcher_value} is already there, skipping upload"
             )
             return
 
         logging.info("Uploading")
-
         params = {
-            "test": self.args.test_name_horreum,
-            "start": self.args.test_start,
-            "stop": self.args.test_end,
-            "owner": self.args.test_owner,
-            "access": self.args.test_access,
+            "test": args.test_name_horreum,
+            "start": args.test_start,
+            "stop": args.test_end,
+            "owner": args.test_owner,
+            "access": args.test_access,
         }
         response = requests.post(
-            f"{self.args.horreum_host}/api/run/data",
+            f"{args.horreum_host}/api/run/data",
             params=params,
             headers=self.headers,
             data=json.dumps(values),
@@ -265,28 +263,14 @@ class pluginHorreum:
         )
         response.raise_for_status()
 
-        print(f"Uploaded {self.args.horreum_data_file}: {response.content}")
+        print(f"Uploaded {args.horreum_data_file}: {response.content}")
 
-    def result(self):
-        if self.args.horreum_data_file is None:
-            raise Exception(
-                "Horreum data file is required to work with --horreum-result"
-            )
-        elif self.args.test_start is None:
-            raise Exception("Test start is required to work with --horreum-result")
-        elif self.args.test_end is None:
-            raise Exception("Test end is required to work with --horreum-result")
-
-        sd = status_data.StatusData(self.args.horreum_data_file)
-        if sd.get("result") is not None:
-            print(
-                f"Result field ({sd.get('result')}) already there in {self.args.horreum_data_file}, skipping changes detection"
-            )
-            return
+    def result(self, args):
+        self._login(args)
 
         self.logger.debug(f"Loading list of alerting variables for test {self.test_id}")
         response = requests.get(
-            f"{self.args.horreum_host}/api/alerting/variables",
+            f"{args.base_url}/api/alerting/variables",
             params={"test": self.test_id},
             verify=False,
         )
@@ -299,16 +283,21 @@ class pluginHorreum:
                 f"Getting changes for alerting variable {alerting_variable}"
             )
 
+            start = _floor_datetime(args.start.astimezone(tz=datetime.timezone.utc))
+            end = _ceil_datetime(args.end.astimezone(tz=datetime.timezone.utc))
+            start_str = start.strftime("%Y-%m-%dT%H:%M:%SZ")
+            end_str = end.strftime("%Y-%m-%dT%H:%M:%SZ")
+
             range_data = {
                 "range": {
-                    "from": self.args.test_start,
-                    "to": self.args.test_end,
+                    "from": start_str,
+                    "to": end_str,
                     "oneBeforeAndAfter": True,
                 },
                 "annotation": {"query": alerting_variable["id"]},
             }
             response = requests.post(
-                f"{self.args.horreum_host}/api/changes/annotations",
+                f"{args.base_url}/api/changes/annotations",
                 headers=self.headers,
                 json=range_data,
                 verify=False,
@@ -322,112 +311,156 @@ class pluginHorreum:
                 change_detected = True
                 break
 
-        print(
-            f"Writing result to {self.args.horreum_data_file}: {'FAIL' if change_detected else 'PASS'}"
-        )
-        if change_detected:
-            sd.set("result", "FAIL")
-        else:
-            sd.set("result", "PASS")
-        sd.save()
+        result = 'FAIL' if change_detected else 'PASS'
 
-    @staticmethod
-    def set_args(parser, group_actions):
-        group_actions.add_argument(
-            "--horreum-upload",
-            dest="actions",
-            default=[],
-            action="append_const",
-            const=("horreum", "upload"),
-            help="Upload file to Horreum if not already there",
-        )
-        group_actions.add_argument(
-            "--horreum-result",
-            dest="actions",
-            default=[],
-            action="append_const",
-            const=("horreum", "result"),
-            help="Get Horreum no-/change signal for a given time range",
-        )
+        if args.output_file is None:
+            print(f"Result is {result}")
+            return
 
-        group = parser.add_argument_group(
-            title="horreum",
-            description="Options needed to work with Horreum",
-        )
-        group.add_argument("--horreum-data-file", help="Data file to upload to Horreum")
-        group.add_argument("--horreum-host", help="Horreum host url")
-        group.add_argument("--horreum-keycloak-host", help="Horreum Keycloak host url")
-        group.add_argument("--horreum-keycloak-user", help="Horreum Keycloak username")
-        group.add_argument("--horreum-keycloak-pass", help="Horreum Keycloak password")
-        group.add_argument(
-            "--test-name-horreum", default="load-tests-result", help="Test Name"
-        )
-        group.add_argument(
-            "--test-job-matcher",
-            default="jobName",
-            help="Field name in JSON with unique enough value we use to detect if document is already in Horreum",
-        )
-        group.add_argument(
-            "--test-job-matcher-label",
-            help="Label name in Horreum with unique enough value we use to detect if document is already in Horreum",
-        )
-        group.add_argument("--test-owner", default="rhtap-perf-test-team")
-        group.add_argument("--test-access", default="PUBLIC")
-        group.add_argument("--test-start", help="time when the test started")
-        group.add_argument("--test-end", help="time when the test ended")
-
-
-class pluginResultsDashboard:
-    def __init__(self, args):
-        self.logger = logging.getLogger("opl.showel.pluginResultsDashboard")
-        self.args = args
-
-    def upload(self):
-        if self.args.status_data is None:
-            raise Exception(
-                "Status data file is mandatory to work with --results-dashboard-upload"
-            )
-        elif self.args.es_host_url is None:
-            raise Exception(
-                "ES host url is required to work with --results-dashboard-upload"
-            )
-        elif self.args.group_name is None:
-            raise Exception(
-                "Group Name is mandatory to work with --results-dashboard-upload"
-            )
-        elif self.args.product_name is None:
-            raise Exception(
-                "Product Name is mandatory to work with --results-dashboard-upload"
-            )
-        elif self.args.test_name is None:
-            raise Exception(
-                "Test Name is mandatory to work with --results-dashboard-upload"
-            )
-
-        # FIXME: Field names where to get these should come from params
-        self.logger.debug(f"Loading data from {self.args.status_data}")
-        with open(self.args.status_data, "r") as fd:
+        self.logger.debug(f"Loading file {args.output_file}")
+        with open(args.output_file, "r") as fd:
             values = json.load(fd)
-        date = values["started"]
-        link = values["jobLink"]
-        result = values["result"]
-        result_id = values["metadata"]["env"]["BUILD_ID"]
 
-        self.logger.debug(
-            f"Checking if result with result_id={result_id} is already there"
+        values["result"] = result
+
+        print(f"Writing result to {args.output_file}: {values['result']}")
+        with open(args.output_file, "w") as fd:
+            json.dump(values, fd, sort_keys=True, indent=4)
+
+    def set_args(self, parser, subparsers):
+        parser.add_argument(
+            "--base-url",
+            default="https://horreum.corp.redhat.com",
+            help="Base URL of Horreum server",
+        )
+        parser.add_argument(
+            "--keycloak-url",
+            default="https://horreum-keycloak.corp.redhat.com",
+            help="Base URL of Horreum Keycloak server",
+        )
+        parser.add_argument(
+            "--username",
+            required=True,
+            help="Horreum username",
+        )
+        parser.add_argument(
+            "--password",
+            required=True,
+            help="Horreum password",
+        )
+        parser.add_argument(
+            "--test-name",
+            default="load-tests-result",
+            help="Test Name",
+        )
+
+        # Options for uploading document to Horreum
+        parser_upload = subparsers.add_parser("upload", help="Upload file to Horreum if it is not there already")
+        parser_upload.set_defaults(func=self.upload)
+        parser_upload.add_argument(
+            "--input-file",
+            required=True,
+            help="JSON file to upload",
+        )
+        parser_upload.add_argument(
+            "--matcher-field",
+            default="runid",
+            help="JSON file field which holds unique value identifying the document. Will be used for checking if data exists on the server, value will be taken from input file.",
+        )
+        parser_upload.add_argument(
+            "--matcher-label",
+            default=".runid",
+            help="Label name in Horreum with unique value we use to detect if document is already in Horreum",
+        )
+        parser_upload.add_argument(
+            "--owner",
+            default="rhtap-perf-test-team",
+            help="Who should be owner of uploaded file in Horreum",
+        )
+        parser_upload.add_argument(
+            "--access",
+            default="PUBLIC",
+            help="What should be access setting of uploaded file in Horreum",
+        )
+        parser_upload.add_argument(
+            "--start",
+            help="When the test whose JSON file we are uploading started",
+        )
+        parser_upload.add_argument(
+            "--end",
+            help="When the test whose JSON file we are uploading ended",
+        )
+
+        # Options for detecting no-/change signal
+        parser_result = subparsers.add_parser("result", help="Get Horreum no-/change signal for a given time range")
+        parser_result.set_defaults(func=self.result)
+        parser_result.add_argument(
+            "--start",
+            type=datetime.datetime.fromisoformat,
+            help="Start of the interval for detecting change (ISO 8601 format)",
+        )
+        parser_result.add_argument(
+            "--end",
+            type=datetime.datetime.fromisoformat,
+            help="End of the interval for detecting change (ISO 8601 format)",
+        )
+        parser_result.add_argument(
+            "--output-file",
+            help="If specified, put result into .result of this JSON file",
+        )
+
+
+class pluginResultsDashboard(pluginBase):
+    def _figure_out_option(self, option):
+        if option.startswith("@"):
+            field = option[1:]
+            value = _get_field_value(field, self.input_file)
+            if value is None:
+                raise Exception(f"Can not load {field}")
+            else:
+                return value
+        else:
+            if option is None:
+                raise Exception("Some option was not provided")
+            else:
+                return option
+
+    def upload(self, args):
+        self.input_file = None
+        if args.input_file is not None:
+            self.logger.info(f"Loading input file {args.input_file}")
+            with open(args.input_file, "r") as fd:
+                self.input_file = json.load(fd)
+
+        self.logger.info("Preparing all the options")
+        args.date = datetime.datetime.fromisoformat(self._figure_out_option(args.date))
+        args.group = self._figure_out_option(args.group)
+        args.link = self._figure_out_option(args.link)
+        args.product = self._figure_out_option(args.product)
+        args.release = self._figure_out_option(args.release)
+        args.result = self._figure_out_option(args.result)
+        args.result_id = self._figure_out_option(args.result_id)
+        args.test = self._figure_out_option(args.test)
+        args.version = self._figure_out_option(args.version)
+
+        self.logger.info(
+            f"Checking if result with test={args.test} and result_id={args.result_id} is already there"
         )
         json_data = json.dumps(
             {
                 "query": {
                     "bool": {
-                        "filter": [{"term": {"result_id.keyword": f"{result_id}"}}]
+                        "filter": [
+                            {"term": {"test.keyword": args.test}},
+                            {"term": {"result_id.keyword": args.result_id}},
+                        ]
                     }
                 }
             }
         )
         headers = {"Content-Type": "application/json"}
         current_doc_in_es = requests.get(
-            f"{self.args.es_host_url}/{self.args.dashboard_es_index}/_search",
+            f"{args.base_url}/{args.index}/_search",
             headers=headers,
             data=json_data,
         )
@@ -436,25 +469,25 @@ class pluginResultsDashboard:
 
         if current_doc_in_es["hits"]["total"]["value"] > 0:
             print(
-                f"Result result_id={result_id} already in Results Dashboard, skipping upload"
+                f"Result test={args.test} and result_id={args.result_id} already in Results Dashboard, skipping upload"
             )
             return
 
         logging.info("Uploading result to Results Dashboard")
 
         upload_data = {
-            "date": date,
-            "group": self.args.group_name,
-            "link": link,
-            "product": self.args.product_name,
-            "release": self.args.release,
-            "result": result,
-            "result_id": result_id,
-            "test": self.args.test_name,
-            "version": self.args.version,
+            "date": args.date.isoformat(),
+            "group": args.group,
+            "link": args.link,
+            "product": args.product,
+            "release": args.release,
+            "result": args.result,
+            "result_id": args.result_id,
+            "test": args.test,
+            "version": args.version,
         }
         response = requests.post(
-            f"{self.args.es_host_url}/{self.args.dashboard_es_index}/_doc",
+            f"{args.base_url}/{args.index}/_doc",
             headers=headers,
             json=upload_data,
         )
@@ -462,76 +495,103 @@ class pluginResultsDashboard:
 
         print(f"Uploaded: {response.content}")
 
-    @staticmethod
-    def set_args(parser, group_actions):
-        group_actions.add_argument(
-            "--resultsdashboard-upload",
-            dest="actions",
-            default=[],
-            action="append_const",
-            const=("resultsdashboard", "upload"),
-            help="Upload file to Results Dashboard if not already there",
+    def set_args(self, parser, subparsers):
+        parser.add_argument(
+            "--base-url",
+            default="http://elasticsearch.intlab.perf-infra.lab.eng.rdu2.redhat.com",
+            help="Results Dashboard backend url",
         )
-        group = parser.add_argument_group(
-            title="resultsdashboard",
-            description="Options needed to work with Results Dashboard",
-        )
-        group.add_argument(
-            "--es-host-url",
-            help="Elastic search host url",
-        )
-        group.add_argument(
-            "--dashboard-es-index",
+        parser.add_argument(
+            "--index",
             default="results-dashboard-data",
-            help="Elastic search index where the result is stored",
+            help="Results Dashboard index where the results are stored",
         )
-        group.add_argument(
-            "--status-data",
-            help="File where we maintain metadata, results, parameters and measurements for this test run",
+
+        # Options for uploading document to Results Dashboard
+        parser_upload = subparsers.add_parser("upload", help="Upload result to Results Dashboard if it is not there already")
+        parser_upload.set_defaults(func=self.upload)
+        parser_upload.add_argument(
+            "--test",
+            required=True,
+            help="Name of the CPT test, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
-        group.add_argument(
-            "--group-name", help="Name of the group where the product belongs"
+        parser_upload.add_argument(
+            "--result-id",
+            required=True,
+            help="Test run identifier, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
-        group.add_argument("--product-name", help="Name of the Product")
-        group.add_argument(
+        parser_upload.add_argument(
+            "--result",
+            required=True,
+            help="Result of the test (choose from: TODO), if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
+        parser_upload.add_argument(
+            "--date",
+            required=True,
+            help="When the test ran (ISO 8601 format), if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
+        parser_upload.add_argument(
+            "--link",
+            required=True,
+            help="Link to more details, if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
+        parser_upload.add_argument(
+            "--group",
+            required=True,
+            help="Name of the group where the product belongs, if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
+        parser_upload.add_argument(
+            "--product",
+            required=True,
+            help="Name of the product, if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
+        parser_upload.add_argument(
             "--release",
             default="latest",
-            help="Type of release of Product for e.g latest,nightly,weekly",
+            help="Release or version stream this result belongst to (this is a way how to group results for multiple versions), if prefixed with '@' sign, it is a field name from input file where to load this",
         )
-        group.add_argument("--test-name", help="Name of the CPT test")
-        group.add_argument(
+        parser_upload.add_argument(
             "--version",
             default="1",
-            help="Version of the product on which the test ran",
+            help="Version of the product on which the test ran, if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
+        parser_upload.add_argument(
+            "--input-file",
+            help="If you want to load some values from file, this is the file to specify",
         )
 
 
 PLUGINS = {
-    "prow": pluginProw,
-    "opensearch": pluginOpenSearch,
-    "horreum": pluginHorreum,
-    "resultsdashboard": pluginResultsDashboard,
+    "prow": pluginProw(),
+    "opensearch": pluginOpenSearch(),
+    "horreum": pluginHorreum(),
+    "resultsdashboard": pluginResultsDashboard(),
 }
-
 
 def main():
     parser = argparse.ArgumentParser(
         description="Shovel data from A to B",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    group_actions = parser.add_argument_group(
-        title="actions",
-        description="Various high level things you can do",
+    subparsers = parser.add_subparsers(
+        dest='plugin_name',
+        help="sub-command help",
+        required=True,
     )
     for name, plugin in PLUGINS.items():
-        plugin.set_args(parser, group_actions)
+        parser_plugin = subparsers.add_parser(
+            name,
+            help=f"Work with {name}",
+        )
+        subparsers_plugin = parser_plugin.add_subparsers(
+            dest='plugin_command',
+            help="sub-command help",
+            required=True,
+        )
+        plugin.set_args(parser_plugin, subparsers_plugin)
 
     with skelet.test_setup(parser) as (args, status_data):
-        logger = logging.getLogger("main")
-        for plugin_name, function_name in args.actions:
-            logger.info(
-                f"Instantiating plugin {plugin_name} for function {function_name}"
-            )
-            plugin_object = PLUGINS[plugin_name]
-            plugin_instance = plugin_object(args)
-            getattr(plugin_instance, function_name)()
+        args.func(args)
+
+if __name__ == "__main__":
+    main()
