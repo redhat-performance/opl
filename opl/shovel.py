@@ -24,6 +24,9 @@ def _ceil_datetime(obj):
 
 def _get_field_value(field, data):
     """Return content of filed like foo.bar or .baz or so."""
+    if field.startswith("."):
+       field = field[1:]
+
     value = None
     for f in field.split("."):
         if f == '':
@@ -32,7 +35,23 @@ def _get_field_value(field, data):
             value = data[f]
         else:
             value = value[f]
+
     return value
+
+def _figure_out_option(option, data):
+    """Normalize option value for cases when it can come from data file. Checks for None."""
+    if option.startswith("@"):
+        field = option[1:]
+        value = _get_field_value(field, data)
+        if value is None:
+            raise Exception(f"Can not load {field} in {option}")
+        else:
+            return value
+    else:
+        if option is None:
+            raise Exception("Some option was not provided")
+        else:
+            return option
 
 
 class pluginBase:
@@ -215,22 +234,23 @@ class pluginHorreum(pluginBase):
         self.test_id = response.json()["id"]
 
     def upload(self, args):
-        self._login(args)
-
         self.logger.debug(f"Loading file {args.input_file}")
         with open(args.input_file, "r") as fd:
-            values = json.load(fd)
+            self.input_file = json.load(fd)
 
-        if args.matcher_field.startswith("."):
-            args.matcher_field = args.matcher_field[1:]
+        self.logger.info("Preparing all the options")
+        args.test_name = _figure_out_option(args.test_name, self.input_file)
+        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.input_file))
+        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.input_file))
+
+        self._login(args)
+
         self.logger.info(f"Looking for field {args.matcher_field}")
-        matcher_value = _get_field_value(args.matcher_field, values)
+        matcher_value = _get_field_value(args.matcher_field, self.input_file)
         if matcher_value is None:
             raise Exception(f"Failed to load {args.matcher_field} from {args.input_file}")
 
-        self.logger.debug(
-            f"Searching if result with {args.matcher_label}={matcher_value} is already there"
-        )
+        self.logger.debug(f"Searching if result {args.matcher_label}={matcher_value} is already there")
         filter_data = {args.matcher_label: matcher_value}
         response = requests.get(
             f"{args.base_url}/api/dataset/list/{self.test_id}",
@@ -241,31 +261,38 @@ class pluginHorreum(pluginBase):
         response.raise_for_status()
         datasets = response.json().get("datasets", [])
         if len(datasets) > 0:
-            print(
-                f"Result {args.matcher_label}={matcher_value} is already there, skipping upload"
-            )
+            print(f"Result {args.matcher_label}={matcher_value} is already there, skipping upload")
             return
 
         logging.info("Uploading")
         params = {
-            "test": args.test_name_horreum,
-            "start": args.test_start,
-            "stop": args.test_end,
-            "owner": args.test_owner,
-            "access": args.test_access,
+            "test": args.test_name,
+            "start": args.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "stop": args.end.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "owner": args.owner,
+            "access": args.access,
         }
         response = requests.post(
-            f"{args.horreum_host}/api/run/data",
+            f"{args.base_url}/api/run/data",
             params=params,
             headers=self.headers,
-            data=json.dumps(values),
+            data=json.dumps(self.input_file),
             verify=False,
         )
         response.raise_for_status()
 
-        print(f"Uploaded {args.horreum_data_file}: {response.content}")
+        print(f"Uploaded {args.input_file}: {response.content}")
 
     def result(self, args):
+        self.logger.debug(f"Loading file {args.output_file}")
+        with open(args.output_file, "r") as fd:
+            self.output_file = json.load(fd)
+
+        self.logger.info("Preparing all the options")
+        args.test_name = _figure_out_option(args.test_name, self.output_file)
+        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.output_file)).astimezone(tz=datetime.timezone.utc)
+        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.output_file)).astimezone(tz=datetime.timezone.utc)
+
         self._login(args)
 
         self.logger.debug(f"Loading list of alerting variables for test {self.test_id}")
@@ -277,16 +304,16 @@ class pluginHorreum(pluginBase):
         response.raise_for_status()
         alerting_variables = response.json()
 
+        start = _floor_datetime(args.start)
+        end = _ceil_datetime(args.end)
+        start_str = start.strftime("%Y-%m-%dT%H:%M:%SZ")
+        end_str = end.strftime("%Y-%m-%dT%H:%M:%SZ")
+
         change_detected = False
         for alerting_variable in alerting_variables:
             self.logger.debug(
                 f"Getting changes for alerting variable {alerting_variable}"
             )
-
-            start = _floor_datetime(args.start.astimezone(tz=datetime.timezone.utc))
-            end = _ceil_datetime(args.end.astimezone(tz=datetime.timezone.utc))
-            start_str = start.strftime("%Y-%m-%dT%H:%M:%SZ")
-            end_str = end.strftime("%Y-%m-%dT%H:%M:%SZ")
 
             range_data = {
                 "range": {
@@ -307,9 +334,11 @@ class pluginHorreum(pluginBase):
 
             # Check if the result is not an empty list
             if len(response) > 0:
-                self.logger.debug(f"Detected change {response}")
+                self.logger.info(f"For {alerting_variable['name']} detected change {response}")
                 change_detected = True
                 break
+            else:
+                self.logger.info(f"For {alerting_variable['name']} all looks good")
 
         result = 'FAIL' if change_detected else 'PASS'
 
@@ -317,15 +346,11 @@ class pluginHorreum(pluginBase):
             print(f"Result is {result}")
             return
 
-        self.logger.debug(f"Loading file {args.output_file}")
-        with open(args.output_file, "r") as fd:
-            values = json.load(fd)
+        self.output_file["result"] = result
 
-        values["result"] = result
-
-        print(f"Writing result to {args.output_file}: {values['result']}")
+        print(f"Writing result to {args.output_file}: {self.output_file['result']}")
         with open(args.output_file, "w") as fd:
-            json.dump(values, fd, sort_keys=True, indent=4)
+            json.dump(self.output_file, fd, sort_keys=True, indent=4)
 
     def set_args(self, parser, subparsers):
         parser.add_argument(
@@ -348,15 +373,15 @@ class pluginHorreum(pluginBase):
             required=True,
             help="Horreum password",
         )
-        parser.add_argument(
-            "--test-name",
-            default="load-tests-result",
-            help="Test Name",
-        )
 
         # Options for uploading document to Horreum
         parser_upload = subparsers.add_parser("upload", help="Upload file to Horreum if it is not there already")
         parser_upload.set_defaults(func=self.upload)
+        parser_upload.add_argument(
+            "--test-name",
+            default="load-tests-result",
+            help="Test name as configured in Horreum, if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
         parser_upload.add_argument(
             "--input-file",
             required=True,
@@ -384,24 +409,27 @@ class pluginHorreum(pluginBase):
         )
         parser_upload.add_argument(
             "--start",
-            help="When the test whose JSON file we are uploading started",
+            help="When the test whose JSON file we are uploading started, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
         parser_upload.add_argument(
             "--end",
-            help="When the test whose JSON file we are uploading ended",
+            help="When the test whose JSON file we are uploading ended, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
 
         # Options for detecting no-/change signal
         parser_result = subparsers.add_parser("result", help="Get Horreum no-/change signal for a given time range")
         parser_result.set_defaults(func=self.result)
         parser_result.add_argument(
+            "--test-name",
+            default="load-tests-result",
+            help="Test name as configured in Horreum, if prefixed with '@' sign, it is a field name from output file where to load this",
+        )
+        parser_result.add_argument(
             "--start",
-            type=datetime.datetime.fromisoformat,
             help="Start of the interval for detecting change (ISO 8601 format)",
         )
         parser_result.add_argument(
             "--end",
-            type=datetime.datetime.fromisoformat,
             help="End of the interval for detecting change (ISO 8601 format)",
         )
         parser_result.add_argument(
@@ -411,20 +439,6 @@ class pluginHorreum(pluginBase):
 
 
 class pluginResultsDashboard(pluginBase):
-    def _figure_out_option(self, option):
-        if option.startswith("@"):
-            field = option[1:]
-            value = _get_field_value(field, self.input_file)
-            if value is None:
-                raise Exception(f"Can not load {field}")
-            else:
-                return value
-        else:
-            if option is None:
-                raise Exception("Some option was not provided")
-            else:
-                return option
-
     def upload(self, args):
         self.input_file = None
         if args.input_file is not None:
@@ -433,15 +447,15 @@ class pluginResultsDashboard(pluginBase):
                 self.input_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
-        args.date = datetime.datetime.fromisoformat(self._figure_out_option(args.date))
-        args.group = self._figure_out_option(args.group)
-        args.link = self._figure_out_option(args.link)
-        args.product = self._figure_out_option(args.product)
-        args.release = self._figure_out_option(args.release)
-        args.result = self._figure_out_option(args.result)
-        args.result_id = self._figure_out_option(args.result_id)
-        args.test = self._figure_out_option(args.test)
-        args.version = self._figure_out_option(args.version)
+        args.date = datetime.datetime.fromisoformat(_figure_out_option(args.date, self.input_file))
+        args.group = _figure_out_option(args.group, self.input_file)
+        args.link = _figure_out_option(args.link, self.input_file)
+        args.product = _figure_out_option(args.product, self.input_file)
+        args.release = _figure_out_option(args.release, self.input_file)
+        args.result = _figure_out_option(args.result, self.input_file)
+        args.result_id = _figure_out_option(args.result_id, self.input_file)
+        args.test = _figure_out_option(args.test, self.input_file)
+        args.version = _figure_out_option(args.version, self.input_file)
 
         self.logger.info(
             f"Checking if result with test={args.test} and result_id={args.result_id} is already there"
