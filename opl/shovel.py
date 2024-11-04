@@ -483,7 +483,7 @@ class pluginResultsDashboard(pluginBase):
 
         if current_doc_in_es["hits"]["total"]["value"] > 0:
             print(
-                f"Result test={args.test} and result_id={args.result_id} already in Results Dashboard, skipping upload"
+                f"Result test={args.test} and result_id={args.result_id} already there, skipping upload"
             )
             return
 
