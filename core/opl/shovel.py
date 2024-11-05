@@ -38,6 +38,18 @@ def _get_field_value(field, data):
 
     return value
 
+def _set_field_value(field, value, data):
+    """Find field (in doted notation) in data (being changed in place) and set it to value."""
+    if field.startswith("@"):
+        filed = field[1:]
+
+    for f in field.split(".")[:-1]:
+        if f not in data:
+            data[f] = {}
+        data = data[f]
+
+    data[field.split(".")[-1]] = value
+
 def _figure_out_option(option, data):
     """Normalize option value for cases when it can come from data file. Checks for None."""
     if option.startswith("@"):
@@ -84,9 +96,19 @@ class pluginProw(pluginBase):
         logging.info(f"Downloading {from_url} to {args.output_path}")
         response = requests.get(from_url)
         response.raise_for_status()
+        response_content = response.content
+
+        if args.record_link is not None:
+            try:
+                data = response.json()
+            except requests.exceptions.JSONDecodeError:
+                self.logger.error(f"Failed to parse JSON, ignoring --record-link option")
+            else:
+                _set_field_value(args.record_link, from_url, data)
+                response_content = str.encode(json.dumps(data, sort_keys=True, indent=4))
 
         with open(args.output_path, "wb") as f:
-            f.write(response.content)
+            f.write(response_content)
 
     def set_args(self, parser, subparsers):
         # Generic Prow options
@@ -127,6 +149,10 @@ class pluginProw(pluginBase):
             "--output-path",
             required=True,
             help="Filename where to put downloaded artifact",
+        )
+        parser_download.add_argument(
+            "--record-link",
+            help="Optional path in the downloaded JSON where to put download link",
         )
 
 
