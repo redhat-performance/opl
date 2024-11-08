@@ -114,7 +114,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
 
 def fetch_records_count(inventory):
     inventory_cursor = inventory.cursor()
-    inventory_cursor.execute("select count(*) as exact_count from hosts")
+    inventory_cursor.execute("select count(*) as exact_count from hbi.hosts")
     for i in inventory_cursor.fetchone():
         existing_records = int(i)
 
@@ -306,7 +306,7 @@ def cleanup(args, status_data):
     inventory_cursor = inventory.cursor()
 
     logging.info("Truncating Inventory DB 'hosts' table")
-    inventory_cursor.execute("TRUNCATE hosts CASCADE")
+    inventory_cursor.execute("TRUNCATE hbi.hosts CASCADE")
     inventory.commit()
 
     status_data.set_now("parameters.inventory_db.table_hosts.truncated_at")
