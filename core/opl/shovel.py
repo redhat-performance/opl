@@ -227,27 +227,13 @@ class pluginOpenSearch(pluginBase):
 
 
 class pluginHorreum(pluginBase):
-    def _login(self, args):
+    def _setup(self, args):
         # FIXME
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        self.logger.debug("Getting access token from Keycloak")
-        response = requests.post(
-            f"{args.keycloak_url}/realms/horreum/protocol/openid-connect/token",
-            data={
-                "username": args.username,
-                "password": args.password,
-                "grant_type": "password",
-                "client_id": "horreum-ui",
-            },
-            verify=False,
-        )
-        response.raise_for_status()
-
-        self.token = response.json()["access_token"]
         self.headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.token}",
+            "X-Horreum-API-Key": args.api_token,
         }
 
         self.logger.debug(f"Getting test id for {args.test_name}")
@@ -269,7 +255,7 @@ class pluginHorreum(pluginBase):
         args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.input_file))
         args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.input_file))
 
-        self._login(args)
+        self._setup(args)
 
         self.logger.info(f"Looking for field {args.matcher_field}")
         matcher_value = _get_field_value(args.matcher_field, self.input_file)
@@ -319,7 +305,7 @@ class pluginHorreum(pluginBase):
         args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.output_file)).astimezone(tz=datetime.timezone.utc)
         args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.output_file)).astimezone(tz=datetime.timezone.utc)
 
-        self._login(args)
+        self._setup(args)
 
         self.logger.debug(f"Loading list of alerting variables for test {self.test_id}")
         response = requests.get(
@@ -385,19 +371,9 @@ class pluginHorreum(pluginBase):
             help="Base URL of Horreum server",
         )
         parser.add_argument(
-            "--keycloak-url",
-            default="https://horreum-keycloak.corp.redhat.com",
-            help="Base URL of Horreum Keycloak server",
-        )
-        parser.add_argument(
-            "--username",
+            "--api-token",
             required=True,
-            help="Horreum username",
-        )
-        parser.add_argument(
-            "--password",
-            required=True,
-            help="Horreum password",
+            help="Horreum API token",
         )
 
         # Options for uploading document to Horreum
