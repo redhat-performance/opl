@@ -236,14 +236,15 @@ class pluginHorreum(pluginBase):
             "X-Horreum-API-Key": args.api_token,
         }
 
-        self.logger.debug(f"Getting test id for {args.test_name}")
-        response = requests.get(
-            f"{args.base_url}/api/test/byName/{args.test_name}",
-            headers=self.headers,
-            verify=False,
-        )
-        response.raise_for_status()
-        self.test_id = response.json()["id"]
+        if "test_name" in args:
+            self.logger.debug(f"Getting test id for {args.test_name}")
+            response = requests.get(
+                f"{args.base_url}/api/test/byName/{args.test_name}",
+                headers=self.headers,
+                verify=False,
+            )
+            response.raise_for_status()
+            self.test_id = response.json()["id"]
 
     def upload(self, args):
         self.logger.debug(f"Loading file {args.input_file}")
@@ -364,6 +365,47 @@ class pluginHorreum(pluginBase):
         with open(args.output_file, "w") as fd:
             json.dump(self.output_file, fd, sort_keys=True, indent=4)
 
+    def list(self, args):
+        self._setup(args)
+
+        params = {
+            "trashed": False,
+            "limit": 100,
+            "page": 1,
+        }
+
+        self.logger.debug(f"Listing results for test {args.test_name}")
+        while True:
+            response = requests.get(
+                f"{args.base_url}/api/run/list/{self.test_id}",
+                headers=self.headers,
+                params=params,
+                verify=False,
+            )
+            response.raise_for_status()
+
+            runs = response.json().get("runs", [])
+            if len(runs) == 0:
+                break
+
+            for i in runs:
+                print(i["id"])
+
+            params["page"] += 1
+
+    def get(self, args):
+        self._setup(args)
+
+        self.logger.debug(f"Geting data for run {args.run_id}")
+        response = requests.get(
+            f"{args.base_url}/api/run/{args.run_id}/data",
+            headers=self.headers,
+            verify=False,
+        )
+        response.raise_for_status()
+        data = response.json()
+        print(json.dumps(data))
+
     def set_args(self, parser, subparsers):
         parser.add_argument(
             "--base-url",
@@ -437,6 +479,25 @@ class pluginHorreum(pluginBase):
         parser_result.add_argument(
             "--output-file",
             help="If specified, put result into .result of this JSON file",
+        )
+
+        # Options for listing results
+        parser_result = subparsers.add_parser("list", help="List test run IDs for a test")
+        parser_result.set_defaults(func=self.list)
+        parser_result.add_argument(
+            "--test-name",
+            default="load-tests-result",
+            help="Test name as configured in Horreum",
+        )
+
+        # Options for getting full result
+        parser_result = subparsers.add_parser("get", help="Get data for test run ID")
+        parser_result.set_defaults(func=self.get)
+        parser_result.add_argument(
+            "--run-id",
+            type=int,
+            required=True,
+            help="Test run ID",
         )
 
 
