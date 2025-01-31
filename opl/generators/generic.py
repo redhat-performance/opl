@@ -25,6 +25,12 @@ class GenericGenerator:
 
         self.counter = 0
 
+        # These will be added to variables when rendering template
+        # so you can use there e.g. "Random UUID is: {{ opl_gen.gen_uuid() }}"
+        self.helpers = {
+            "opl_gen": opl.gen,
+        }
+
         data_dirname = os.path.dirname(__file__)
         self.env = jinja2.Environment(
             loader=jinja2.ChoiceLoader(
@@ -52,9 +58,9 @@ class GenericGenerator:
         data = self._data()
         mid = self._mid(data)
         if self.dump_message:
-            msg = self.template.render(**data).encode("UTF-8")
+            msg = self.template.render(**self.helpers, **data).encode("UTF-8")
         else:
-            msg = json.loads(self.template.render(**data))
+            msg = json.loads(self.template.render(**self.helpers, **data))
         return mid, msg
 
     def _mid(self, data):
