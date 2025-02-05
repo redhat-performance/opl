@@ -277,6 +277,41 @@ class pluginHorreum(pluginBase):
             print(f"Result {args.matcher_label}={matcher_value} is already there, skipping upload")
             return
 
+        if args.trashed:
+            self.logger.debug(f"WORKAROUND: Searching if result already there amongst trashed runs")
+            params = {
+                "trashed": True,
+                "limit": args.trashed_workaround_count,
+                "page": 1,
+                "sort": "start",
+                "direction": "Descending",
+            }
+            response = requests.get(
+                f"{args.base_url}/api/run/list/{self.test_id}",
+                headers=self.headers,
+                params=params,
+                verify=False,
+            )
+            response.raise_for_status()
+            runs = response.json().get("runs", [])
+
+            for run in runs:
+                # Un-trashed runs were examined already, so we can skipp these
+                if run["trashed"] is False:
+                    continue
+
+                response = requests.get(
+                    f"{args.base_url}/api/run/{run['id']}/data",
+                    headers=self.headers,
+                    verify=False,
+                )
+                response.raise_for_status()
+                run_data = response.json()
+                marker = _get_field_value(args.matcher_field, run_data)
+                if marker == matcher_value:
+                    print(f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload")
+                    return
+
         logging.info("Uploading")
         params = {
             "test": args.test_name,
@@ -458,6 +493,16 @@ class pluginHorreum(pluginBase):
         parser_upload.add_argument(
             "--end",
             help="When the test whose JSON file we are uploading ended, if prefixed with '@' sign, it is a field name from input file where to load this",
+        )
+        parser_upload.add_argument(
+            "--trashed",
+            action="store_true",
+            help="Use this if you want to check for presence of a result even amongst trashed runs",
+        )
+        parser_upload.add_argument(
+            "--trashed-workaround-count",
+            default=10,
+            help="When listing runs (including trashed ones) sorted in descending order, only check this many",
         )
 
         # Options for detecting no-/change signal
