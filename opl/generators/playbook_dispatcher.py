@@ -1,7 +1,7 @@
 import json
 import logging
 import random
-
+import uuid
 import opl.generators.generic
 
 
@@ -27,7 +27,7 @@ class RunnerUpdatesGenerator(opl.generators.generic.GenericGenerator):
 
     def _headers(self, data):
         return {
-            "x-rh-insights-request-id": "TODO",
+            "x-rh-insights-request-id": uuid.uuid4().hex,
             "x-rh-insights-playbook-dispatcher-correlation-id": data["correlation_id"],
             "service": "playbook",
         }
