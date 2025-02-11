@@ -8,6 +8,7 @@ class RunnerUpdatesGenerator(opl.generators.generic.GenericGenerator):
     def __init__(
         self,
         count,
+        org_id,
         correlation_id,
         run_id,
         template="playbook-dispatcher-runner-updates.json.j2",
@@ -18,6 +19,7 @@ class RunnerUpdatesGenerator(opl.generators.generic.GenericGenerator):
 
         self.correlation_id = correlation_id
         self.run_id = run_id
+        self.org_id = org_id
 
     def _mid(self, data):
         return data["correlation_id"]
@@ -33,6 +35,8 @@ class RunnerUpdatesGenerator(opl.generators.generic.GenericGenerator):
         data = {
             "correlation_id": self.correlation_id,
             "run_id": self.run_id,
+            "org_id": self.org_id,
+            "b64_identity": self._get_b64_identity(self.org_id, self.org_id),
         }
         return data
 
