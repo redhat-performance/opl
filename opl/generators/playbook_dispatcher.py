@@ -35,3 +35,26 @@ class RunnerUpdatesGenerator(opl.generators.generic.GenericGenerator):
             "run_id": self.run_id,
         }
         return data
+
+
+class RunsPostGenerator(opl.generators.generic.GenericGenerator):
+    """Iterator that creates payloads with messages formatted using given template."""
+
+    def __init__(
+        self,
+        count,
+        template="playbook-dispatcher-post-run.json.j2",
+    ):
+        super().__init__(count=count, template=template, dump_message=False)
+
+        self.counter = 0  # how many payloads we have produced already
+
+    def _mid(self, data):
+        return None
+
+    def _data(self):
+        data = {
+            "recipient": self._get_uuid(),
+            "org_id": self._get_orgid(),
+        }
+        return data
