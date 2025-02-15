@@ -16,27 +16,30 @@ def _floor_datetime(obj):
     """Floor datetime object to whole second."""
     return obj.replace(microsecond=0)
 
+
 def _ceil_datetime(obj):
     """Ceil datetime object to whole second."""
     if obj.microsecond > 0:
         obj += datetime.timedelta(seconds=1)
     return obj.replace(microsecond=0)
 
+
 def _get_field_value(field, data):
     """Return content of filed like foo.bar or .baz or so."""
     if field.startswith("."):
-       field = field[1:]
+        field = field[1:]
 
     value = None
     for f in field.split("."):
-        if f == '':
-            continue   # skip empty field created e.g. by leading dot
+        if f == "":
+            continue  # skip empty field created e.g. by leading dot
         if value is None:
             value = data[f]
         else:
             value = value[f]
 
     return value
+
 
 def _set_field_value(field, value, data):
     """Find field (in doted notation) in data (being changed in place) and set it to value."""
@@ -49,6 +52,7 @@ def _set_field_value(field, value, data):
         data = data[f]
 
     data[field.split(".")[-1]] = value
+
 
 def _figure_out_option(option, data):
     """Normalize option value for cases when it can come from data file. Checks for None."""
@@ -90,7 +94,9 @@ class pluginProw(pluginBase):
 
     def download(self, args):
         if os.path.isfile(args.output_path):
-            raise Exception(f"File {args.output_path} already present, refusing to overwrite it")
+            raise Exception(
+                f"File {args.output_path} already present, refusing to overwrite it"
+            )
 
         from_url = f"{args.base_url}/{args.job_name}/{args.job_run_id}/artifacts/{args.run_name}/{args.artifact_path}"
         logging.info(f"Downloading {from_url} to {args.output_path}")
@@ -102,10 +108,14 @@ class pluginProw(pluginBase):
             try:
                 data = response.json()
             except requests.exceptions.JSONDecodeError:
-                self.logger.error(f"Failed to parse JSON, ignoring --record-link option")
+                self.logger.error(
+                    f"Failed to parse JSON, ignoring --record-link option"
+                )
             else:
                 _set_field_value(args.record_link, from_url, data)
-                response_content = str.encode(json.dumps(data, sort_keys=True, indent=4))
+                response_content = str.encode(
+                    json.dumps(data, sort_keys=True, indent=4)
+                )
 
         with open(args.output_path, "wb") as f:
             f.write(response_content)
@@ -124,11 +134,15 @@ class pluginProw(pluginBase):
         )
 
         # Options for listing Prow runs
-        parser_list = subparsers.add_parser("list", help="List runs for specific Prow job")
+        parser_list = subparsers.add_parser(
+            "list", help="List runs for specific Prow job"
+        )
         parser_list.set_defaults(func=self.list)
 
         # Options for downloading artifacts from Prow
-        parser_download = subparsers.add_parser("download", help="Download file from Prow run artifacts")
+        parser_download = subparsers.add_parser(
+            "download", help="Download file from Prow run artifacts"
+        )
         parser_download.set_defaults(func=self.download)
         parser_download.add_argument(
             "--job-run-id",
@@ -167,14 +181,14 @@ class pluginOpenSearch(pluginBase):
         self.logger.info(f"Looking for field {args.matcher_field}")
         matcher_value = _get_field_value(args.matcher_field, values)
         if matcher_value is None:
-            raise Exception(f"Failed to load {args.matcher_field} from {args.input_file}")
+            raise Exception(
+                f"Failed to load {args.matcher_field} from {args.input_file}"
+            )
 
-        self.logger.info(f"Checking if document {args.matcher_field}={matcher_value} is already present")
-        query = {
-            "query": {
-                "match": {f"{args.matcher_field}": matcher_value}
-            }
-        }
+        self.logger.info(
+            f"Checking if document {args.matcher_field}={matcher_value} is already present"
+        )
+        query = {"query": {"match": {f"{args.matcher_field}": matcher_value}}}
         headers = {"Content-Type": "application/json"}
 
         current_doc_in_es = requests.post(
@@ -213,7 +227,9 @@ class pluginOpenSearch(pluginBase):
         )
 
         # Options for uploading document to OpenSearch
-        parser_upload = subparsers.add_parser("upload", help="Upload document to OpenSearch")
+        parser_upload = subparsers.add_parser(
+            "upload", help="Upload document to OpenSearch"
+        )
         parser_upload.set_defaults(func=self.upload)
         parser_upload.add_argument(
             "--input-file",
@@ -253,17 +269,25 @@ class pluginHorreum(pluginBase):
 
         self.logger.info("Preparing all the options")
         args.test_name = _figure_out_option(args.test_name, self.input_file)
-        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.input_file))
-        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.input_file))
+        args.start = datetime.datetime.fromisoformat(
+            _figure_out_option(args.start, self.input_file)
+        )
+        args.end = datetime.datetime.fromisoformat(
+            _figure_out_option(args.end, self.input_file)
+        )
 
         self._setup(args)
 
         self.logger.info(f"Looking for field {args.matcher_field}")
         matcher_value = _get_field_value(args.matcher_field, self.input_file)
         if matcher_value is None:
-            raise Exception(f"Failed to load {args.matcher_field} from {args.input_file}")
+            raise Exception(
+                f"Failed to load {args.matcher_field} from {args.input_file}"
+            )
 
-        self.logger.debug(f"Searching if result {args.matcher_label}={matcher_value} is already there")
+        self.logger.debug(
+            f"Searching if result {args.matcher_label}={matcher_value} is already there"
+        )
         filter_data = {args.matcher_label: matcher_value}
         response = requests.get(
             f"{args.base_url}/api/dataset/list/{self.test_id}",
@@ -274,8 +298,49 @@ class pluginHorreum(pluginBase):
         response.raise_for_status()
         datasets = response.json().get("datasets", [])
         if len(datasets) > 0:
-            print(f"Result {args.matcher_label}={matcher_value} is already there, skipping upload")
+            print(
+                f"Result {args.matcher_label}={matcher_value} is already there, skipping upload"
+            )
             return
+
+        if args.trashed:
+            self.logger.debug(
+                f"WORKAROUND: Searching if result already there amongst trashed runs"
+            )
+            params = {
+                "trashed": True,
+                "limit": args.trashed_workaround_count,
+                "page": 1,
+                "sort": "start",
+                "direction": "Descending",
+            }
+            response = requests.get(
+                f"{args.base_url}/api/run/list/{self.test_id}",
+                headers=self.headers,
+                params=params,
+                verify=False,
+            )
+            response.raise_for_status()
+            runs = response.json().get("runs", [])
+
+            for run in runs:
+                # Un-trashed runs were examined already, so we can skipp these
+                if run["trashed"] is False:
+                    continue
+
+                response = requests.get(
+                    f"{args.base_url}/api/run/{run['id']}/data",
+                    headers=self.headers,
+                    verify=False,
+                )
+                response.raise_for_status()
+                run_data = response.json()
+                marker = _get_field_value(args.matcher_field, run_data)
+                if marker == matcher_value:
+                    print(
+                        f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload"
+                    )
+                    return
 
         logging.info("Uploading")
         params = {
@@ -303,8 +368,12 @@ class pluginHorreum(pluginBase):
 
         self.logger.info("Preparing all the options")
         args.test_name = _figure_out_option(args.test_name, self.output_file)
-        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.output_file)).astimezone(tz=datetime.timezone.utc)
-        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.output_file)).astimezone(tz=datetime.timezone.utc)
+        args.start = datetime.datetime.fromisoformat(
+            _figure_out_option(args.start, self.output_file)
+        ).astimezone(tz=datetime.timezone.utc)
+        args.end = datetime.datetime.fromisoformat(
+            _figure_out_option(args.end, self.output_file)
+        ).astimezone(tz=datetime.timezone.utc)
 
         self._setup(args)
 
@@ -347,13 +416,15 @@ class pluginHorreum(pluginBase):
 
             # Check if the result is not an empty list
             if len(response) > 0:
-                self.logger.info(f"For {alerting_variable['name']} detected change {response}")
+                self.logger.info(
+                    f"For {alerting_variable['name']} detected change {response}"
+                )
                 change_detected = True
                 break
             else:
                 self.logger.info(f"For {alerting_variable['name']} all looks good")
 
-        result = 'FAIL' if change_detected else 'PASS'
+        result = "FAIL" if change_detected else "PASS"
 
         if args.output_file is None:
             print(f"Result is {result}")
@@ -406,6 +477,98 @@ class pluginHorreum(pluginBase):
         data = response.json()
         print(json.dumps(data))
 
+    def _schema_uri_to_id(self, base_url, schema_uri):
+        self.logger.debug(f"Geting schema ID for URI {schema_uri}")
+        response = requests.get(
+            f"{base_url}/api/schema/idByUri/{schema_uri}",
+            headers=self.headers,
+            verify=False,
+        )
+        response.raise_for_status()
+        schema_id = int(response.json())
+        self.logger.debug(f"Schema ID for URI {schema_uri} is {schema_id}")
+        return schema_id
+
+    def _sanitize_string(self, input_string):
+        return re.sub(r"[^a-zA-Z0-9]", "_", input_string)
+
+    def schema_label_list(self, args):
+        self._setup(args)
+
+        schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
+
+        self.logger.debug(f"Getting list of labels for schema ID {schema_id}")
+        response = requests.get(
+            f"{args.base_url}/api/schema/{schema_id}/labels",
+            headers=self.headers,
+            verify=False,
+        )
+        response.raise_for_status()
+        data = response.json()
+        self.logger.debug(f"Obtained {len(data)} labels for schema ID {schema_id}")
+
+        for label in data:
+            print(f"{label['id']}\t{label['name']}")
+
+    def schema_label_add(self, args):
+        self._setup(args)
+
+        schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
+
+        new_name = (
+            self._sanitize_string(args.extractor_jsonpath)
+            if args.name is None
+            else args.name
+        )
+        new_ext_name = (
+            self._sanitize_string(args.extractor_jsonpath)
+            if args.extractor_name is None
+            else args.extractor_name
+        )
+        new = {
+            "access": args.access,
+            "owner": args.owner,
+            "name": new_name,
+            "extractors": [
+                {
+                    "name": new_ext_name,
+                    "jsonpath": args.extractor_jsonpath,
+                    "isarray": args.extractor_isarray,
+                },
+            ],
+            "function": args.function,
+            "filtering": args.filtering,
+            "metrics": args.metrics,
+            "schemaId": schema_id,
+        }
+        if args.id is not None:
+            new["id"] = args.id
+
+        self.logger.debug(f"Adding label to schema id {schema_id}: {new}")
+        response = requests.post(
+            f"{args.base_url}/api/schema/{schema_id}/labels",
+            headers=self.headers,
+            verify=False,
+            json=new,
+        )
+        response.raise_for_status()
+        label_id = int(response.json())
+        self.logger.debug(f"Created label ID {label_id} in schema ID {schema_id}")
+
+    def schema_label_delete(self, args):
+        self._setup(args)
+
+        schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
+
+        self.logger.debug(f"Deleting label ID {args.id} from schema ID {schema_id}")
+        response = requests.delete(
+            f"{args.base_url}/api/schema/{schema_id}/labels/{args.id}",
+            headers=self.headers,
+            verify=False,
+        )
+        response.raise_for_status()
+        self.logger.debug(f"Deleted label ID {args.id} in schema ID {schema_id}")
+
     def set_args(self, parser, subparsers):
         parser.add_argument(
             "--base-url",
@@ -419,7 +582,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for uploading document to Horreum
-        parser_upload = subparsers.add_parser("upload", help="Upload file to Horreum if it is not there already")
+        parser_upload = subparsers.add_parser(
+            "upload", help="Upload file to Horreum if it is not there already"
+        )
         parser_upload.set_defaults(func=self.upload)
         parser_upload.add_argument(
             "--test-name",
@@ -459,9 +624,21 @@ class pluginHorreum(pluginBase):
             "--end",
             help="When the test whose JSON file we are uploading ended, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
+        parser_upload.add_argument(
+            "--trashed",
+            action="store_true",
+            help="Use this if you want to check for presence of a result even amongst trashed runs",
+        )
+        parser_upload.add_argument(
+            "--trashed-workaround-count",
+            default=10,
+            help="When listing runs (including trashed ones) sorted in descending order, only check this many",
+        )
 
         # Options for detecting no-/change signal
-        parser_result = subparsers.add_parser("result", help="Get Horreum no-/change signal for a given time range")
+        parser_result = subparsers.add_parser(
+            "result", help="Get Horreum no-/change signal for a given time range"
+        )
         parser_result.set_defaults(func=self.result)
         parser_result.add_argument(
             "--test-name",
@@ -482,7 +659,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for listing results
-        parser_result = subparsers.add_parser("list", help="List test run IDs for a test")
+        parser_result = subparsers.add_parser(
+            "list", help="List test run IDs for a test"
+        )
         parser_result.set_defaults(func=self.list)
         parser_result.add_argument(
             "--test-name",
@@ -500,6 +679,105 @@ class pluginHorreum(pluginBase):
             help="Test run ID",
         )
 
+        # Options for listing schema labels
+        parser_result = subparsers.add_parser(
+            "schema-label-list", help="List schema labels"
+        )
+        parser_result.set_defaults(func=self.schema_label_list)
+        parser_result.add_argument(
+            "--schema-uri",
+            type=str,
+            required=True,
+            help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
+        )
+
+        # Options for adding or updating schema label
+        parser_result = subparsers.add_parser(
+            "schema-label-add", help="Add or update schema label"
+        )
+        parser_result.set_defaults(func=self.schema_label_add)
+        parser_result.add_argument(
+            "--schema-uri",
+            type=str,
+            required=True,
+            help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
+        )
+        parser_result.add_argument(
+            "--id",
+            type=int,
+            help="Label ID of label you want to update. Do not set it if you are creating new one.",
+        )
+        parser_result.add_argument(
+            "--name",
+            type=str,
+            help="Label name. Do not set if and it will be figured from jsonpath.",
+        )
+        parser_result.add_argument(
+            "--extractor-name",
+            type=str,
+            help="Extractor name. Keep empty and it will de derived from JSON path. Only one extractor allowed now, support for more is TODO.",
+        )
+        parser_result.add_argument(
+            "--extractor-jsonpath",
+            type=str,
+            required=True,
+            help="Extractor JSON path expression. Only one extractor allowed now, support for more is TODO.",
+        )
+        parser_result.add_argument(
+            "--extractor-isarray",
+            type=bool,
+            default=False,
+            help="If extractor refferencing an array? Defaults to false. Only one extractor allowed now, support for more is TODO.",
+        )
+        parser_result.add_argument(
+            "--function",
+            type=str,
+            default="",
+            help="Combination function for the label. Defaults to empty one.",
+        )
+        parser_result.add_argument(
+            "--filtering",
+            type=bool,
+            default=False,
+            help="Is label a filtering label? Defaults to False.",
+        )
+        parser_result.add_argument(
+            "--metrics",
+            type=bool,
+            default=True,
+            help="Is label a metrics label? Defaults to True.",
+        )
+        parser_result.add_argument(
+            "--access",
+            choices=["PUBLIC", "PROTECTED", "PRIVATE"],
+            default="PUBLIC",
+            help="Access rights for the test. Defaults to 'PUBLIC'.",
+        )
+        parser_result.add_argument(
+            "--owner",
+            type=str,
+            required=True,
+            help="Name of the team that owns the test.",
+        )
+
+        # Options for deleting schema label
+        parser_result = subparsers.add_parser(
+            "schema-label-delete", help="Delete schema label"
+        )
+        parser_result.set_defaults(func=self.schema_label_delete)
+        parser_result.add_argument(
+            "--schema-uri",
+            type=str,
+            required=True,
+            help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
+        )
+        parser_result.add_argument(
+            "--id",
+            type=int,
+            required=True,
+            help="Label ID of label you want to delete",
+        )
+
 
 class pluginResultsDashboard(pluginBase):
     def upload(self, args):
@@ -510,7 +788,9 @@ class pluginResultsDashboard(pluginBase):
                 self.input_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
-        args.date = datetime.datetime.fromisoformat(_figure_out_option(args.date, self.input_file))
+        args.date = datetime.datetime.fromisoformat(
+            _figure_out_option(args.date, self.input_file)
+        )
         args.group = _figure_out_option(args.group, self.input_file)
         args.link = _figure_out_option(args.link, self.input_file)
         args.product = _figure_out_option(args.product, self.input_file)
@@ -585,7 +865,10 @@ class pluginResultsDashboard(pluginBase):
         )
 
         # Options for uploading document to Results Dashboard
-        parser_upload = subparsers.add_parser("upload", help="Upload result to Results Dashboard if it is not there already")
+        parser_upload = subparsers.add_parser(
+            "upload",
+            help="Upload result to Results Dashboard if it is not there already",
+        )
         parser_upload.set_defaults(func=self.upload)
         parser_upload.add_argument(
             "--test",
@@ -645,13 +928,14 @@ PLUGINS = {
     "resultsdashboard": pluginResultsDashboard(),
 }
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Shovel data from A to B",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     subparsers = parser.add_subparsers(
-        dest='plugin_name',
+        dest="plugin_name",
         help="sub-command help",
         required=True,
     )
@@ -661,7 +945,7 @@ def main():
             help=f"Work with {name}",
         )
         subparsers_plugin = parser_plugin.add_subparsers(
-            dest='plugin_command',
+            dest="plugin_command",
             help="sub-command help",
             required=True,
         )
@@ -669,6 +953,7 @@ def main():
 
     with skelet.test_setup(parser) as (args, status_data):
         args.func(args)
+
 
 if __name__ == "__main__":
     main()
