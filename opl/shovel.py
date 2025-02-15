@@ -16,27 +16,30 @@ def _floor_datetime(obj):
     """Floor datetime object to whole second."""
     return obj.replace(microsecond=0)
 
+
 def _ceil_datetime(obj):
     """Ceil datetime object to whole second."""
     if obj.microsecond > 0:
         obj += datetime.timedelta(seconds=1)
     return obj.replace(microsecond=0)
 
+
 def _get_field_value(field, data):
     """Return content of filed like foo.bar or .baz or so."""
     if field.startswith("."):
-       field = field[1:]
+        field = field[1:]
 
     value = None
     for f in field.split("."):
-        if f == '':
-            continue   # skip empty field created e.g. by leading dot
+        if f == "":
+            continue  # skip empty field created e.g. by leading dot
         if value is None:
             value = data[f]
         else:
             value = value[f]
 
     return value
+
 
 def _set_field_value(field, value, data):
     """Find field (in doted notation) in data (being changed in place) and set it to value."""
@@ -49,6 +52,7 @@ def _set_field_value(field, value, data):
         data = data[f]
 
     data[field.split(".")[-1]] = value
+
 
 def _figure_out_option(option, data):
     """Normalize option value for cases when it can come from data file. Checks for None."""
@@ -90,7 +94,9 @@ class pluginProw(pluginBase):
 
     def download(self, args):
         if os.path.isfile(args.output_path):
-            raise Exception(f"File {args.output_path} already present, refusing to overwrite it")
+            raise Exception(
+                f"File {args.output_path} already present, refusing to overwrite it"
+            )
 
         from_url = f"{args.base_url}/{args.job_name}/{args.job_run_id}/artifacts/{args.run_name}/{args.artifact_path}"
         logging.info(f"Downloading {from_url} to {args.output_path}")
@@ -102,10 +108,14 @@ class pluginProw(pluginBase):
             try:
                 data = response.json()
             except requests.exceptions.JSONDecodeError:
-                self.logger.error(f"Failed to parse JSON, ignoring --record-link option")
+                self.logger.error(
+                    f"Failed to parse JSON, ignoring --record-link option"
+                )
             else:
                 _set_field_value(args.record_link, from_url, data)
-                response_content = str.encode(json.dumps(data, sort_keys=True, indent=4))
+                response_content = str.encode(
+                    json.dumps(data, sort_keys=True, indent=4)
+                )
 
         with open(args.output_path, "wb") as f:
             f.write(response_content)
@@ -124,11 +134,15 @@ class pluginProw(pluginBase):
         )
 
         # Options for listing Prow runs
-        parser_list = subparsers.add_parser("list", help="List runs for specific Prow job")
+        parser_list = subparsers.add_parser(
+            "list", help="List runs for specific Prow job"
+        )
         parser_list.set_defaults(func=self.list)
 
         # Options for downloading artifacts from Prow
-        parser_download = subparsers.add_parser("download", help="Download file from Prow run artifacts")
+        parser_download = subparsers.add_parser(
+            "download", help="Download file from Prow run artifacts"
+        )
         parser_download.set_defaults(func=self.download)
         parser_download.add_argument(
             "--job-run-id",
@@ -167,14 +181,14 @@ class pluginOpenSearch(pluginBase):
         self.logger.info(f"Looking for field {args.matcher_field}")
         matcher_value = _get_field_value(args.matcher_field, values)
         if matcher_value is None:
-            raise Exception(f"Failed to load {args.matcher_field} from {args.input_file}")
+            raise Exception(
+                f"Failed to load {args.matcher_field} from {args.input_file}"
+            )
 
-        self.logger.info(f"Checking if document {args.matcher_field}={matcher_value} is already present")
-        query = {
-            "query": {
-                "match": {f"{args.matcher_field}": matcher_value}
-            }
-        }
+        self.logger.info(
+            f"Checking if document {args.matcher_field}={matcher_value} is already present"
+        )
+        query = {"query": {"match": {f"{args.matcher_field}": matcher_value}}}
         headers = {"Content-Type": "application/json"}
 
         current_doc_in_es = requests.post(
@@ -213,7 +227,9 @@ class pluginOpenSearch(pluginBase):
         )
 
         # Options for uploading document to OpenSearch
-        parser_upload = subparsers.add_parser("upload", help="Upload document to OpenSearch")
+        parser_upload = subparsers.add_parser(
+            "upload", help="Upload document to OpenSearch"
+        )
         parser_upload.set_defaults(func=self.upload)
         parser_upload.add_argument(
             "--input-file",
@@ -253,17 +269,25 @@ class pluginHorreum(pluginBase):
 
         self.logger.info("Preparing all the options")
         args.test_name = _figure_out_option(args.test_name, self.input_file)
-        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.input_file))
-        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.input_file))
+        args.start = datetime.datetime.fromisoformat(
+            _figure_out_option(args.start, self.input_file)
+        )
+        args.end = datetime.datetime.fromisoformat(
+            _figure_out_option(args.end, self.input_file)
+        )
 
         self._setup(args)
 
         self.logger.info(f"Looking for field {args.matcher_field}")
         matcher_value = _get_field_value(args.matcher_field, self.input_file)
         if matcher_value is None:
-            raise Exception(f"Failed to load {args.matcher_field} from {args.input_file}")
+            raise Exception(
+                f"Failed to load {args.matcher_field} from {args.input_file}"
+            )
 
-        self.logger.debug(f"Searching if result {args.matcher_label}={matcher_value} is already there")
+        self.logger.debug(
+            f"Searching if result {args.matcher_label}={matcher_value} is already there"
+        )
         filter_data = {args.matcher_label: matcher_value}
         response = requests.get(
             f"{args.base_url}/api/dataset/list/{self.test_id}",
@@ -274,11 +298,15 @@ class pluginHorreum(pluginBase):
         response.raise_for_status()
         datasets = response.json().get("datasets", [])
         if len(datasets) > 0:
-            print(f"Result {args.matcher_label}={matcher_value} is already there, skipping upload")
+            print(
+                f"Result {args.matcher_label}={matcher_value} is already there, skipping upload"
+            )
             return
 
         if args.trashed:
-            self.logger.debug(f"WORKAROUND: Searching if result already there amongst trashed runs")
+            self.logger.debug(
+                f"WORKAROUND: Searching if result already there amongst trashed runs"
+            )
             params = {
                 "trashed": True,
                 "limit": args.trashed_workaround_count,
@@ -309,7 +337,9 @@ class pluginHorreum(pluginBase):
                 run_data = response.json()
                 marker = _get_field_value(args.matcher_field, run_data)
                 if marker == matcher_value:
-                    print(f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload")
+                    print(
+                        f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload"
+                    )
                     return
 
         logging.info("Uploading")
@@ -338,8 +368,12 @@ class pluginHorreum(pluginBase):
 
         self.logger.info("Preparing all the options")
         args.test_name = _figure_out_option(args.test_name, self.output_file)
-        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.output_file)).astimezone(tz=datetime.timezone.utc)
-        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.output_file)).astimezone(tz=datetime.timezone.utc)
+        args.start = datetime.datetime.fromisoformat(
+            _figure_out_option(args.start, self.output_file)
+        ).astimezone(tz=datetime.timezone.utc)
+        args.end = datetime.datetime.fromisoformat(
+            _figure_out_option(args.end, self.output_file)
+        ).astimezone(tz=datetime.timezone.utc)
 
         self._setup(args)
 
@@ -382,13 +416,15 @@ class pluginHorreum(pluginBase):
 
             # Check if the result is not an empty list
             if len(response) > 0:
-                self.logger.info(f"For {alerting_variable['name']} detected change {response}")
+                self.logger.info(
+                    f"For {alerting_variable['name']} detected change {response}"
+                )
                 change_detected = True
                 break
             else:
                 self.logger.info(f"For {alerting_variable['name']} all looks good")
 
-        result = 'FAIL' if change_detected else 'PASS'
+        result = "FAIL" if change_detected else "PASS"
 
         if args.output_file is None:
             print(f"Result is {result}")
@@ -454,7 +490,7 @@ class pluginHorreum(pluginBase):
         return schema_id
 
     def _sanitize_string(self, input_string):
-        return re.sub(r'[^a-zA-Z0-9]', '_', input_string)
+        return re.sub(r"[^a-zA-Z0-9]", "_", input_string)
 
     def schema_label_list(self, args):
         self._setup(args)
@@ -479,23 +515,31 @@ class pluginHorreum(pluginBase):
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
 
-        new_name = self._sanitize_string(args.extractor_jsonpath) if args.name is None else args.name
-        new_ext_name = self._sanitize_string(args.extractor_jsonpath) if args.extractor_name is None else args.extractor_name
+        new_name = (
+            self._sanitize_string(args.extractor_jsonpath)
+            if args.name is None
+            else args.name
+        )
+        new_ext_name = (
+            self._sanitize_string(args.extractor_jsonpath)
+            if args.extractor_name is None
+            else args.extractor_name
+        )
         new = {
-            'access': args.access,
-            'owner': args.owner,
-            'name': new_name,
-            'extractors': [
+            "access": args.access,
+            "owner": args.owner,
+            "name": new_name,
+            "extractors": [
                 {
-                    'name': new_ext_name,
-                    'jsonpath': args.extractor_jsonpath,
-                    'isarray': args.extractor_isarray,
+                    "name": new_ext_name,
+                    "jsonpath": args.extractor_jsonpath,
+                    "isarray": args.extractor_isarray,
                 },
             ],
-            'function': args.function,
-            'filtering': args.filtering,
-            'metrics': args.metrics,
-            'schemaId': schema_id,
+            "function": args.function,
+            "filtering": args.filtering,
+            "metrics": args.metrics,
+            "schemaId": schema_id,
         }
         if args.id is not None:
             new["id"] = args.id
@@ -538,7 +582,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for uploading document to Horreum
-        parser_upload = subparsers.add_parser("upload", help="Upload file to Horreum if it is not there already")
+        parser_upload = subparsers.add_parser(
+            "upload", help="Upload file to Horreum if it is not there already"
+        )
         parser_upload.set_defaults(func=self.upload)
         parser_upload.add_argument(
             "--test-name",
@@ -590,7 +636,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for detecting no-/change signal
-        parser_result = subparsers.add_parser("result", help="Get Horreum no-/change signal for a given time range")
+        parser_result = subparsers.add_parser(
+            "result", help="Get Horreum no-/change signal for a given time range"
+        )
         parser_result.set_defaults(func=self.result)
         parser_result.add_argument(
             "--test-name",
@@ -611,7 +659,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for listing results
-        parser_result = subparsers.add_parser("list", help="List test run IDs for a test")
+        parser_result = subparsers.add_parser(
+            "list", help="List test run IDs for a test"
+        )
         parser_result.set_defaults(func=self.list)
         parser_result.add_argument(
             "--test-name",
@@ -630,7 +680,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for listing schema labels
-        parser_result = subparsers.add_parser("schema-label-list", help="List schema labels")
+        parser_result = subparsers.add_parser(
+            "schema-label-list", help="List schema labels"
+        )
         parser_result.set_defaults(func=self.schema_label_list)
         parser_result.add_argument(
             "--schema-uri",
@@ -640,7 +692,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for adding or updating schema label
-        parser_result = subparsers.add_parser("schema-label-add", help="Add or update schema label")
+        parser_result = subparsers.add_parser(
+            "schema-label-add", help="Add or update schema label"
+        )
         parser_result.set_defaults(func=self.schema_label_add)
         parser_result.add_argument(
             "--schema-uri",
@@ -707,7 +761,9 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for deleting schema label
-        parser_result = subparsers.add_parser("schema-label-delete", help="Delete schema label")
+        parser_result = subparsers.add_parser(
+            "schema-label-delete", help="Delete schema label"
+        )
         parser_result.set_defaults(func=self.schema_label_delete)
         parser_result.add_argument(
             "--schema-uri",
@@ -722,6 +778,7 @@ class pluginHorreum(pluginBase):
             help="Label ID of label you want to delete",
         )
 
+
 class pluginResultsDashboard(pluginBase):
     def upload(self, args):
         self.input_file = None
@@ -731,7 +788,9 @@ class pluginResultsDashboard(pluginBase):
                 self.input_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
-        args.date = datetime.datetime.fromisoformat(_figure_out_option(args.date, self.input_file))
+        args.date = datetime.datetime.fromisoformat(
+            _figure_out_option(args.date, self.input_file)
+        )
         args.group = _figure_out_option(args.group, self.input_file)
         args.link = _figure_out_option(args.link, self.input_file)
         args.product = _figure_out_option(args.product, self.input_file)
@@ -806,7 +865,10 @@ class pluginResultsDashboard(pluginBase):
         )
 
         # Options for uploading document to Results Dashboard
-        parser_upload = subparsers.add_parser("upload", help="Upload result to Results Dashboard if it is not there already")
+        parser_upload = subparsers.add_parser(
+            "upload",
+            help="Upload result to Results Dashboard if it is not there already",
+        )
         parser_upload.set_defaults(func=self.upload)
         parser_upload.add_argument(
             "--test",
@@ -866,13 +928,14 @@ PLUGINS = {
     "resultsdashboard": pluginResultsDashboard(),
 }
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Shovel data from A to B",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     subparsers = parser.add_subparsers(
-        dest='plugin_name',
+        dest="plugin_name",
         help="sub-command help",
         required=True,
     )
@@ -882,7 +945,7 @@ def main():
             help=f"Work with {name}",
         )
         subparsers_plugin = parser_plugin.add_subparsers(
-            dest='plugin_command',
+            dest="plugin_command",
             help="sub-command help",
             required=True,
         )
@@ -890,6 +953,7 @@ def main():
 
     with skelet.test_setup(parser) as (args, status_data):
         args.func(args)
+
 
 if __name__ == "__main__":
     main()
