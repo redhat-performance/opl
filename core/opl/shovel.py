@@ -737,15 +737,13 @@ class pluginHorreum(pluginBase):
         )
         parser_result.add_argument(
             "--filtering",
-            type=bool,
-            default=False,
-            help="Is label a filtering label? Defaults to False.",
+            action="store_true",
+            help="Is label a filtering label? Defaults to false.",
         )
         parser_result.add_argument(
             "--metrics",
-            type=bool,
-            default=True,
-            help="Is label a metrics label? Defaults to True.",
+            action="store_true",
+            help="Is label a metrics label? Defaults to false.",
         )
         parser_result.add_argument(
             "--access",
