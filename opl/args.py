@@ -89,7 +89,8 @@ def add_ros_db_opts(parser):
 def add_export_db_opts(parser):
     _add_generic_db_opts(parser, "export")
 
-def add_export_db_opts(parser):
+
+def add_playbook_db_opts(parser):
     _add_generic_db_opts(parser, "playbook")
 
 
