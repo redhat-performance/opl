@@ -335,12 +335,16 @@ class pluginHorreum(pluginBase):
                 )
                 response.raise_for_status()
                 run_data = response.json()
-                marker = _get_field_value(args.matcher_field, run_data)
-                if marker == matcher_value:
-                    print(
-                        f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload"
-                    )
-                    return
+                try:
+                    marker = _get_field_value(args.matcher_field, run_data)
+                except KeyError:
+                    pass   # If matcher was not found in data, we can assume this is not a duplicate
+                else:
+                    if marker == matcher_value:
+                        print(
+                            f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload"
+                        )
+                        return
 
         logging.info("Uploading")
         params = {
