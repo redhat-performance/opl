@@ -81,6 +81,8 @@ class StatusData:
         """
         if multikey == "":
             return []
+        elif multikey.startswith("."):
+            return multikey[1:].split(".")
         else:
             return multikey.split(".")
 

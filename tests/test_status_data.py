@@ -62,6 +62,14 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data._data["aaa"]["bbb"], 123)
         self.assertEqual(self.status_data._data["aaa"]["ccc"], 456)
 
+    def test_set_with_leading_dot(self):
+        self.status_data.set(".aaa", 123)
+        self.assertEqual(self.status_data._data["aaa"], 123)
+        self.status_data.set(".bbb.ccc", 456)
+        self.assertEqual(self.status_data._data["bbb"]["ccc"], 456)
+        self.status_data.set("..zzz", 789)
+        self.assertEqual(self.status_data._data[""]["zzz"], 789)
+
     def test_simple_get(self):
         self.status_data._data["aaa"] = 123
         self.assertEqual(self.status_data.get("aaa"), 123)
@@ -70,6 +78,17 @@ class TestStatusData(unittest.TestCase):
         self.status_data._data["aaa"] = {}
         self.status_data._data["aaa"]["bbb"] = 123
         self.assertEqual(self.status_data.get("aaa.bbb"), 123)
+
+    def test_get_with_leading_dot(self):
+        self.status_data._data["aaa"] = 123
+        self.status_data._data["bbb"] = {}
+        self.status_data._data["bbb"]["ccc"] = 456
+        self.assertEqual(self.status_data.get("aaa"), 123)
+        self.assertEqual(self.status_data.get("bbb.ccc"), 456)
+        self.assertEqual(self.status_data.get(".aaa"), 123)
+        self.assertEqual(self.status_data.get(".bbb.ccc"), 456)
+        self.assertEqual(self.status_data.get("..aaa"), None)
+        self.assertEqual(self.status_data.get(".zzz"), None)
 
     def test_none_get(self):
         self.assertIsNone(self.status_data.get("aaa"))
