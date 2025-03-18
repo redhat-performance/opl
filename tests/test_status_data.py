@@ -374,3 +374,33 @@ class TestStatusData(unittest.TestCase):
         opl.status_data.StatusData(tmp)
         self.assertEqual(sd.get("results.number_new"), -3.14)
         self.assertEqual(sd.get("results.foo"), None)
+
+    def test_simple_set_to_list(self):
+        self.status_data.set("aaa[]", 123)
+        self.assertEqual(self.status_data._data["aaa"], [123])
+        self.status_data.set("aaa[]", 456)
+        self.assertEqual(self.status_data._data["aaa"], [123, 456])
+        self.status_data.set("aaa[]", "Hello")
+        self.assertEqual(self.status_data._data["aaa"], [123, 456, "Hello"])
+
+    def test_nested_set_to_list(self):
+        self.status_data.set("aaa.bbb.ccc[]", 123)
+        self.assertEqual(self.status_data._data["aaa"]["bbb"]["ccc"], [123])
+        self.status_data.set("aaa.bbb.ccc[]", 456)
+        self.assertEqual(self.status_data._data["aaa"]["bbb"]["ccc"], [123, 456])
+
+    def test_dicts_set_to_list(self):
+        d1 = {"id":42,"name":"Universe"}
+        d2 = {"id":0,"name":"Sun"}
+        self.status_data.set("aaa[]", d1)
+        self.status_data.set("aaa[]", d2)
+        self.assertEqual(self.status_data._data["aaa"], [d1, d2])
+
+    def test_not_last_set_to_list(self):
+        with self.assertRaises(AssertionError):
+            self.status_data.set("aaa[].bbb", 123)
+
+    def test_type_missmatch_set_to_list(self):
+        self.status_data.set("aaa", 123)
+        with self.assertRaises(AssertionError):
+            self.status_data.set("aaa[]", 123)

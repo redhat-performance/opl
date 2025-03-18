@@ -134,21 +134,40 @@ class StatusData:
         return date.my_fromisoformat(i)
 
     def _set(self, data, split_key, value):
-        try:
-            new_data = data[split_key[0]]
-        except KeyError:
-            if len(split_key) == 1:
-                data[split_key[0]] = value
-                return
-            else:
-                data[split_key[0]] = {}
-                new_data = data[split_key[0]]
+        current_key = split_key[0]
+        last_key = len(split_key) == 1
+        array_key = current_key.endswith("[]")
+        if array_key:
+            current_key = current_key[:-2]
+        missing_key = current_key not in data
 
-        if len(split_key) == 1:
-            data[split_key[0]] = value
-            return
+        # Check that array key is only used if this is last sub-key
+        if array_key:
+            assert last_key, "Arrays can only be last in the multi keys (i.e. 'aaa.bbb[]', but not 'aaa[]'.bbb)"
+
+        # Check that we are not attempting to change type of already existing key
+        if array_key and not missing_key:
+            assert type(data[current_key]) == list, "You are trying to change type (e.g. 'aaa' was string and now you are trying to add to 'aaa[]')"
+
+        if missing_key:
+            if last_key:
+                if array_key:
+                    data[current_key] = [value]
+                else:
+                    data[current_key] = value
+                return   # This was last key, we are done
+            else:
+                data[current_key] = {}   # This is not last key, so it can not be array
+                return self._set(data[current_key], split_key[1:], value)
         else:
-            return self._set(new_data, split_key[1:], value)
+            if last_key:
+                if array_key:
+                    data[current_key].append(value)
+                else:
+                    data[current_key] = value
+                return   # This was last key, we are done
+            else:
+                return self._set(data[current_key], split_key[1:], value)   # This is not last key, so no need to check for array
 
     def set(self, multikey, value):
         """
@@ -163,6 +182,15 @@ class StatusData:
 
         even if `self._data['a']['b']` do not exists - then it is created as
         empty dict.
+
+        It also supports adding data to lists:
+
+            set('a.b[]', 1)
+            set('a.b[]', 2)
+
+        results in:
+
+            self._data['a']['b'] = [1, 2]
         """
         split_key = self._split_mutlikey(multikey)
         logging.debug(f"Setting {'.'.join(split_key)} in {self._filename} to {value}")
