@@ -195,7 +195,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         return target
 
     @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
-    def measure(self, ri, name, grafana_target):
+    def measure(self, ri, name, grafana_target, grafana_enritchment={}, grafana_include_vars=False):
         assert (
             ri.start is not None and ri.end is not None
         ), "We need timerange to approach Grafana"
@@ -230,6 +230,19 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
         points = [float(i[0]) for i in r.json()[0]["datapoints"] if i[0] is not None]
         stats = data.data_stats(points)
+
+        # Add user defined data to the computed stats
+        if grafana_enritchment is not None and grafana_enritchment != {}:
+            stats["enritchment"] = grafana_enritchment
+
+        # If requested, add info about what variables were used to the computed stats
+        if grafana_include_vars:
+            stats["variables"] = {
+                "$Node": self.args.grafana_node,
+                "$Interface": self.args.grafana_interface,
+                "$Cloud": self.args.grafana_prefix,
+            }
+
         return name, stats
 
     @staticmethod

@@ -4,6 +4,9 @@ import yaml
 import unittest
 import tempfile
 import os
+import argparse
+import datetime
+import responses
 
 from .context import opl
 
@@ -207,3 +210,117 @@ class TestRequestedInfo(unittest.TestCase):
         k, v = next(ri)
         self.assertEqual(k, None)
         self.assertEqual(v, None)
+
+class TestGrafanaPlugin(unittest.TestCase):
+
+    mock_post_get_load_simple = {
+        "mock": {
+            "method": responses.POST,
+            "url": 'http://grafana.example.com:443/api/datasources/proxy/42/render',
+            "json": [{
+                'target': 'someprefix.node001_example_com.load.load.shortterm',
+                'datapoints': [[10.0, 1740787205], [15.0, 1740787220], [5.0, 1740787235], [10.0, 1740787250]]
+            }],
+            "status": 200,
+        },
+        "args": argparse.Namespace(
+            grafana_host="http://grafana.example.com",
+            grafana_port=443,
+            grafana_prefix="someprefix",
+            grafana_datasource=42,
+            grafana_interface="interface-enp2s0",
+            grafana_token="secret",
+            grafana_node="node001_example_com",
+        ),
+        "start": datetime.datetime.fromisoformat("2025-03-01T00:00:00+00:00"),
+        "end": datetime.datetime.fromisoformat("2025-03-01T00:01:00+00:00"),
+    }
+
+    @responses.activate
+    def test_basic(self):
+        # Configure mock
+        responses.add(
+            **self.mock_post_get_load_simple["mock"],
+        )
+
+        # Configure the request we are going to make
+        string = """
+            - name: measurement.load
+              grafana_target: $Cloud.$Node.load.load.shortterm
+        """
+
+        # Actual test using the mock
+        ri = opl.cluster_read.RequestedInfo(
+            string,
+            start=self.mock_post_get_load_simple["start"],
+            end=self.mock_post_get_load_simple["end"],
+            args=self.mock_post_get_load_simple["args"],
+        )
+        k, v = next(ri)
+        self.assertEqual(k, "measurement.load")
+        self.assertEqual(int(v["min"]), 5)
+        self.assertEqual(int(v["mean"]), 10)
+        self.assertEqual(int(v["median"]), 10)
+        self.assertEqual(int(v["max"]), 15)
+        self.assertEqual(int(v["samples"]), 4)
+        self.assertNotIn("variables", v)
+        self.assertNotIn("enritchment", v)
+
+    @responses.activate
+    def test_added_variables(self):
+        # Configure mock
+        responses.add(
+            **self.mock_post_get_load_simple["mock"],
+        )
+
+        # Configure the request we are going to make
+        string = """
+            - name: measurement.load
+              grafana_target: $Cloud.$Node.load.load.shortterm
+              grafana_include_vars: true
+        """
+
+        # Actual test using the mock
+        ri = opl.cluster_read.RequestedInfo(
+            string,
+            start=self.mock_post_get_load_simple["start"],
+            end=self.mock_post_get_load_simple["end"],
+            args=self.mock_post_get_load_simple["args"],
+        )
+        k, v = next(ri)
+        self.assertEqual(k, "measurement.load")
+        self.assertEqual(int(v["mean"]), 10)
+        self.assertEqual(v["variables"]["$Node"], "node001_example_com")
+        self.assertEqual(v["variables"]["$Interface"], "interface-enp2s0")
+        self.assertEqual(v["variables"]["$Cloud"], "someprefix")
+        self.assertNotIn("enritchment", v)
+
+    @responses.activate
+    def test_added_enritchment(self):
+        # Configure mock
+        responses.add(
+            **self.mock_post_get_load_simple["mock"],
+        )
+
+        # Configure the request we are going to make
+        string = """
+            - name: measurement.load
+              grafana_target: $Cloud.$Node.load.load.shortterm
+              grafana_enritchment:
+                hello: world
+                answer: 42
+        """
+
+        # Actual test using the mock
+        ri = opl.cluster_read.RequestedInfo(
+            string,
+            start=self.mock_post_get_load_simple["start"],
+            end=self.mock_post_get_load_simple["end"],
+            args=self.mock_post_get_load_simple["args"],
+        )
+        k, v = next(ri)
+        self.assertEqual(k, "measurement.load")
+        self.assertEqual(int(v["mean"]), 10)
+        self.assertEqual(v["enritchment"]["hello"], "world")
+        self.assertEqual(v["enritchment"]["answer"], 42)
+        self.assertNotIn("variables", v)
