@@ -163,6 +163,7 @@ def gen_send_verify(args, status_data):
         template=args.template,
         addresses=args.addresses,
         mac_addresses=args.mac_addresses,
+        package_file_name=args.package_file_name,
     )
 
     logging.info("Creating Inventory DB connection")
@@ -241,6 +242,11 @@ def populate_main():
         default=500,
         type=int,
         help="How many packages addresses should each host have",
+    )
+    parser.add_argument(
+        "--package-file-name",
+        default="packages_data.json",
+        help="Name of package data template in opl/generators that should be used when generating host info",
     )
     parser.add_argument(
         "--addresses",

@@ -23,6 +23,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         per_account_data=[],
         per_account_data_add_filed=None,
         per_host_random_packages=True,
+        package_file_name="packages_data.json",
     ):
         super().__init__(count=count, template=template, dump_message=False)
 
@@ -45,7 +46,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         self.relatives = self._get_relatives(
             relatives
         )  # list of accounts/... to choose from
-        self.relatives_index = 0   # into what account we should put a host
+        self.relatives_index = 0  # into what account we should put a host
 
         assert (
             fraction == 1
@@ -54,7 +55,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         # This will be used to generate list of packages
         self.per_host_random_packages = per_host_random_packages
         self.packages = packages
-        self.pg = opl.generators.packages.PackagesGenerator()
+        self.pg = opl.generators.packages.PackagesGenerator(
+            package_file_name=package_file_name
+        )
         if not self.per_host_random_packages:
             self.packages_generated = self.pg.generate(self.packages)
 
@@ -165,7 +168,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 89
             ),
         }
-        data.update(self.relatives[self.relatives_index % len(self.relatives)])  # add account and orgid
+        data.update(
+            self.relatives[self.relatives_index % len(self.relatives)]
+        )  # add account and orgid
         self.relatives_index += 1  # increment where are we going to put next host
         if "os_tree_commits" in data:
             data["os_tree_commit"] = data["os_tree_commits"][0]
