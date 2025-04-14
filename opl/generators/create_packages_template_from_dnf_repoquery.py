@@ -1,3 +1,4 @@
+import argparse
 import sys
 import json
 
@@ -29,6 +30,14 @@ def parse_repoquery_output_from_stdin():
     return packages
 
 
-if __name__ == "__main__":
+def main():
+    parser = argparse.ArgumentParser(
+        description="This script helps process output of dnf with packages for a given host into a generator-friendly structure to generate installed packages with. Before using this, run `dnf repoquery --available --show-duplicates` on your desired machine/VM to get a list of all packages that could be installed on your mahcine and either pipe it into this script's stdin using `|`. :return: Dictionary of package names and their versions into stdout. You might want to store the results into a file using `>/path/to/output/file.json`. Made with the help of an LLM.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     result = parse_repoquery_output_from_stdin()
     print(json.dumps(result, indent=4))
+
+
+if __name__ == "__main__":
+    main()
