@@ -141,7 +141,7 @@ def verify(args, previous_records, status_data, inventory, collect_info):
         attempt += 1
         if attempt > attempts_max:
             raise Exception(
-                f"After {attempt} attempts, we only have {existing_ids-previous_records} out of {args.count}"
+                f"After {attempt} attempts, we only have {existing_ids - previous_records} out of {args.count}"
             )
 
         # If there were no new hosts now, wait a bit

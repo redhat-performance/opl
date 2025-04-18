@@ -211,16 +211,24 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(k, None)
         self.assertEqual(v, None)
 
+
 class TestGrafanaPlugin(unittest.TestCase):
 
     mock_post_get_load_simple = {
         "mock": {
             "method": responses.POST,
-            "url": 'http://grafana.example.com:443/api/datasources/proxy/42/render',
-            "json": [{
-                'target': 'someprefix.node001_example_com.load.load.shortterm',
-                'datapoints': [[10.0, 1740787205], [15.0, 1740787220], [5.0, 1740787235], [10.0, 1740787250]]
-            }],
+            "url": "http://grafana.example.com:443/api/datasources/proxy/42/render",
+            "json": [
+                {
+                    "target": "someprefix.node001_example_com.load.load.shortterm",
+                    "datapoints": [
+                        [10.0, 1740787205],
+                        [15.0, 1740787220],
+                        [5.0, 1740787235],
+                        [10.0, 1740787250],
+                    ],
+                }
+            ],
             "status": 200,
         },
         "args": argparse.Namespace(

@@ -143,11 +143,15 @@ class StatusData:
 
         # Check that array key is only used if this is last sub-key
         if array_key:
-            assert last_key, "Arrays can only be last in the multi keys (i.e. 'aaa.bbb[]', but not 'aaa[]'.bbb)"
+            assert (
+                last_key
+            ), "Arrays can only be last in the multi keys (i.e. 'aaa.bbb[]', but not 'aaa[]'.bbb)"
 
         # Check that we are not attempting to change type of already existing key
         if array_key and not missing_key:
-            assert type(data[current_key]) == list, "You are trying to change type (e.g. 'aaa' was string and now you are trying to add to 'aaa[]')"
+            assert (
+                type(data[current_key]) == list
+            ), "You are trying to change type (e.g. 'aaa' was string and now you are trying to add to 'aaa[]')"
 
         if missing_key:
             if last_key:
@@ -155,9 +159,9 @@ class StatusData:
                     data[current_key] = [value]
                 else:
                     data[current_key] = value
-                return   # This was last key, we are done
+                return  # This was last key, we are done
             else:
-                data[current_key] = {}   # This is not last key, so it can not be array
+                data[current_key] = {}  # This is not last key, so it can not be array
                 return self._set(data[current_key], split_key[1:], value)
         else:
             if last_key:
@@ -165,9 +169,11 @@ class StatusData:
                     data[current_key].append(value)
                 else:
                     data[current_key] = value
-                return   # This was last key, we are done
+                return  # This was last key, we are done
             else:
-                return self._set(data[current_key], split_key[1:], value)   # This is not last key, so no need to check for array
+                return self._set(
+                    data[current_key], split_key[1:], value
+                )  # This is not last key, so no need to check for array
 
     def set(self, multikey, value):
         """

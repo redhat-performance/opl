@@ -45,7 +45,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         self.relatives = self._get_relatives(
             relatives
         )  # list of accounts/... to choose from
-        self.relatives_index = 0   # into what account we should put a host
+        self.relatives_index = 0  # into what account we should put a host
 
         assert (
             fraction == 1
@@ -165,7 +165,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 89
             ),
         }
-        data.update(self.relatives[self.relatives_index % len(self.relatives)])  # add account and orgid
+        data.update(
+            self.relatives[self.relatives_index % len(self.relatives)]
+        )  # add account and orgid
         self.relatives_index += 1  # increment where are we going to put next host
         if "os_tree_commits" in data:
             data["os_tree_commit"] = data["os_tree_commits"][0]

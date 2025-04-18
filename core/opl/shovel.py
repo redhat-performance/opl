@@ -108,9 +108,7 @@ class pluginProw(pluginBase):
             try:
                 data = response.json()
             except requests.exceptions.JSONDecodeError:
-                self.logger.error(
-                    f"Failed to parse JSON, ignoring --record-link option"
-                )
+                self.logger.error("Failed to parse JSON, ignoring --record-link option")
             else:
                 _set_field_value(args.record_link, from_url, data)
                 response_content = str.encode(
@@ -305,7 +303,7 @@ class pluginHorreum(pluginBase):
 
         if args.trashed:
             self.logger.debug(
-                f"WORKAROUND: Searching if result already there amongst trashed runs"
+                "WORKAROUND: Searching if result already there amongst trashed runs"
             )
             params = {
                 "trashed": True,
@@ -338,7 +336,7 @@ class pluginHorreum(pluginBase):
                 try:
                     marker = _get_field_value(args.matcher_field, run_data)
                 except KeyError:
-                    pass   # If matcher was not found in data, we can assume this is not a duplicate
+                    pass  # If matcher was not found in data, we can assume this is not a duplicate
                 else:
                     if marker == matcher_value:
                         print(
