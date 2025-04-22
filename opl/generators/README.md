@@ -107,7 +107,7 @@ Generate Chrome notifications Kafka messages.
 
 Just supply the count of messages to be generated.
 
-`create_packages_template_from_dnf_repoquery.py`:
+`create_packages_template_from_dnf_repoquery.py`
 ---------------------------------------
 
 This is just a standalone helper script to help you process `dnf repoquery` into a generator-friendly structure for packages.
