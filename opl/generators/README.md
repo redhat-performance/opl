@@ -113,6 +113,7 @@ Just supply the count of messages to be generated.
 This is just a standalone helper script to help you process `dnf repoquery` into a generator-friendly structure for packages.
 
 Before using this, run `dnf repoquery --available --show-duplicates` on your desired machine/VM to get a list of all packages that could be installed on your mahcine.
+You could also use dnf to output a list of packages and then rework them yourself using a different script: `dnf repoquery --available --queryformat="%{name} %{epoch} %{version} %{release} %{arch} \n`
 
     :return: Dictionary of package names and their versions into stdout. You might want to store the results into a file using `>/path/to/output/file.json`.
     Made with the help of an LLM.
