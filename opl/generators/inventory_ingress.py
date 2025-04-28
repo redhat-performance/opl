@@ -24,6 +24,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         per_account_data_add_filed=None,
         per_host_random_packages=True,
         package_file_name="packages_data.json",
+        os_override=None,
     ):
         super().__init__(count=count, template=template, dump_message=False)
 
@@ -60,6 +61,8 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         )
         if not self.per_host_random_packages:
             self.packages_generated = self.pg.generate(self.packages)
+
+        self.os_override = os_override
 
     def _get_relatives(self, relatives):
         if len(self.per_account_data) > 0:
@@ -105,7 +108,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                     "Intel(R) I7(R) CPU I7-10900k 0 @ 4.90GHz",
                 ]
             ),
-            "operating_system": json.dumps(self._get_operating_system()),
+            "operating_system": json.dumps(
+                self._get_operating_system(self.os_override)
+            ),
             "installed_packages": json.dumps(packages_generated),
             "tuned_profile": random.choice(["desktop", "example", "laptop"]),
             "selinux_current_mode": random.choice(
