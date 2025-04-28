@@ -164,6 +164,7 @@ def gen_send_verify(args, status_data):
         addresses=args.addresses,
         mac_addresses=args.mac_addresses,
         package_file_name=args.package_file_name,
+        os_override=args.os_override,
     )
 
     logging.info("Creating Inventory DB connection")
@@ -263,7 +264,12 @@ def populate_main():
     parser.add_argument(
         "--template",
         default="inventory_ingress_puptoo_template.json.j2",
-        help="What message template to use (not implemented yet)",
+        help="What message template to use, path in opl/generators",
+    )
+    parser.add_argument(
+        "--os_override",
+        type=dict,
+        help='To override the operating system info, could be something like {"major": 7, "minor": 6, "name": "RHEL"}',
     )
     parser.add_argument(
         "--rate",

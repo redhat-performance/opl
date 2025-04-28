@@ -249,13 +249,21 @@ class GenericGenerator:
         ]
         return random.choice(ansible_profiles)
 
-    def _get_operating_system(self):
-        operating_systems = [
-            {"major": 7, "minor": 6, "name": "RHEL"},
-            {"major": 7, "minor": 7, "name": "RHEL"},
-            {"major": 7, "minor": 8, "name": "RHEL"},
-            {"major": 7, "minor": 9, "name": "RHEL"},
-        ]
+    def _get_operating_system(self, os_override):
+        if os_override is not None:
+            assert (
+                isinstance(os_override, dict),
+                'Invalid os_override parameter, should be a dict, maybe something like this: `{"major": 7, "minor": 6, "name": "RHEL"}`, but we have this: '
+                + os_override,
+            )
+            operating_systems = os_override
+        else:
+            operating_systems = [
+                {"major": 7, "minor": 6, "name": "RHEL"},
+                {"major": 7, "minor": 7, "name": "RHEL"},
+                {"major": 7, "minor": 8, "name": "RHEL"},
+                {"major": 7, "minor": 9, "name": "RHEL"},
+            ]
         return random.choice(operating_systems)
 
     def _get_rhsm(self):
