@@ -224,6 +224,24 @@ def gen_send_verify(args, status_data):
         json.dump(collect_info, fp, sort_keys=True, indent=4)
 
 
+def parse_os_override(args):
+    if args.os_override is not None:
+        os_override_dict = json.loads(args.os_override)
+        assert isinstance(os_override_dict, dict), (
+            "Invalid os-override parameter, should be a dict, maybe something like this: "
+            '{"major": 7, "minor": 6, "name": "RHEL"}, but we have this: '
+            + str(os_override_dict)
+        )
+        assert (
+            "major" in os_override_dict
+            and "minor" in os_override_dict
+            and "name" in os_override_dict,
+            "Missing required keys major,minor,name in os-override! Got this: "
+            + str(os_override_dict),
+        )
+        args.os_override = os_override_dict
+
+
 def populate_main():
     parser = argparse.ArgumentParser(
         description="Generate host-ingress messages, produce them to ingress topic and make sure they appear in DB",
@@ -267,9 +285,9 @@ def populate_main():
         help="What message template to use, path in opl/generators",
     )
     parser.add_argument(
-        "--os_override",
-        type=dict,
-        help='To override the operating system info, could be something like {"major": 7, "minor": 6, "name": "RHEL"}',
+        "--os-override",
+        type=str,
+        help='To override the operating system info in a JSON format to make a dict from, could be something like {"major": 7, "minor": 6, "name": "RHEL"}',
     )
     parser.add_argument(
         "--rate",
@@ -301,6 +319,7 @@ def populate_main():
     opl.args.add_inventory_db_opts(parser)
 
     with opl.skelet.test_setup(parser) as (args, status_data):
+        parse_os_override(args)
         gen_send_verify(args, status_data)
 
 
