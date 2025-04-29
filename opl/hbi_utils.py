@@ -235,9 +235,9 @@ def parse_os_override(args):
         assert (
             "major" in os_override_dict
             and "minor" in os_override_dict
-            and "name" in os_override_dict,
-            "Missing required keys major,minor,name in os-override! Got this: "
-            + str(os_override_dict),
+            and "name" in os_override_dict
+        ), "Missing required keys major, minor, name in os_override! Got this: " + str(
+            os_override_dict
         )
         args.os_override = os_override_dict
 
