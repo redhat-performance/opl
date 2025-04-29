@@ -251,12 +251,11 @@ class GenericGenerator:
 
     def _get_operating_system(self, os_override):
         if os_override is not None:
-            assert (
-                isinstance(os_override, dict),
+            assert isinstance(os_override, dict), (
                 'Invalid os_override parameter, should be a dict, maybe something like this: `{"major": 7, "minor": 6, "name": "RHEL"}`, but we have this: '
-                + os_override,
+                + str(os_override),
             )
-            operating_systems = os_override
+            operating_systems = [os_override]
         else:
             operating_systems = [
                 {"major": 7, "minor": 6, "name": "RHEL"},
