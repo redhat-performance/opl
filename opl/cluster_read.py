@@ -195,7 +195,14 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         return target
 
     @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
-    def measure(self, ri, name, grafana_target, grafana_enritchment={}, grafana_include_vars=False):
+    def measure(
+        self,
+        ri,
+        name,
+        grafana_target,
+        grafana_enritchment={},
+        grafana_include_vars=False,
+    ):
         assert (
             ri.start is not None and ri.end is not None
         ), "We need timerange to approach Grafana"

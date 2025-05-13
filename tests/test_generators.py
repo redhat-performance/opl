@@ -10,7 +10,9 @@ from .context import opl
 class TestGenericGenerator(unittest.TestCase):
 
     def test_count(self):
-        _, template = tempfile.mkstemp(dir=os.path.dirname(opl.generators.generic.__file__), text=True)
+        _, template = tempfile.mkstemp(
+            dir=os.path.dirname(opl.generators.generic.__file__), text=True
+        )
 
         with open(template, "w") as fd:
             fd.write('{"foo": "bar"}')
@@ -25,7 +27,9 @@ class TestGenericGenerator(unittest.TestCase):
         self.assertEqual(counter, 3)
 
     def test_uuids(self):
-        _, template = tempfile.mkstemp(dir=os.path.dirname(opl.generators.generic.__file__), text=True)
+        _, template = tempfile.mkstemp(
+            dir=os.path.dirname(opl.generators.generic.__file__), text=True
+        )
 
         with open(template, "w") as fd:
             fd.write('{"x": "{{ opl_gen.gen_uuid() }}"}')
