@@ -8,6 +8,7 @@ import json
 import os
 import re
 import urllib3
+import urllib.parse
 
 from opl import skelet, status_data
 
@@ -923,11 +924,62 @@ class pluginResultsDashboard(pluginBase):
         )
 
 
+class pluginHtml(pluginBase):
+    def links(self, args):
+        self.logger.info("Downloading {args.url}")
+        doc = requests.get(args.url)
+
+        # Regular expression to find all href attributes within <a> tags
+        # Cheatsheet:
+        #   (?: ... ): Non-capturing group. It groups the pattern inside, but
+        #              doesn't store the matched text as a separate capture group.
+        #   [^>]*?: Matches anything except '>' zero or more times. The '?'
+        #           makes it a non-greedy match so we do not consume href as well.
+        href_regex = r'<a\s+(?:[^>]*?\s+)?href=["\']([^"\']*)["\']'
+        matched_hrefs = re.findall(href_regex, doc.text, re.IGNORECASE)
+        self.logger.info(f"Found {len(matched_hrefs)} links")
+
+        # Filter links down as per user provided expression
+        compiled_regex = re.compile(args.regexp)
+        filtered_hrefs = [href for href in matched_hrefs if compiled_regex.match(href)]
+        self.logger.info(f"Filtered links down to {len(filtered_hrefs)} links")
+
+        # Make all the links absolute to initial user provided URL.
+        # If there is already absolute link like 'http://www.example.com',
+        # it will not be affected
+        absolute_hrefs = [urllib.parse.urljoin(args.url, href) for href in filtered_hrefs]
+
+        # Print what we found
+        for href in absolute_hrefs:
+            print(href)
+
+        return absolute_hrefs
+
+    def set_args(self, parser, subparsers):
+        # Options for listing links from the document
+        parser_links = subparsers.add_parser(
+            "links",
+            help="List links from given HTML document (e.g. httpd directory listing)",
+        )
+        parser_links.set_defaults(func=self.links)
+        parser_links.add_argument(
+            "--url",
+            required=True,
+            help="HTML document to parse links from",
+        )
+        parser_links.add_argument(
+            "--regexp",
+            default=r".*",
+            help="Only return links matching this regexp (defaults to '.*')",
+        )
+
+
 PLUGINS = {
     "prow": pluginProw(),
     "opensearch": pluginOpenSearch(),
     "horreum": pluginHorreum(),
     "resultsdashboard": pluginResultsDashboard(),
+    "html": pluginHtml(),
 }
 
 
