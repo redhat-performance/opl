@@ -163,6 +163,8 @@ def gen_send_verify(args, status_data):
         template=args.template,
         addresses=args.addresses,
         mac_addresses=args.mac_addresses,
+        package_file_name=args.package_file_name,
+        os_override=args.os_override,
     )
 
     logging.info("Creating Inventory DB connection")
@@ -222,6 +224,24 @@ def gen_send_verify(args, status_data):
         json.dump(collect_info, fp, sort_keys=True, indent=4)
 
 
+def parse_os_override(args):
+    if args.os_override is not None:
+        os_override_dict = json.loads(args.os_override)
+        assert isinstance(os_override_dict, dict), (
+            "Invalid os-override parameter, should be a dict, maybe something like this: "
+            '{"major": 7, "minor": 6, "name": "RHEL"}, but we have this: '
+            + str(os_override_dict)
+        )
+        assert (
+            "major" in os_override_dict
+            and "minor" in os_override_dict
+            and "name" in os_override_dict
+        ), "Missing required keys major, minor, name in os_override! Got this: " + str(
+            os_override_dict
+        )
+        args.os_override = os_override_dict
+
+
 def populate_main():
     parser = argparse.ArgumentParser(
         description="Generate host-ingress messages, produce them to ingress topic and make sure they appear in DB",
@@ -243,6 +263,11 @@ def populate_main():
         help="How many packages addresses should each host have",
     )
     parser.add_argument(
+        "--package-file-name",
+        default="packages_data.json",
+        help="Name of package data template in opl/generators that should be used when generating host info",
+    )
+    parser.add_argument(
         "--addresses",
         default=3,
         type=int,
@@ -257,7 +282,12 @@ def populate_main():
     parser.add_argument(
         "--template",
         default="inventory_ingress_puptoo_template.json.j2",
-        help="What message template to use (not implemented yet)",
+        help="What message template to use, path in opl/generators",
+    )
+    parser.add_argument(
+        "--os-override",
+        type=str,
+        help='To override the operating system info in a JSON format to make a dict from, could be something like {"major": 7, "minor": 6, "name": "RHEL"}',
     )
     parser.add_argument(
         "--rate",
@@ -289,6 +319,7 @@ def populate_main():
     opl.args.add_inventory_db_opts(parser)
 
     with opl.skelet.test_setup(parser) as (args, status_data):
+        parse_os_override(args)
         gen_send_verify(args, status_data)
 
 
