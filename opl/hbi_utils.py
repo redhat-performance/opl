@@ -150,6 +150,10 @@ def verify(args, previous_records, status_data, inventory, collect_info):
                 f"Waiting for IDs, attempt {attempt}, remaining {existing_ids}"
             )
             time.sleep(15)
+        elif existing_ids > expected_ids:
+            logging.warning(
+                f"We have more hosts than expected! We have {existing_ids-previous_records} of {args.count}"
+            )
 
     inventory_cursor.close()
 
