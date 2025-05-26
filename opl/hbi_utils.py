@@ -155,6 +155,10 @@ def verify(args, previous_records, status_data, inventory, collect_info):
                 f"Waiting for IDs, attempt {attempt}, remaining {existing_ids-previous_records} out of {args.count}, in total there are {existing_ids} out of {expected_ids} expected hosts in HBI"
             )
             time.sleep(15)
+        elif existing_ids > expected_ids:
+            logging.warning(
+                f"We have more hosts than expected! We have {existing_ids-previous_records} of {args.count}"
+            )
 
     inventory_cursor.close()
 
