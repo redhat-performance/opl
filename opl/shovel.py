@@ -672,97 +672,97 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for uploading document to Horreum
-        parser_upload = subparsers.add_parser(
+        subparser = subparsers.add_parser(
             "upload", help="Upload file to Horreum if it is not there already"
         )
-        parser_upload.set_defaults(func=self.upload)
-        parser_upload.add_argument(
+        subparser.set_defaults(func=self.upload)
+        subparser.add_argument(
             "--test-name",
             default="load-tests-result",
             help="Test name as configured in Horreum, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--input-file",
             required=True,
             help="JSON file to upload",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--matcher-field",
             default="runid",
             help="JSON file field which holds unique value identifying the document. Will be used for checking if data exists on the server, value will be taken from input file.",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--matcher-label",
             default=".runid",
             help="Label name in Horreum with unique value we use to detect if document is already in Horreum",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--owner",
             default="rhtap-perf-test-team",
             help="Who should be owner of uploaded file in Horreum",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--access",
             default="PUBLIC",
             help="What should be access setting of uploaded file in Horreum",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--start",
             help="When the test whose JSON file we are uploading started, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--end",
             help="When the test whose JSON file we are uploading ended, if prefixed with '@' sign, it is a field name from input file where to load this",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--trashed",
             action="store_true",
             help="Use this if you want to check for presence of a result even amongst trashed runs",
         )
-        parser_upload.add_argument(
+        subparser.add_argument(
             "--trashed-workaround-count",
             default=10,
             help="When listing runs (including trashed ones) sorted in descending order, only check this many",
         )
 
         # Options for detecting no-/change signal
-        parser_result = subparsers.add_parser(
+        subparser = subparsers.add_parser(
             "result", help="Get Horreum no-/change signal for a given time range"
         )
-        parser_result.set_defaults(func=self.result)
-        parser_result.add_argument(
+        subparser.set_defaults(func=self.result)
+        subparser.add_argument(
             "--test-name",
             default="load-tests-result",
             help="Test name as configured in Horreum, if prefixed with '@' sign, it is a field name from output file where to load this",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--start",
             help="Start of the interval for detecting change (ISO 8601 format)",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--end",
             help="End of the interval for detecting change (ISO 8601 format)",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--output-file",
             help="If specified, put result into .result of this JSON file",
         )
 
         # Options for listing results
-        parser_result = subparsers.add_parser(
+        subparser = subparsers.add_parser(
             "list", help="List test run IDs for a test"
         )
-        parser_result.set_defaults(func=self.list)
-        parser_result.add_argument(
+        subparser.set_defaults(func=self.list)
+        subparser.add_argument(
             "--test-name",
             default="load-tests-result",
             help="Test name as configured in Horreum",
         )
 
         # Options for getting full result
-        parser_result = subparsers.add_parser("get", help="Get data for test run ID")
-        parser_result.set_defaults(func=self.get)
-        parser_result.add_argument(
+        subparser = subparsers.add_parser("get", help="Get data for test run ID")
+        subparser.set_defaults(func=self.get)
+        subparser.add_argument(
             "--run-id",
             type=int,
             required=True,
@@ -770,11 +770,11 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for listing schema labels
-        parser_result = subparsers.add_parser(
+        subparser = subparsers.add_parser(
             "schema-label-list", help="List schema labels"
         )
-        parser_result.set_defaults(func=self.schema_label_list)
-        parser_result.add_argument(
+        subparser.set_defaults(func=self.schema_label_list)
+        subparser.add_argument(
             "--schema-uri",
             type=str,
             required=True,
@@ -782,61 +782,61 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for adding schema label
-        parser_result = subparsers.add_parser(
+        subparser = subparsers.add_parser(
             "schema-label-add", help="Add schema label"
         )
-        parser_result.set_defaults(func=self.schema_label_add)
-        parser_result.add_argument(
+        subparser.set_defaults(func=self.schema_label_add)
+        subparser.add_argument(
             "--schema-uri",
             type=str,
             required=True,
             help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--name",
             type=str,
             help="Label name. Keep empty and it will de derived from JSON path.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--extractor-name",
             type=str,
             help="Extractor name. Keep empty and it will de derived from JSON path. Only one extractor allowed now, support for more is TODO.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--extractor-jsonpath",
             type=str,
             required=True,
             help="Extractor JSON path expression. Only one extractor allowed now, support for more is TODO.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--extractor-isarray",
             type=bool,
             default=False,
             help="If extractor refferencing an array? Defaults to false. Only one extractor allowed now, support for more is TODO.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--function",
             type=str,
             default="",
             help="Combination function for the label. Defaults to empty one.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--filtering",
             action="store_true",
             help="Is label a filtering label? Defaults to false.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--metrics",
             action="store_true",
             help="Is label a metrics label? Defaults to false.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--access",
             choices=["PUBLIC", "PROTECTED", "PRIVATE"],
             default="PUBLIC",
             help="Access rights for the test. Defaults to 'PUBLIC'.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--owner",
             type=str,
             required=True,
@@ -844,76 +844,76 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for updating schema label
-        parser_result = subparsers.add_parser(
+        subparser = subparsers.add_parser(
             "schema-label-update", help="Update schema label"
         )
-        parser_result.set_defaults(func=self.schema_label_update)
-        parser_result.add_argument(
+        subparser.set_defaults(func=self.schema_label_update)
+        subparser.add_argument(
             "--schema-uri",
             type=str,
             required=True,
             help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--update-by-id",
             type=int,
             help="Label ID of label you want to update. Only set if you want to update existing label.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--update-by-name",
             action="store_true",
             help="Label name of label you want to update. Only set if you want to update existing label.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--add-if-missing",
             action="store_true",
             help="If updating (e.g. by name) and the target label is missing, attempt to create it.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--name",
             type=str,
             help="Label name. Keep empty and it will de derived from JSON path.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--extractor-name",
             type=str,
             help="Extractor name. Keep empty and it will de derived from JSON path. Only one extractor allowed now, support for more is TODO.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--extractor-jsonpath",
             type=str,
             required=True,
             help="Extractor JSON path expression. Only one extractor allowed now, support for more is TODO.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--extractor-isarray",
             type=bool,
             default=False,
             help="If extractor refferencing an array? Defaults to false. Only one extractor allowed now, support for more is TODO.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--function",
             type=str,
             default="",
             help="Combination function for the label. Defaults to empty one.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--filtering",
             action="store_true",
             help="Is label a filtering label? Defaults to false.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--metrics",
             action="store_true",
             help="Is label a metrics label? Defaults to false.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--access",
             choices=["PUBLIC", "PROTECTED", "PRIVATE"],
             default="PUBLIC",
             help="Access rights for the test. Defaults to 'PUBLIC'.",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--owner",
             type=str,
             required=True,
@@ -921,17 +921,17 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for deleting schema label
-        parser_result = subparsers.add_parser(
+        subparser = subparsers.add_parser(
             "schema-label-delete", help="Delete schema label"
         )
-        parser_result.set_defaults(func=self.schema_label_delete)
-        parser_result.add_argument(
+        subparser.set_defaults(func=self.schema_label_delete)
+        subparser.add_argument(
             "--schema-uri",
             type=str,
             required=True,
             help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
         )
-        parser_result.add_argument(
+        subparser.add_argument(
             "--id",
             type=int,
             required=True,
