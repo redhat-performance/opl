@@ -526,7 +526,7 @@ class pluginHorreum(pluginBase):
         labels = self._schema_id_labels(args, schema_id)
 
         for label in labels:
-            print(f"{label['id']}\t{label['name']}")
+            print(f"{label['id']}\t{label['name']}\t{label['extractors'][0]['jsonpath']}")
 
     def schema_label_add(self, args):
         self._setup(args)
