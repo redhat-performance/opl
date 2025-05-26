@@ -194,7 +194,7 @@ def gen_send_verify(args, status_data):
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
-    if args.no_check:  # don't keep the account info since it's too big
+    if args.no_account_info:  # don't keep the account info since it's too big
         collect_info = None
 
     gen_and_send(
@@ -313,7 +313,12 @@ def populate_main():
     parser.add_argument(
         "--no-check",
         action="store_true",
-        help="Enable sending of hosts without checking if they appear in HBI. Good for Perf testing. This also stops generating data-file.",
+        help="Enable sending of hosts without checking if they appear in HBI. Good for Perf testing.",
+    )
+    parser.add_argument(
+        "--no-account-info",
+        action="store_true",
+        help="Stop generating data-file that would contain generated hosts&accounts info. Good for saving resources (primarily memory) in large amount of test data.",
     )
     opl.args.add_kafka_opts(parser)
     opl.args.add_inventory_db_opts(parser)
