@@ -560,6 +560,52 @@ class pluginHorreum(pluginBase):
             "schemaId": schema_id,
         }
 
+        self.logger.debug(f"Adding label to schema id {schema_id}: {new}")
+        response = requests.post(
+            f"{args.base_url}/api/schema/{schema_id}/labels",
+            headers=self.headers,
+            verify=False,
+            json=new,
+        )
+        _check_response(self.logger, response)
+        label_id = int(response.json())
+        self.logger.debug(f"Created label ID {label_id} in schema ID {schema_id}")
+
+    def schema_label_update(self, args):
+        if args.update_by_id is None and args.update_by_name is None:
+            raise Exception("Either --update-by-id or --update-by-name have to be used")
+
+        self._setup(args)
+
+        schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
+
+        new_name = (
+            self._sanitize_string(args.extractor_jsonpath)
+            if args.name is None
+            else args.name
+        )
+        new_ext_name = (
+            self._sanitize_string(args.extractor_jsonpath)
+            if args.extractor_name is None
+            else args.extractor_name
+        )
+        new = {
+            "access": args.access,
+            "owner": args.owner,
+            "name": new_name,
+            "extractors": [
+                {
+                    "name": new_ext_name,
+                    "jsonpath": args.extractor_jsonpath,
+                    "isarray": args.extractor_isarray,
+                },
+            ],
+            "function": args.function,
+            "filtering": args.filtering,
+            "metrics": args.metrics,
+            "schemaId": schema_id,
+        }
+
         # Account options that allow updating existing label
         if args.update_by_id is not None or args.update_by_name is not None:
             labels = self._schema_id_labels(args, schema_id)
@@ -571,11 +617,8 @@ class pluginHorreum(pluginBase):
                 # Label with provided id found, lets update it
                 new["id"] = args.update_by_id
             else:
-                # Label not found, shall we fail now?
-                if args.add_if_missing:
-                    self.logger.warning(f"Label with id {args.update_by_id} not found, so adding new one with new ID")
-                else:
-                    raise KeyError(f"Failed to find label with id {args.update_by_id}")
+                # Label not found
+                raise KeyError(f"Failed to find label with id {args.update_by_id}")
 
         elif args.update_by_name is not None:
             label = next((item for item in labels if item["name"] == new_name), False)
@@ -585,29 +628,22 @@ class pluginHorreum(pluginBase):
                 new["id"] = label["id"]
             else:
                 # Label not found, shall we fail now?
-                if not args.add_if_missing:
+                if args.add_if_missing:
+                    self.logger.warning(f"Label with name {new_name} not found, so adding new one with new ID")
+                    return self.schema_label_add(args)
+                else:
                     raise KeyError(f"Failed to find label with name {new_name}")
 
-        if "id" in new:
-            self.logger.debug(f"Updating label in schema id {schema_id}: {new}")
-            response = requests.put(
-                f"{args.base_url}/api/schema/{schema_id}/labels",
-                headers=self.headers,
-                verify=False,
-                json=new,
-            )
-        else:
-            self.logger.debug(f"Adding label to schema id {schema_id}: {new}")
-            response = requests.post(
-                f"{args.base_url}/api/schema/{schema_id}/labels",
-                headers=self.headers,
-                verify=False,
-                json=new,
-            )
-
+        self.logger.debug(f"Updating label in schema id {schema_id}: {new}")
+        response = requests.put(
+            f"{args.base_url}/api/schema/{schema_id}/labels",
+            headers=self.headers,
+            verify=False,
+            json=new,
+        )
         _check_response(self.logger, response)
         label_id = int(response.json())
-        self.logger.debug(f"Created label ID {label_id} in schema ID {schema_id}")
+        self.logger.debug(f"Updated label ID {label_id} in schema ID {schema_id}")
 
     def schema_label_delete(self, args):
         self._setup(args)
@@ -745,11 +781,73 @@ class pluginHorreum(pluginBase):
             help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
         )
 
-        # Options for adding or updating schema label
+        # Options for adding schema label
         parser_result = subparsers.add_parser(
-            "schema-label-add", help="Add or update schema label"
+            "schema-label-add", help="Add schema label"
         )
         parser_result.set_defaults(func=self.schema_label_add)
+        parser_result.add_argument(
+            "--schema-uri",
+            type=str,
+            required=True,
+            help="Schema URI identifier (e.g. 'uri:my-schema:0.1')",
+        )
+        parser_result.add_argument(
+            "--name",
+            type=str,
+            help="Label name. Keep empty and it will de derived from JSON path.",
+        )
+        parser_result.add_argument(
+            "--extractor-name",
+            type=str,
+            help="Extractor name. Keep empty and it will de derived from JSON path. Only one extractor allowed now, support for more is TODO.",
+        )
+        parser_result.add_argument(
+            "--extractor-jsonpath",
+            type=str,
+            required=True,
+            help="Extractor JSON path expression. Only one extractor allowed now, support for more is TODO.",
+        )
+        parser_result.add_argument(
+            "--extractor-isarray",
+            type=bool,
+            default=False,
+            help="If extractor refferencing an array? Defaults to false. Only one extractor allowed now, support for more is TODO.",
+        )
+        parser_result.add_argument(
+            "--function",
+            type=str,
+            default="",
+            help="Combination function for the label. Defaults to empty one.",
+        )
+        parser_result.add_argument(
+            "--filtering",
+            action="store_true",
+            help="Is label a filtering label? Defaults to false.",
+        )
+        parser_result.add_argument(
+            "--metrics",
+            action="store_true",
+            help="Is label a metrics label? Defaults to false.",
+        )
+        parser_result.add_argument(
+            "--access",
+            choices=["PUBLIC", "PROTECTED", "PRIVATE"],
+            default="PUBLIC",
+            help="Access rights for the test. Defaults to 'PUBLIC'.",
+        )
+        parser_result.add_argument(
+            "--owner",
+            type=str,
+            required=True,
+            help="Name of the team that owns the test.",
+        )
+
+        # Options for updating schema label
+        parser_result = subparsers.add_parser(
+            "schema-label-update", help="Update schema label"
+        )
+        parser_result.set_defaults(func=self.schema_label_update)
         parser_result.add_argument(
             "--schema-uri",
             type=str,
@@ -763,7 +861,7 @@ class pluginHorreum(pluginBase):
         )
         parser_result.add_argument(
             "--update-by-name",
-            type=str,
+            action="store_true",
             help="Label name of label you want to update. Only set if you want to update existing label.",
         )
         parser_result.add_argument(
