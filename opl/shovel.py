@@ -572,9 +572,6 @@ class pluginHorreum(pluginBase):
         self.logger.debug(f"Created label ID {label_id} in schema ID {schema_id}")
 
     def schema_label_update(self, args):
-        if args.update_by_id is None and args.update_by_name is None:
-            raise Exception("Either --update-by-id or --update-by-name have to be used")
-
         self._setup(args)
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
@@ -633,17 +630,22 @@ class pluginHorreum(pluginBase):
                     return self.schema_label_add(args)
                 else:
                     raise KeyError(f"Failed to find label with name {new_name}")
+        else:
+            raise Exception("Either --update-by-id or --update-by-name have to be used")
 
-        self.logger.debug(f"Updating label in schema id {schema_id}: {new}")
-        response = requests.put(
-            f"{args.base_url}/api/schema/{schema_id}/labels",
-            headers=self.headers,
-            verify=False,
-            json=new,
-        )
-        _check_response(self.logger, response)
-        label_id = int(response.json())
-        self.logger.debug(f"Updated label ID {label_id} in schema ID {schema_id}")
+        if new == label:
+            self.logger.info(f"Proposed and current label {label['id']} in schema ID {schema_id} are same, nothing to change")
+        else:
+            self.logger.debug(f"Updating label in schema id {schema_id}: {new}")
+            response = requests.put(
+                f"{args.base_url}/api/schema/{schema_id}/labels",
+                headers=self.headers,
+                verify=False,
+                json=new,
+            )
+            _check_response(self.logger, response)
+            label_id = int(response.json())
+            self.logger.info(f"Updated label ID {label_id} in schema ID {schema_id}")
 
     def schema_label_delete(self, args):
         self._setup(args)
