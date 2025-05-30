@@ -90,7 +90,7 @@ class pluginBase:
 class pluginProw(pluginBase):
     def list(self, args):
         response = requests.get(f"{args.base_url}/{args.job_name}")
-        response.raise_for_status()
+        _check_response(self.logger, response)
 
         # Extract 19-digit numbers using regular expression
         numbers = re.findall(r"\b[0-9]{19}\b", response.text)
@@ -110,7 +110,7 @@ class pluginProw(pluginBase):
         from_url = f"{args.base_url}/{args.job_name}/{args.job_run_id}/artifacts/{args.run_name}/{args.artifact_path}"
         logging.info(f"Downloading {from_url} to {args.output_path}")
         response = requests.get(from_url)
-        response.raise_for_status()
+        _check_response(self.logger, response)
         response_content = response.content
 
         if args.record_link is not None:
@@ -205,7 +205,7 @@ class pluginOpenSearch(pluginBase):
             headers=headers,
             json=query,
         )
-        current_doc_in_es.raise_for_status()
+        _check_response(self.logger, current_doc_in_es)
         current_doc_in_es = current_doc_in_es.json()
 
         if current_doc_in_es["hits"]["total"]["value"] > 0:
@@ -220,7 +220,7 @@ class pluginOpenSearch(pluginBase):
             headers=headers,
             json=values,
         )
-        response.raise_for_status()
+        _check_response(self.logger, response)
         print(f"Uploaded: {response.content}")
 
     def set_args(self, parser, subparsers):
@@ -268,7 +268,7 @@ class pluginHorreum(pluginBase):
                 headers=self.headers,
                 verify=False,
             )
-            response.raise_for_status()
+            _check_response(self.logger, response)
             self.test_id = response.json()["id"]
 
     def upload(self, args):
@@ -304,7 +304,7 @@ class pluginHorreum(pluginBase):
             params={"filter": json.dumps(filter_data)},
             verify=False,
         )
-        response.raise_for_status()
+        _check_response(self.logger, response)
         datasets = response.json().get("datasets", [])
         if len(datasets) > 0:
             print(
@@ -329,7 +329,7 @@ class pluginHorreum(pluginBase):
                 params=params,
                 verify=False,
             )
-            response.raise_for_status()
+            _check_response(self.logger, response)
             runs = response.json().get("runs", [])
 
             for run in runs:
@@ -342,7 +342,7 @@ class pluginHorreum(pluginBase):
                     headers=self.headers,
                     verify=False,
                 )
-                response.raise_for_status()
+                _check_response(self.logger, response)
                 run_data = response.json()
                 try:
                     marker = _get_field_value(args.matcher_field, run_data)
@@ -370,7 +370,7 @@ class pluginHorreum(pluginBase):
             data=json.dumps(self.input_file),
             verify=False,
         )
-        response.raise_for_status()
+        _check_response(self.logger, response)
 
         print(f"Uploaded {args.input_file}: {response.content}")
 
@@ -396,7 +396,7 @@ class pluginHorreum(pluginBase):
             params={"test": self.test_id},
             verify=False,
         )
-        response.raise_for_status()
+        _check_response(self.logger, response)
         alerting_variables = response.json()
 
         start = _floor_datetime(args.start)
@@ -424,7 +424,7 @@ class pluginHorreum(pluginBase):
                 json=range_data,
                 verify=False,
             )
-            response.raise_for_status()
+            _check_response(self.logger, response)
             response = response.json()
 
             # Check if the result is not an empty list
@@ -466,7 +466,7 @@ class pluginHorreum(pluginBase):
                 params=params,
                 verify=False,
             )
-            response.raise_for_status()
+            _check_response(self.logger, response)
 
             runs = response.json().get("runs", [])
             if len(runs) == 0:
@@ -486,7 +486,7 @@ class pluginHorreum(pluginBase):
             headers=self.headers,
             verify=False,
         )
-        response.raise_for_status()
+        _check_response(self.logger, response)
         data = response.json()
         print(json.dumps(data))
 
@@ -983,7 +983,7 @@ class pluginResultsDashboard(pluginBase):
             headers=headers,
             data=json_data,
         )
-        current_doc_in_es.raise_for_status()
+        _check_response(self.logger, current_doc_in_es)
         current_doc_in_es = current_doc_in_es.json()
 
         if current_doc_in_es["hits"]["total"]["value"] > 0:
@@ -1010,7 +1010,7 @@ class pluginResultsDashboard(pluginBase):
             headers=headers,
             json=upload_data,
         )
-        response.raise_for_status()
+        _check_response(self.logger, response)
 
         print(f"Uploaded: {response.content}")
 
