@@ -10,16 +10,17 @@ import re
 import urllib3
 import urllib.parse
 
-from opl import skelet, status_data
+from opl import skelet
 
 
 def _check_response(logger, response):
     """Check if requests response is OKish and if not, log useful data and raise exception."""
     try:
         response.raise_for_status()
-    except:
+    except Exception:
         logger.error(f"Request failed with text: {response.text}")
         raise
+
 
 def _floor_datetime(obj):
     """Floor datetime object to whole second."""
@@ -53,7 +54,7 @@ def _get_field_value(field, data):
 def _set_field_value(field, value, data):
     """Find field (in doted notation) in data (being changed in place) and set it to value."""
     if field.startswith("@"):
-        filed = field[1:]
+        field = field[1:]
 
     for f in field.split(".")[:-1]:
         if f not in data:
@@ -118,7 +119,7 @@ class pluginProw(pluginBase):
                 data = response.json()
             except requests.exceptions.JSONDecodeError:
                 self.logger.error(
-                    f"Failed to parse JSON, ignoring --record-link option"
+                    "Failed to parse JSON, ignoring --record-link option"
                 )
             else:
                 _set_field_value(args.record_link, from_url, data)
@@ -314,7 +315,7 @@ class pluginHorreum(pluginBase):
 
         if args.trashed:
             self.logger.debug(
-                f"WORKAROUND: Searching if result already there amongst trashed runs"
+                "WORKAROUND: Searching if result already there amongst trashed runs"
             )
             params = {
                 "trashed": True,
