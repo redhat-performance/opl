@@ -33,6 +33,7 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
     status_data.set("parameters.locust.num_clients", args.num_clients)
     status_data.set("parameters.locust.reset_stats", args.reset_stats)
     status_data.set("parameters.locust.stop_timeout", args.stop_timeout)
+    status_data.set("parameters.locust.locust_tags", args.locust_tags)
     status_data.set("parameters.test.duration", args.test_duration)
     status_data.set("parameters.test.requests", args.test_requests)
     status_data.set("parameters.test.url_suffix", args.test_url_suffix)
@@ -47,6 +48,7 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
     env.stop_timeout = args.stop_timeout
     env.host = args.host
     env.reset_stats = args.reset_stats
+    env.tags = args.locust_tags
 
     # Create runner and run test
     if args.locust_local_runner:

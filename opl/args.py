@@ -329,6 +329,12 @@ def add_locust_opts(parser):
         default=int(os.getenv("LOCUST_WAIT_FOR_WORKER_TIMEOUT", 120)),
         help="Locust timeout [s] for waiting until worker pods are ready. (also use env variable LOCUST_WAIT_FOR_WORKER_TIMEOUT)",
     )
+    parser.add_argument(
+        "--locust-tags",
+        dest="locust_tags"
+        default=os.getenv("LOCUST_TAGS", ""),
+        help="Which Locust tags to include? These tags might be attached to some tasks to run different scenarios from a single file.",
+    )
 
     # Our test specific parameters
     parser.add_argument(
