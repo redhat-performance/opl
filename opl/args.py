@@ -331,7 +331,7 @@ def add_locust_opts(parser):
     )
     parser.add_argument(
         "--locust-tags",
-        dest="locust_tags"
+        dest="locust_tags",
         default=os.getenv("LOCUST_TAGS", ""),
         help="Which Locust tags to include? These tags might be attached to some tasks to run different scenarios from a single file.",
     )
