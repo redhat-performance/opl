@@ -48,7 +48,8 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
     env.stop_timeout = args.stop_timeout
     env.host = args.host
     env.reset_stats = args.reset_stats
-    env.tags = args.locust_tags
+    if args.locust_tags:
+        env.tags = args.locust_tags
 
     # Create runner and run test
     if args.locust_local_runner:
