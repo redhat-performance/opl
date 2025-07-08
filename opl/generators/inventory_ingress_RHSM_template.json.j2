@@ -2,7 +2,7 @@
     "operation":"add_host",
     "data":{
         "account":"{{ account }}",
-        "org_id":"{{ orgid }}",
+        "org_id":"{{ account }}",
         "subscription_manager_id":"{{ subscription_manager_id }}",
         "bios_uuid":"{{ bios_uuid }}",
         "ip_addresses":[{% for addr in ipv4_addr + ipv6_addr %}"{{ addr }}"{% if not loop.last %},{% endif %}{% endfor %}],
