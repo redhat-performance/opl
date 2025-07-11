@@ -75,10 +75,11 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 for i in self.per_account_data  # because per_account_data is a list not dictionary
             ]
         else:
+            common_acc_orgid = self._get_account() # since hbi has same account and org_id values
             return [
                 {
-                    "account": self._get_account(),
-                    "orgid": self._get_orgid(),
+                    "account": common_acc_orgid,
+                    "orgid": common_acc_orgid,
                     "satellite_id": self._get_uuid(),
                     "satellite_instance_id": self._get_uuid(),
                 }
