@@ -17,7 +17,7 @@ import opl.date
 class GenericGenerator:
     """Iterator that creates payloads with messages formatted using given template."""
 
-    def __init__(self, count, template, dump_message=False):
+    def __init__(self, count, template, template_dir="/home/", dump_message=False):
         assert count >= 1
         self.count = count  # how many messages to generate
         self.template_file = template  # what template file to use
@@ -36,7 +36,7 @@ class GenericGenerator:
             loader=jinja2.ChoiceLoader(
                 [
                     jinja2.FileSystemLoader(data_dirname),
-                    jinja2.FileSystemLoader("/home/"),
+                    jinja2.FileSystemLoader(template_dir),
                 ]
             )
         )
