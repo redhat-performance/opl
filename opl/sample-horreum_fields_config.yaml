@@ -1,0 +1,117 @@
+# Horreum Fields Configuration
+# This file defines the fields to extract from performance data, their change detection settings,
+# and grouping information for comprehensive monitoring
+
+# Global configuration
+global:
+  owner: "Openshift-horreum-team"
+  access: "PUBLIC"
+
+# Global change detection defaults
+change_detection_defaults:
+  model: "relativeDifference"  # Options: relativeDifference, fixedThreshold, hunter
+  window: 10                   # Number of data points to analyze (relativeDifference only)
+  min_previous: 5              # Minimum previous data points required (relativeDifference only)
+  threshold: 0.10              # Default 10% change threshold (relativeDifference only)
+  aggregation: "mean"          # Aggregation function: mean, max, min (relativeDifference only)
+  # Fixed threshold defaults
+  fixed_threshold:
+    min_enabled: false         # Enable minimum threshold check
+    min_value: null           # Minimum allowed value
+    min_inclusive: true       # Include boundary value (>= vs >)
+    max_enabled: false        # Enable maximum threshold check  
+    max_value: null          # Maximum allowed value
+    max_inclusive: true      # Include boundary value (<= vs <)
+
+# Change detection groups with specific configurations
+change_detection_groups:
+  "Critical Performance":
+    description: "High-impact metrics requiring immediate attention"
+    threshold: 0.05              # 5% threshold for critical metrics
+    window: 20
+    min_previous: 7
+    model: "relativeDifference"
+    aggregation: "mean"           # Use max to catch any performance spikes
+  
+  
+  "SLO Compliance":
+    description: "Service Level Objective compliance metrics with fixed boundaries"
+    model: "fixedThreshold"
+    fixed_threshold:
+      min_enabled: true
+      min_value: 95.0            # Minimum 95% compliance
+      min_inclusive: true        # >= 95%
+      max_enabled: false
+      max_value: null
+      max_inclusive: true
+      
+  "Error Rate Limits":
+    description: "Error rate metrics with maximum acceptable thresholds" 
+    model: "fixedThreshold"
+    fixed_threshold:
+      min_enabled: false
+      min_value: null
+      min_inclusive: true
+      max_enabled: true
+      max_value: 5.0             # Maximum 5% error rate
+      max_inclusive: false       # < 5% (exclusive)
+      
+  "Anomaly Detection":
+    description: "Advanced change point detection using eDivisive-Hunter algorithm"
+    model: "eDivisive"
+    edivisive:
+      description: "Uses machine learning to automatically detect change points in time series data"
+      
+  "Performance Regression":
+    description: "Automated performance regression detection"
+    model: "eDivisive"
+    edivisive:
+      description: "Detects performance regressions without requiring threshold configuration"
+
+# Test definition
+test:
+  access: "PUBLIC"
+  owner: "Openshift-horreum-team"
+  name: "test-horreum-horreum"
+  folder: "Openshift-horreum"
+  description: "OpenShift Horreum scalingHorreum performance benchmark test for tracking horreum execution metrics"
+  datastoreId: 1  # Assuming default datastore
+  timelineLabels: ["started"]
+  timelineFunction: "value => new Date(value).getTime()"
+  fingerprintLabels: ["metadata_env_BUILD_ID"]
+  fingerprintFilter: "value => value !== null"
+  notificationsEnabled: true
+
+# Schema definition
+schema:
+  access: "PUBLIC"
+  owner: "Openshift-horreum-team"
+  uri: "urn:test-scalingHorreum:0.2"
+  name: "OpenShift Horreum scalingHorreum Schema"
+  description: "Schema for OpenShift Horreum scalingHorreum performance test data"
+  # JSON schema metadata
+  json_schema:
+    $schema: "https://json-schema.org/draft/2020-12/schema"
+    $id: "urn:test-scalingHorreum:0.2"
+    title: "OpenShift Horreum scalingHorreum Performance Test Schema"
+    description: "Schema for OpenShift Horreum performance benchmark data generated from field configuration"
+
+# Field definitions
+fields:
+  # Metadata and identification fields
+  - name: "metadata_env_BUILD_ID"
+    jsonpath: "$.metadata.env.BUILD_ID"
+    description: "Build identifier for test runs"
+    filtering: true
+    metrics: false
+    change_detection_group: null  # No change detection for ID fields
+    
+   
+  - name: "results_signatures_latency_created_succeeded"
+    jsonpath: "$.results.signatures.latency_created_succeeded"
+    description: "Latency from creation to success"
+    filtering: false
+    metrics: true
+    change_detection_group: "Critical Performance"
+    
+ 
