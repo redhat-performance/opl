@@ -85,6 +85,7 @@ setuptools.setup(
             "script-hbi-cleanup.py = opl.hbi_utils:cleanup_main",
             "shovel.py = opl.shovel:main",
             "create_packages_template_from_dnf_repoquery.py = opl.create_packages_template_from_dnf_repoquery:parse_repoquery_output_from_stdin",
+            "horreum_api.py = opl.horreum_api:main",
         ],
     },
 )
