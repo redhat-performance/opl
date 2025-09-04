@@ -102,6 +102,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                 except ValueError as e:
                     logging.error(f"Failed to load {new['system-err'].name} file: {e}")
 
+        case.system_out = ' '.join(case.system_out.split()[-1000:]) #trim system_out logs to last 1000 words
         duration = (new["end"] - new["start"]).total_seconds()
         case.time = duration
 
