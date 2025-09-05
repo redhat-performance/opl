@@ -62,8 +62,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return "".join(
             ch for ch in s if unicodedata.category(ch)[0] != "C" or ch == "\n"
         )
+
     def trim_string_fn(self, data, trim_length):
-        matches = list(re.finditer(r'\S+', data))
+        matches = list(re.finditer(r"\S+", data))
         if len(matches) <= trim_length:
             return data
         # Get the start index of the Nth-to-last word
@@ -109,7 +110,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                 except ValueError as e:
                     logging.error(f"Failed to load {new['system-err'].name} file: {e}")
 
-        case.system_out= self.trim_string_fn(case.system_out,1000)
+        case.system_out = self.trim_string_fn(case.system_out, 1000)
         duration = (new["end"] - new["start"]).total_seconds()
         case.time = duration
 
