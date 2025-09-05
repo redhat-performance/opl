@@ -6,6 +6,7 @@ import os
 import unicodedata
 import junitparser
 import urllib3
+import re
 
 import requests
 
