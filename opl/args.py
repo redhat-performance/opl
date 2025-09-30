@@ -90,6 +90,14 @@ def add_compliance_db_opts(parser):
     _add_generic_db_opts(parser, "compliance")
 
 
+def add_export_db_opts(parser):
+    _add_generic_db_opts(parser, "export")
+
+
+def add_playbook_db_opts(parser):
+    _add_generic_db_opts(parser, "playbook")
+
+
 def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-host",
@@ -317,6 +325,13 @@ def add_locust_opts(parser):
         type=int,
         default=int(os.getenv("LOCUST_STOP_TIMEOUT", 10)),
         help="Locust stop timeout (also use env variable LOCUST_STOP_TIMEOUT)",
+    )
+    parser.add_argument(
+        "--locust-wait-for-worker-timeout",
+        dest="worker_wait_timeout",
+        type=int,
+        default=int(os.getenv("LOCUST_WAIT_FOR_WORKER_TIMEOUT", 120)),
+        help="Locust timeout [s] for waiting until worker pods are ready. (also use env variable LOCUST_WAIT_FOR_WORKER_TIMEOUT)",
     )
 
     # Our test specific parameters

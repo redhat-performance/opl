@@ -114,7 +114,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
 
 def fetch_records_count(inventory):
     inventory_cursor = inventory.cursor()
-    inventory_cursor.execute("select count(*) as exact_count from hosts")
+    inventory_cursor.execute("select count(*) as exact_count from hbi.hosts")
     for i in inventory_cursor.fetchone():
         existing_records = int(i)
 
@@ -136,20 +136,29 @@ def verify(args, previous_records, status_data, inventory, collect_info):
         if existing_ids == expected_ids:
             logging.info("All IDs present in the Inventory DB")
             break
+        elif existing_ids > expected_ids:
+            logging.warning(
+                f"We have more hosts than expected! We have {existing_ids-previous_records} of {args.count}"
+            )
+            break
 
         # Are we out of attempts?
         attempt += 1
         if attempt > attempts_max:
             raise Exception(
-                f"After {attempt} attempts, we only have {existing_ids} out of {args.count}"
+                f"After {attempt} attempts, we only have {existing_ids-previous_records} out of {args.count}"
             )
 
         # If there were no new hosts now, wait a bit
         if existing_ids != expected_ids:
             logging.debug(
-                f"Waiting for IDs, attempt {attempt}, remaining {existing_ids}"
+                f"Waiting for IDs, attempt {attempt}, remaining {existing_ids-previous_records} out of {args.count}, in total there are {existing_ids} out of {expected_ids} expected hosts in HBI"
             )
             time.sleep(15)
+        elif existing_ids > expected_ids:
+            logging.warning(
+                f"We have more hosts than expected! We have {existing_ids-previous_records} of {args.count}"
+            )
 
     inventory_cursor.close()
 
@@ -163,6 +172,8 @@ def gen_send_verify(args, status_data):
         template=args.template,
         addresses=args.addresses,
         mac_addresses=args.mac_addresses,
+        package_file_name=args.package_file_name,
+        os_override=args.os_override,
     )
 
     logging.info("Creating Inventory DB connection")
@@ -192,7 +203,7 @@ def gen_send_verify(args, status_data):
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts
-    if args.no_check:  # don't keep the account info since it's too big
+    if args.no_account_info:  # don't keep the account info since it's too big
         collect_info = None
 
     gen_and_send(
@@ -222,6 +233,24 @@ def gen_send_verify(args, status_data):
         json.dump(collect_info, fp, sort_keys=True, indent=4)
 
 
+def parse_os_override(args):
+    if args.os_override is not None:
+        os_override_dict = json.loads(args.os_override)
+        assert isinstance(os_override_dict, dict), (
+            "Invalid os-override parameter, should be a dict, maybe something like this: "
+            '{"major": 7, "minor": 6, "name": "RHEL"}, but we have this: '
+            + str(os_override_dict)
+        )
+        assert (
+            "major" in os_override_dict
+            and "minor" in os_override_dict
+            and "name" in os_override_dict
+        ), "Missing required keys major, minor, name in os_override! Got this: " + str(
+            os_override_dict
+        )
+        args.os_override = os_override_dict
+
+
 def populate_main():
     parser = argparse.ArgumentParser(
         description="Generate host-ingress messages, produce them to ingress topic and make sure they appear in DB",
@@ -243,6 +272,11 @@ def populate_main():
         help="How many packages addresses should each host have",
     )
     parser.add_argument(
+        "--package-file-name",
+        default="packages_data.json",
+        help="Name of package data template in opl/generators that should be used when generating host info",
+    )
+    parser.add_argument(
         "--addresses",
         default=3,
         type=int,
@@ -257,7 +291,12 @@ def populate_main():
     parser.add_argument(
         "--template",
         default="inventory_ingress_puptoo_template.json.j2",
-        help="What message template to use (not implemented yet)",
+        help="What message template to use, path in opl/generators",
+    )
+    parser.add_argument(
+        "--os-override",
+        type=str,
+        help='To override the operating system info in a JSON format to make a dict from, could be something like {"major": 7, "minor": 6, "name": "RHEL"}',
     )
     parser.add_argument(
         "--rate",
@@ -283,12 +322,18 @@ def populate_main():
     parser.add_argument(
         "--no-check",
         action="store_true",
-        help="Enable sending of hosts without checking if they appear in HBI. Good for Perf testing. This also stops generating data-file.",
+        help="Enable sending of hosts without checking if they appear in HBI. Good for Perf testing.",
+    )
+    parser.add_argument(
+        "--no-account-info",
+        action="store_true",
+        help="Stop generating data-file that would contain generated hosts&accounts info. Good for saving resources (primarily memory) in large amount of test data.",
     )
     opl.args.add_kafka_opts(parser)
     opl.args.add_inventory_db_opts(parser)
 
     with opl.skelet.test_setup(parser) as (args, status_data):
+        parse_os_override(args)
         gen_send_verify(args, status_data)
 
 
@@ -306,7 +351,7 @@ def cleanup(args, status_data):
     inventory_cursor = inventory.cursor()
 
     logging.info("Truncating Inventory DB 'hosts' table")
-    inventory_cursor.execute("TRUNCATE hosts CASCADE")
+    inventory_cursor.execute("TRUNCATE hbi.hosts CASCADE")
     inventory.commit()
 
     status_data.set_now("parameters.inventory_db.table_hosts.truncated_at")

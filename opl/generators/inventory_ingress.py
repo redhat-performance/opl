@@ -23,6 +23,8 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         per_account_data=[],
         per_account_data_add_filed=None,
         per_host_random_packages=True,
+        package_file_name="packages_data.json",
+        os_override=None,
     ):
         super().__init__(count=count, template=template, dump_message=False)
 
@@ -45,7 +47,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         self.relatives = self._get_relatives(
             relatives
         )  # list of accounts/... to choose from
-        self.relatives_index = 0   # into what account we should put a host
+        self.relatives_index = 0  # into what account we should put a host
 
         assert (
             fraction == 1
@@ -54,9 +56,13 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         # This will be used to generate list of packages
         self.per_host_random_packages = per_host_random_packages
         self.packages = packages
-        self.pg = opl.generators.packages.PackagesGenerator()
+        self.pg = opl.generators.packages.PackagesGenerator(
+            package_file_name=package_file_name
+        )
         if not self.per_host_random_packages:
             self.packages_generated = self.pg.generate(self.packages)
+
+        self.os_override = os_override
 
     def _get_relatives(self, relatives):
         if len(self.per_account_data) > 0:
@@ -69,10 +75,13 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 for i in self.per_account_data  # because per_account_data is a list not dictionary
             ]
         else:
+            common_acc_orgid = (
+                self._get_account()
+            )  # since hbi has same account and org_id values
             return [
                 {
-                    "account": self._get_account(),
-                    "orgid": self._get_orgid(),
+                    "account": common_acc_orgid,
+                    "orgid": common_acc_orgid,
                     "satellite_id": self._get_uuid(),
                     "satellite_instance_id": self._get_uuid(),
                 }
@@ -102,7 +111,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                     "Intel(R) I7(R) CPU I7-10900k 0 @ 4.90GHz",
                 ]
             ),
-            "operating_system": json.dumps(self._get_operating_system()),
+            "operating_system": json.dumps(
+                self._get_operating_system(self.os_override)
+            ),
             "installed_packages": json.dumps(packages_generated),
             "tuned_profile": random.choice(["desktop", "example", "laptop"]),
             "selinux_current_mode": random.choice(
@@ -165,7 +176,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 89
             ),
         }
-        data.update(self.relatives[self.relatives_index % len(self.relatives)])  # add account and orgid
+        data.update(
+            self.relatives[self.relatives_index % len(self.relatives)]
+        )  # add account and orgid
         self.relatives_index += 1  # increment where are we going to put next host
         if "os_tree_commits" in data:
             data["os_tree_commit"] = data["os_tree_commits"][0]

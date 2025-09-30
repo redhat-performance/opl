@@ -1,0 +1,394 @@
+{
+  "b64_identity": "{{ b64_identity }}",
+  "events": [
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "executor_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}"
+      },
+      "start_line": 0,
+      "stdout": "",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "playbook_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "playbook_on_play_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "playbook_on_task_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "runner_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "playbook_on_play_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "playbook_on_task_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "runner_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": -1,
+      "end_line": 0,
+      "event": "playbook_on_stats",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 0,
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 1,
+      "end_line": 1,
+      "event": "verbose",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}"
+      },
+      "start_line": 0,
+      "stdout": "[WARNING]: provided hosts list is empty, only localhost is available. Note that",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 2,
+      "end_line": 2,
+      "event": "verbose",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}"
+      },
+      "start_line": 1,
+      "stdout": "the implicit localhost does not match 'all'",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 3,
+      "end_line": 2,
+      "event": "playbook_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 2,
+      "stdout": "",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 4,
+      "end_line": 4,
+      "event": "playbook_on_play_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 2,
+      "stdout": "\r\nPLAY [Set owner and permissions on /etc/sshd/sshd_config to root:root 0600] ****",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 5,
+      "end_line": 6,
+      "event": "playbook_on_task_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 4,
+      "stdout": "\r\nTASK [Gathering Facts] *********************************************************",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 6,
+      "end_line": 6,
+      "event": "runner_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 6,
+      "stdout": "",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 7,
+      "end_line": 7,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 6,
+      "stdout": "ok: [localhost]",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 8,
+      "end_line": 9,
+      "event": "playbook_on_task_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 7,
+      "stdout": "\r\nTASK [Set the owner and permissions of ssh config file to root:root 0600] ******",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 9,
+      "end_line": 9,
+      "event": "runner_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 9,
+      "stdout": "",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 10,
+      "end_line": 10,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 9,
+      "stdout": "ok: [localhost]",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 11,
+      "end_line": 12,
+      "event": "playbook_on_play_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 10,
+      "stdout": "\r\nPLAY [run insights] ************************************************************",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 12,
+      "end_line": 14,
+      "event": "playbook_on_task_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 12,
+      "stdout": "\r\nTASK [Gathering Facts] *********************************************************",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 13,
+      "end_line": 14,
+      "event": "runner_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 14,
+      "stdout": "",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 14,
+      "end_line": 15,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 14,
+      "stdout": "ok: [localhost]",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 16,
+      "end_line": 17,
+      "event": "runner_on_start",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 17,
+      "stdout": "",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 17,
+      "end_line": 18,
+      "event": "runner_on_ok",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "host": "localhost",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 17,
+      "stdout": "ok: [localhost]",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    },
+    {
+      "counter": 18,
+      "end_line": 22,
+      "event": "playbook_on_stats",
+      "event_data": {
+        "crc_dispatcher_correlation_id": "{{ correlation_id }}",
+        "playbook": "/var/lib/rhc-worker-playbook/{{ run_id }}.yaml",
+        "playbook_uuid": "{{ run_id }}"
+      },
+      "start_line": 18,
+      "stdout": "\r\nPLAY RECAP *********************************************************************\r\nlocalhost                  : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   ",
+      "uuid": "{{ opl_gen.gen_uuid() }}"
+    }
+  ],
+  "org_id": "{{ org_id }}",
+  "request_id": "01234567890123456789012345678901",
+  "upload_timestamp": "2025-01-09T11:18:43-06:00"
+}

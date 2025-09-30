@@ -17,7 +17,7 @@ import opl.date
 class GenericGenerator:
     """Iterator that creates payloads with messages formatted using given template."""
 
-    def __init__(self, count, template, dump_message=False):
+    def __init__(self, count, template, template_dir="/home/", dump_message=False):
         assert count >= 1
         self.count = count  # how many messages to generate
         self.template_file = template  # what template file to use
@@ -25,12 +25,18 @@ class GenericGenerator:
 
         self.counter = 0
 
+        # These will be added to variables when rendering template
+        # so you can use there e.g. "Random UUID is: {{ opl_gen.gen_uuid() }}"
+        self.helpers = {
+            "opl_gen": opl.gen,
+        }
+
         data_dirname = os.path.dirname(__file__)
         self.env = jinja2.Environment(
             loader=jinja2.ChoiceLoader(
                 [
                     jinja2.FileSystemLoader(data_dirname),
-                    jinja2.FileSystemLoader("/home/"),
+                    jinja2.FileSystemLoader(template_dir),
                 ]
             )
         )
@@ -52,9 +58,9 @@ class GenericGenerator:
         data = self._data()
         mid = self._mid(data)
         if self.dump_message:
-            msg = self.template.render(**data).encode("UTF-8")
+            msg = self.template.render(**self.helpers, **data).encode("UTF-8")
         else:
-            msg = json.loads(self.template.render(**data))
+            msg = json.loads(self.template.render(**self.helpers, **data))
         return mid, msg
 
     def _mid(self, data):
@@ -243,13 +249,20 @@ class GenericGenerator:
         ]
         return random.choice(ansible_profiles)
 
-    def _get_operating_system(self):
-        operating_systems = [
-            {"major": 7, "minor": 6, "name": "RHEL"},
-            {"major": 7, "minor": 7, "name": "RHEL"},
-            {"major": 7, "minor": 8, "name": "RHEL"},
-            {"major": 7, "minor": 9, "name": "RHEL"},
-        ]
+    def _get_operating_system(self, os_override):
+        if os_override is not None:
+            assert isinstance(os_override, dict), (
+                'Invalid os_override parameter, should be a dict, maybe something like this: `{"major": 7, "minor": 6, "name": "RHEL"}`, but we have this: '
+                + str(os_override),
+            )
+            operating_systems = [os_override]
+        else:
+            operating_systems = [
+                {"major": 7, "minor": 6, "name": "RHEL"},
+                {"major": 7, "minor": 7, "name": "RHEL"},
+                {"major": 7, "minor": 8, "name": "RHEL"},
+                {"major": 7, "minor": 9, "name": "RHEL"},
+            ]
         return random.choice(operating_systems)
 
     def _get_rhsm(self):

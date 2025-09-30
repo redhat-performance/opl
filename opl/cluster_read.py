@@ -36,14 +36,27 @@ def execute(command):
     return result
 
 
+def redact_sensitive_headers(data: dict):
+    # Lower-case list of sensitive data in header
+    sensitive_headers = ["authorization", "set-cookie", "x-api-key", "cookie"]
+
+    redacted_headers = {}
+    for header, value in data.items():
+        if header.lower() in sensitive_headers:
+            redacted_headers[header] = "<REDACTED>"
+        else:
+            redacted_headers[header] = value
+    return redacted_headers
+
+
 def _debug_response(r):
     """
     Print various info about the requests response. Should be called when
     request failed
     """
     logging.error("URL = %s" % r.url)
-    logging.error("Request headers = %s" % r.request.headers)
-    logging.error("Response headers = %s" % r.headers)
+    logging.error("Request headers = %s" % redact_sensitive_headers(r.request.headers))
+    logging.error("Response headers = %s" % redact_sensitive_headers(r.headers))
     logging.error("Response status code = %s" % r.status_code)
     logging.error("Response content = %s" % r.content[:500])
     raise Exception("Request failed")
@@ -182,7 +195,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         return target
 
     @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
-    def measure(self, ri, name, grafana_target):
+    def measure(self, ri, name, grafana_target, grafana_enritchment={}, grafana_include_vars=False):
         assert (
             ri.start is not None and ri.end is not None
         ), "We need timerange to approach Grafana"
@@ -217,6 +230,19 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
         points = [float(i[0]) for i in r.json()[0]["datapoints"] if i[0] is not None]
         stats = data.data_stats(points)
+
+        # Add user defined data to the computed stats
+        if grafana_enritchment is not None and grafana_enritchment != {}:
+            stats["enritchment"] = grafana_enritchment
+
+        # If requested, add info about what variables were used to the computed stats
+        if grafana_include_vars:
+            stats["variables"] = {
+                "$Node": self.args.grafana_node,
+                "$Interface": self.args.grafana_interface,
+                "$Cloud": self.args.grafana_prefix,
+            }
+
         return name, stats
 
     @staticmethod

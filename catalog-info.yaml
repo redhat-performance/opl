@@ -1,0 +1,18 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  title: OPL
+  name: opl
+  namespace: perfscale
+  description: MBU products perf&scale library
+spec:
+  type: library
+  lifecycle: production
+  domain: domain:perfscale/perf-dept
+  owner: group:redhat/hce-perfscale
+  system: system:perfscale/consoledot-testing
+  dependencyOf:
+    - component:perfscale/iperf
+  tags:
+    - consoledot
