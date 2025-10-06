@@ -55,41 +55,7 @@ def get_stats(checks, key):
     )
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Given historical numerical data, determine if latest result is PASS or FAIL",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    parser.add_argument(
-        "--config",
-        type=argparse.FileType("r"),
-        required=True,
-        help="Config file to use",
-    )
-    parser.add_argument(
-        "--current-file",
-        type=argparse.FileType("r"),
-        help="Status data file with results to investigate. Overwrites current.file value from config file",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Investigate result, but do not upload decisions. Meant for debugging",
-    )
-    parser.add_argument(
-        "--detailed-decisions",
-        action="store_true",
-        help="When showing decisions, show all the details",
-    )
-    parser.add_argument("--stats", action="store_true", help="Show statistics")
-    parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
-    args = parser.parse_args()
-
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
-
-    logging.debug(f"Args: {args}")
-
+def doit(args):
     opl.investigator.config.load_config(args, args.config)
 
     # Load current data
@@ -209,22 +175,21 @@ def main():
         get_stats(info_all, "method")
 
     if not args.dry_run:
-        for d_type in args.decisions_type:
-            if d_type == "elasticsearch":
-                if hasattr(args, "es_server_verify") and not args.es_server_verify:
-                    # disable SSL verification
-                    opl.http.insecure()
-                opl.investigator.elasticsearch_decisions.store(
-                    args.decisions_es_server,
-                    args.decisions_es_index,
-                    info_all,
-                    es_server_user=getattr(args, "decisions_es_server_user", None),
-                    es_server_pass_env_var=getattr(
-                        args, "decisions_es_server_pass_env_var", None
-                    ),
-                )
-            if d_type == "csv":
-                opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
+        if args.decisions_type == "elasticsearch":
+            if hasattr(args, "es_server_verify") and not args.es_server_verify:
+                # disable SSL verification
+                opl.http.insecure()
+            opl.investigator.elasticsearch_decisions.store(
+                args.decisions_es_server,
+                args.decisions_es_index,
+                info_all,
+                es_server_user=getattr(args, "decisions_es_server_user", None),
+                es_server_pass_env_var=getattr(
+                    args, "decisions_es_server_pass_env_var", None
+                ),
+            )
+        if args.decisions_type == "csv":
+            opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
 
     if not args.dry_run:
         if exit_code == 0:
@@ -238,3 +203,41 @@ def main():
         current_sd.save()
 
     return exit_code
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Given historical numerical data, determine if latest result is PASS or FAIL",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--config",
+        type=argparse.FileType("r"),
+        required=True,
+        help="Config file to use",
+    )
+    parser.add_argument(
+        "--current-file",
+        type=argparse.FileType("r"),
+        help="Status data file with results to investigate. Overwrites current.file value from config file",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Investigate result, but do not upload decisions. Meant for debugging",
+    )
+    parser.add_argument(
+        "--detailed-decisions",
+        action="store_true",
+        help="When showing decisions, show all the details",
+    )
+    parser.add_argument("--stats", action="store_true", help="Show statistics")
+    parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug(f"Args: {args}")
+
+    sys.exit(doit(args))

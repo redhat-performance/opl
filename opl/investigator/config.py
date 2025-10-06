@@ -8,7 +8,7 @@ import yaml
 
 def render_sets(args, template_data):
     if not isinstance(args.sets, str):
-        logging.debug("No need to render, sets is already a list")
+        logging.debug("No need to render, sets is not a string")
         return
 
     logging.debug(
@@ -108,13 +108,4 @@ def load_config(conf, fp):
             conf.decisions_es_server_verify = True
 
     if conf.decisions_type == "csv":
-        conf.decisions_filename = data["decisions"]["filename"]
-
-    conf.decisions_type = [d_type.strip() for d_type in conf.decisions_type.split(",")]
-    for d_type in conf.decisions_type:
-        if d_type == "elasticsearch":
-            conf.decisions_es_server = data["decisions"]["es_server"]
-            assert not conf.decisions_es_server.endswith("/")
-            conf.decisions_es_index = data["decisions"]["es_index"]
-        if d_type == "csv":
-            conf.decisions_filename = data["decisions"]["filename"]
+        conf.decisions_filename = data["decisions"].get("file", data["decisions"].get("filename"))
