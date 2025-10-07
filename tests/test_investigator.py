@@ -61,9 +61,12 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         args.config = open("/tmp/investigator_conf.yaml", "r")
         args.detailed_decisions = False
         args.stats = False
-        args.dry_run = True
+        args.dry_run = False
         args.debug = True
-        opl.pass_or_fail.doit(args)
+        rc = opl.pass_or_fail.doit(args)
+
+        # Test overall return code
+        self.assertEqual(rc, 0)
 
         # Test loaded config
         self.assertEqual(args.history_type, "csv")
@@ -71,3 +74,9 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         self.assertEqual(args.sets, ["metric1", "metric2"])
         self.assertEqual(args.methods, ["check_by_min_max_0_1"])
         self.assertEqual(args.decisions_type, "csv")
+
+        # Check recorded decisions
+        with open("/tmp/decisions.csv", "r") as fd:
+            decisions = fd.readlines()
+        self.assertTrue(decisions[1].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,"))
+        self.assertTrue(decisions[2].startswith("metric2,PASS,check_by_min_max_0_1,1000,995.0,1005.0,,,,"))
