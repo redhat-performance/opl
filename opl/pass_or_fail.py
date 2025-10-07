@@ -67,18 +67,20 @@ def doit(args):
     # Render what needs to be rendered to finish config loading
     opl.investigator.config.load_config_finish(args, current_sd)
 
+    sets_list = [s['name'] for s in args.sets]
+
     # Load data items from current data
-    current = opl.investigator.status_data_loader.load_data(current_sd, args.sets)
+    current = opl.investigator.status_data_loader.load_data(current_sd, sets_list)
 
     total = len([v for v in current.values() if v is not None and v != ""])
     if total == 0:
         raise Exception(
-            f"No data available in current result (tried to load {', '.join(args.sets)} but nothing)!"
+            f"No data available in current result (tried to load {', '.join(sets_list)} but nothing)!"
         )
 
     # Load historical data
     if args.history_type == "csv":
-        history = opl.investigator.csv_loader.load(args.history_file, args.sets)
+        history = opl.investigator.csv_loader.load(args.history_file, sets_list)
     elif args.history_type == "elasticsearch":
         if (
             hasattr(args, "history_es_server_verify")
@@ -90,7 +92,7 @@ def doit(args):
             args.history_es_server,
             args.history_es_index,
             args.history_es_query,
-            args.sets,
+            sets_list,
             es_server_user=getattr(args, "history_es_server_user", None),
             es_server_pass_env_var=getattr(
                 args, "history_es_server_pass_env_var", None
@@ -99,7 +101,9 @@ def doit(args):
 
     elif args.history_type == "sd_dir":
         history = opl.investigator.sd_dir_loader.load(
-            args.history_dir, args.history_matchers, args.sets
+            args.history_dir,
+            args.history_matchers,
+            sets_list,
         )
     else:
         raise Exception("Not supported data source type for historical data")
@@ -114,13 +118,15 @@ def doit(args):
     exit_code = 0
     summary = []
     info_all = []
-    for var in args.sets:
+    for s in args.sets:
+        var = s["name"]
+        methods = s["methods"]
         try:
             results, info = opl.investigator.check.check(
-                args.methods, history[var], current[var], description=var
+                methods, history[var], current[var], description=var
             )
         except Exception as e:
-            logging.warning(f"Check on {var} failed with: {e}")
+            logging.exception(f"Check on {var} failed with: {e}")
             info_all.append({"result": "ERROR", "exception": str(e)})
             summary_this = collections.OrderedDict(
                 [("data set", var), ("exception", str(e))]

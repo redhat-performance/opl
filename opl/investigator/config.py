@@ -6,9 +6,69 @@ import jinja2
 import yaml
 
 
+def finalize_sets(args):
+    """Sets need to have methods configured.
+
+    Before, "sets" was just a list of metrics we want to check.
+
+    Now, "sets" is a datastructure which refferences methods (and their
+    parameters) that are supposed to be used for checkig. Looks like this:
+
+    [
+        {
+            "name": "metric_that_is_usually_10"
+            "methods": [
+                {
+                    "name": "check_value_from_to",
+                    "args": [8, 12],
+                },
+            ]
+        },
+    ]
+
+    To keep backwards functionality and provide simplified way of
+    configuration, if set is just list, it is converted to above structore.
+
+    If no check method is provided, default one is added.
+
+    If "methods" was configured, these check methods are added to all "sets".
+    """
+    assert len(args.sets) > 0, "Some sets have to be configured"
+
+    # If this is old format, convert it to new one
+    if isinstance(args.sets[0], str):
+        new = []
+        for s in args.sets:
+            new.append({"name": s})
+        args.sets = new
+
+    # Make sure all sets have methods list
+    for s in args.sets:
+        if "methods" not in s:
+            s["methods"] = []
+
+    # If methods were specified, make sure it applies to all sets
+    if args.methods:
+        for m in args.methods:
+            for s in args.sets:
+                m_present = False
+                for sm in s["methods"]:
+                    if sm["name"] == m:
+                        m_present = True
+                        break
+                if not m_present:
+                    s["methods"].append({"name": m})
+
+    # If no check method configured, use default one
+    for s in args.sets:
+        if len(s["methods"]) == 0:
+            s["methods"].append({"name": "check_by_min_max_0_1"})
+
+
 def render_sets(args, template_data):
     if not isinstance(args.sets, str):
         logging.debug("No need to render, sets is not a string")
+        finalize_sets(args)
         return
 
     logging.debug(
@@ -19,6 +79,7 @@ def render_sets(args, template_data):
     rendered = template.render(template_data)
     logging.debug(f"Rendered Jinja2 template sets {rendered}")
     args.sets = yaml.load(rendered, Loader=yaml.SafeLoader)
+    finalize_sets(args)
 
 
 def render_query(args, template_data):
