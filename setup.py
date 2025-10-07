@@ -42,6 +42,7 @@ setuptools.setup(
             "pytest",
             "black",
             "flake8",
+            "pyfakefs",
             # Other development dependencies
         ]
     },
