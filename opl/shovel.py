@@ -300,7 +300,7 @@ class pluginHorreum(pluginBase):
         )
         filter_data = {args.matcher_label: matcher_value}
         response = requests.get(
-            f"{args.base_url}/api/dataset/list/{self.test_id}",
+            f"{args.base_url}/api/dataset/list/byTest/{self.test_id}",
             headers=self.headers,
             params={"filter": json.dumps(filter_data)},
             verify=False,
