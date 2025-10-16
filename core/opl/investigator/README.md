@@ -114,23 +114,41 @@ be used.
 -------
 
 This list status data paths (with *numerical* values) where it makes sense
-to evaluate. E.g. you definitely want to include something like `results.rps`
-or `measurements.cpu.mean`, but adding `parameters.test_started.timestamp`
-might not be useful (because it does not represent test result comparable
-across historical runs - this timestamp is simply always different, based
-on when the test was running, so it does not make sense to compare it
-across historical results).
+to evaluate for PASS/FAIL. E.g. you definitely want to include something
+like `results.rps` or `measurements.cpu.mean`, but adding
+`parameters.test_started.timestamp` might not be useful (because it does
+not represent test result comparable across historical runs - this
+timestamp is simply always different, based on when the test was running,
+so it does not make sense to compare it across historical results).
+
+It also allws you to define what check methods (other then these defined in
+default `methods:` should apply to this metric. You can also provide
+additional possitional args if the check method needs them.
+
+Expected data structure looks like this:
+
+    sets:
+      - name: metric1
+        methods:
+          - name: check_by_provided_min_max
+            args:
+              - 4.5
+              - 5.5
+      - name: metric2
+
+Default check methods from `methods:` is always added and if no method
+is specified, script default method is added.
 
 If this is not a list but a string like in the example below, it is first
 rendered via Jinja2 and only then parsed as YAML to get the final list:
 
     sets: |
       {% if current.get('parameters.cli').startswith('experiment/reg-average.py ') %}
-      - results.items.avg_duration
+      - name: results.items.avg_duration
       {% else %}
       - results.duration
       {% endif %}
-      - measurements.satellite.swap.swap-used.mean
+      - name: measurements.satellite.swap.swap-used.mean
 
 
 `decisions:`

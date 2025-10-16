@@ -55,41 +55,7 @@ def get_stats(checks, key):
     )
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Given historical numerical data, determine if latest result is PASS or FAIL",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    parser.add_argument(
-        "--config",
-        type=argparse.FileType("r"),
-        required=True,
-        help="Config file to use",
-    )
-    parser.add_argument(
-        "--current-file",
-        type=argparse.FileType("r"),
-        help="Status data file with results to investigate. Overwrites current.file value from config file",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Investigate result, but do not upload decisions. Meant for debugging",
-    )
-    parser.add_argument(
-        "--detailed-decisions",
-        action="store_true",
-        help="When showing decisions, show all the details",
-    )
-    parser.add_argument("--stats", action="store_true", help="Show statistics")
-    parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
-    args = parser.parse_args()
-
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
-
-    logging.debug(f"Args: {args}")
-
+def doit(args):
     opl.investigator.config.load_config(args, args.config)
 
     # Load current data
@@ -101,18 +67,20 @@ def main():
     # Render what needs to be rendered to finish config loading
     opl.investigator.config.load_config_finish(args, current_sd)
 
+    sets_list = [s['name'] for s in args.sets]
+
     # Load data items from current data
-    current = opl.investigator.status_data_loader.load_data(current_sd, args.sets)
+    current = opl.investigator.status_data_loader.load_data(current_sd, sets_list)
 
     total = len([v for v in current.values() if v is not None and v != ""])
     if total == 0:
         raise Exception(
-            f"No data available in current result (tried to load {', '.join(args.sets)} but nothing)!"
+            f"No data available in current result (tried to load {', '.join(sets_list)} but nothing)!"
         )
 
     # Load historical data
     if args.history_type == "csv":
-        history = opl.investigator.csv_loader.load(args.history_file, args.sets)
+        history = opl.investigator.csv_loader.load(args.history_file, sets_list)
     elif args.history_type == "elasticsearch":
         if (
             hasattr(args, "history_es_server_verify")
@@ -124,7 +92,7 @@ def main():
             args.history_es_server,
             args.history_es_index,
             args.history_es_query,
-            args.sets,
+            sets_list,
             es_server_user=getattr(args, "history_es_server_user", None),
             es_server_pass_env_var=getattr(
                 args, "history_es_server_pass_env_var", None
@@ -133,7 +101,9 @@ def main():
 
     elif args.history_type == "sd_dir":
         history = opl.investigator.sd_dir_loader.load(
-            args.history_dir, args.history_matchers, args.sets
+            args.history_dir,
+            args.history_matchers,
+            sets_list,
         )
     else:
         raise Exception("Not supported data source type for historical data")
@@ -148,13 +118,15 @@ def main():
     exit_code = 0
     summary = []
     info_all = []
-    for var in args.sets:
+    for s in args.sets:
+        var = s["name"]
+        methods = s["methods"]
         try:
             results, info = opl.investigator.check.check(
-                args.methods, history[var], current[var], description=var
+                methods, history[var], current[var], description=var
             )
         except Exception as e:
-            logging.warning(f"Check on {var} failed with: {e}")
+            logging.exception(f"Check on {var} failed with: {e}")
             info_all.append({"result": "ERROR", "exception": str(e)})
             summary_this = collections.OrderedDict(
                 [("data set", var), ("exception", str(e))]
@@ -209,22 +181,21 @@ def main():
         get_stats(info_all, "method")
 
     if not args.dry_run:
-        for d_type in args.decisions_type:
-            if d_type == "elasticsearch":
-                if hasattr(args, "es_server_verify") and not args.es_server_verify:
-                    # disable SSL verification
-                    opl.http.insecure()
-                opl.investigator.elasticsearch_decisions.store(
-                    args.decisions_es_server,
-                    args.decisions_es_index,
-                    info_all,
-                    es_server_user=getattr(args, "decisions_es_server_user", None),
-                    es_server_pass_env_var=getattr(
-                        args, "decisions_es_server_pass_env_var", None
-                    ),
-                )
-            if d_type == "csv":
-                opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
+        if args.decisions_type == "elasticsearch":
+            if hasattr(args, "es_server_verify") and not args.es_server_verify:
+                # disable SSL verification
+                opl.http.insecure()
+            opl.investigator.elasticsearch_decisions.store(
+                args.decisions_es_server,
+                args.decisions_es_index,
+                info_all,
+                es_server_user=getattr(args, "decisions_es_server_user", None),
+                es_server_pass_env_var=getattr(
+                    args, "decisions_es_server_pass_env_var", None
+                ),
+            )
+        if args.decisions_type == "csv":
+            opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
 
     if not args.dry_run:
         if exit_code == 0:
@@ -238,3 +209,41 @@ def main():
         current_sd.save()
 
     return exit_code
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Given historical numerical data, determine if latest result is PASS or FAIL",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--config",
+        type=argparse.FileType("r"),
+        required=True,
+        help="Config file to use",
+    )
+    parser.add_argument(
+        "--current-file",
+        type=argparse.FileType("r"),
+        help="Status data file with results to investigate. Overwrites current.file value from config file",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Investigate result, but do not upload decisions. Meant for debugging",
+    )
+    parser.add_argument(
+        "--detailed-decisions",
+        action="store_true",
+        help="When showing decisions, show all the details",
+    )
+    parser.add_argument("--stats", action="store_true", help="Show statistics")
+    parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug(f"Args: {args}")
+
+    sys.exit(doit(args))

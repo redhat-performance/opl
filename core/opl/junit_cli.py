@@ -6,6 +6,7 @@ import os
 import unicodedata
 import junitparser
 import urllib3
+import re
 
 import requests
 
@@ -63,6 +64,14 @@ class JUnitXmlPlus(junitparser.JUnitXml):
             ch for ch in s if unicodedata.category(ch)[0] != "C" or ch == "\n"
         )
 
+    def trim_string_fn(self, data, trim_length):
+        matches = list(re.finditer(r"\S+", data))
+        if len(matches) <= trim_length:
+            return data
+        # Get the start index of the Nth-to-last word
+        start_index = matches[-trim_length].start()
+        return data[start_index:]
+
     def add_to_suite(self, suite_name, new):
         case = TestCaseWithProp(new["name"])
 
@@ -102,6 +111,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                 except ValueError as e:
                     logging.error(f"Failed to load {new['system-err'].name} file: {e}")
 
+        case.system_out = self.trim_string_fn(case.system_out, 1000)
         duration = (new["end"] - new["start"]).total_seconds()
         case.time = duration
 
