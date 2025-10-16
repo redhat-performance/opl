@@ -19,7 +19,7 @@ def retry_on_traceback(max_attempts=10, wait_seconds=1):
         A decorator that retries the wrapped function.
     """
     assert max_attempts >= 0, "It does not make sense to have less than 0 retries"
-    assert wait_seconds >= 0, "It does not make sense to wait les than 0 seconds"
+    assert wait_seconds >= 0, "It does not make sense to wait less than 0 seconds"
 
     def decorator(func):
         @wraps(func)
