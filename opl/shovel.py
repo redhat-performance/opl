@@ -11,6 +11,12 @@ import urllib3
 import urllib.parse
 
 from opl import skelet
+from opl import retry
+
+
+@retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
+def _requests_get_with_retry(*args, **kwargs):
+    return requests.get(*args, **kwargs)
 
 
 def _check_response(logger, response):
@@ -264,7 +270,7 @@ class pluginHorreum(pluginBase):
 
         if "test_name" in args:
             self.logger.debug(f"Getting test id for {args.test_name}")
-            response = requests.get(
+            response = _requests_get_with_retry(
                 f"{args.base_url}/api/test/byName/{args.test_name}",
                 headers=self.headers,
                 verify=False,
@@ -299,7 +305,7 @@ class pluginHorreum(pluginBase):
             f"Searching if result {args.matcher_label}={matcher_value} is already there"
         )
         filter_data = {args.matcher_label: matcher_value}
-        response = requests.get(
+        response = _requests_get_with_retry(
             f"{args.base_url}/api/dataset/list/byTest/{self.test_id}",
             headers=self.headers,
             params={"filter": json.dumps(filter_data)},
@@ -324,7 +330,7 @@ class pluginHorreum(pluginBase):
                 "sort": "start",
                 "direction": "Descending",
             }
-            response = requests.get(
+            response = _requests_get_with_retry(
                 f"{args.base_url}/api/run/list/{self.test_id}",
                 headers=self.headers,
                 params=params,
@@ -338,7 +344,7 @@ class pluginHorreum(pluginBase):
                 if run["trashed"] is False:
                     continue
 
-                response = requests.get(
+                response = _requests_get_with_retry(
                     f"{args.base_url}/api/run/{run['id']}/data",
                     headers=self.headers,
                     verify=False,
@@ -392,7 +398,7 @@ class pluginHorreum(pluginBase):
         self._setup(args)
 
         self.logger.debug(f"Loading list of alerting variables for test {self.test_id}")
-        response = requests.get(
+        response = _requests_get_with_retry(
             f"{args.base_url}/api/alerting/variables",
             params={"test": self.test_id},
             verify=False,
@@ -461,7 +467,7 @@ class pluginHorreum(pluginBase):
 
         self.logger.debug(f"Listing results for test {args.test_name}")
         while True:
-            response = requests.get(
+            response = _requests_get_with_retry(
                 f"{args.base_url}/api/run/list/{self.test_id}",
                 headers=self.headers,
                 params=params,
@@ -482,7 +488,7 @@ class pluginHorreum(pluginBase):
         self._setup(args)
 
         self.logger.debug(f"Geting data for run {args.run_id}")
-        response = requests.get(
+        response = _requests_get_with_retry(
             f"{args.base_url}/api/run/{args.run_id}/data",
             headers=self.headers,
             verify=False,
@@ -493,7 +499,7 @@ class pluginHorreum(pluginBase):
 
     def _schema_uri_to_id(self, base_url, schema_uri):
         self.logger.debug(f"Geting schema ID for URI {schema_uri}")
-        response = requests.get(
+        response = _requests_get_with_retry(
             f"{base_url}/api/schema/idByUri/{schema_uri}",
             headers=self.headers,
             verify=False,
@@ -508,7 +514,7 @@ class pluginHorreum(pluginBase):
 
     def _schema_id_labels(self, args, schema_id):
         self.logger.debug(f"Getting list of labels for schema ID {schema_id}")
-        response = requests.get(
+        response = _requests_get_with_retry(
             f"{args.base_url}/api/schema/{schema_id}/labels",
             headers=self.headers,
             verify=False,
