@@ -11,7 +11,17 @@
                         "id": "{{ notifications_id }}"
                 },
                 "payload": {
-                        "test-payload-key": "test-payload-value4"
+                    "policy_id": "{{ notifications_id }}",
+                    "policy_name": "Test Policy - {{ event_type }}",
+                    "policy_description": "Performance testing policy for {{ application }}",
+                    "policy_condition": "facts.os_release LIKE '%Red Hat%'",
+                    "triggered": true,
+                    "system_id": "{{ subscription_manager_id }}",
+                    "system_name": "{{ fqdn }}",
+                    "display_name": "{{ fqdn }}",
+                    "tags": [],
+                    "severity": "high",
+                    "test-payload-key": "test-payload-value4"
                 }
         }]
 
