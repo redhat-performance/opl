@@ -664,7 +664,11 @@ def create_fingerprint_labels(fields: List[Dict[str, Any]]) -> List[str]:
 def create_test_definition(
     config: Dict[str, Any], fields: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
-    """Create the test definition from configuration with dynamic fingerprint labels"""
+    """Create the test definition from configuration with dynamic fingerprint labels
+
+    Priority: YAML configuration takes precedence over dynamic generation.
+    Dynamic labels are only generated if fingerprintLabels is not defined in YAML.
+    """
     test_config = config.get("test", {})
     if not test_config:
         raise ValueError("No 'test' configuration found in horreum_fields_config.yaml")
@@ -686,17 +690,28 @@ def create_test_definition(
     # Create a copy of test config
     test_def = dict(test_config)
 
-    # Generate dynamic fingerprint labels
-    fingerprint_labels = create_fingerprint_labels(fields)
-    if fingerprint_labels:
+    # Check if fingerprintLabels are explicitly defined in YAML config
+    yaml_fingerprint_labels = test_config.get("fingerprintLabels")
+
+    if yaml_fingerprint_labels is not None and len(yaml_fingerprint_labels) > 0:
+        # YAML config has priority - use the explicitly defined labels with __ prefix
+        prefixed_labels = [f"__{label}" for label in yaml_fingerprint_labels]
+        test_def["fingerprintLabels"] = prefixed_labels
         logger.info(
-            f"Setting fingerprintLabels in test definition: {fingerprint_labels}"
+            f"Using fingerprintLabels from YAML configuration: {yaml_fingerprint_labels} -> {prefixed_labels}"
         )
-        test_def["fingerprintLabels"] = fingerprint_labels
     else:
-        logger.info(
-            "No fields qualify for fingerprint labels, using static configuration"
-        )
+        # No fingerprintLabels in YAML, generate them dynamically from fields
+        fingerprint_labels = create_fingerprint_labels(fields)
+        if fingerprint_labels:
+            logger.info(
+                f"Setting dynamic fingerprintLabels (no YAML config found): {fingerprint_labels}"
+            )
+            test_def["fingerprintLabels"] = fingerprint_labels
+        else:
+            logger.info(
+                "No fingerprint labels defined in YAML and no fields qualify for dynamic generation"
+            )
 
     return test_def
 
@@ -1377,7 +1392,8 @@ def main():
                     )
                     new_fingerprint_labels = test_def.get("fingerprintLabels", [])
 
-                    if existing_fingerprint_labels != new_fingerprint_labels:
+                    # Compare as sets to ignore order differences
+                    if set(existing_fingerprint_labels) != set(new_fingerprint_labels):
                         logger.info("Updating test fingerprint labels:")
                         logger.info(f"  Current: {existing_fingerprint_labels}")
                         logger.info(f"  New: {new_fingerprint_labels}")
@@ -1428,7 +1444,8 @@ def main():
                 existing_fingerprint_labels = existing_test.get("fingerprintLabels", [])
                 new_fingerprint_labels = test_def.get("fingerprintLabels", [])
 
-                if existing_fingerprint_labels != new_fingerprint_labels:
+                # Compare as sets to ignore order differences
+                if set(existing_fingerprint_labels) != set(new_fingerprint_labels):
                     logger.info("Updating test fingerprint labels:")
                     logger.info(f"  Current: {existing_fingerprint_labels}")
                     logger.info(f"  New: {new_fingerprint_labels}")
