@@ -209,6 +209,7 @@ def data_stats(data):
         q25 = percentile(data, 25)
         q75 = percentile(data, 75)
         q90 = percentile(data, 90)
+        q95 = percentile(data, 95)
         q99 = percentile(data, 99)
         q999 = percentile(data, 99.9)
         return {
@@ -229,6 +230,7 @@ def data_stats(data):
             "percentile25": q25,
             "percentile75": q75,
             "percentile90": q90,
+            "percentile95": q95,
             "percentile99": q99,
             "percentile999": q999,
             "iqr": q75 - q25,
