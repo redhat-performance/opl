@@ -16,6 +16,7 @@ class TestSkelet(unittest.TestCase):
         self.assertEqual(stats["range"], 2)
         self.assertEqual(stats["percentile25"], 0.75)
         self.assertEqual(stats["percentile75"], 1.25)
+        self.assertEqual(stats["percentile95"], 2.0)
         self.assertEqual(stats["iqr"], 0.5)
 
     def test_data_stats_empty(self):
