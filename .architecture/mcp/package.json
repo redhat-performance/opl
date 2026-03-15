@@ -1,0 +1,48 @@
+{
+  "name": "ai-software-architect",
+  "version": "1.3.0",
+  "description": "MCP server for AI Software Architect framework",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "mcp",
+    "architecture",
+    "ai",
+    "software-architecture",
+    "decision-records"
+  ],
+  "author": "AI Software Architect",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codenamev/ai-software-architect.git",
+    "directory": "mcp"
+  },
+  "homepage": "https://github.com/codenamev/ai-software-architect#readme",
+  "bugs": {
+    "url": "https://github.com/codenamev/ai-software-architect/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "yaml": "^2.3.4",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "mcp": {
+    "command": "mcp",
+    "transport": "stdio"
+  }
+}

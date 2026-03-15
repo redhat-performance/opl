@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ai-software-architect": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "ai-software-architect"
+      ]
+    }
+  }
+}
