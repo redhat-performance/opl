@@ -12,6 +12,13 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: 0
+    - name: Verify Namespace Packages
+      run: |
+        if [ -f "core/opl/__init__.py" ] || [ -f "extras/opl/__init__.py" ]; then
+          echo "Error: __init__.py found in namespace package root (core/opl or extras/opl)."
+          echo "This breaks PEP 420 implicit namespace packaging across split directories."
+          exit 1
+        fi
     - name: Super-Linter
       uses: github/super-linter@v4
       env:
