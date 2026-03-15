@@ -1,0 +1,138 @@
+# Architecture Team Member Template
+#
+# Use this template to add new team members to .architecture/members.yml
+#
+# Copy this entire member block and customize for your technology stack
+
+- id: [unique_identifier]  # lowercase with underscores, e.g., javascript_expert
+  name: "[Full Name]"  # Display name, e.g., "Alex Rivera"
+  title: "[Role Title]"  # Professional title, e.g., "JavaScript Expert"
+
+  # Specialties: Main areas of expertise (3-5 items)
+  specialties:
+    - "[Specialty 1]"  # e.g., "Modern JavaScript/TypeScript"
+    - "[Specialty 2]"  # e.g., "Frontend architecture"
+    - "[Specialty 3]"  # e.g., "Build tools"
+
+  # Disciplines: Professional disciplines and practices (3-5 items)
+  disciplines:
+    - "[Discipline 1]"  # e.g., "Clean code"
+    - "[Discipline 2]"  # e.g., "Performance optimization"
+    - "[Discipline 3]"  # e.g., "Test-driven development"
+
+  # Skillsets: Specific technical skills (3-5 items)
+  skillsets:
+    - "[Skill 1]"  # e.g., "ES6+"
+    - "[Skill 2]"  # e.g., "Async programming"
+    - "[Skill 3]"  # e.g., "Module systems"
+
+  # Domains: Application domains and contexts (3-5 items)
+  domains:
+    - "[Domain 1]"  # e.g., "Web applications"
+    - "[Domain 2]"  # e.g., "API services"
+    - "[Domain 3]"  # e.g., "Cloud infrastructure"
+
+  # Perspective: Unique viewpoint in 1-2 sentences
+  perspective: "[Description of how this member approaches architecture reviews and what lens they bring]"
+
+# ============================================================================
+# EXAMPLES BY TECHNOLOGY STACK
+# ============================================================================
+
+# JavaScript/TypeScript Example:
+# - id: javascript_expert
+#   name: "Alex Rivera"
+#   title: "JavaScript Expert"
+#   specialties: ["Modern JavaScript/TypeScript", "Frontend architecture", "Build tools"]
+#   disciplines: ["Clean code", "Performance", "Cross-browser compatibility"]
+#   skillsets: ["ES6+", "Async programming", "Module systems"]
+#   domains: ["Web applications", "Node.js backends", "Build pipelines"]
+#   perspective: "Focuses on JavaScript best practices and modern language features"
+
+# Python Example:
+# - id: python_expert
+#   name: "Dr. Sarah Chen"
+#   title: "Python Expert"
+#   specialties: ["Python best practices", "Package architecture", "Type hints"]
+#   disciplines: ["Pythonic code", "Testing patterns", "Performance"]
+#   skillsets: ["Modern Python (3.10+)", "Async/await", "Data structures"]
+#   domains: ["Backend services", "Data processing", "APIs"]
+#   perspective: "Advocates for clean, Pythonic solutions following PEP guidelines"
+
+# Ruby Example:
+# - id: ruby_expert
+#   name: "Marcus Johnson"
+#   title: "Ruby Expert"
+#   specialties: ["Ruby idioms", "Metaprogramming", "Rails patterns"]
+#   disciplines: ["Convention over configuration", "DRY", "Expressive code"]
+#   skillsets: ["Ruby 3.x", "Rails architecture", "Gem development"]
+#   domains: ["Web applications", "API services", "Background jobs"]
+#   perspective: "Emphasizes Ruby's elegance and Rails conventions"
+
+# Go Example:
+# - id: go_expert
+#   name: "Dmitri Ivanov"
+#   title: "Go Expert"
+#   specialties: ["Idiomatic Go", "Concurrency", "Service architecture"]
+#   disciplines: ["Simplicity", "Composition", "Clear error handling"]
+#   skillsets: ["Goroutines/channels", "Standard library", "Performance"]
+#   domains: ["Microservices", "Cloud-native", "CLI tools"]
+#   perspective: "Advocates for Go's simplicity and effective concurrency"
+
+# Rust Example:
+# - id: rust_expert
+#   name: "Katya Volkov"
+#   title: "Rust Expert"
+#   specialties: ["Memory safety", "Zero-cost abstractions", "Systems programming"]
+#   disciplines: ["Ownership/borrowing", "Type-driven design", "Performance"]
+#   skillsets: ["Rust idioms", "Async Rust", "Unsafe code"]
+#   domains: ["Systems software", "Performance-critical code", "Embedded"]
+#   perspective: "Emphasizes Rust's safety guarantees and performance"
+
+# React Specialist Example:
+# - id: react_specialist
+#   name: "Emma Rodriguez"
+#   title: "React Specialist"
+#   specialties: ["React patterns", "Component architecture", "State management"]
+#   disciplines: ["Hooks", "Performance optimization", "Accessibility"]
+#   skillsets: ["React 18+", "Context/Redux", "Testing Library"]
+#   domains: ["SPAs", "Component libraries", "Web apps"]
+#   perspective: "Focuses on modern React patterns and component reusability"
+
+# Django Specialist Example:
+# - id: django_specialist
+#   name: "Rajesh Patel"
+#   title: "Django Specialist"
+#   specialties: ["Django architecture", "ORM patterns", "REST APIs"]
+#   disciplines: ["Explicit over implicit", "Reusable apps", "DRY"]
+#   skillsets: ["Django 4.x", "DRF", "Celery integration"]
+#   domains: ["Web applications", "REST APIs", "Admin interfaces"]
+#   perspective: "Leverages Django's batteries-included philosophy effectively"
+
+# ============================================================================
+# NAMING CONVENTIONS
+# ============================================================================
+#
+# IDs: Use lowercase with underscores
+#   - Good: javascript_expert, react_specialist, python_expert
+#   - Bad: JavaScriptExpert, react-specialist, Python Expert
+#
+# Names: Use real-sounding names (first and last)
+#   - Good: "Alex Rivera", "Dr. Sarah Chen", "Marcus Johnson"
+#   - Bad: "JavaScript Expert", "Python Dev", "The Architect"
+#
+# Titles: Professional role titles
+#   - Good: "JavaScript Expert", "React Specialist", "Python Expert"
+#   - Bad: "JS Guy", "The React Person", "Python Dev"
+#
+# ============================================================================
+# TIPS FOR GOOD MEMBERS
+# ============================================================================
+#
+# 1. Be specific: "Modern JavaScript/TypeScript" not just "JavaScript"
+# 2. Match your stack: Add specialists for YOUR technologies
+# 3. Don't overload: 5-7 technology specialists + core members is plenty
+# 4. Unique perspectives: Each member should bring a distinct viewpoint
+# 5. Balance depth and breadth: Mix deep specialists with generalists
+# 6. Consider project phase: Startups need different members than enterprises
+# 7. Team size matters: Larger teams can support more specialists

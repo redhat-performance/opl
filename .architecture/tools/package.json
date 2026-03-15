@@ -1,0 +1,15 @@
+{
+  "name": "architecture-tools",
+  "version": "1.0.0",
+  "description": "Documentation governance tools for AI Software Architect",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/**/*.test.js",
+    "test:watch": "node --test --watch test/**/*.test.js",
+    "validate": "node cli.js validate",
+    "count": "node cli.js count"
+  },
+  "keywords": ["documentation", "validation", "architecture"],
+  "author": "AI Software Architect",
+  "license": "MIT"
+}
