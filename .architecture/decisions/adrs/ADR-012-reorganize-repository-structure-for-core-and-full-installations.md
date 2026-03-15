@@ -151,7 +151,7 @@ This architecture completely eliminates duplication while physically isolating c
 * Move the remaining lightweight core tools from `opl/` into `core/opl/`.
 * Delete the now-empty root `opl/` directory.
 
-**Phase 3: Packaging Update**
+**Phase 3: Packaging Update (Completed)**
 * Update `core/setup.py`.
 * Create `extras/setup.py`.
 * Update the root `setup.py` to act as the meta-package pulling in both local directories.
