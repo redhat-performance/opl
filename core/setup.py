@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import setuptools
 
 with open("../README.md", "r") as fh:
@@ -13,8 +11,8 @@ setuptools.setup(
     description="Our performance library, core bits",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/TODO/TODO",
-    packages=setuptools.find_packages(),
+    url="https://github.com/redhat-performance/opl",
+    packages=setuptools.find_namespace_packages(include=["opl.*", "opl"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License (GPL)",
