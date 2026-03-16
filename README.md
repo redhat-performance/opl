@@ -71,6 +71,13 @@ Installs only the lightweight core tools from `core/opl/` to minimize dependency
     source venv/bin/activate
     python3 -m pip install --no-cache-dir -e "git+https://github.com/redhat-performance/opl.git#egg=opl-rhcloud-perf-team-core&subdirectory=core"
 
+**Extras Installation:**
+
+If you choose to install only the extras package, it is your responsibility to also install the core package, as extras modules depend on core functionality:
+
+    python3 -m pip install "git+https://github.com/redhat-performance/opl.git#egg=opl-rhcloud-perf-team-core&subdirectory=core"
+    python3 -m pip install "git+https://github.com/redhat-performance/opl.git#egg=opl-rhcloud-perf-team-extras&subdirectory=extras"
+
 **Local Development:**
 
 If you have cloned the git repository and want to develop locally, install the full package in editable mode:
