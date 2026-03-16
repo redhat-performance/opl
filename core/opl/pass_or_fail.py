@@ -14,7 +14,6 @@ import opl.investigator.status_data_loader
 
 import tabulate
 
-
 STATUSES = {
     0: "PASS",
     1: "FAIL",
@@ -67,7 +66,7 @@ def doit(args):
     # Render what needs to be rendered to finish config loading
     opl.investigator.config.load_config_finish(args, current_sd)
 
-    sets_list = [s['name'] for s in args.sets]
+    sets_list = [s["name"] for s in args.sets]
 
     # Load data items from current data
     current = opl.investigator.status_data_loader.load_data(current_sd, sets_list)

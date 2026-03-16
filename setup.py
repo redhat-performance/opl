@@ -4,8 +4,8 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-core_path = os.path.abspath('core')
-extras_path = os.path.abspath('extras')
+core_path = os.path.abspath("core")
+extras_path = os.path.abspath("extras")
 
 setuptools.setup(
     name="opl-rhcloud-perf-team",
@@ -16,7 +16,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/redhat-performance/opl",
-    packages=[], # Explicitly empty
+    packages=[],  # Explicitly empty
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License (GPL)",
@@ -27,7 +27,7 @@ setuptools.setup(
     python_requires=">=3.6",
     install_requires=[
         f"opl-rhcloud-perf-team-core @ file://{core_path}",
-        f"opl-rhcloud-perf-team-extras @ file://{extras_path}"
+        f"opl-rhcloud-perf-team-extras @ file://{extras_path}",
     ],
     extras_require={
         "dev": [

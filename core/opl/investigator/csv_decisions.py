@@ -11,7 +11,9 @@ def store(filename, decisions):
     for decision in decisions:
         decision["job_name"] = job_name
         decision["build_url"] = build_url
-        decision["uploaded"] = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+        decision["uploaded"] = datetime.datetime.now(
+            tz=datetime.timezone.utc
+        ).isoformat()
 
     fieldnames = []
     for d in decisions:

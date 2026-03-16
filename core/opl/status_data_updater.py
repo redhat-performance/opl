@@ -21,7 +21,6 @@ import urllib3
 
 import yaml
 
-
 RP_TO_ES_STATE = {
     "automation_bug": "FAIL",
     "no_defect": "PASS",

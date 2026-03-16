@@ -16,7 +16,6 @@ import psycopg2.extras
 
 import yaml
 
-
 """
 You want to use this helper if you want to get timestamps on when your
 hosts landed in application DB and store these timestamps in storage DB.

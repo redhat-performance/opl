@@ -124,9 +124,7 @@ class pluginProw(pluginBase):
             try:
                 data = response.json()
             except requests.exceptions.JSONDecodeError:
-                self.logger.error(
-                    "Failed to parse JSON, ignoring --record-link option"
-                )
+                self.logger.error("Failed to parse JSON, ignoring --record-link option")
             else:
                 _set_field_value(args.record_link, from_url, data)
                 response_content = str.encode(
@@ -354,7 +352,7 @@ class pluginHorreum(pluginBase):
                 try:
                     marker = _get_field_value(args.matcher_field, run_data)
                 except KeyError:
-                    pass   # If matcher was not found in data, we can assume this is not a duplicate
+                    pass  # If matcher was not found in data, we can assume this is not a duplicate
                 else:
                     if marker == matcher_value:
                         print(
@@ -533,7 +531,9 @@ class pluginHorreum(pluginBase):
         labels = self._schema_id_labels(args, schema_id)
 
         for label in labels:
-            print(f"{label['id']}\t{label['name']}\t{label['extractors'][0]['jsonpath']}")
+            print(
+                f"{label['id']}\t{label['name']}\t{label['extractors'][0]['jsonpath']}"
+            )
 
     def schema_label_add(self, args):
         self._setup(args)
@@ -615,7 +615,9 @@ class pluginHorreum(pluginBase):
             labels = self._schema_id_labels(args, schema_id)
 
         if args.update_by_id is not None:
-            label = next((item for item in labels if item["id"] == args.update_by_id), False)
+            label = next(
+                (item for item in labels if item["id"] == args.update_by_id), False
+            )
 
             if label:
                 # Label with provided id found, lets update it
@@ -633,7 +635,9 @@ class pluginHorreum(pluginBase):
             else:
                 # Label not found, shall we fail now?
                 if args.add_if_missing:
-                    self.logger.warning(f"Label with name {new_name} not found, so adding new one with new ID")
+                    self.logger.warning(
+                        f"Label with name {new_name} not found, so adding new one with new ID"
+                    )
                     return self.schema_label_add(args)
                 else:
                     raise KeyError(f"Failed to find label with name {new_name}")
@@ -641,7 +645,9 @@ class pluginHorreum(pluginBase):
             raise Exception("Either --update-by-id or --update-by-name have to be used")
 
         if new == label:
-            self.logger.info(f"Proposed and current label {label['id']} in schema ID {schema_id} are same, nothing to change")
+            self.logger.info(
+                f"Proposed and current label {label['id']} in schema ID {schema_id} are same, nothing to change"
+            )
         else:
             self.logger.debug(f"Updating label in schema id {schema_id}: {new}")
             response = requests.put(
@@ -758,9 +764,7 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for listing results
-        subparser = subparsers.add_parser(
-            "list", help="List test run IDs for a test"
-        )
+        subparser = subparsers.add_parser("list", help="List test run IDs for a test")
         subparser.set_defaults(func=self.list)
         subparser.add_argument(
             "--test-name",
@@ -791,9 +795,7 @@ class pluginHorreum(pluginBase):
         )
 
         # Options for adding schema label
-        subparser = subparsers.add_parser(
-            "schema-label-add", help="Add schema label"
-        )
+        subparser = subparsers.add_parser("schema-label-add", help="Add schema label")
         subparser.set_defaults(func=self.schema_label_add)
         subparser.add_argument(
             "--schema-uri",
@@ -1113,7 +1115,9 @@ class pluginHtml(pluginBase):
         # Make all the links absolute to initial user provided URL.
         # If there is already absolute link like 'http://www.example.com',
         # it will not be affected
-        absolute_hrefs = [urllib.parse.urljoin(args.url, href) for href in filtered_hrefs]
+        absolute_hrefs = [
+            urllib.parse.urljoin(args.url, href) for href in filtered_hrefs
+        ]
 
         # Print what we found
         for href in absolute_hrefs:
