@@ -1,0 +1,44 @@
+{% set namespace=MY_ENV_NAMESPACE %}
+
+- name: measurements.openshift-monitoring.sum-container_memory_working_set_bytes
+  monitoring_query: sum(container_memory_working_set_bytes{pod=~'kafka-instance-kafka-[0-9]+',namespace='{{ namespace }}',container=''})
+  monitoring_step: 15
+
+- name: measurements.openshift-monitoring.sum-pod-container_cpu_usage-sum
+  monitoring_query: sum(pod:container_cpu_usage:sum{pod=~'kafka-instance-kafka-[0-9]+',namespace='{{ namespace }}'})
+  monitoring_step: 15
+
+- name: measurements.openshift-monitoring.sum-irate-container_network_receive_bytes_total
+  monitoring_query: sum(irate(container_network_receive_bytes_total{pod=~'kafka-instance-kafka-[0-9]+', namespace='{{ namespace }}'}[5m]))
+  monitoring_step: 15
+
+- name: measurements.openshift-monitoring.sum-irate-container_network_transmit_bytes_total
+  monitoring_query: sum(irate(container_network_transmit_bytes_total{pod=~'kafka-instance-kafka-[0-9]+', namespace='{{ namespace }}'}[5m]))
+  monitoring_step: 15
+
+- name: measurements.openshift-monitoring.sum-pod-container_fs_usage_bytes-sum
+  monitoring_query: sum(pod:container_fs_usage_bytes:sum{pod=~'kafka-instance-kafka-[0-9]+',namespace='{{ namespace }}'})
+  monitoring_step: 15
+
+- name: measurements.openshift-monitoring.sum-kube_pod_container_status_restarts_total
+  monitoring_query: sum(kube_pod_container_status_restarts_total{pod=~'kafka-instance-kafka-[0-9]+',namespace='{{ namespace }}'})
+  monitoring_step: 15
+
+###- name: parameters.cluster.pods.upload-service.count
+###  command: oc -n qa get pods -l app=upload-service -o name | wc -l
+###- name: parameters.cluster.pods.insights-puptoo.count
+###  command: oc -n qa get pods -l app=insights-puptoo -o name | wc -l
+###- name: parameters.cluster.pods.insights-storage-broker.count
+###  command: oc -n qa get pods -l app=insights-storage-broker -o name | wc -l
+###
+#### TODO: We should query deployment config here I think
+###- name: parameters.cluster.pods.vulnerability-engine-listener.resources
+###  command: oc -n qa get pods -l deploymentconfig=vulnerability-engine-listener -o json | python3 -c "import sys, json; print(json.dumps(json.load(sys.stdin)['items'][0]['spec']['containers'][0]['resources']))"
+###  output: json
+###
+###- name: measurements.insights-inventory-mq-service.cpu
+###  monitoring_query: sum(pod_name:container_cpu_usage:sum{pod_name=~'insights-inventory-mq-service-.*',namespace='qa'})
+###  monitoring_step: 60
+###
+###- name: measurements.satellite.load
+###  grafana_target: $Cloud.$Node.load.load.shortterm

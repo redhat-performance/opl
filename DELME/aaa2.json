@@ -1,0 +1,11 @@
+{
+    "group": "Core Platforms",
+    "product": "Red Hat Satellite",
+    "version": "satellite-6.13.7-1.el8sat.noarch",
+    "release": "6.13",
+    "date": "2024-06-11T03:00:50+00:00",
+    "link": "https://workdir-exporter-jenkins-csb-perf.apps.ocp-c1.prod.psi.redhat.com/workspace/ContPerf613EL8/run-2024-06-10T16:46:28+00:00/55-rex-date-5880-duration.log",
+    "result_id": "run-2024-06-10T16:46:28+00:00",
+    "test": "55-rex-date-5880-duration",
+    "result": "FAIL"
+  }

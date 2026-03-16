@@ -1,0 +1,37 @@
+# Get historical test results from here
+history:
+  type: sd_dir
+  dir: ../my-tekton-perfscale-experiment-results/
+  matchers: |
+    name: "{{ current.get('name') }}"
+    result: PASS
+    parameters.locust.host: "{{ current.get('parameters.locust.host') }}"
+    #parameters.locust.num_clients: {{ current.get('parameters.locust.num_clients') }}
+    #parameters.locust.hatch_rate: {{ current.get('parameters.locust.hatch_rate') }}
+    #parameters.test.duration: {{ current.get('parameters.test.duration') }}
+
+# From here get current result that is supposed to be compared to historical results
+current:
+  type: status_data
+  file: status-data.json
+
+# JSON paths we want to investigate
+sets:
+  ###- measurements.rbac_all.cpu.mean
+  ###- measurements.rbac_all.memory.mean
+  ###- measurements.rbac-service.cpu.mean
+  ###- measurements.rbac-service.memory.mean
+  ###- measurements.rbac-scheduler-service.cpu.mean
+  ###- measurements.rbac-scheduler-service.memory.mean
+  ###- measurements.rbac-worker-service.cpu.mean
+  ###- measurements.rbac-worker-service.memory.mean
+  - results.requests.SUMMARY.total_rps
+  - results.requests.SUMMARY.median_response_time
+  - results.requests.SUMMARY.fail_ratio
+  - results.requests.SUMMARY.num_failures
+  - results.requests.SUMMARY.num_requests
+
+# Shuld we log our decisions somewhere?
+decisions:
+  type: csv
+  filename: ../my-tekton-perfscale-experiment-results/decisions.csv

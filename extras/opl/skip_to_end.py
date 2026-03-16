@@ -5,9 +5,9 @@ import argparse
 import os
 import time
 
-from .kafka_init import kafka_init
-from . import args
-from . import skelet
+from opl.kafka_init import kafka_init
+from opl import args
+from opl import skelet
 
 
 def doit_seek_to_end(args):

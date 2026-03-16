@@ -1,0 +1,2498 @@
+{
+    "ended": "2025-02-27T07:30:24,094835348+00:00",
+    "measurements": {
+        "cluster_cpu_usage_seconds_total_rate": {
+            "iqr": 18.526048059296357,
+            "max": 39.323793386428946,
+            "mean": 29.966002813247133,
+            "median": 30.155535900314398,
+            "min": 20.229146065930788,
+            "non_zero_mean": 29.966002813247133,
+            "non_zero_median": 30.155535900314398,
+            "percentile25": 20.79774532713259,
+            "percentile75": 39.323793386428946,
+            "percentile90": 39.323793386428946,
+            "percentile99": 39.323793386428946,
+            "percentile999": 39.323793386428946,
+            "range": 19.094647320498158,
+            "samples": 4,
+            "stdev": 10.809877581404697,
+            "sum": 119.86401125298853
+        },
+        "cluster_disk_throughput_total": {
+            "iqr": 44810311.19561881,
+            "max": 490676442.2297099,
+            "mean": 455390087.4233774,
+            "median": 452128772.41150093,
+            "min": 426626362.64079785,
+            "non_zero_mean": 455390087.4233774,
+            "non_zero_median": 452128772.41150093,
+            "percentile25": 431354274.3196297,
+            "percentile75": 476164585.51524854,
+            "percentile90": 484871699.5439254,
+            "percentile99": 490095967.9611315,
+            "percentile999": 490618394.8028521,
+            "range": 64050079.58891207,
+            "samples": 4,
+            "stdev": 30718712.912021983,
+            "sum": 1821560349.6935096
+        },
+        "cluster_memory_usage_rss_total": {
+            "iqr": 1368529920.0,
+            "max": 235010789376.0,
+            "mean": 233554392064.0,
+            "median": 233285949440.0,
+            "min": 232634880000.0,
+            "non_zero_mean": 233554392064.0,
+            "non_zero_median": 233285949440.0,
+            "percentile25": 232735905792.0,
+            "percentile75": 234104435712.0,
+            "percentile90": 234648247910.4,
+            "percentile99": 234974535229.43997,
+            "percentile999": 235007163961.344,
+            "range": 2375909376.0,
+            "samples": 4,
+            "stdev": 1102117819.925486,
+            "sum": 934217568256.0
+        },
+        "cluster_network_bytes_total": {
+            "iqr": 1618902013.9201927,
+            "max": 9084788499.28534,
+            "mean": 7868590944.7379875,
+            "median": 7922908802.28728,
+            "min": 6543757675.092052,
+            "non_zero_mean": 7868590944.7379875,
+            "non_zero_median": 7922908802.28728,
+            "percentile25": 7086298866.552538,
+            "percentile75": 8705200880.47273,
+            "percentile90": 8932953451.760296,
+            "percentile99": 9069604994.532835,
+            "percentile999": 9083270148.81009,
+            "range": 2541030824.193287,
+            "samples": 4,
+            "stdev": 1169083748.312969,
+            "sum": 31474363778.95195
+        },
+        "cluster_network_receive_bytes_total": {
+            "iqr": 427799857.6018348,
+            "max": 4457126369.928403,
+            "mean": 3989485463.325246,
+            "median": 3983181614.5881577,
+            "min": 3534452254.1962643,
+            "non_zero_mean": 3989485463.325246,
+            "non_zero_median": 3983181614.5881577,
+            "percentile25": 3772433610.155784,
+            "percentile75": 4200233467.757619,
+            "percentile90": 4354369209.06009,
+            "percentile99": 4446850653.841572,
+            "percentile999": 4456098798.319719,
+            "range": 922674115.7321386,
+            "samples": 4,
+            "stdev": 391733589.0604828,
+            "sum": 15957941853.300983
+        },
+        "cluster_network_transmit_bytes_total": {
+            "iqr": 1535740405.6379743,
+            "max": 4726910945.392903,
+            "mean": 3879105481.4127426,
+            "median": 3890102779.681139,
+            "min": 3009305420.8957887,
+            "non_zero_mean": 3879105481.4127426,
+            "non_zero_median": 3890102779.681139,
+            "percentile25": 3116733927.7279534,
+            "percentile75": 4652474333.365928,
+            "percentile90": 4697136300.582113,
+            "percentile99": 4723933480.911824,
+            "percentile999": 4726613198.944796,
+            "range": 1717605524.4971147,
+            "samples": 4,
+            "stdev": 924401738.0188278,
+            "sum": 15516421925.65097
+        },
+        "cluster_nodes_worker_count": {
+            "iqr": 0.0,
+            "max": 17.0,
+            "mean": 17.0,
+            "median": 17.0,
+            "min": 17.0,
+            "non_zero_mean": 17.0,
+            "non_zero_median": 17.0,
+            "percentile25": 17.0,
+            "percentile75": 17.0,
+            "percentile90": 17.0,
+            "percentile99": 17.0,
+            "percentile999": 17.0,
+            "range": 0.0,
+            "samples": 4,
+            "stdev": 0.0,
+            "sum": 68.0
+        },
+        "cluster_pods_count": {
+            "iqr": 3.75,
+            "max": 966.0,
+            "mean": 959.25,
+            "median": 960.0,
+            "min": 951.0,
+            "non_zero_mean": 959.25,
+            "non_zero_median": 960.0,
+            "percentile25": 957.75,
+            "percentile75": 961.5,
+            "percentile90": 964.2,
+            "percentile99": 965.82,
+            "percentile999": 965.982,
+            "range": 15.0,
+            "samples": 4,
+            "stdev": 6.18465843842649,
+            "sum": 3837.0
+        },
+        "cluster_running_pods_on_workers_count": {
+            "iqr": 1.25,
+            "max": 487.0,
+            "mean": 484.25,
+            "median": 484.0,
+            "min": 482.0,
+            "non_zero_mean": 484.25,
+            "non_zero_median": 484.0,
+            "percentile25": 483.5,
+            "percentile75": 484.75,
+            "percentile90": 486.1,
+            "percentile99": 486.91,
+            "percentile999": 486.991,
+            "range": 5.0,
+            "samples": 4,
+            "stdev": 2.0615528128088303,
+            "sum": 1937.0
+        },
+        "etcd": {
+            "count_ready": {
+                "iqr": 0.0,
+                "max": 3.0,
+                "mean": 3.0,
+                "median": 3.0,
+                "min": 3.0,
+                "non_zero_mean": 3.0,
+                "non_zero_median": 3.0,
+                "percentile25": 3.0,
+                "percentile75": 3.0,
+                "percentile90": 3.0,
+                "percentile99": 3.0,
+                "percentile999": 3.0,
+                "range": 0.0,
+                "samples": 4,
+                "stdev": 0.0,
+                "sum": 12.0
+            },
+            "cpu": {
+                "iqr": 0.00911732903587692,
+                "max": 0.9116626988591815,
+                "mean": 0.8921533392381553,
+                "median": 0.8908786376888831,
+                "min": 0.8751933827156736,
+                "non_zero_mean": 0.8921533392381553,
+                "non_zero_median": 0.8908786376888831,
+                "percentile25": 0.8869573239455808,
+                "percentile75": 0.8960746529814577,
+                "percentile90": 0.905427480508092,
+                "percentile99": 0.9110391770240726,
+                "percentile999": 0.9116003466756706,
+                "range": 0.0364693161435079,
+                "samples": 4,
+                "stdev": 0.014961115891385811,
+                "sum": 3.5686133569526213
+            },
+            "disk_throughput": {
+                "iqr": 0.0,
+                "max": 5367422.741478259,
+                "mean": 5367422.741478259,
+                "median": 5367422.741478259,
+                "min": 5367422.741478259,
+                "non_zero_mean": 5367422.741478259,
+                "non_zero_median": 5367422.741478259,
+                "percentile25": 5367422.741478259,
+                "percentile75": 5367422.741478259,
+                "percentile90": 5367422.741478259,
+                "percentile99": 5367422.741478259,
+                "percentile999": 5367422.741478259,
+                "range": 0.0,
+                "samples": 1,
+                "stdev": 0.0,
+                "sum": 5367422.741478259
+            },
+            "memory": {
+                "iqr": 34563072.0,
+                "max": 14788628480.0,
+                "mean": 14703219712.0,
+                "median": 14676099072.0,
+                "min": 14672052224.0,
+                "non_zero_mean": 14703219712.0,
+                "non_zero_median": 14676099072.0,
+                "percentile25": 14672377856.0,
+                "percentile75": 14706940928.0,
+                "percentile90": 14755953459.199999,
+                "percentile99": 14785360977.92,
+                "percentile999": 14788301729.792,
+                "range": 116576256.0,
+                "samples": 4,
+                "stdev": 57047439.2807902,
+                "sum": 58812878848.0
+            },
+            "network_drop": {
+                "iqr": 0.0,
+                "max": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "min": 0.0,
+                "non_zero_mean": 0.0,
+                "non_zero_median": 0.0,
+                "percentile25": 0.0,
+                "percentile75": 0.0,
+                "percentile90": 0.0,
+                "percentile99": 0.0,
+                "percentile999": 0.0,
+                "range": 0.0,
+                "samples": 1,
+                "stdev": 0.0,
+                "sum": 0.0
+            },
+            "network_throughput": {
+                "iqr": 0.0,
+                "max": 65349327.32221075,
+                "mean": 65349327.32221075,
+                "median": 65349327.32221075,
+                "min": 65349327.32221075,
+                "non_zero_mean": 65349327.32221075,
+                "non_zero_median": 65349327.32221075,
+                "percentile25": 65349327.32221075,
+                "percentile75": 65349327.32221075,
+                "percentile90": 65349327.32221075,
+                "percentile99": 65349327.32221075,
+                "percentile999": 65349327.32221075,
+                "range": 0.0,
+                "samples": 1,
+                "stdev": 0.0,
+                "sum": 65349327.32221075
+            },
+            "restarts": {
+                "iqr": 0.0,
+                "max": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "min": 0.0,
+                "non_zero_mean": 0.0,
+                "non_zero_median": 0.0,
+                "percentile25": 0.0,
+                "percentile75": 0.0,
+                "percentile90": 0.0,
+                "percentile99": 0.0,
+                "percentile999": 0.0,
+                "range": 0.0,
+                "samples": 4,
+                "stdev": 0.0,
+                "sum": 0.0
+            }
+        },
+        "etcd_mvcc_db_total_size_in_bytes_average": {
+            "iqr": 0.0,
+            "max": 1629193557.3333333,
+            "mean": 1629193557.3333333,
+            "median": 1629193557.3333333,
+            "min": 1629193557.3333333,
+            "non_zero_mean": 1629193557.3333333,
+            "non_zero_median": 1629193557.3333333,
+            "percentile25": 1629193557.3333333,
+            "percentile75": 1629193557.3333333,
+            "percentile90": 1629193557.3333335,
+            "percentile99": 1629193557.3333333,
+            "percentile999": 1629193557.3333333,
+            "range": 0.0,
+            "samples": 4,
+            "stdev": 0.0,
+            "sum": 6516774229.333333
+        },
+        "etcd_mvcc_db_total_size_in_use_in_bytes_average": {
+            "iqr": 13713408.0,
+            "max": 1112455850.6666667,
+            "mean": 1105599146.6666667,
+            "median": 1105599146.6666667,
+            "min": 1098742442.6666667,
+            "non_zero_mean": 1105599146.6666667,
+            "non_zero_median": 1105599146.6666667,
+            "percentile25": 1098742442.6666667,
+            "percentile75": 1112455850.6666667,
+            "percentile90": 1112455850.6666667,
+            "percentile99": 1112455850.6666667,
+            "percentile999": 1112455850.6666667,
+            "range": 13713408.0,
+            "samples": 4,
+            "stdev": 7917439.800307168,
+            "sum": 4422396586.666667
+        },
+        "etcd_request_duration_seconds_average": {
+            "iqr": 4.799388699723312e-05,
+            "max": 0.0031187285195139504,
+            "mean": 0.003086745814942073,
+            "median": 0.0030837459928309417,
+            "min": 0.0030607627545924587,
+            "non_zero_mean": 0.003086745814942073,
+            "non_zero_median": 0.0030837459928309417,
+            "percentile25": 0.0030612489603878907,
+            "percentile75": 0.003109242847385124,
+            "percentile90": 0.0031149342506624194,
+            "percentile99": 0.0031183490926287973,
+            "percentile999": 0.0031186905768254354,
+            "range": 5.79657649214917e-05,
+            "samples": 4,
+            "stdev": 3.0076080762722086e-05,
+            "sum": 0.012346983259768293
+        },
+        "etcd_server_quota_backend_bytes_average": {
+            "iqr": 0.0,
+            "max": 8589934592.0,
+            "mean": 8589934592.0,
+            "median": 8589934592.0,
+            "min": 8589934592.0,
+            "non_zero_mean": 8589934592.0,
+            "non_zero_median": 8589934592.0,
+            "percentile25": 8589934592.0,
+            "percentile75": 8589934592.0,
+            "percentile90": 8589934592.0,
+            "percentile99": 8589934592.0,
+            "percentile999": 8589934592.0,
+            "range": 0.0,
+            "samples": 4,
+            "stdev": 0.0,
+            "sum": 34359738368.0
+        },
+        "node_disk_io_time_seconds_total": {
+            "iqr": 0.4628139594216807,
+            "max": 1.5745747506191552,
+            "mean": 1.3339524578699251,
+            "median": 1.348358083956244,
+            "min": 1.0645189129480577,
+            "non_zero_mean": 1.3339524578699251,
+            "non_zero_median": 1.348358083956244,
+            "percentile25": 1.1097482912022443,
+            "percentile75": 1.572562250623925,
+            "percentile90": 1.5737697506210633,
+            "percentile99": 1.574494250619346,
+            "percentile999": 1.5745667006191744,
+            "range": 0.5100558376710975,
+            "samples": 4,
+            "stdev": 0.2773943458012369,
+            "sum": 5.3358098314797004
+        },
+        "pipelinerun_duration_scheduled_seconds": {
+            "iqr": 0.02094327800659812,
+            "max": 3138.01825133388,
+            "mean": 3137.9554214998607,
+            "median": 3137.9344782218545,
+            "min": 3137.9344782218545,
+            "non_zero_mean": 3137.9554214998607,
+            "non_zero_median": 3137.9344782218545,
+            "percentile25": 3137.9344782218545,
+            "percentile75": 3137.955421499861,
+            "percentile90": 3137.993119400272,
+            "percentile99": 3138.0157381405193,
+            "percentile999": 3138.018000014544,
+            "range": 0.08377311202548299,
+            "samples": 4,
+            "stdev": 0.041886556012741494,
+            "sum": 12551.821685999443
+        },
+        "scheduler_pending_pods_count": {
+            "iqr": 1.0,
+            "max": 1.0,
+            "mean": 0.5,
+            "median": 0.5,
+            "min": 0.0,
+            "non_zero_mean": 1.0,
+            "non_zero_median": 1.0,
+            "percentile25": 0.0,
+            "percentile75": 1.0,
+            "percentile90": 1.0,
+            "percentile99": 1.0,
+            "percentile999": 1.0,
+            "range": 1.0,
+            "samples": 4,
+            "stdev": 0.5773502691896257,
+            "sum": 2.0
+        },
+        "storage_count_attachable_volumes_in_use": {
+            "iqr": 6.0,
+            "max": 27.0,
+            "mean": 24.0,
+            "median": 24.0,
+            "min": 21.0,
+            "non_zero_mean": 24.0,
+            "non_zero_median": 24.0,
+            "percentile25": 21.0,
+            "percentile75": 27.0,
+            "percentile90": 27.0,
+            "percentile99": 27.0,
+            "percentile999": 27.0,
+            "range": 6.0,
+            "samples": 4,
+            "stdev": 3.4641016151377544,
+            "sum": 96.0
+        },
+        "tekton-results-watcher": {
+            "container[watcher]": {
+                "memory": {
+                    "iqr": 6598656.0,
+                    "max": 1118412800.0,
+                    "mean": 1115993292.8,
+                    "median": 1118412800.0,
+                    "min": 1111814144.0,
+                    "non_zero_mean": 1115993292.8,
+                    "non_zero_median": 1118412800.0,
+                    "percentile25": 1111814144.0,
+                    "percentile75": 1118412800.0,
+                    "percentile90": 1118412800.0,
+                    "percentile99": 1118412800.0,
+                    "percentile999": 1118412800.0,
+                    "range": 6598656.0,
+                    "samples": 60,
+                    "stdev": 3206690.1376317036,
+                    "sum": 66959597568.0
+                }
+            },
+            "count_ready": {
+                "iqr": 0.0,
+                "max": 1.0,
+                "mean": 1.0,
+                "median": 1.0,
+                "min": 1.0,
+                "non_zero_mean": 1.0,
+                "non_zero_median": 1.0,
+                "percentile25": 1.0,
+                "percentile75": 1.0,
+                "percentile90": 1.0,
+                "percentile99": 1.0,
+                "percentile999": 1.0,
+                "range": 0.0,
+                "samples": 60,
+                "stdev": 0.0,
+                "sum": 60.0
+            },
+            "cpu": {
+                "iqr": 0.0034482725182275464,
+                "max": 0.13844587976971726,
+                "mean": 0.13332327011369005,
+                "median": 0.1319638807549247,
+                "min": 0.1309194391751936,
+                "non_zero_mean": 0.13332327011369005,
+                "non_zero_median": 0.1319638807549247,
+                "percentile25": 0.1309194391751936,
+                "percentile75": 0.13436771169342115,
+                "percentile90": 0.13844587976971726,
+                "percentile99": 0.13844587976971726,
+                "percentile999": 0.13844587976971728,
+                "range": 0.007526440594523648,
+                "samples": 60,
+                "stdev": 0.0031040075853352497,
+                "sum": 7.9993962068214035
+            },
+            "memory": {
+                "iqr": 6598656.0,
+                "max": 1143255040.0,
+                "mean": 1140835532.8,
+                "median": 1143255040.0,
+                "min": 1136656384.0,
+                "non_zero_mean": 1140835532.8,
+                "non_zero_median": 1143255040.0,
+                "percentile25": 1136656384.0,
+                "percentile75": 1143255040.0,
+                "percentile90": 1143255040.0,
+                "percentile99": 1143255040.0,
+                "percentile999": 1143255040.0,
+                "range": 6598656.0,
+                "samples": 60,
+                "stdev": 3206690.1376317036,
+                "sum": 68450131968.0
+            },
+            "restarts": {
+                "iqr": 0.0,
+                "max": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "min": 0.0,
+                "non_zero_mean": 0.0,
+                "non_zero_median": 0.0,
+                "percentile25": 0.0,
+                "percentile75": 0.0,
+                "percentile90": 0.0,
+                "percentile99": 0.0,
+                "percentile999": 0.0,
+                "range": 0.0,
+                "samples": 60,
+                "stdev": 0.0,
+                "sum": 0.0
+            }
+        },
+        "tekton_pipelines_controller_running_pipelineruns_count": {
+            "iqr": 1.75,
+            "max": 48.0,
+            "mean": 45.75,
+            "median": 45.5,
+            "min": 44.0,
+            "non_zero_mean": 45.75,
+            "non_zero_median": 45.5,
+            "percentile25": 44.75,
+            "percentile75": 46.5,
+            "percentile90": 47.4,
+            "percentile99": 47.94,
+            "percentile999": 47.994,
+            "range": 4.0,
+            "samples": 4,
+            "stdev": 1.707825127659933,
+            "sum": 183.0
+        },
+        "tekton_pipelines_controller_running_taskruns_throttled_by_node": {
+            "iqr": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "median": 0.0,
+            "min": 0.0,
+            "non_zero_mean": 0.0,
+            "non_zero_median": 0.0,
+            "percentile25": 0.0,
+            "percentile75": 0.0,
+            "percentile90": 0.0,
+            "percentile99": 0.0,
+            "percentile999": 0.0,
+            "range": 0.0,
+            "samples": 4,
+            "stdev": 0.0,
+            "sum": 0.0
+        },
+        "tekton_pipelines_controller_running_taskruns_throttled_by_quota": {
+            "iqr": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "median": 0.0,
+            "min": 0.0,
+            "non_zero_mean": 0.0,
+            "non_zero_median": 0.0,
+            "percentile25": 0.0,
+            "percentile75": 0.0,
+            "percentile90": 0.0,
+            "percentile99": 0.0,
+            "percentile999": 0.0,
+            "range": 0.0,
+            "samples": 4,
+            "stdev": 0.0,
+            "sum": 0.0
+        },
+        "tekton_tekton_pipelines_controller_workqueue_depth": {
+            "iqr": 0.5,
+            "max": 2.0,
+            "mean": 0.5,
+            "median": 0.0,
+            "min": 0.0,
+            "non_zero_mean": 2.0,
+            "non_zero_median": 2.0,
+            "percentile25": 0.0,
+            "percentile75": 0.5,
+            "percentile90": 1.4000000000000004,
+            "percentile99": 1.9400000000000004,
+            "percentile999": 1.9940000000000007,
+            "range": 2.0,
+            "samples": 4,
+            "stdev": 1.0,
+            "sum": 2.0
+        }
+    },
+    "metadata": {
+        "env": {
+            "BUILD_ID": "38",
+            "BUILD_TAG": "jenkins-StoneSoupLoadTestProbe-38",
+            "BUILD_URL": "https://jenkins-csb-perf-master.dno.corp.redhat.com/job/StoneSoupLoadTestProbe/38/",
+            "HOSTNAME": "cpt-v2-2tr0c",
+            "JOB_NAME": "StoneSoupLoadTestProbe",
+            "MEMBER_CLUSTER": "https://api.stone-prod-p02.hjvn.p1.openshiftapps.com:6443/",
+            "OPENSHIFT_API": null,
+            "PROW_JOB_ID": null,
+            "PULL_BASE_REF": null,
+            "PULL_BASE_SHA": null,
+            "PULL_HEAD_REF": null,
+            "PULL_NUMBER": null,
+            "PULL_PULL_SHA": null,
+            "PULL_REFS": null,
+            "REPO_NAME": null,
+            "REPO_OWNER": null,
+            "SCENARIO": null
+        },
+        "git": {
+            "redhat_appstudio": {
+                "e2e_tests": {
+                    "commit": {
+                        "abbreviated_hash": "f6270a4",
+                        "author_date": "2025-02-27T08:14:09+01:00",
+                        "author_email": "jhutar@redhat.com",
+                        "author_name": "Jan Hutar",
+                        "committer_date": "2025-02-27T08:14:09+01:00",
+                        "hash": "f6270a4dfa71bb332409a054533abf627924e0d6",
+                        "subject": "feat: Add Jenkins specific variables"
+                    }
+                }
+            }
+        },
+        "scenario": {}
+    },
+    "name": "Konflux loadtest",
+    "owner": null,
+    "parameters": {
+        "options": {
+            "ApplicationsCount": 1,
+            "BuildPipelineSelectorBundle": "",
+            "ComponentContainerContext": "/",
+            "ComponentContainerFile": "Dockerfile",
+            "ComponentRepoRevision": "main",
+            "ComponentRepoUrl": "https://gitlab.cee.redhat.com/jhutar/nodejs-devfile-sample3",
+            "ComponentsCount": 1,
+            "Concurrency": 1,
+            "FailFast": false,
+            "JourneyDuration": "1h",
+            "JourneyRepeats": 1,
+            "JourneyUntil": "2025-02-27T08:29:38.807156838Z",
+            "LogDebug": false,
+            "LogInfo": true,
+            "LogTrace": false,
+            "OutputDir": ".",
+            "PipelineMintmakerDisabled": true,
+            "PipelineRepoTemplating": false,
+            "Purge": true,
+            "PurgeOnly": false,
+            "QuayRepo": "redhat-user-workloads-stage",
+            "Stage": true,
+            "TestScenarioGitURL": "https://github.com/konflux-ci/integration-examples.git",
+            "TestScenarioPathInRepo": "pipelines/integration_resolver_pipeline_pass.yaml",
+            "TestScenarioRevision": "main",
+            "UsernamePrefix": "undef",
+            "WaitIntegrationTestsPipelines": true,
+            "WaitPipelines": true
+        }
+    },
+    "result": null,
+    "results": {
+        "durations": {
+            "errors": {
+                "pipelineruns": 0,
+                "steps": 0,
+                "taskruns": 116,
+                "total": 116
+            },
+            "stats": {
+                "pipelineruns": {
+                    "build": {
+                        "failed": {
+                            "duration": {
+                                "max": 165,
+                                "mean": 137.5,
+                                "min": 110,
+                                "samples": 2,
+                                "stdev": 38.890872965260115
+                            },
+                            "idle": {
+                                "max": 165,
+                                "mean": 137.5,
+                                "min": 110,
+                                "samples": 2,
+                                "stdev": 38.890872965260115
+                            },
+                            "running": {
+                                "max": 165,
+                                "mean": 137.5,
+                                "min": 110,
+                                "samples": 2,
+                                "stdev": 38.890872965260115
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 2,
+                                "stdev": 0.0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 384,
+                                "mean": 231.76923076923077,
+                                "min": 160,
+                                "samples": 13,
+                                "stdev": 65.40406950406303
+                            },
+                            "idle": {
+                                "max": 384,
+                                "mean": 123.61538461538461,
+                                "min": 9,
+                                "samples": 13,
+                                "stdev": 143.5830412813078
+                            },
+                            "running": {
+                                "max": 383,
+                                "mean": 231.46153846153845,
+                                "min": 160,
+                                "samples": 13,
+                                "stdev": 65.38299394671292
+                            },
+                            "scheduled": {
+                                "max": 1,
+                                "mean": 0.3076923076923077,
+                                "min": 0,
+                                "samples": 13,
+                                "stdev": 0.4803844614152614
+                            }
+                        }
+                    },
+                    "test": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 25,
+                                "mean": 10,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 6.502746672423453
+                            },
+                            "idle": {
+                                "max": 1,
+                                "mean": 0.25,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.4629100498862757
+                            },
+                            "running": {
+                                "max": 25,
+                                "mean": 10,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 6.502746672423453
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    }
+                },
+                "steps": {
+                    "build/apply-tags/step-apply-additional-tags-from-image-label": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 4,
+                                "mean": 1.5714285714285714,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 1.3972762620115438
+                            }
+                        }
+                    },
+                    "build/apply-tags/step-apply-additional-tags-from-parameter": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/build-image-index/step-build": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/build-image-index/step-create-sbom": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/build-image-index/step-upload-sbom": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/buildah/step-build": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 37,
+                                "mean": 33.42857142857143,
+                                "min": 30,
+                                "samples": 7,
+                                "stdev": 2.370453040886408
+                            }
+                        }
+                    },
+                    "build/buildah/step-icm": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/buildah/step-prepare-sboms": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 1,
+                                "mean": 0.14285714285714285,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.37796447300922725
+                            }
+                        }
+                    },
+                    "build/buildah/step-push": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 17,
+                                "mean": 11,
+                                "min": 7,
+                                "samples": 7,
+                                "stdev": 4.509249752822894
+                            }
+                        }
+                    },
+                    "build/buildah/step-sbom-syft-generate": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 8,
+                                "mean": 7.142857142857143,
+                                "min": 7,
+                                "samples": 7,
+                                "stdev": 0.37796447300922725
+                            }
+                        }
+                    },
+                    "build/buildah/step-upload-sbom": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 5,
+                                "mean": 3.5714285714285716,
+                                "min": 3,
+                                "samples": 7,
+                                "stdev": 0.7867957924694432
+                            }
+                        }
+                    },
+                    "build/clair-scan/step-conftest-vulnerabilities": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/clair-scan/step-get-image-manifests": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 2,
+                                "mean": 1.625,
+                                "min": 1,
+                                "samples": 8,
+                                "stdev": 0.5175491695067657
+                            }
+                        }
+                    },
+                    "build/clair-scan/step-get-vulnerabilities": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 70,
+                                "mean": 32.25,
+                                "min": 24,
+                                "samples": 8,
+                                "stdev": 15.415669208401468
+                            }
+                        }
+                    },
+                    "build/clair-scan/step-oci-attach-report": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 7,
+                                "mean": 2.875,
+                                "min": 2,
+                                "samples": 8,
+                                "stdev": 1.7268882005337975
+                            }
+                        }
+                    },
+                    "build/clamav-scan/step-extract-and-scan-image": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 51,
+                                "mean": 46.125,
+                                "min": 44,
+                                "samples": 8,
+                                "stdev": 2.4748737341529163
+                            }
+                        }
+                    },
+                    "build/clamav-scan/step-upload": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 8,
+                                "mean": 3.75,
+                                "min": 2,
+                                "samples": 8,
+                                "stdev": 2.187627547301936
+                            }
+                        }
+                    },
+                    "build/coverity-availability-check/step-coverity-availability-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/deprecated-image-check/step-check-images": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 6,
+                                "mean": 3.75,
+                                "min": 2,
+                                "samples": 8,
+                                "stdev": 1.164964745021435
+                            }
+                        }
+                    },
+                    "build/ecosystem-cert-preflight-checks/step-check-container": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 16,
+                                "mean": 12.125,
+                                "min": 10,
+                                "samples": 8,
+                                "stdev": 1.9594095320493146
+                            }
+                        }
+                    },
+                    "build/ecosystem-cert-preflight-checks/step-gather-pflt-results": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 1,
+                                "mean": 0.25,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.4629100498862757
+                            }
+                        }
+                    },
+                    "build/git-clone/step-clone": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 2,
+                                "mean": 1.5,
+                                "min": 1,
+                                "samples": 8,
+                                "stdev": 0.5345224838248488
+                            }
+                        }
+                    },
+                    "build/git-clone/step-symlink-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 1,
+                                "mean": 0.125,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.3535533905932738
+                            }
+                        }
+                    },
+                    "build/init/step-init": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/push-dockerfile/step-push": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 6,
+                                "mean": 2.7142857142857144,
+                                "min": 1,
+                                "samples": 7,
+                                "stdev": 1.6035674514745464
+                            }
+                        }
+                    },
+                    "build/rpms-signature-scan/step-output-results": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/rpms-signature-scan/step-rpms-signature-scan": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 6,
+                                "mean": 3.875,
+                                "min": 2,
+                                "samples": 8,
+                                "stdev": 1.246423454758225
+                            }
+                        }
+                    },
+                    "build/sast-shell-check/step-sast-shell-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 1,
+                                "mean": 1,
+                                "min": 1,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/sast-shell-check/step-upload": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 5,
+                                "mean": 2.2857142857142856,
+                                "min": 1,
+                                "samples": 7,
+                                "stdev": 1.2535663410560174
+                            }
+                        }
+                    },
+                    "build/sast-snyk-check/step-sast-snyk-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 1,
+                                "mean": 0.875,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.3535533905932738
+                            }
+                        }
+                    },
+                    "build/sast-snyk-check/step-upload": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/sast-unicode-check/step-sast-unicode-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 1,
+                                "mean": 1,
+                                "min": 1,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/sast-unicode-check/step-upload": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 6,
+                                "mean": 3.875,
+                                "min": 1,
+                                "samples": 8,
+                                "stdev": 1.8850918886280925
+                            }
+                        }
+                    },
+                    "build/show-sbom/step-show-sbom": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 8,
+                                "mean": 2.75,
+                                "min": 1,
+                                "samples": 8,
+                                "stdev": 2.49284690951645
+                            }
+                        }
+                    },
+                    "build/summary/step-appstudio-summary": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "test/test-output/step-unnamed-0": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 24,
+                                "stdev": 0.0
+                            }
+                        }
+                    }
+                },
+                "taskruns": {
+                    "build/apply-tags": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 10,
+                                "mean": 7,
+                                "min": 5,
+                                "samples": 7,
+                                "stdev": 1.9148542155126762
+                            },
+                            "idle": {
+                                "max": 7,
+                                "mean": 5.428571428571429,
+                                "min": 4,
+                                "samples": 7,
+                                "stdev": 1.2724180205607036
+                            },
+                            "running": {
+                                "max": 10,
+                                "mean": 7,
+                                "min": 5,
+                                "samples": 7,
+                                "stdev": 1.9148542155126762
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/build-image-index": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 8,
+                                "mean": 5.5,
+                                "min": 4,
+                                "samples": 8,
+                                "stdev": 1.3093073414159544
+                            },
+                            "idle": {
+                                "max": 8,
+                                "mean": 5.5,
+                                "min": 4,
+                                "samples": 8,
+                                "stdev": 1.3093073414159544
+                            },
+                            "running": {
+                                "max": 8,
+                                "mean": 5.375,
+                                "min": 4,
+                                "samples": 8,
+                                "stdev": 1.3024701806293193
+                            },
+                            "scheduled": {
+                                "max": 1,
+                                "mean": 0.125,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.3535533905932738
+                            }
+                        }
+                    },
+                    "build/buildah": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 120,
+                                "mean": 79.57142857142857,
+                                "min": 64,
+                                "samples": 7,
+                                "stdev": 19.190771591723827
+                            },
+                            "idle": {
+                                "max": 65,
+                                "mean": 24.285714285714285,
+                                "min": 12,
+                                "samples": 7,
+                                "stdev": 18.318608805567866
+                            },
+                            "running": {
+                                "max": 120,
+                                "mean": 79.57142857142857,
+                                "min": 64,
+                                "samples": 7,
+                                "stdev": 19.190771591723827
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/clair-scan": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 110,
+                                "mean": 48.625,
+                                "min": 36,
+                                "samples": 8,
+                                "stdev": 24.933841031245638
+                            },
+                            "idle": {
+                                "max": 36,
+                                "mean": 11.875,
+                                "min": 7,
+                                "samples": 8,
+                                "stdev": 9.789754119194502
+                            },
+                            "running": {
+                                "max": 110,
+                                "mean": 48.625,
+                                "min": 36,
+                                "samples": 8,
+                                "stdev": 24.933841031245638
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/clamav-scan": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 74,
+                                "mean": 59.5,
+                                "min": 52,
+                                "samples": 8,
+                                "stdev": 7.521398046336104
+                            },
+                            "idle": {
+                                "max": 19,
+                                "mean": 9.625,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 4.838461975226662
+                            },
+                            "running": {
+                                "max": 74,
+                                "mean": 59.5,
+                                "min": 52,
+                                "samples": 8,
+                                "stdev": 7.521398046336104
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/coverity-availability-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 7,
+                                "mean": 6.142857142857143,
+                                "min": 5,
+                                "samples": 7,
+                                "stdev": 0.6900655593423543
+                            },
+                            "idle": {
+                                "max": 7,
+                                "mean": 6.142857142857143,
+                                "min": 5,
+                                "samples": 7,
+                                "stdev": 0.6900655593423543
+                            },
+                            "running": {
+                                "max": 7,
+                                "mean": 6.142857142857143,
+                                "min": 5,
+                                "samples": 7,
+                                "stdev": 0.6900655593423543
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/deprecated-image-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 10,
+                                "mean": 9,
+                                "min": 8,
+                                "samples": 8,
+                                "stdev": 0.7559289460184545
+                            },
+                            "idle": {
+                                "max": 7,
+                                "mean": 5.25,
+                                "min": 4,
+                                "samples": 8,
+                                "stdev": 1.0350983390135313
+                            },
+                            "running": {
+                                "max": 10,
+                                "mean": 9,
+                                "min": 8,
+                                "samples": 8,
+                                "stdev": 0.7559289460184545
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/ecosystem-cert-preflight-checks": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 22,
+                                "mean": 19.375,
+                                "min": 16,
+                                "samples": 8,
+                                "stdev": 2.615202805574687
+                            },
+                            "idle": {
+                                "max": 11,
+                                "mean": 7,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 2.138089935299395
+                            },
+                            "running": {
+                                "max": 22,
+                                "mean": 19.375,
+                                "min": 16,
+                                "samples": 8,
+                                "stdev": 2.615202805574687
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/git-clone": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 24,
+                                "mean": 18.625,
+                                "min": 15,
+                                "samples": 8,
+                                "stdev": 2.825268634509444
+                            },
+                            "idle": {
+                                "max": 23,
+                                "mean": 17,
+                                "min": 14,
+                                "samples": 8,
+                                "stdev": 2.9760952365713798
+                            },
+                            "running": {
+                                "max": 24,
+                                "mean": 18.5,
+                                "min": 15,
+                                "samples": 8,
+                                "stdev": 2.7774602993176543
+                            },
+                            "scheduled": {
+                                "max": 1,
+                                "mean": 0.125,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.3535533905932738
+                            }
+                        }
+                    },
+                    "build/init": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 6,
+                                "mean": 5.375,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 0.5175491695067657
+                            },
+                            "idle": {
+                                "max": 6,
+                                "mean": 5.375,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 0.5175491695067657
+                            },
+                            "running": {
+                                "max": 6,
+                                "mean": 5.25,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 0.4629100498862757
+                            },
+                            "scheduled": {
+                                "max": 1,
+                                "mean": 0.125,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.3535533905932738
+                            }
+                        }
+                    },
+                    "build/push-dockerfile": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 19,
+                                "mean": 16.428571428571427,
+                                "min": 14,
+                                "samples": 7,
+                                "stdev": 1.618347187425374
+                            },
+                            "idle": {
+                                "max": 16,
+                                "mean": 13.714285714285714,
+                                "min": 10,
+                                "samples": 7,
+                                "stdev": 2.0586634591635513
+                            },
+                            "running": {
+                                "max": 19,
+                                "mean": 16.428571428571427,
+                                "min": 14,
+                                "samples": 7,
+                                "stdev": 1.618347187425374
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/rpms-signature-scan": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 32,
+                                "mean": 12.875,
+                                "min": 9,
+                                "samples": 8,
+                                "stdev": 7.754031209635412
+                            },
+                            "idle": {
+                                "max": 27,
+                                "mean": 9,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 7.329003050503235
+                            },
+                            "running": {
+                                "max": 32,
+                                "mean": 12.875,
+                                "min": 9,
+                                "samples": 8,
+                                "stdev": 7.754031209635412
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/sast-shell-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 20,
+                                "mean": 17.142857142857142,
+                                "min": 14,
+                                "samples": 7,
+                                "stdev": 2.5448360411214073
+                            },
+                            "idle": {
+                                "max": 17,
+                                "mean": 13.857142857142858,
+                                "min": 8,
+                                "samples": 7,
+                                "stdev": 3.4364987719368982
+                            },
+                            "running": {
+                                "max": 20,
+                                "mean": 17.142857142857142,
+                                "min": 14,
+                                "samples": 7,
+                                "stdev": 2.5448360411214073
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 7,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/sast-snyk-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 19,
+                                "mean": 14.625,
+                                "min": 9,
+                                "samples": 8,
+                                "stdev": 3.1594529363709247
+                            },
+                            "idle": {
+                                "max": 19,
+                                "mean": 13.75,
+                                "min": 8,
+                                "samples": 8,
+                                "stdev": 3.370036032024414
+                            },
+                            "running": {
+                                "max": 19,
+                                "mean": 14.625,
+                                "min": 9,
+                                "samples": 8,
+                                "stdev": 3.1594529363709247
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/sast-unicode-check": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 24,
+                                "mean": 18.75,
+                                "min": 13,
+                                "samples": 8,
+                                "stdev": 4.200340122282616
+                            },
+                            "idle": {
+                                "max": 17,
+                                "mean": 13.875,
+                                "min": 7,
+                                "samples": 8,
+                                "stdev": 3.563204817496262
+                            },
+                            "running": {
+                                "max": 24,
+                                "mean": 18.75,
+                                "min": 13,
+                                "samples": 8,
+                                "stdev": 4.200340122282616
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/show-sbom": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 13,
+                                "mean": 7.75,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 2.6049403612586386
+                            },
+                            "idle": {
+                                "max": 7,
+                                "mean": 5,
+                                "min": 4,
+                                "samples": 8,
+                                "stdev": 0.9258200997725514
+                            },
+                            "running": {
+                                "max": 13,
+                                "mean": 7.75,
+                                "min": 5,
+                                "samples": 8,
+                                "stdev": 2.6049403612586386
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "build/summary": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 14,
+                                "mean": 11,
+                                "min": 9,
+                                "samples": 8,
+                                "stdev": 2.32992949004287
+                            },
+                            "idle": {
+                                "max": 14,
+                                "mean": 11,
+                                "min": 9,
+                                "samples": 8,
+                                "stdev": 2.32992949004287
+                            },
+                            "running": {
+                                "max": 14,
+                                "mean": 11,
+                                "min": 9,
+                                "samples": 8,
+                                "stdev": 2.32992949004287
+                            },
+                            "scheduled": {
+                                "max": 0,
+                                "mean": 0,
+                                "min": 0,
+                                "samples": 8,
+                                "stdev": 0.0
+                            }
+                        }
+                    },
+                    "test/test-output": {
+                        "failed": {
+                            "duration": {
+                                "samples": 0
+                            },
+                            "idle": {
+                                "samples": 0
+                            },
+                            "running": {
+                                "samples": 0
+                            },
+                            "scheduled": {
+                                "samples": 0
+                            }
+                        },
+                        "passed": {
+                            "duration": {
+                                "max": 24,
+                                "mean": 8.666666666666666,
+                                "min": 4,
+                                "samples": 24,
+                                "stdev": 6.091095901015048
+                            },
+                            "idle": {
+                                "max": 24,
+                                "mean": 8.666666666666666,
+                                "min": 4,
+                                "samples": 24,
+                                "stdev": 6.091095901015048
+                            },
+                            "running": {
+                                "max": 24,
+                                "mean": 8.625,
+                                "min": 4,
+                                "samples": 24,
+                                "stdev": 6.0778464435443205
+                            },
+                            "scheduled": {
+                                "max": 1,
+                                "mean": 0.041666666666666664,
+                                "min": 0,
+                                "samples": 24,
+                                "stdev": 0.2041241452319315
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "measurements": {
+            "HandleUser": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 0.106332,
+                        "mean": 0.10297240909090909,
+                        "min": 0.102207,
+                        "samples": 22
+                    },
+                    "when": {
+                        "max": "2025-02-27T07:29:38.916159+00:00",
+                        "mean": "2025-02-26T06:21:14.789978+00:00",
+                        "min": "2025-02-25T14:33:32.203209+00:00",
+                        "span": 147366.71295
+                    }
+                }
+            },
+            "KPI": {
+                "errors": 2,
+                "mean": 265.78953718931064
+            },
+            "createApplication": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 0.140243,
+                        "mean": 0.09747566666666667,
+                        "min": 0.06337,
+                        "samples": 21
+                    },
+                    "when": {
+                        "max": "2025-02-27T07:29:39.098700+00:00",
+                        "mean": "2025-02-26T06:04:02.446122+00:00",
+                        "min": "2025-02-25T14:33:32.412278+00:00",
+                        "span": 147366.686422
+                    }
+                }
+            },
+            "createComponent": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 4.100836,
+                        "mean": 3.543904761904762,
+                        "min": 3.087928,
+                        "samples": 21
+                    },
+                    "when": {
+                        "max": "2025-02-27T07:30:02.378217+00:00",
+                        "mean": "2025-02-26T06:04:23.309789+00:00",
+                        "min": "2025-02-25T14:33:56.706255+00:00",
+                        "span": 147365.671962
+                    }
+                }
+            },
+            "createIntegrationTestScenario": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 0.072855,
+                        "mean": 0.04223152380952381,
+                        "min": 0.034384,
+                        "samples": 21
+                    },
+                    "when": {
+                        "max": "2025-02-27T07:29:39.150324+00:00",
+                        "mean": "2025-02-26T06:04:02.502418+00:00",
+                        "min": "2025-02-25T14:33:32.496315+00:00",
+                        "span": 147366.654009
+                    }
+                }
+            },
+            "validateApplication": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 0.023302,
+                        "mean": 0.013954666666666667,
+                        "min": 0.011048,
+                        "samples": 21
+                    },
+                    "when": {
+                        "max": "2025-02-27T07:29:39.111940+00:00",
+                        "mean": "2025-02-26T06:04:02.460108+00:00",
+                        "min": "2025-02-25T14:33:32.423375+00:00",
+                        "span": 147366.688565
+                    }
+                }
+            },
+            "validateIntegrationTestScenario": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 20.024498,
+                        "mean": 17.160412904761905,
+                        "min": 0.014145,
+                        "samples": 21
+                    },
+                    "when": {
+                        "max": "2025-02-27T07:29:59.168111+00:00",
+                        "mean": "2025-02-26T06:04:19.662861+00:00",
+                        "min": "2025-02-25T14:33:52.512014+00:00",
+                        "span": 147366.656097
+                    }
+                }
+            },
+            "validatePipelineRunCondition": {
+                "error_rate": 0.13333333333333333,
+                "fail": {
+                    "duration": {
+                        "max": 160.046586,
+                        "mean": 130.045698,
+                        "min": 100.04481,
+                        "samples": 2
+                    },
+                    "when": {
+                        "max": "2025-02-25T15:28:07.010725+00:00",
+                        "mean": "2025-02-25T15:07:43.765700+00:00",
+                        "min": "2025-02-25T14:47:20.520675+00:00",
+                        "span": 2446.49005
+                    }
+                },
+                "pass": {
+                    "duration": {
+                        "max": 380.047657,
+                        "mean": 230.82191230769232,
+                        "min": 160.054488,
+                        "samples": 13
+                    },
+                    "when": {
+                        "max": "2025-02-26T14:11:54.148043+00:00",
+                        "mean": "2025-02-26T04:08:25.012730+00:00",
+                        "min": "2025-02-25T14:39:16.811313+00:00",
+                        "span": 84757.33673
+                    }
+                }
+            },
+            "validatePipelineRunCreation": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 0.077911,
+                        "mean": 0.056787333333333335,
+                        "min": 0.045617,
+                        "samples": 15
+                    },
+                    "when": {
+                        "max": "2025-02-26T14:08:54.091286+00:00",
+                        "mean": "2025-02-26T02:20:42.128011+00:00",
+                        "min": "2025-02-25T14:34:16.767706+00:00",
+                        "span": 84877.32358
+                    }
+                }
+            },
+            "validatePipelineRunSignature": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 20.057861,
+                        "mean": 7.734745384615385,
+                        "min": 0.029584,
+                        "samples": 13
+                    },
+                    "when": {
+                        "max": "2025-02-26T14:12:14.189636+00:00",
+                        "mean": "2025-02-26T04:08:32.747508+00:00",
+                        "min": "2025-02-25T14:39:36.864049+00:00",
+                        "span": 84757.325587
+                    }
+                }
+            },
+            "validateSnapshotCreation": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 0.028322,
+                        "mean": 0.015941153846153848,
+                        "min": 0.012823,
+                        "samples": 13
+                    },
+                    "when": {
+                        "max": "2025-02-26T14:12:14.204033+00:00",
+                        "mean": "2025-02-26T04:08:32.763500+00:00",
+                        "min": "2025-02-25T14:39:36.876930+00:00",
+                        "span": 84757.327103
+                    }
+                }
+            },
+            "validateTestPipelineRunCondition": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 20.056878,
+                        "mean": 6.179364769230769,
+                        "min": 0.016686,
+                        "samples": 13
+                    },
+                    "when": {
+                        "max": "2025-02-26T14:12:14.239418+00:00",
+                        "mean": "2025-02-26T04:08:38.962750+00:00",
+                        "min": "2025-02-25T14:39:36.910503+00:00",
+                        "span": 84757.328915
+                    }
+                }
+            },
+            "validateTestPipelineRunCreation": {
+                "error_rate": 0.0,
+                "fail": {
+                    "duration": {
+                        "samples": 0
+                    },
+                    "when": {}
+                },
+                "pass": {
+                    "duration": {
+                        "max": 0.023854,
+                        "mean": 0.019834307692307693,
+                        "min": 0.016821,
+                        "samples": 13
+                    },
+                    "when": {
+                        "max": "2025-02-26T14:12:14.221953+00:00",
+                        "mean": "2025-02-26T04:08:32.783361+00:00",
+                        "min": "2025-02-25T14:39:36.893785+00:00",
+                        "span": 84757.328168
+                    }
+                }
+            }
+        }
+    },
+    "started": "2025-02-27T07:29:25,261140292+00:00"
+}

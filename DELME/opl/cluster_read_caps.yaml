@@ -1,0 +1,7 @@
+- name: measurements.capsules_data.load.load.shortterm[]
+  grafana_target: $Cloud.$Node.load.load.shortterm
+  grafana_enritchment:
+    capsule: "{{CAPSULE}}"
+- name: measurements.capsules_data.memory.memory-used[]
+  grafana_target: $Cloud.$Node.memory.memory-used
+  grafana_include_vars: true

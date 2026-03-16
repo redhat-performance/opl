@@ -5,9 +5,9 @@ import time
 
 import gevent
 
-import locust.env
-import locust.log
-import locust.stats
+from locust import env as l_env  # pylint: disable=no-name-in-module
+from locust import log as l_log  # pylint: disable=no-name-in-module
+from locust import stats as l_stats  # pylint: disable=no-name-in-module
 
 import tabulate
 
@@ -42,7 +42,7 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
         f"Running with host = {args.host}, num_clients = {args.num_clients}, hatch_rate = {args.hatch_rate}, duration = {args.test_duration} / requests = {args.test_requests}"
     )
 
-    env = locust.env.Environment()
+    env = l_env.Environment()
     env.user_classes = [test_set]
     env.stop_timeout = args.stop_timeout
     env.host = args.host

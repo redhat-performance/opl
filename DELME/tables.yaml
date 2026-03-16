@@ -1,0 +1,14 @@
+tables:
+    items:
+        - CREATE TABLE IF NOT EXISTS items (
+              subscription_manager_id VARCHAR PRIMARY KEY,
+              qpc_at TIMESTAMP WITH TIME ZONE NULL,
+              created_at TIMESTAMP WITH TIME ZONE NULL)
+        - CREATE INDEX IF NOT EXISTS items_subscription_manager_id_idx
+              ON items (subscription_manager_id)
+queries:
+    query_store_info_produced: INSERT INTO items(subscription_manager_id, qpc_at) VALUES %s
+    query_storage_update_created_at: UPDATE items SET created_at = data.created_at FROM (VALUES %s) AS data(subscription_manager_id, created_at) WHERE items.subscription_manager_id = data.subscription_manager_id
+    query_storage_count_applicable_hosts: SELECT COUNT(*) FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL
+    query_storage_get_applicable_hosts: SELECT subscription_manager_id FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL OFFSET %s LIMIT %s
+    query_edge_get_created_at: SELECT uuid, created_at FROM devices WHERE uuid=ANY(%s)

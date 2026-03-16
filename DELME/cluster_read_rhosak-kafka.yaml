@@ -1,0 +1,57 @@
+{% set namespace=MY_ENV_NAMESPACE %}
+
+- name: measurements.managed-application-services-observability.sum-haproxy_server_bytes_in_total
+  monitoring_query: sum(haproxy_server_bytes_in_total{exported_pod=~"kafka-instance-kafka-[0-9]+",exported_namespace="{{ namespace }}"})
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-haproxy_server_bytes_out_total
+  monitoring_query: sum(haproxy_server_bytes_out_total{exported_pod=~"kafka-instance-kafka-[0-9]+",exported_namespace="{{ namespace }}"})
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-kafka_broker_quota_totalstorageusedbytes
+  monitoring_query: sum(kafka_broker_quota_totalstorageusedbytes{namespace!=""})
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-rate-kafka_topic_partition_current_offset
+  monitoring_query: sum(rate(kafka_topic_partition_current_offset[5m]))
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-rate-kubelet_volume_stats_available_bytes
+  monitoring_query: sum(rate(kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"data-([0-9]+)?-(.+)-kafka-[0-9]+"}[5m]))
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-kafka_server_replicamanager_under_replicated_partitions
+  monitoring_query: sum(kafka_server_replicamanager_under_replicated_partitions)
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-kafka_controller_kafkacontroller_offline_partitions_count
+  monitoring_query: sum(kafka_controller_kafkacontroller_offline_partitions_count)
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-kafka_cluster_partition_under_min_isr
+  monitoring_query: sum(kafka_cluster_partition_under_min_isr)
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-rate-kube_pod_container_status_restarts_total
+  monitoring_query: sum(rate(kube_pod_container_status_restarts_total{container="kafka"}[5m]))
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-rate-ALERTS
+  monitoring_query: sum(rate(ALERTS{alertstate="firing"}[5m]))
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-zookeeper_avg_request_latency
+  monitoring_query: sum(zookeeper_avg_request_latency)
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-zookeeper_outstanding_requests
+  monitoring_query: sum(zookeeper_outstanding_requests)
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-rate-kube_pod_container_status_restarts_total
+  monitoring_query: sum(rate(kube_pod_container_status_restarts_total{container="zookeeper"}[5m]))
+  monitoring_step: 15
+
+- name: measurements.managed-application-services-observability.sum-rate-kafka_log_log_size
+  monitoring_query: sum(rate(kafka_log_log_size{namespace=~"kafka-.*",strimzi_io_kind=~"Kafka"}[5m]))
+  monitoring_step: 15

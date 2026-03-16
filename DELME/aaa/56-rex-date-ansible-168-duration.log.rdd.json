@@ -1,0 +1,11 @@
+{
+  "group": "Core Platforms",
+  "product": "Red Hat Satellite",
+  "version": "satellite-6.16.0-0.5.stream.el9sat.noarch",
+  "release": "stream",
+  "date": "2024-06-09T09:39:15+00:00",
+  "link": "https://workdir-exporter-jenkins-csb-perf.apps.ocp-c1.prod.psi.redhat.com/workspace/ContPerfStreamEL9/run-2024-06-09T06:51:17+00:00/56-rex-date-ansible-168-duration.log",
+  "result_id": "run-2024-06-09T06:51:17+00:00",
+  "test": "56-rex-date-ansible-168-duration",
+  "result": "FAIL"
+}
