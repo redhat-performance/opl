@@ -374,7 +374,7 @@ class HorreumAPI:
             has_cd = bool(var.get("changeDetection"))
             cd_count = len(var.get("changeDetection", []))
             logger.info(
-                f"  [{i+1}] {var_name} (changeDetection: {has_cd}, entries: {cd_count})"
+                f"  [{i + 1}] {var_name} (changeDetection: {has_cd}, entries: {cd_count})"
             )
 
         try:
@@ -440,7 +440,7 @@ class HorreumAPI:
             )
             for i, var in enumerate(variables_data[:10]):  # Show first 10
                 logger.info(
-                    f"   {i+1}. {var.get('name', 'N/A')} (group: {var.get('group', 'N/A')})"
+                    f"   {i + 1}. {var.get('name', 'N/A')} (group: {var.get('group', 'N/A')})"
                 )
             if len(variables_data) > 10:
                 logger.info(f"   ... and {len(variables_data) - 10} more")
@@ -1550,7 +1550,7 @@ def main():
                 if label_name in existing_label_names:
                     skipped_labels.append(label_name)
                     logger.warning(
-                        f"Skipped {i+1}/{len(label_defs)}: {label_name} (already exists)"
+                        f"Skipped {i + 1}/{len(label_defs)}: {label_name} (already exists)"
                     )
                     continue
 
@@ -1558,10 +1558,10 @@ def main():
                 try:
                     label = api.create_label(schema_id, label_def)
                     created_labels.append(label)
-                    logger.info(f"Created {i+1}/{len(label_defs)}: {label_name}")
+                    logger.info(f"Created {i + 1}/{len(label_defs)}: {label_name}")
                 except Exception as e:
                     failed_labels.append((label_name, str(e)))
-                    logger.error(f"Failed {i+1}/{len(label_defs)}: {label_name} - {e}")
+                    logger.error(f"Failed {i + 1}/{len(label_defs)}: {label_name} - {e}")
         else:
             if not skip_labels:
                 logger.warning("Skipping label creation - no valid schema ID")
