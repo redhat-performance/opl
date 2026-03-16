@@ -50,7 +50,7 @@ def setup_logger(app_name, stderr_log_lvl):
 
 
 @contextmanager
-def test_setup(parser, logger_name="root"):
+def test_setup(parser, logger_name="root", args=None):
     parser.add_argument(
         "--status-data-file",
         default=os.getenv("STATUS_DATA_FILE", "/tmp/status-data.json"),
@@ -68,20 +68,20 @@ def test_setup(parser, logger_name="root"):
         action="store_true",
         help="Show debug output",
     )
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
 
-    if args.debug:
+    if parsed_args.debug:
         logger = setup_logger(logger_name, logging.DEBUG)
-    elif args.verbose:
+    elif parsed_args.verbose:
         logger = setup_logger(logger_name, logging.INFO)
     else:
         logger = setup_logger(logger_name, logging.WARNING)
 
-    logger.debug(f"Args: {args}")
+    logger.debug(f"Args: {parsed_args}")
 
-    sdata = status_data.StatusData(args.status_data_file)
+    sdata = status_data.StatusData(parsed_args.status_data_file)
 
     try:
-        yield (args, sdata)
+        yield (parsed_args, sdata)
     finally:
         sdata.save()

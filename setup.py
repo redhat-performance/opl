@@ -35,6 +35,7 @@ setuptools.setup(
             "black",
             "flake8",
             "pyfakefs",
+            "responses",
         ]
     },
 )

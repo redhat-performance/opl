@@ -12,5 +12,5 @@ class TestSkelet(unittest.TestCase):
         parser.add_argument(
             "--fake_arg", help="Just to catch test file name when calling tests"
         )
-        with opl.skelet.test_setup(parser) as (args, status_data):
+        with opl.skelet.test_setup(parser, args=[]) as (args, status_data):
             self.assertIn("debug", args)
