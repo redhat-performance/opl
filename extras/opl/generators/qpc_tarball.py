@@ -20,7 +20,9 @@ def get_tarball_message(account, remotename, size, download_url):
         "service": "qpc",
         "size": size,
         "url": download_url,
-        "b64_identity": opl.gen.get_auth_header(account, account).decode("UTF-8"),
+        "b64_identity": opl.gen.get_auth_header(account, account, account).decode(
+            "UTF-8"
+        ),
         "timestamp": opl.gen.gen_datetime().replace("+00:00", "Z"),
     }
     return json.dumps(data)

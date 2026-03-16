@@ -90,7 +90,7 @@ class pluginBase:
     def __init__(self):
         self.logger = logging.getLogger(str(self.__class__))
 
-    def set_args(parser, subparsers):
+    def set_args(self, parser, subparsers):
         pass
 
 

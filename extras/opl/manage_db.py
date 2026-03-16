@@ -5,12 +5,13 @@ import logging
 import time
 
 import psycopg2
+from psycopg2.errors import UndefinedTable  # pylint: disable=no-name-in-module
 
 import yaml
 
-from . import args
-from . import db
-from . import skelet
+from opl import args
+from opl import db
+from opl import skelet
 
 
 def execute_query(connection, query):
@@ -81,7 +82,7 @@ def recreate_table(connection, table, table_sql):
     logging.debug(f"Dropping table {table}")
     try:
         cursor.execute(f"DROP TABLE {table}")
-    except (psycopg2.InternalError, psycopg2.errors.UndefinedTable) as e:
+    except (psycopg2.InternalError, UndefinedTable) as e:
         logging.error(f"Failed to drop {table}: {e}")
         cursor = connection.cursor()
     connection.commit()

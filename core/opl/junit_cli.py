@@ -10,7 +10,7 @@ import re
 
 import requests
 
-from . import date
+from opl import date
 
 
 def now():
