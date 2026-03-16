@@ -95,6 +95,9 @@ Running unit tests
     source venv/bin/activate
     python -m pytest tests/
 
+This will also generate a test coverage report. The terminal will show a summary,
+and a detailed HTML report can be found in `htmlcov/index.html`.
+
 Notes
 ------------------
 * Our Jinja2 by default loads templates from the folder where the script `generic.py` is located.
