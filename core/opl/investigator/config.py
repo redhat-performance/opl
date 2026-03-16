@@ -169,4 +169,6 @@ def load_config(conf, fp):
             conf.decisions_es_server_verify = True
 
     if conf.decisions_type == "csv":
-        conf.decisions_filename = data["decisions"].get("file", data["decisions"].get("filename"))
+        conf.decisions_filename = data["decisions"].get(
+            "file", data["decisions"].get("filename")
+        )

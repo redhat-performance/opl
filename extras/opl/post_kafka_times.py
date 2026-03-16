@@ -18,7 +18,6 @@ import psycopg2.extras
 
 import yaml
 
-
 """
 You want to use this helper if you want to achieve this:
 

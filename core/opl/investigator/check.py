@@ -172,6 +172,7 @@ def check_by_stdev_3(data, value):
     """Checks if the current value is within 2 standard deviations of the mean of previous values"""
     return _check_by_stdev(data, value, 3)
 
+
 def check_by_provided_min_max(_, value, provided_min, provided_max):
     """Checks if the current value is simply withing provided min and max values (historical values not used at all)"""
     info = collections.OrderedDict(
@@ -198,7 +199,9 @@ def check(methods, data, value, description="N/A", verbose=True):
         method_args = method.get("args", [])
         result, info = globals()[method_name](data, value, *method_args)
         results.append(result)
-        logging.info(f"{method_name}({', '.join([str(i) for i in method_args])}) value {value} returned {'PASS' if result else 'FAIL'}")
+        logging.info(
+            f"{method_name}({', '.join([str(i) for i in method_args])}) value {value} returned {'PASS' if result else 'FAIL'}"
+        )
 
         info_full = collections.OrderedDict()
         info_full["description"] = description
