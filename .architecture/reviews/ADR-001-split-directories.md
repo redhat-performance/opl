@@ -1,4 +1,4 @@
-# Architecture Review: ADR-012 Reorganize Repository Structure
+# Architecture Review: ADR-001 Reorganize Repository Structure
 
 **Date**: 2024-05-24
 **Review Type**: Feature / Architecture Change
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This document reviews ADR-012, which proposes reorganizing the `opl` repository into a Split Directories pattern (using `core/opl/` and `extras/opl/`) with PEP 420 implicit namespace packages. The goal is to eliminate code duplication between core and full installations while enforcing a clean physical dependency boundary and maintaining existing `pip install` behaviors.
+This document reviews ADR-001, which proposes reorganizing the `opl` repository into a Split Directories pattern (using `core/opl/` and `extras/opl/`) with PEP 420 implicit namespace packages. The goal is to eliminate code duplication between core and full installations while enforcing a clean physical dependency boundary and maintaining existing `pip install` behaviors.
 
 **Overall Assessment**: Strong
 
@@ -25,7 +25,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 ## System Overview
 
-- **Target**: ADR-012 - Reorganize Repository Structure for Core and Full Installations
+- **Target**: ADR-001 - Reorganize Repository Structure for Core and Full Installations
 - **Scope**: Repository directory structure, packaging configuration (`setup.py`), and Python module layout.
 - **Key Technologies**: Python 3, `pip`, PEP 420 (Implicit Namespace Packages), `setuptools`.
 - **Architecture Style**: Monorepo / Workspace layout with meta-packaging.
@@ -380,7 +380,7 @@ Define measurable criteria to track improvement:
 ## Related Documentation
 
 **Architectural Decision Records**:
-- [ADR-012-reorganize-repository-structure-for-core-and-full-installations.md](../decisions/adrs/ADR-012-reorganize-repository-structure-for-core-and-full-installations.md) - The target of this review.
+- [ADR-001-reorganize-repository-structure-for-core-and-full-installations.md](../decisions/adrs/ADR-001-reorganize-repository-structure-for-core-and-full-installations.md) - The target of this review.
 
 ---
 
