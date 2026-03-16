@@ -1561,7 +1561,9 @@ def main():
                     logger.info(f"Created {i + 1}/{len(label_defs)}: {label_name}")
                 except Exception as e:
                     failed_labels.append((label_name, str(e)))
-                    logger.error(f"Failed {i + 1}/{len(label_defs)}: {label_name} - {e}")
+                    logger.error(
+                        f"Failed {i + 1}/{len(label_defs)}: {label_name} - {e}"
+                    )
         else:
             if not skip_labels:
                 logger.warning("Skipping label creation - no valid schema ID")

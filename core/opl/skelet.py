@@ -4,7 +4,7 @@ import os
 import time
 from contextlib import contextmanager
 
-from . import status_data
+from opl import status_data
 
 
 def setup_logger(app_name, stderr_log_lvl):

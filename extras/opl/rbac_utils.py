@@ -78,14 +78,14 @@ class TestRequestedInfo(unittest.TestCase):
 
     def test_empty(self):
         data = RbacTestData()
-        self.assertEquals(data.get_accounts(), [])
+        self.assertEqual(data.get_accounts(), [])
 
     def test_add_get(self):
         data = RbacTestData()
         data.add_account("10001", ["aaa", "bbb"], ["xxx", "yyy", "zzz"])
-        self.assertEquals(set(data.get_accounts()), set(["10001"]))
-        self.assertEquals(set(data.get_users_for_account("10001")), set(["aaa", "bbb"]))
-        self.assertEquals(
+        self.assertEqual(set(data.get_accounts()), set(["10001"]))
+        self.assertEqual(set(data.get_users_for_account("10001")), set(["aaa", "bbb"]))
+        self.assertEqual(
             set(data.get_applications_for_account("10001")), set(["xxx", "yyy", "zzz"])
         )
 
@@ -93,19 +93,19 @@ class TestRequestedInfo(unittest.TestCase):
         data = RbacTestData()
         data.add_account("10001", ["aaa", "bbb"], ["xxx"])
         data.add_account("10002", ["ccc", "ddd"], ["yyy"])
-        self.assertEquals(set(data.get_accounts()), set(["10001", "10002"]))
-        self.assertEquals(set(data.get_users_for_account("10001")), set(["aaa", "bbb"]))
-        self.assertEquals(set(data.get_users_for_account("10002")), set(["ccc", "ddd"]))
+        self.assertEqual(set(data.get_accounts()), set(["10001", "10002"]))
+        self.assertEqual(set(data.get_users_for_account("10001")), set(["aaa", "bbb"]))
+        self.assertEqual(set(data.get_users_for_account("10002")), set(["ccc", "ddd"]))
 
     def test_add_merge(self):
         data = RbacTestData()
         data.add_account("10001", ["aaa", "bbb"], ["xxx"])
         data.add_account("10001", ["bbb", "ccc"], ["xxx", "yyy", "zzz"])
-        self.assertEquals(set(data.get_accounts()), set(["10001"]))
-        self.assertEquals(
+        self.assertEqual(set(data.get_accounts()), set(["10001"]))
+        self.assertEqual(
             set(data.get_users_for_account("10001")), set(["aaa", "bbb", "ccc"])
         )
-        self.assertEquals(
+        self.assertEqual(
             set(data.get_applications_for_account("10001")), set(["xxx", "yyy", "zzz"])
         )
 
@@ -115,6 +115,6 @@ class TestRequestedInfo(unittest.TestCase):
         data.add_account("10002", ["ccc", "ddd"], ["yyy", "zzz"])
         data.add_account("10003", ["eee"], ["zzz"])
         info = data.info()
-        self.assertEquals(info["accounts_count"], 3)
-        self.assertEquals(info["users_count"], 5)
-        self.assertEquals(info["applications_count"], 4)
+        self.assertEqual(info["accounts_count"], 3)
+        self.assertEqual(info["users_count"], 5)
+        self.assertEqual(info["applications_count"], 4)
