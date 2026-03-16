@@ -73,7 +73,12 @@ Installs only the lightweight core tools from `core/opl/` to minimize dependency
 
 **Extras Installation:**
 
-If you choose to install only the extras package, it is your responsibility to also install the core package, as extras modules depend on core functionality:
+Note: Do you really need to do this? If you do full installation, it does exactly this.
+
+If you choose to install only the extras package manually, it is your
+responsibility to also install the core package, as extras modules depend on
+core functionality (because setting that dependency for this package is not
+straight forward):
 
     python3 -m pip install "git+https://github.com/redhat-performance/opl.git#egg=opl-rhcloud-perf-team-core&subdirectory=core"
     python3 -m pip install "git+https://github.com/redhat-performance/opl.git#egg=opl-rhcloud-perf-team-extras&subdirectory=extras"
