@@ -1,4 +1,4 @@
-# ADR-012: Reorganize Repository Structure using Split Directories for Core and Full Installations
+# ADR-001: Reorganize Repository Structure using Split Directories for Core and Full Installations
 
 ## Status
 
