@@ -140,3 +140,19 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         self.assertTrue(decisions[1].startswith("metric1,PASS,check_by_provided_min_max,5,4.5,5.5,,,,"))
         self.assertTrue(decisions[2].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,"))
         self.assertTrue(decisions[3].startswith("metric2,PASS,check_by_min_max_0_1,1000,995.0,1005.0,,,,"))
+
+
+class TestCheckIsZero(unittest.TestCase):
+    def test_pass_when_zero(self):
+        result, info = opl.investigator.check.check_is_zero([], 0)
+        self.assertTrue(result)
+        self.assertEqual(info["lower_boundary"], 0)
+        self.assertEqual(info["upper_boundary"], 0)
+
+    def test_fail_when_positive(self):
+        result, _ = opl.investigator.check.check_is_zero([], 1)
+        self.assertFalse(result)
+
+    def test_fail_when_negative(self):
+        result, _ = opl.investigator.check.check_is_zero([], -1)
+        self.assertFalse(result)

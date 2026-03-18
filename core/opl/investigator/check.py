@@ -185,6 +185,19 @@ def check_by_provided_min_max(_, value, provided_min, provided_max):
     return provided_min <= value <= provided_max, info
 
 
+def check_is_zero(_, value):
+    """Checks if the current value is exactly zero (historical values not used at all)"""
+    info = collections.OrderedDict(
+        [
+            ("method", inspect.stack()[0][3]),
+            ("value", value),
+            ("lower_boundary", 0),
+            ("upper_boundary", 0),
+        ]
+    )
+    return value == 0, info
+
+
 def check(methods, data, value, description="N/A", verbose=True):
     assert value is not None, "Value to check should not be None"
 
