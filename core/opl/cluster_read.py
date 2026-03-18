@@ -72,6 +72,10 @@ def dir_path(path):
         raise argparse.ArgumentTypeError(f"{path} is not directory")
 
 
+class NoDataException(Exception):
+    pass
+
+
 class BasePlugin:
     def __init__(self, args):
         self.args = args
@@ -145,9 +149,8 @@ class PrometheusMeasurementsPlugin(BasePlugin):
         assert (
             "result" in json_response["data"]
         ), "'result' needs to be in response's 'data'"
-        assert (
-            len(json_response["data"]["result"]) != 0
-        ), "missing 'response' in response's 'data'"
+        if len(json_response["data"]["result"]) == 0:
+            raise NoDataException("missing 'response' in response's 'data'")
         assert (
             len(json_response["data"]["result"]) == 1
         ), "we need exactly one 'response' in response's 'data'"
@@ -579,6 +582,11 @@ class RequestedInfo:
                         output = instance.measure(self, self.config[i])
                     else:
                         output = instance.measure(self, **self.config[i])
+                except NoDataException as e:
+                    logging.warning(
+                        f"Failed to measure {self.config[i]['name']}: {e}"
+                    )
+                    output = (None, None)
                 except Exception as e:
                     logging.exception(
                         f"Failed to measure {self.config[i]['name']}: {e}"
