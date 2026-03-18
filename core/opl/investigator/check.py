@@ -19,20 +19,19 @@ def _count_deviation(value, lower_boundary, upper_boundary):
         return frac
 
 
-def _calculate_lower_upper_boundary(data, mean, comparator):
+def _calculate_lower_upper_boundary(data, comparator):
     """Returns the calculated lower and upper boundary of the data
 
     Args:
         data: collected history data
-        mean: mean of the collected history data
         comparator: defines the type of comparison to be done
 
     Returns:
         tuple with lower and upper boundary
     """
     assert isinstance(data, list), "Data provided have to be a list"
-    lower_boundary = float(mean - (mean - min(data)))
-    upper_boundary = float(mean + (max(data) - mean))
+    lower_boundary = float(min(data))
+    upper_boundary = float(max(data))
     if comparator == "lte_max":
         return (float("-inf"), upper_boundary)
     elif comparator == "gte_min":
@@ -71,7 +70,7 @@ def _check_by_min_max(data, value, comparator):
     logging.debug(f"data={data} and value={value}")
     mean = statistics.mean(data)
     lower_boundary, upper_boundary = _calculate_lower_upper_boundary(
-        data, mean, comparator
+        data, comparator
     )
     logging.info(
         f"value={value}, data len={len(data)} mean={mean:.03f}, i.e. boundaries={lower_boundary:.03f}--{upper_boundary:.03f}"
@@ -210,5 +209,8 @@ def check(methods, data, value, description="N/A", verbose=True):
         info_full["deviation"] = _count_deviation(
             value, info["lower_boundary"], info["upper_boundary"]
         )
+        for k, v in info_full.items():
+            if isinstance(v, float) and v in (float("inf"), float("-inf")):
+                info_full[k] = None
         info_all.append(info_full)
     return results, info_all
