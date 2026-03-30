@@ -26,7 +26,7 @@ def doit_seek_to_end(args):
     # Seek to end
     for attempt in range(10):
         try:
-            consumer.poll(timeout_ms=0)
+            consumer.poll(timeout_ms=5000)
             consumer.seek_to_end()
         except AssertionError as e:
             logging.warning(f"Retrying as seek to end failed with: {e}")
