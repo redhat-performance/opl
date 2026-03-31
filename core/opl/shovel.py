@@ -9,6 +9,7 @@ import os
 import re
 import urllib3
 import urllib.parse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from opl import skelet
 from opl import retry
@@ -257,6 +258,30 @@ class pluginOpenSearch(pluginBase):
 
 
 class pluginHorreum(pluginBase):
+    def __init__(self):
+        super().__init__()
+        self.session = requests.Session()
+
+    @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
+    def _session_get(self, *args, **kwargs):
+        """Wrapper for session.get with retry logic."""
+        return self.session.get(*args, **kwargs)
+
+    @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
+    def _session_post(self, *args, **kwargs):
+        """Wrapper for session.post with retry logic."""
+        return self.session.post(*args, **kwargs)
+
+    @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
+    def _session_put(self, *args, **kwargs):
+        """Wrapper for session.put with retry logic."""
+        return self.session.put(*args, **kwargs)
+
+    @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
+    def _session_delete(self, *args, **kwargs):
+        """Wrapper for session.delete with retry logic."""
+        return self.session.delete(*args, **kwargs)
+
     def _setup(self, args):
         # FIXME
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -268,7 +293,7 @@ class pluginHorreum(pluginBase):
 
         if "test_name" in args:
             self.logger.debug(f"Getting test id for {args.test_name}")
-            response = _requests_get_with_retry(
+            response = self._session_get(
                 f"{args.base_url}/api/test/byName/{args.test_name}",
                 headers=self.headers,
                 verify=False,
@@ -303,7 +328,7 @@ class pluginHorreum(pluginBase):
             f"Searching if result {args.matcher_label}={matcher_value} is already there"
         )
         filter_data = {args.matcher_label: matcher_value}
-        response = _requests_get_with_retry(
+        response = self._session_get(
             f"{args.base_url}/api/dataset/list/byTest/{self.test_id}",
             headers=self.headers,
             params={"filter": json.dumps(filter_data)},
@@ -328,7 +353,7 @@ class pluginHorreum(pluginBase):
                 "sort": "start",
                 "direction": "Descending",
             }
-            response = _requests_get_with_retry(
+            response = self._session_get(
                 f"{args.base_url}/api/run/list/{self.test_id}",
                 headers=self.headers,
                 params=params,
@@ -337,28 +362,41 @@ class pluginHorreum(pluginBase):
             _check_response(self.logger, response)
             runs = response.json().get("runs", [])
 
-            for run in runs:
-                # Un-trashed runs were examined already, so we can skipp these
-                if run["trashed"] is False:
-                    continue
+            # Filter to only trashed runs to avoid re-checking un-trashed ones
+            trashed_runs = [run for run in runs if run["trashed"] is True]
 
-                response = _requests_get_with_retry(
-                    f"{args.base_url}/api/run/{run['id']}/data",
-                    headers=self.headers,
-                    verify=False,
-                )
-                _check_response(self.logger, response)
-                run_data = response.json()
-                try:
-                    marker = _get_field_value(args.matcher_field, run_data)
-                except KeyError:
-                    pass  # If matcher was not found in data, we can assume this is not a duplicate
-                else:
-                    if marker == matcher_value:
-                        print(
-                            f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload"
+            if trashed_runs:
+                self.logger.debug(f"Checking {len(trashed_runs)} trashed runs concurrently")
+
+                def check_run_data(run):
+                    """Check if a single run matches the matcher value."""
+                    try:
+                        response = self._session_get(
+                            f"{args.base_url}/api/run/{run['id']}/data",
+                            headers=self.headers,
+                            verify=False,
                         )
-                        return
+                        _check_response(self.logger, response)
+                        run_data = response.json()
+                        marker = _get_field_value(args.matcher_field, run_data)
+                        return marker == matcher_value
+                    except (KeyError, Exception):
+                        # If matcher was not found or request failed, assume not a duplicate
+                        return False
+
+                # Check runs concurrently with max 5 workers to avoid overwhelming the server
+                with ThreadPoolExecutor(max_workers=5) as executor:
+                    future_to_run = {executor.submit(check_run_data, run): run for run in trashed_runs}
+
+                    for future in as_completed(future_to_run):
+                        if future.result():
+                            # Found a match - cancel remaining futures and exit
+                            for f in future_to_run:
+                                f.cancel()
+                            print(
+                                f"Result {args.matcher_field}={matcher_value} is trashed, but already there, skipping upload"
+                            )
+                            return
 
         logging.info("Uploading")
         params = {
@@ -368,7 +406,7 @@ class pluginHorreum(pluginBase):
             "owner": args.owner,
             "access": args.access,
         }
-        response = requests.post(
+        response = self._session_post(
             f"{args.base_url}/api/run/data",
             params=params,
             headers=self.headers,
@@ -396,7 +434,7 @@ class pluginHorreum(pluginBase):
         self._setup(args)
 
         self.logger.debug(f"Loading list of alerting variables for test {self.test_id}")
-        response = _requests_get_with_retry(
+        response = self._session_get(
             f"{args.base_url}/api/alerting/variables",
             params={"test": self.test_id},
             verify=False,
@@ -410,37 +448,56 @@ class pluginHorreum(pluginBase):
         end_str = end.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         change_detected = False
-        for alerting_variable in alerting_variables:
-            self.logger.debug(
-                f"Getting changes for alerting variable {alerting_variable}"
-            )
 
-            range_data = {
-                "range": {
-                    "from": start_str,
-                    "to": end_str,
-                    "oneBeforeAndAfter": True,
-                },
-                "annotation": {"query": alerting_variable["id"]},
-            }
-            response = requests.post(
-                f"{args.base_url}/api/changes/annotations",
-                headers=self.headers,
-                json=range_data,
-                verify=False,
-            )
-            _check_response(self.logger, response)
-            response = response.json()
+        if not alerting_variables:
+            self.logger.info("No alerting variables configured for this test")
+        else:
+            self.logger.debug(f"Checking {len(alerting_variables)} alerting variables concurrently")
 
-            # Check if the result is not an empty list
-            if len(response) > 0:
-                self.logger.info(
-                    f"For {alerting_variable['name']} detected change {response}"
-                )
-                change_detected = True
-                break
-            else:
-                self.logger.info(f"For {alerting_variable['name']} all looks good")
+            def check_alerting_variable(alerting_variable):
+                """Check a single alerting variable for changes."""
+                try:
+                    range_data = {
+                        "range": {
+                            "from": start_str,
+                            "to": end_str,
+                            "oneBeforeAndAfter": True,
+                        },
+                        "annotation": {"query": alerting_variable["id"]},
+                    }
+                    response = self._session_post(
+                        f"{args.base_url}/api/changes/annotations",
+                        headers=self.headers,
+                        json=range_data,
+                        verify=False,
+                    )
+                    _check_response(self.logger, response)
+                    changes = response.json()
+
+                    if len(changes) > 0:
+                        return (True, alerting_variable, changes)
+                    else:
+                        return (False, alerting_variable, None)
+                except Exception as e:
+                    self.logger.warning(f"Error checking {alerting_variable.get('name', 'unknown')}: {e}")
+                    return (False, alerting_variable, None)
+
+            # Check alerting variables concurrently with max 10 workers
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                future_to_var = {executor.submit(check_alerting_variable, var): var for var in alerting_variables}
+
+                for future in as_completed(future_to_var):
+                    has_change, var, changes = future.result()
+
+                    if has_change:
+                        self.logger.info(f"For {var['name']} detected change {changes}")
+                        change_detected = True
+                        # Cancel remaining futures for early termination
+                        for f in future_to_var:
+                            f.cancel()
+                        break
+                    else:
+                        self.logger.info(f"For {var['name']} all looks good")
 
         result = "FAIL" if change_detected else "PASS"
 
@@ -465,7 +522,7 @@ class pluginHorreum(pluginBase):
 
         self.logger.debug(f"Listing results for test {args.test_name}")
         while True:
-            response = _requests_get_with_retry(
+            response = self._session_get(
                 f"{args.base_url}/api/run/list/{self.test_id}",
                 headers=self.headers,
                 params=params,
@@ -486,7 +543,7 @@ class pluginHorreum(pluginBase):
         self._setup(args)
 
         self.logger.debug(f"Geting data for run {args.run_id}")
-        response = _requests_get_with_retry(
+        response = self._session_get(
             f"{args.base_url}/api/run/{args.run_id}/data",
             headers=self.headers,
             verify=False,
@@ -497,7 +554,7 @@ class pluginHorreum(pluginBase):
 
     def _schema_uri_to_id(self, base_url, schema_uri):
         self.logger.debug(f"Geting schema ID for URI {schema_uri}")
-        response = _requests_get_with_retry(
+        response = self._session_get(
             f"{base_url}/api/schema/idByUri/{schema_uri}",
             headers=self.headers,
             verify=False,
@@ -512,7 +569,7 @@ class pluginHorreum(pluginBase):
 
     def _schema_id_labels(self, args, schema_id):
         self.logger.debug(f"Getting list of labels for schema ID {schema_id}")
-        response = _requests_get_with_retry(
+        response = self._session_get(
             f"{args.base_url}/api/schema/{schema_id}/labels",
             headers=self.headers,
             verify=False,
@@ -568,7 +625,7 @@ class pluginHorreum(pluginBase):
         }
 
         self.logger.debug(f"Adding label to schema id {schema_id}: {new}")
-        response = requests.post(
+        response = self._session_post(
             f"{args.base_url}/api/schema/{schema_id}/labels",
             headers=self.headers,
             verify=False,
@@ -650,7 +707,7 @@ class pluginHorreum(pluginBase):
             )
         else:
             self.logger.debug(f"Updating label in schema id {schema_id}: {new}")
-            response = requests.put(
+            response = self._session_put(
                 f"{args.base_url}/api/schema/{schema_id}/labels",
                 headers=self.headers,
                 verify=False,
@@ -666,7 +723,7 @@ class pluginHorreum(pluginBase):
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
 
         self.logger.debug(f"Deleting label ID {args.id} from schema ID {schema_id}")
-        response = requests.delete(
+        response = self._session_delete(
             f"{args.base_url}/api/schema/{schema_id}/labels/{args.id}",
             headers=self.headers,
             verify=False,
@@ -736,8 +793,8 @@ class pluginHorreum(pluginBase):
         )
         subparser.add_argument(
             "--trashed-workaround-count",
-            default=10,
-            help="When listing runs (including trashed ones) sorted in descending order, only check this many",
+            default=20,
+            help="When listing runs (including trashed ones) sorted in descending order, only check this many (checked concurrently)",
         )
 
         # Options for detecting no-/change signal
