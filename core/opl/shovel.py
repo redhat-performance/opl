@@ -366,7 +366,9 @@ class pluginHorreum(pluginBase):
             trashed_runs = [run for run in runs if run["trashed"] is True]
 
             if trashed_runs:
-                self.logger.debug(f"Checking {len(trashed_runs)} trashed runs concurrently")
+                self.logger.debug(
+                    f"Checking {len(trashed_runs)} trashed runs concurrently"
+                )
 
                 def check_run_data(run):
                     """Check if a single run matches the matcher value."""
@@ -386,7 +388,10 @@ class pluginHorreum(pluginBase):
 
                 # Check runs concurrently with max 5 workers to avoid overwhelming the server
                 with ThreadPoolExecutor(max_workers=5) as executor:
-                    future_to_run = {executor.submit(check_run_data, run): run for run in trashed_runs}
+                    future_to_run = {
+                        executor.submit(check_run_data, run): run
+                        for run in trashed_runs
+                    }
 
                     for future in as_completed(future_to_run):
                         if future.result():
@@ -452,7 +457,9 @@ class pluginHorreum(pluginBase):
         if not alerting_variables:
             self.logger.info("No alerting variables configured for this test")
         else:
-            self.logger.debug(f"Checking {len(alerting_variables)} alerting variables concurrently")
+            self.logger.debug(
+                f"Checking {len(alerting_variables)} alerting variables concurrently"
+            )
 
             def check_alerting_variable(alerting_variable):
                 """Check a single alerting variable for changes."""
@@ -479,12 +486,17 @@ class pluginHorreum(pluginBase):
                     else:
                         return (False, alerting_variable, None)
                 except Exception as e:
-                    self.logger.warning(f"Error checking {alerting_variable.get('name', 'unknown')}: {e}")
+                    self.logger.warning(
+                        f"Error checking {alerting_variable.get('name', 'unknown')}: {e}"
+                    )
                     return (False, alerting_variable, None)
 
             # Check alerting variables concurrently with max 10 workers
             with ThreadPoolExecutor(max_workers=10) as executor:
-                future_to_var = {executor.submit(check_alerting_variable, var): var for var in alerting_variables}
+                future_to_var = {
+                    executor.submit(check_alerting_variable, var): var
+                    for var in alerting_variables
+                }
 
                 for future in as_completed(future_to_var):
                     has_change, var, changes = future.result()
