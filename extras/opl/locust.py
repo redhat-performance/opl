@@ -6,8 +6,6 @@ import time
 import gevent
 
 from locust import env as l_env  # pylint: disable=no-name-in-module
-from locust import log as l_log  # pylint: disable=no-name-in-module
-from locust import stats as l_stats  # pylint: disable=no-name-in-module
 
 import tabulate
 
