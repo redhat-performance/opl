@@ -12,7 +12,9 @@ from locust import stats as l_stats  # pylint: disable=no-name-in-module
 import tabulate
 
 
-def run_locust(args, status_data, test_set, new_stats=False, summary_only=False):
+def run_locust(
+    args, status_data, test_set, new_stats=False, summary_only=False, sort_stats=False
+):
     # Local runner is True by default, bot overwrite it if we have selected
     # master or worker runner
     assert not (
@@ -81,7 +83,9 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
         status_data.set_now("results.end")
         logging.info("Local Locust run finished")
 
-        return show_locust_stats(env.stats, status_data, new_stats, summary_only)
+        return show_locust_stats(
+            env.stats, status_data, new_stats, summary_only, sort_stats
+        )
 
     elif args.locust_master_runner:
         env.create_master_runner(
@@ -122,7 +126,9 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
         status_data.set_now("results.end")
         logging.info("Master Locust run finished")
 
-        return show_locust_stats(env.stats, status_data, new_stats, summary_only)
+        return show_locust_stats(
+            env.stats, status_data, new_stats, summary_only, sort_stats
+        )
 
     elif args.locust_worker_runner:
         env.create_worker_runner(
@@ -146,7 +152,9 @@ def run_locust(args, status_data, test_set, new_stats=False, summary_only=False)
         raise Exception("No runner specified")
 
 
-def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
+def show_locust_stats(
+    locust_stats, status_data, new_stats, summary_only, sort_stats=False
+):
     """
     Print Locust stats obejct and format nice table of it.
     Also add values to status data object.
@@ -172,7 +180,12 @@ def show_locust_stats(locust_stats, status_data, new_stats, summary_only):
     sum_total_response_time = 0.0
     sum_total_content_length = 0
     sum_total_rps = 0.0
-    for name, value in locust_stats.entries.items():
+    entries = (
+        sorted(locust_stats.entries.items())
+        if sort_stats
+        else locust_stats.entries.items()
+    )
+    for name, value in entries:
         sum_count += value.num_requests
         sum_failures += value.num_failures
         sum_total_response_time += value.median_response_time * value.num_requests
