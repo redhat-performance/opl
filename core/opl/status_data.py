@@ -6,6 +6,7 @@ import logging
 import os
 import os.path
 import pprint
+import re
 import tempfile
 
 import deepdiff
@@ -322,7 +323,12 @@ def doit_set(status_data, set_this):
             logging.warning("Got empty key=value pair to set - ignoring it")
             continue
 
-        key, value = item.split("=")
+        if not re.match(r"^[^=]+=.*$", item):
+            msg = f"Invalid format for --set argument: '{item}'. Expected format: 'key=value'"
+            logging.error(msg)
+            raise ValueError(msg)
+
+        key, value = item.split("=", 1)
 
         if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
             value = value[1:-1]
@@ -353,7 +359,12 @@ def doit_set_subtree_json(status_data, set_this):
             logging.warning("Got empty key=value pair to set - ignoring it")
             continue
 
-        key, value = item.split("=")
+        if not re.match(r"^[^=]+=.*$", item):
+            msg = f"Invalid format for --set argument: '{item}'. Expected format: 'key=value' with non-empty key"
+            logging.error(msg)
+            raise ValueError(msg)
+
+        key, value = item.split("=", 1)
 
         logging.debug(f"Setting {key} = {value} (JSON file)")
         status_data.set_subtree_json(key, value)

@@ -404,3 +404,17 @@ class TestStatusData(unittest.TestCase):
         self.status_data.set("aaa", 123)
         with self.assertRaises(AssertionError):
             self.status_data.set("aaa[]", 123)
+
+    def test_invalid_set_argument(self):
+        with self.assertRaises(ValueError):
+            opl.status_data.doit_set(self.status_data, ["=somevalue"])
+        with self.assertRaises(ValueError):
+            opl.status_data.doit_set(self.status_data, ["no_equals_sign"])
+        with self.assertRaises(ValueError):
+            opl.status_data.doit_set_subtree_json(self.status_data, ["=somevalue"])
+        with self.assertRaises(ValueError):
+            opl.status_data.doit_set_subtree_json(self.status_data, ["no_equals_sign"])
+
+    def test_valid_empty_value_set_argument(self):
+        opl.status_data.doit_set(self.status_data, ["mykey="])
+        self.assertEqual(self.status_data.get("mykey"), "")
