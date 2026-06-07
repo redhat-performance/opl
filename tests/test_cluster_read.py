@@ -6,6 +6,8 @@ import tempfile
 import os
 import argparse
 import datetime
+from urllib.parse import parse_qs, urlparse
+
 import responses
 
 from .context import opl
@@ -211,16 +213,24 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(k, None)
         self.assertEqual(v, None)
 
+
 class TestGrafanaPlugin(unittest.TestCase):
 
     mock_post_get_load_simple = {
         "mock": {
             "method": responses.POST,
-            "url": 'http://grafana.example.com:443/api/datasources/proxy/42/render',
-            "json": [{
-                'target': 'someprefix.node001_example_com.load.load.shortterm',
-                'datapoints': [[10.0, 1740787205], [15.0, 1740787220], [5.0, 1740787235], [10.0, 1740787250]]
-            }],
+            "url": "http://grafana.example.com:443/api/datasources/proxy/42/render",
+            "json": [
+                {
+                    "target": "someprefix.node001_example_com.load.load.shortterm",
+                    "datapoints": [
+                        [10.0, 1740787205],
+                        [15.0, 1740787220],
+                        [5.0, 1740787235],
+                        [10.0, 1740787250],
+                    ],
+                }
+            ],
             "status": 200,
         },
         "args": argparse.Namespace(
@@ -324,3 +334,209 @@ class TestGrafanaPlugin(unittest.TestCase):
         self.assertEqual(v["enritchment"]["hello"], "world")
         self.assertEqual(v["enritchment"]["answer"], 42)
         self.assertNotIn("variables", v)
+
+    mock_post_get_batch = {
+        "mock": {
+            "method": responses.POST,
+            "url": "http://grafana.example.com:443/api/datasources/proxy/42/render",
+            "json": [
+                {
+                    "target": "someprefix.node001_example_com.load.load.shortterm",
+                    "datapoints": [[10.0, 1740787205], [15.0, 1740787220]],
+                },
+                {
+                    "target": "someprefix.node001_example_com.memory.memory-used",
+                    "datapoints": [[1000.0, 1740787205], [2000.0, 1740787220]],
+                },
+                {
+                    "target": "someprefix.node001_example_com.swap.swap-used",
+                    "datapoints": [[100.0, 1740787205], [200.0, 1740787220]],
+                },
+            ],
+            "status": 200,
+        },
+        "args": argparse.Namespace(
+            grafana_host="http://grafana.example.com",
+            grafana_port=443,
+            grafana_prefix="someprefix",
+            grafana_datasource=42,
+            grafana_interface="interface-enp2s0",
+            grafana_token="secret",
+            grafana_node="node001_example_com",
+            grafana_chunk_size=10,
+        ),
+        "start": datetime.datetime.fromisoformat("2025-03-01T00:00:00+00:00"),
+        "end": datetime.datetime.fromisoformat("2025-03-01T00:01:00+00:00"),
+    }
+
+    @responses.activate
+    def test_batch_consecutive_targets(self):
+        """Consecutive Grafana items are batched into one HTTP request."""
+        responses.add(**self.mock_post_get_batch["mock"])
+
+        string = """
+            - name: measurement.load
+              grafana_target: $Cloud.$Node.load.load.shortterm
+            - name: measurement.memory
+              grafana_target: $Cloud.$Node.memory.memory-used
+            - name: measurement.swap
+              grafana_target: $Cloud.$Node.swap.swap-used
+        """
+
+        ri = opl.cluster_read.RequestedInfo(
+            string,
+            start=self.mock_post_get_batch["start"],
+            end=self.mock_post_get_batch["end"],
+            args=self.mock_post_get_batch["args"],
+        )
+        results = list(ri)
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0][0], "measurement.load")
+        self.assertEqual(int(results[0][1]["mean"]), 12)
+        self.assertEqual(results[1][0], "measurement.memory")
+        self.assertEqual(int(results[1][1]["mean"]), 1500)
+        self.assertEqual(results[2][0], "measurement.swap")
+        self.assertEqual(int(results[2][1]["mean"]), 150)
+        # Only one HTTP request should have been made
+        self.assertEqual(len(responses.calls), 1)
+        # All parameters must be in POST body, not query string
+        req = responses.calls[0].request
+        self.assertEqual(urlparse(req.url).query, "")
+        body = parse_qs(req.body)
+        self.assertEqual(len(body["target"]), 3)
+        self.assertIn("from", body)
+        self.assertIn("until", body)
+        self.assertIn("format", body)
+
+    @responses.activate
+    def test_batch_fallback_on_failure(self):
+        """On batch failure, falls back to individual measure() calls."""
+        # First call (batch) fails, next 3 individual calls succeed
+        responses.add(
+            method=responses.POST,
+            url="http://grafana.example.com:443/api/datasources/proxy/42/render",
+            json={"error": "server error"},
+            status=500,
+        )
+        for target_data in self.mock_post_get_batch["mock"]["json"]:
+            responses.add(
+                method=responses.POST,
+                url="http://grafana.example.com:443/api/datasources/proxy/42/render",
+                json=[target_data],
+                status=200,
+            )
+
+        string = """
+            - name: measurement.load
+              grafana_target: $Cloud.$Node.load.load.shortterm
+            - name: measurement.memory
+              grafana_target: $Cloud.$Node.memory.memory-used
+            - name: measurement.swap
+              grafana_target: $Cloud.$Node.swap.swap-used
+        """
+
+        ri = opl.cluster_read.RequestedInfo(
+            string,
+            start=self.mock_post_get_batch["start"],
+            end=self.mock_post_get_batch["end"],
+            args=self.mock_post_get_batch["args"],
+        )
+        results = list(ri)
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0][0], "measurement.load")
+        self.assertEqual(int(results[0][1]["mean"]), 12)
+        self.assertEqual(results[1][0], "measurement.memory")
+        self.assertEqual(int(results[1][1]["mean"]), 1500)
+        self.assertEqual(results[2][0], "measurement.swap")
+        self.assertEqual(int(results[2][1]["mean"]), 150)
+
+    @responses.activate
+    def test_batch_boundary_at_non_grafana_item(self):
+        """Non-Grafana items between Grafana items create batch boundaries."""
+        # Two separate batch requests expected
+        responses.add(
+            method=responses.POST,
+            url="http://grafana.example.com:443/api/datasources/proxy/42/render",
+            json=[self.mock_post_get_batch["mock"]["json"][0]],
+            status=200,
+        )
+        responses.add(
+            method=responses.POST,
+            url="http://grafana.example.com:443/api/datasources/proxy/42/render",
+            json=[self.mock_post_get_batch["mock"]["json"][2]],
+            status=200,
+        )
+
+        string = """
+            - name: measurement.load
+              grafana_target: $Cloud.$Node.load.load.shortterm
+            - name: measurement.group
+              constant: mygroup
+            - name: measurement.swap
+              grafana_target: $Cloud.$Node.swap.swap-used
+        """
+
+        ri = opl.cluster_read.RequestedInfo(
+            string,
+            start=self.mock_post_get_batch["start"],
+            end=self.mock_post_get_batch["end"],
+            args=self.mock_post_get_batch["args"],
+        )
+        results = list(ri)
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0][0], "measurement.load")
+        self.assertEqual(results[1][0], "measurement.group")
+        self.assertEqual(results[1][1], "mygroup")
+        self.assertEqual(results[2][0], "measurement.swap")
+        # Two HTTP requests (two batches, split by constant)
+        self.assertEqual(len(responses.calls), 2)
+
+    @responses.activate
+    def test_batch_output_matches_individual_output(self):
+        """Batched output must be identical to single-item output."""
+        string = """
+            - name: measurement.load
+              grafana_target: $Cloud.$Node.load.load.shortterm
+            - name: measurement.memory
+              grafana_target: $Cloud.$Node.memory.memory-used
+            - name: measurement.swap
+              grafana_target: $Cloud.$Node.swap.swap-used
+        """
+
+        # Run with chunk_size=1 (individual requests, old behavior)
+        for target_data in self.mock_post_get_batch["mock"]["json"]:
+            responses.add(
+                method=responses.POST,
+                url="http://grafana.example.com:443/api/datasources/proxy/42/render",
+                json=[target_data],
+                status=200,
+            )
+
+        args_single = argparse.Namespace(
+            **{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 1}
+        )
+        single = list(
+            opl.cluster_read.RequestedInfo(
+                string,
+                start=self.mock_post_get_batch["start"],
+                end=self.mock_post_get_batch["end"],
+                args=args_single,
+            )
+        )
+
+        # Run with chunk_size=50 (batched, new behavior)
+        responses.add(**self.mock_post_get_batch["mock"])
+
+        args_batched = argparse.Namespace(
+            **{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 50}
+        )
+        batched = list(
+            opl.cluster_read.RequestedInfo(
+                string,
+                start=self.mock_post_get_batch["start"],
+                end=self.mock_post_get_batch["end"],
+                args=args_batched,
+            )
+        )
+
+        self.assertEqual(single, batched)

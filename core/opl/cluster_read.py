@@ -191,11 +191,54 @@ class PrometheusMeasurementsPlugin(BasePlugin):
 
 
 class GrafanaMeasurementsPlugin(BasePlugin):
+    def __init__(self, args):
+        super().__init__(args)
+        self._session = requests.Session()
+
+    @property
+    def batch_size(self):
+        return getattr(self.args, "grafana_chunk_size", 50)
+
+    @staticmethod
+    def _empty_timerange(ri):
+        return (
+            ri.start is None
+            or ri.end is None
+            or int(ri.start.timestamp()) == int(ri.end.timestamp())
+        )
+
     def _sanitize_target(self, target):
         target = target.replace("$Node", self.args.grafana_node)
         target = target.replace("$Interface", self.args.grafana_interface)
         target = target.replace("$Cloud", self.args.grafana_prefix)
         return target
+
+    def _fetch_targets(self, ri, targets):
+        """Fetch one or more targets in a single Graphite render request."""
+        headers = {"Accept": "application/json, text/plain, */*"}
+        if self.args.grafana_token is not None:
+            headers["Authorization"] = "Bearer %s" % self.args.grafana_token
+        params = {
+            "target": targets,
+            "from": int(ri.start.timestamp()),
+            "until": round(ri.end.timestamp()),
+            "format": "json",
+        }
+        url = (
+            f"{self.args.grafana_host}:{self.args.grafana_port}"
+            f"/api/datasources/proxy/{self.args.grafana_datasource}/render"
+        )
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        r = self._session.post(
+            url=url, headers=headers, data=params, timeout=60, verify=False
+        )
+        if (
+            not r.ok
+            or r.headers["Content-Type"] != "application/json"
+            or r.json() == []
+        ):
+            _debug_response(r)
+        return r.json()
 
     @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
     def measure(
@@ -209,51 +252,90 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         assert (
             ri.start is not None and ri.end is not None
         ), "We need timerange to approach Grafana"
-        if ri.start.strftime("%s") == ri.end.strftime("%s"):
+        if self._empty_timerange(ri):
             return name, None
 
-        # Metadata for the request
-        headers = {
-            "Accept": "application/json, text/plain, */*",
+        response = self._fetch_targets(ri, [self._sanitize_target(grafana_target)])
+        logging.debug("Response: %s" % response)
+
+        points = [float(i[0]) for i in response[0]["datapoints"] if i[0] is not None]
+        item = {
+            "grafana_enritchment": grafana_enritchment,
+            "grafana_include_vars": grafana_include_vars,
         }
-        if self.args.grafana_token is not None:
-            headers["Authorization"] = "Bearer %s" % self.args.grafana_token
-        params = {
-            "target": [self._sanitize_target(grafana_target)],
-            "from": int(ri.start.timestamp()),
-            "until": round(ri.end.timestamp()),
-            "format": "json",
-        }
-        url = f"{self.args.grafana_host}:{self.args.grafana_port}/api/datasources/proxy/{self.args.grafana_datasource}/render"
+        stats = self._apply_item_extras(data.data_stats(points), item)
 
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        r = requests.post(
-            url=url, headers=headers, params=params, timeout=60, verify=False
-        )
-        if (
-            not r.ok
-            or r.headers["Content-Type"] != "application/json"
-            or r.json() == []
-        ):
-            _debug_response(r)
-        logging.debug("Response: %s" % r.json())
+        return name, stats
 
-        points = [float(i[0]) for i in r.json()[0]["datapoints"] if i[0] is not None]
-        stats = data.data_stats(points)
+    def _apply_item_extras(self, stats, item):
+        """Apply per-item enritchment and variables to computed stats."""
+        if stats is None:
+            return stats
 
-        # Add user defined data to the computed stats
-        if grafana_enritchment is not None and grafana_enritchment != {}:
-            stats["enritchment"] = grafana_enritchment
+        enritchment = item.get("grafana_enritchment", {})
+        if enritchment:
+            stats["enritchment"] = enritchment
 
-        # If requested, add info about what variables were used to the computed stats
-        if grafana_include_vars:
+        if item.get("grafana_include_vars", False):
             stats["variables"] = {
                 "$Node": self.args.grafana_node,
                 "$Interface": self.args.grafana_interface,
                 "$Cloud": self.args.grafana_prefix,
             }
 
-        return name, stats
+        return stats
+
+    def _measure_batched(self, ri, config_items):
+        """Fetch multiple Grafana items in a single HTTP request.
+
+        We rely on Graphite preserving request order here.
+        A malformed response that silently omits an interior target
+        could cause positional mismatches for later items.
+        """
+        targets = [
+            self._sanitize_target(item["grafana_target"]) for item in config_items
+        ]
+        response = self._fetch_targets(ri, targets)
+
+        results = []
+        for idx, item in enumerate(config_items):
+            if idx < len(response):
+                points = [
+                    float(p[0]) for p in response[idx]["datapoints"] if p[0] is not None
+                ]
+                stats = self._apply_item_extras(data.data_stats(points), item)
+            else:
+                stats = self._apply_item_extras(data.data_stats([]), item)
+            results.append((item["name"], stats))
+
+        logging.debug(f"Batched {len(results)} Grafana targets in one request")
+        return results
+
+    def measure_many(self, ri, config_items):
+        """Execute a group of Grafana items with batch-first, per-target-fallback.
+
+        Tries a single batched HTTP request for all items. On failure,
+        degrades to individual measure() calls (each with its own retry)
+        to isolate failures per target.
+        """
+        if self._empty_timerange(ri):
+            return [(item["name"], None) for item in config_items]
+
+        try:
+            return self._measure_batched(ri, config_items)
+        except Exception as e:
+            logging.warning(
+                f"Batch request failed ({e}), falling back to "
+                f"individual queries for {len(config_items)} targets"
+            )
+            results = []
+            for item in config_items:
+                try:
+                    results.append(self.measure(ri, **item))
+                except Exception as e2:
+                    logging.exception(f"Failed to measure {item['name']}: {e2}")
+                    results.append((None, None))
+            return results
 
     @staticmethod
     def add_args(parser):
@@ -263,8 +345,8 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         parser.add_argument(
             "--grafana-chunk-size",
             type=int,
-            default=10,
-            help="How many metrices to obtain from Grafana at one request",
+            default=50,
+            help="How many metrics to obtain from Grafana in one request",
         )
         parser.add_argument(
             "--grafana-port",
@@ -540,6 +622,7 @@ class RequestedInfo:
         self.sd = sd
 
         self._index = 0  # which config item are we processing?
+        self._batch_buffer = []  # buffered results from a batched request
         self._token = None  # OCP token - we will take it from `oc whoami -t` if needed
         self.measurement_plugins = (
             {}
@@ -569,34 +652,59 @@ class RequestedInfo:
 
     def __next__(self):
         """
-        Gives tuple of key and value for every item in the config file
+        Gives tuple of key and value for every item in the config file.
+
+        Plugins that implement measure_many() get consecutive items of
+        the same type grouped and executed in a single call. Results are
+        buffered and yielded one at a time.
         """
+        # Drain buffer from a previous batch
+        if self._batch_buffer:
+            return self._batch_buffer.pop(0)
+
         i = self._index
-        self._index += 1
-        if i < len(self.config):
-            if self._find_plugin(self.config[i].keys()):
-                instance = self._find_plugin(self.config[i].keys())
-                name = list(self.config[i].keys())[1]
-                try:
-                    if name == "log_source_command":
-                        output = instance.measure(self, self.config[i])
-                    else:
-                        output = instance.measure(self, **self.config[i])
-                except NoDataException as e:
-                    logging.warning(
-                        f"Failed to measure {self.config[i]['name']}: {e}"
-                    )
-                    output = (None, None)
-                except Exception as e:
-                    logging.exception(
-                        f"Failed to measure {self.config[i]['name']}: {e}"
-                    )
-                    output = (None, None)
-                return output
-            else:
-                raise Exception(f"Unknown config '{self.config[i]}'")
-        else:
+        if i >= len(self.config):
             raise StopIteration
+
+        instance = self._find_plugin(self.config[i].keys())
+        if not instance:
+            self._index += 1
+            raise Exception(f"Unknown config '{self.config[i]}'")
+
+        # Group consecutive items handled by the same plugin if it
+        # supports measure_many()
+        if hasattr(instance, "measure_many") and self.start and self.end:
+            chunk_size = getattr(instance, "batch_size", 10)
+            chunk_items = []
+            j = i
+            while (
+                j < len(self.config)
+                and self._find_plugin(self.config[j].keys()) is instance
+                and len(chunk_items) < chunk_size
+            ):
+                chunk_items.append(self.config[j])
+                j += 1
+            self._index = j
+
+            results = instance.measure_many(self, chunk_items)
+            self._batch_buffer = results[1:]
+            return results[0]
+
+        # Non-Grafana item: process individually (unchanged)
+        self._index += 1
+        name = list(self.config[i].keys())[1]
+        try:
+            if name == "log_source_command":
+                output = instance.measure(self, self.config[i])
+            else:
+                output = instance.measure(self, **self.config[i])
+        except NoDataException as e:
+            logging.warning(f"Failed to measure {self.config[i]['name']}: {e}")
+            output = (None, None)
+        except Exception as e:
+            logging.exception(f"Failed to measure {self.config[i]['name']}: {e}")
+            output = (None, None)
+        return output
 
 
 def doit(args):
