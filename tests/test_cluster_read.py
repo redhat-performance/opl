@@ -170,13 +170,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(k, "somevalue")
         self.assertEqual(v, "Hello world")
         sd.set(k, v)
-
-        k, v = next(ri)
-        self.assertEqual(k, "mycopyfrom_exists")
-        self.assertEqual(v, "Hello world")
-        k, v = next(ri)
-        self.assertEqual(k, "mycopyfrom_missing")
-        self.assertEqual(v, None)
+        self._assert_copy_from_pair(ri)
 
     def test_copy_from_previous(self):
         string = """
@@ -195,6 +189,9 @@ class TestRequestedInfo(unittest.TestCase):
               copy_from: somevalue_that_does_not_exist
         """
         ri = opl.cluster_read.RequestedInfo(string, sd=sd)
+        self._assert_copy_from_pair(ri)
+
+    def _assert_copy_from_pair(self, ri):
         k, v = next(ri)
         self.assertEqual(k, "mycopyfrom_exists")
         self.assertEqual(v, "Hello world")
@@ -215,6 +212,24 @@ class TestRequestedInfo(unittest.TestCase):
 
 
 class TestGrafanaPlugin(unittest.TestCase):
+    simple_grafana_string = """
+        - name: measurement.load
+          grafana_target: $Cloud.$Node.load.load.shortterm
+    """
+
+    simple_grafana_variables_string = """
+        - name: measurement.load
+          grafana_target: $Cloud.$Node.load.load.shortterm
+          grafana_include_vars: true
+    """
+
+    simple_grafana_enritchment_string = """
+        - name: measurement.load
+          grafana_target: $Cloud.$Node.load.load.shortterm
+          grafana_enritchment:
+            hello: world
+            answer: 42
+    """
 
     mock_post_get_load_simple = {
         "mock": {
@@ -248,26 +263,7 @@ class TestGrafanaPlugin(unittest.TestCase):
 
     @responses.activate
     def test_basic(self):
-        # Configure mock
-        responses.add(
-            **self.mock_post_get_load_simple["mock"],
-        )
-
-        # Configure the request we are going to make
-        string = """
-            - name: measurement.load
-              grafana_target: $Cloud.$Node.load.load.shortterm
-        """
-
-        # Actual test using the mock
-        ri = opl.cluster_read.RequestedInfo(
-            string,
-            start=self.mock_post_get_load_simple["start"],
-            end=self.mock_post_get_load_simple["end"],
-            args=self.mock_post_get_load_simple["args"],
-        )
-        k, v = next(ri)
-        self.assertEqual(k, "measurement.load")
+        v = self._get_simple_measurement()
         self.assertEqual(int(v["min"]), 5)
         self.assertEqual(int(v["mean"]), 10)
         self.assertEqual(int(v["median"]), 10)
@@ -278,27 +274,7 @@ class TestGrafanaPlugin(unittest.TestCase):
 
     @responses.activate
     def test_added_variables(self):
-        # Configure mock
-        responses.add(
-            **self.mock_post_get_load_simple["mock"],
-        )
-
-        # Configure the request we are going to make
-        string = """
-            - name: measurement.load
-              grafana_target: $Cloud.$Node.load.load.shortterm
-              grafana_include_vars: true
-        """
-
-        # Actual test using the mock
-        ri = opl.cluster_read.RequestedInfo(
-            string,
-            start=self.mock_post_get_load_simple["start"],
-            end=self.mock_post_get_load_simple["end"],
-            args=self.mock_post_get_load_simple["args"],
-        )
-        k, v = next(ri)
-        self.assertEqual(k, "measurement.load")
+        v = self._get_simple_measurement(self.simple_grafana_variables_string)
         self.assertEqual(int(v["mean"]), 10)
         self.assertEqual(v["variables"]["$Node"], "node001_example_com")
         self.assertEqual(v["variables"]["$Interface"], "interface-enp2s0")
@@ -307,33 +283,26 @@ class TestGrafanaPlugin(unittest.TestCase):
 
     @responses.activate
     def test_added_enritchment(self):
-        # Configure mock
-        responses.add(
-            **self.mock_post_get_load_simple["mock"],
-        )
-
-        # Configure the request we are going to make
-        string = """
-            - name: measurement.load
-              grafana_target: $Cloud.$Node.load.load.shortterm
-              grafana_enritchment:
-                hello: world
-                answer: 42
-        """
-
-        # Actual test using the mock
-        ri = opl.cluster_read.RequestedInfo(
-            string,
-            start=self.mock_post_get_load_simple["start"],
-            end=self.mock_post_get_load_simple["end"],
-            args=self.mock_post_get_load_simple["args"],
-        )
-        k, v = next(ri)
-        self.assertEqual(k, "measurement.load")
+        v = self._get_simple_measurement(self.simple_grafana_enritchment_string)
         self.assertEqual(int(v["mean"]), 10)
         self.assertEqual(v["enritchment"]["hello"], "world")
         self.assertEqual(v["enritchment"]["answer"], 42)
         self.assertNotIn("variables", v)
+
+    def _make_simple_requested_info(self, string=None):
+        responses.add(**self.mock_post_get_load_simple["mock"])
+        return opl.cluster_read.RequestedInfo(
+            string or self.simple_grafana_string,
+            start=self.mock_post_get_load_simple["start"],
+            end=self.mock_post_get_load_simple["end"],
+            args=self.mock_post_get_load_simple["args"],
+        )
+
+    def _get_simple_measurement(self, string=None):
+        ri = self._make_simple_requested_info(string)
+        k, v = next(ri)
+        self.assertEqual(k, "measurement.load")
+        return v
 
     mock_post_get_batch = {
         "mock": {
