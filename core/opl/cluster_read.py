@@ -13,10 +13,10 @@ import boto3
 import urllib3
 import tempfile
 
-from . import data
-from . import date
-from . import status_data
-from . import retry
+from opl import data
+from opl import date
+from opl import status_data
+from opl import retry
 
 
 def execute(command):
