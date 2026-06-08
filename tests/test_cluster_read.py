@@ -369,27 +369,33 @@ class TestGrafanaPlugin(unittest.TestCase):
         "end": datetime.datetime.fromisoformat("2025-03-01T00:01:00+00:00"),
     }
 
-    @responses.activate
-    def test_batch_consecutive_targets(self):
-        """Consecutive Grafana items are batched into one HTTP request."""
-        responses.add(**self.mock_post_get_batch["mock"])
+    batch_string = """
+        - name: measurement.load
+          grafana_target: $Cloud.$Node.load.load.shortterm
+        - name: measurement.memory
+          grafana_target: $Cloud.$Node.memory.memory-used
+        - name: measurement.swap
+          grafana_target: $Cloud.$Node.swap.swap-used
+    """
 
-        string = """
-            - name: measurement.load
-              grafana_target: $Cloud.$Node.load.load.shortterm
-            - name: measurement.memory
-              grafana_target: $Cloud.$Node.memory.memory-used
-            - name: measurement.swap
-              grafana_target: $Cloud.$Node.swap.swap-used
-        """
+    batch_boundary_string = """
+        - name: measurement.load
+          grafana_target: $Cloud.$Node.load.load.shortterm
+        - name: measurement.group
+          constant: mygroup
+        - name: measurement.swap
+          grafana_target: $Cloud.$Node.swap.swap-used
+    """
 
-        ri = opl.cluster_read.RequestedInfo(
-            string,
+    def _make_batch_requested_info(self, string=None, args=None):
+        return opl.cluster_read.RequestedInfo(
+            string or self.batch_string,
             start=self.mock_post_get_batch["start"],
             end=self.mock_post_get_batch["end"],
-            args=self.mock_post_get_batch["args"],
+            args=args or self.mock_post_get_batch["args"],
         )
-        results = list(ri)
+
+    def _assert_batch_results(self, results):
         self.assertEqual(len(results), 3)
         self.assertEqual(results[0][0], "measurement.load")
         self.assertEqual(int(results[0][1]["mean"]), 12)
@@ -397,6 +403,14 @@ class TestGrafanaPlugin(unittest.TestCase):
         self.assertEqual(int(results[1][1]["mean"]), 1500)
         self.assertEqual(results[2][0], "measurement.swap")
         self.assertEqual(int(results[2][1]["mean"]), 150)
+
+    @responses.activate
+    def test_batch_consecutive_targets(self):
+        """Consecutive Grafana items are batched into one HTTP request."""
+        responses.add(**self.mock_post_get_batch["mock"])
+        ri = self._make_batch_requested_info()
+        results = list(ri)
+        self._assert_batch_results(results)
         # Only one HTTP request should have been made
         self.assertEqual(len(responses.calls), 1)
         # All parameters must be in POST body, not query string
@@ -425,30 +439,9 @@ class TestGrafanaPlugin(unittest.TestCase):
                 json=[target_data],
                 status=200,
             )
-
-        string = """
-            - name: measurement.load
-              grafana_target: $Cloud.$Node.load.load.shortterm
-            - name: measurement.memory
-              grafana_target: $Cloud.$Node.memory.memory-used
-            - name: measurement.swap
-              grafana_target: $Cloud.$Node.swap.swap-used
-        """
-
-        ri = opl.cluster_read.RequestedInfo(
-            string,
-            start=self.mock_post_get_batch["start"],
-            end=self.mock_post_get_batch["end"],
-            args=self.mock_post_get_batch["args"],
-        )
+        ri = self._make_batch_requested_info()
         results = list(ri)
-        self.assertEqual(len(results), 3)
-        self.assertEqual(results[0][0], "measurement.load")
-        self.assertEqual(int(results[0][1]["mean"]), 12)
-        self.assertEqual(results[1][0], "measurement.memory")
-        self.assertEqual(int(results[1][1]["mean"]), 1500)
-        self.assertEqual(results[2][0], "measurement.swap")
-        self.assertEqual(int(results[2][1]["mean"]), 150)
+        self._assert_batch_results(results)
 
     @responses.activate
     def test_batch_boundary_at_non_grafana_item(self):
@@ -466,22 +459,7 @@ class TestGrafanaPlugin(unittest.TestCase):
             json=[self.mock_post_get_batch["mock"]["json"][2]],
             status=200,
         )
-
-        string = """
-            - name: measurement.load
-              grafana_target: $Cloud.$Node.load.load.shortterm
-            - name: measurement.group
-              constant: mygroup
-            - name: measurement.swap
-              grafana_target: $Cloud.$Node.swap.swap-used
-        """
-
-        ri = opl.cluster_read.RequestedInfo(
-            string,
-            start=self.mock_post_get_batch["start"],
-            end=self.mock_post_get_batch["end"],
-            args=self.mock_post_get_batch["args"],
-        )
+        ri = self._make_batch_requested_info(self.batch_boundary_string)
         results = list(ri)
         self.assertEqual(len(results), 3)
         self.assertEqual(results[0][0], "measurement.load")
@@ -494,15 +472,6 @@ class TestGrafanaPlugin(unittest.TestCase):
     @responses.activate
     def test_batch_output_matches_individual_output(self):
         """Batched output must be identical to single-item output."""
-        string = """
-            - name: measurement.load
-              grafana_target: $Cloud.$Node.load.load.shortterm
-            - name: measurement.memory
-              grafana_target: $Cloud.$Node.memory.memory-used
-            - name: measurement.swap
-              grafana_target: $Cloud.$Node.swap.swap-used
-        """
-
         # Run with chunk_size=1 (individual requests, old behavior)
         for target_data in self.mock_post_get_batch["mock"]["json"]:
             responses.add(
@@ -515,14 +484,7 @@ class TestGrafanaPlugin(unittest.TestCase):
         args_single = argparse.Namespace(
             **{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 1}
         )
-        single = list(
-            opl.cluster_read.RequestedInfo(
-                string,
-                start=self.mock_post_get_batch["start"],
-                end=self.mock_post_get_batch["end"],
-                args=args_single,
-            )
-        )
+        single = list(self._make_batch_requested_info(args=args_single))
 
         # Run with chunk_size=50 (batched, new behavior)
         responses.add(**self.mock_post_get_batch["mock"])
@@ -530,13 +492,6 @@ class TestGrafanaPlugin(unittest.TestCase):
         args_batched = argparse.Namespace(
             **{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 50}
         )
-        batched = list(
-            opl.cluster_read.RequestedInfo(
-                string,
-                start=self.mock_post_get_batch["start"],
-                end=self.mock_post_get_batch["end"],
-                args=args_batched,
-            )
-        )
+        batched = list(self._make_batch_requested_info(args=args_batched))
 
         self.assertEqual(single, batched)
