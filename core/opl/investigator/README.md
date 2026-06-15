@@ -7,8 +7,8 @@ the same test and decide if new test result is PASS or FAIL.
 
 You can configure multiple things as of now:
 
-1. How to get historical results of the test (supports ElasticSearch, CSV
-   and directory of JSON files)
+1. How to get historical results of the test (supports ElasticSearch,
+   PostgreSQL, CSV and directory of JSON files)
 3. How to load new result (support just JSON file)
 4. What method to use to actually find if new result is out of safe bounds
    (we mostly use `if new result is biggeer than max or smaller than min
@@ -57,6 +57,25 @@ There are other plugins you can use to retrieve distorical data:
     run-2022-01-08T22:16:30+00:00,Test XYZ,155
     run-2022-01-09T04:20:04+00:00,Test XYZ,151
     run-2022-01-11T01:16:47+00:00,Test XYZ,144
+
+ * `postgresql` - Retrieves historical data from a PostgreSQL database.
+   The SQL query should return rows where the first column is a JSON/JSONB
+   document (a status data document). The query is Jinja2 template-able
+   just like `es_query`. Example:
+
+    type: postgresql
+    pg_host: db.example.com
+    pg_port: 5432
+    pg_database: perf_results
+    pg_user: reader
+    pg_password_env_var: OPL_DB_PASSWORD
+    pg_query: |
+      SELECT data FROM results
+      WHERE data->>'name' = '{{ current.get("name") }}'
+      ORDER BY (data->>'started')::timestamptz DESC
+      LIMIT 30
+
+   Requires `psycopg2` to be installed.
 
  * `sd_dir` - directory with status data files from past experiments
    which allows filtering by matching various fields before loading data.
@@ -165,5 +184,18 @@ As of now you can use these decisions storage plugins:
    Kibana you can have investigation of decision trends dashboards or so.
  * `csv` - stores all the decisions for current test in a CSV file
    (overwritten every time the tool is invoked)
+ * `postgresql` - stores each decision as a JSON document in a PostgreSQL
+   table. The table should have a `data` column of type `JSON` or `JSONB`.
+   Example:
+
+    type: postgresql
+    pg_host: db.example.com
+    pg_port: 5432
+    pg_database: perf_results
+    pg_table: decisions
+    pg_user: writer
+    pg_password_env_var: OPL_DB_PASSWORD
+
+   Requires `psycopg2` to be installed.
 
 This can be turned off with `--dry-run` command line option.
