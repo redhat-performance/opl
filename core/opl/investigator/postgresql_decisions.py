@@ -2,12 +2,6 @@ import datetime
 import json
 import logging
 import os
-
-
-import datetime
-import json
-import logging
-import os
 import re
 
 _SQL_IDENTIFIER = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
