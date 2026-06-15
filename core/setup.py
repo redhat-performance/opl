@@ -30,6 +30,9 @@ setuptools.setup(
         "tabulate",
         "deepdiff",
     ],
+    extras_require={
+        "postgresql": ["psycopg2-binary"],
+    },
     package_data={
         "opl": [
             "status_data_report.txt",
