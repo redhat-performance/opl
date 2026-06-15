@@ -108,9 +108,7 @@ def doit(args):
             args.history_pg_query,
             sets_list,
             pg_user=getattr(args, "history_pg_user", None),
-            pg_password_env_var=getattr(
-                args, "history_pg_password_env_var", None
-            ),
+            pg_password_env_var=getattr(args, "history_pg_password_env_var", None),
         )
 
     elif args.history_type == "sd_dir":

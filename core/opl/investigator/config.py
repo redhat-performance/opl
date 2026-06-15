@@ -97,9 +97,7 @@ def render_pg_query(args, template_data):
     logging.debug(
         f"Rendering Jinja2 template pg_query {args.history_pg_query} with data {template_data}"
     )
-    env = jinja2.Environment(
-        loader=jinja2.DictLoader({"query": args.history_pg_query})
-    )
+    env = jinja2.Environment(loader=jinja2.DictLoader({"query": args.history_pg_query}))
     template = env.get_template("query")
     rendered = template.render(template_data)
     logging.debug(f"Rendered Jinja2 template pg_query {rendered}")
@@ -201,7 +199,9 @@ def load_config(conf, fp):
         if "pg_user" in data["decisions"]:
             conf.decisions_pg_user = data["decisions"]["pg_user"]
         if "pg_password_env_var" in data["decisions"]:
-            conf.decisions_pg_password_env_var = data["decisions"]["pg_password_env_var"]
+            conf.decisions_pg_password_env_var = data["decisions"][
+                "pg_password_env_var"
+            ]
 
     if conf.decisions_type == "csv":
         conf.decisions_filename = data["decisions"].get(

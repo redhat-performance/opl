@@ -9,13 +9,13 @@ You can configure multiple things as of now:
 
 1. How to get historical results of the test (supports ElasticSearch,
    PostgreSQL, CSV and directory of JSON files)
-3. How to load new result (support just JSON file)
-4. What method to use to actually find if new result is out of safe bounds
-   (we mostly use `if new result is biggeer than max or smaller than min
+2. How to load new result (support just JSON file)
+3. What method to use to actually find if new result is out of safe bounds
+   (we mostly use `if new result is bigger than max or smaller than min
    of historical data, it is FAIL`, but it is easy to implement more)
-6. What metrics from the JSONs to compare (e.g. `results.rps`,
+4. What metrics from the JSONs to compare (e.g. `results.rps`,
    `monitoring.pod.cpu.mean` and `monitoring.pod.memory.mean`)
-8. Optionally you can also configure where to store metadata about
+5. Optionally you can also configure where to store metadata about
    decision the script done. This is useful to keep track about trends
    (supports ElasticSearch, PostgreSQL and CSV)
 
@@ -43,7 +43,7 @@ That query is Jinja2 template-able, so you can include:
 to dynamically obtain the value from new result and use it to filter for
 historical results.
 
-There are other plugins you can use to retrieve distorical data:
+There are other plugins you can use to retrieve historical data:
 
  * `elasticsearch` - Retrieves historical data from ElasticSearch
    and is described above
@@ -78,11 +78,11 @@ There are other plugins you can use to retrieve distorical data:
    Requires the optional PostgreSQL dependency (not installed with core by default).
    Install one of:
 
-     pip install psycopg2-binary
-     pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
-     pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
+    pip install psycopg2-binary
+    pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
+    pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
 
-   Without this, using the postgresql plugin raises ModuleNotFoundError at runtime.
+   Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
 
  * `sd_dir` - directory with status data files from past experiments
    which allows filtering by matching various fields before loading data.
@@ -101,15 +101,15 @@ There are other plugins you can use to retrieve distorical data:
 This specifies from where we should load new (`current`) test result
 we will be evaluating.
 
-There is only choice now that loads current result from status data file.
+There is only one choice now that loads current result from status data file.
 
-This can be overwriten by `--current-file` command line option.
+This can be overwritten by `--current-file` command-line option.
 
 
 `methods:`
 ----------
 
-Alows you to specify list of checks you want to use to check results.
+Allows you to specify list of checks you want to use to check results.
 These checks are defined in `check.py`. Impractical example:
 
     methods:
@@ -147,9 +147,9 @@ not represent test result comparable across historical runs - this
 timestamp is simply always different, based on when the test was running,
 so it does not make sense to compare it across historical results).
 
-It also allws you to define what check methods (other then these defined in
+It also allows you to define what check methods (other than these defined in
 default `methods:` should apply to this metric. You can also provide
-additional possitional args if the check method needs them.
+additional positional args if the check method needs them.
 
 Expected data structure looks like this:
 
@@ -206,10 +206,10 @@ As of now you can use these decisions storage plugins:
    Requires the optional PostgreSQL dependency (not installed with core by default).
    Install one of:
 
-     pip install psycopg2-binary
-     pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
-     pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
+    pip install psycopg2-binary
+    pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
+    pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
 
-   Without this, using the postgresql plugin raises ModuleNotFoundError at runtime.
+   Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
 
-This can be turned off with `--dry-run` command line option.
+This can be turned off with `--dry-run` command-line option.
