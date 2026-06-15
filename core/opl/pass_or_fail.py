@@ -9,6 +9,8 @@ import opl.investigator.csv_decisions
 import opl.investigator.csv_loader
 import opl.investigator.elasticsearch_decisions
 import opl.investigator.elasticsearch_loader
+import opl.investigator.postgresql_decisions
+import opl.investigator.postgresql_loader
 import opl.investigator.sd_dir_loader
 import opl.investigator.status_data_loader
 
@@ -95,6 +97,19 @@ def doit(args):
             es_server_user=getattr(args, "history_es_server_user", None),
             es_server_pass_env_var=getattr(
                 args, "history_es_server_pass_env_var", None
+            ),
+        )
+
+    elif args.history_type == "postgresql":
+        history = opl.investigator.postgresql_loader.load(
+            args.history_pg_host,
+            args.history_pg_port,
+            args.history_pg_database,
+            args.history_pg_query,
+            sets_list,
+            pg_user=getattr(args, "history_pg_user", None),
+            pg_password_env_var=getattr(
+                args, "history_pg_password_env_var", None
             ),
         )
 
@@ -195,6 +210,18 @@ def doit(args):
             )
         if args.decisions_type == "csv":
             opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
+        if args.decisions_type == "postgresql":
+            opl.investigator.postgresql_decisions.store(
+                args.decisions_pg_host,
+                args.decisions_pg_port,
+                args.decisions_pg_database,
+                args.decisions_pg_table,
+                info_all,
+                pg_user=getattr(args, "decisions_pg_user", None),
+                pg_password_env_var=getattr(
+                    args, "decisions_pg_password_env_var", None
+                ),
+            )
 
     if not args.dry_run:
         if exit_code == 0:

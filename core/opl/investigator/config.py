@@ -93,6 +93,19 @@ def render_query(args, template_data):
     args.history_es_query = yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
+def render_pg_query(args, template_data):
+    logging.debug(
+        f"Rendering Jinja2 template pg_query {args.history_pg_query} with data {template_data}"
+    )
+    env = jinja2.Environment(
+        loader=jinja2.DictLoader({"query": args.history_pg_query})
+    )
+    template = env.get_template("query")
+    rendered = template.render(template_data)
+    logging.debug(f"Rendered Jinja2 template pg_query {rendered}")
+    args.history_pg_query = rendered
+
+
 def render_matchers(args, template_data):
     logging.debug(
         f"Rendering Jinja2 template matchers {args.history_matchers} with data {template_data}"
@@ -111,6 +124,8 @@ def load_config_finish(args, sd):
     render_sets(args, template_data)
     if args.history_type == "elasticsearch":
         render_query(args, template_data)
+    if args.history_type == "postgresql":
+        render_pg_query(args, template_data)
     if args.history_type == "sd_dir":
         render_matchers(args, template_data)
 
@@ -146,6 +161,16 @@ def load_config(conf, fp):
         else:
             conf.history_es_server_verify = True
 
+    if conf.history_type == "postgresql":
+        conf.history_pg_host = data["history"]["pg_host"]
+        conf.history_pg_port = data["history"].get("pg_port", 5432)
+        conf.history_pg_database = data["history"]["pg_database"]
+        conf.history_pg_query = data["history"]["pg_query"]
+        if "pg_user" in data["history"]:
+            conf.history_pg_user = data["history"]["pg_user"]
+        if "pg_password_env_var" in data["history"]:
+            conf.history_pg_password_env_var = data["history"]["pg_password_env_var"]
+
     if conf.history_type == "sd_dir":
         conf.history_dir = data["history"]["dir"]
         conf.history_matchers = data["history"]["matchers"]
@@ -167,6 +192,16 @@ def load_config(conf, fp):
             conf.decisions_es_server_verify = data["decisions"]["es_server_verify"]
         else:
             conf.decisions_es_server_verify = True
+
+    if conf.decisions_type == "postgresql":
+        conf.decisions_pg_host = data["decisions"]["pg_host"]
+        conf.decisions_pg_port = data["decisions"].get("pg_port", 5432)
+        conf.decisions_pg_database = data["decisions"]["pg_database"]
+        conf.decisions_pg_table = data["decisions"]["pg_table"]
+        if "pg_user" in data["decisions"]:
+            conf.decisions_pg_user = data["decisions"]["pg_user"]
+        if "pg_password_env_var" in data["decisions"]:
+            conf.decisions_pg_password_env_var = data["decisions"]["pg_password_env_var"]
 
     if conf.decisions_type == "csv":
         conf.decisions_filename = data["decisions"].get(

@@ -8,6 +8,18 @@ history:
   # matchers: |
   #   name: "{{ current.get('name') }}"
 
+  # type: postgresql
+  # pg_host: db.example.com
+  # pg_port: 5432
+  # pg_database: perf_results
+  # pg_user: reader
+  # pg_password_env_var: OPL_DB_PASSWORD
+  # pg_query: |
+  #   SELECT data FROM results
+  #   WHERE data->>'name' = '{{ current.get("name") }}'
+  #   ORDER BY (data->>'started')::timestamptz DESC
+  #   LIMIT 30
+
   type: elasticsearch
   es_server: http://elasticsearch.example.com:9286
   es_index: my-index
@@ -49,6 +61,14 @@ methods:
 decisions:
   # type: csv
   # filename: /tmp/decisions.csv
+
+  # type: postgresql
+  # pg_host: db.example.com
+  # pg_port: 5432
+  # pg_database: perf_results
+  # pg_table: decisions
+  # pg_user: writer
+  # pg_password_env_var: OPL_DB_PASSWORD
 
   type: elasticsearch
   es_server: http://elasticsearch.example.com:9286
