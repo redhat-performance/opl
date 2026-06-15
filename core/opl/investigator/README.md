@@ -45,10 +45,10 @@ historical results.
 
 There are other plugins you can use to retrieve historical data:
 
- * `elasticsearch` - Retrieves historical data from ElasticSearch
-   and is described above
+* `elasticsearch` - Retrieves historical data from ElasticSearch
+  and is described above
 
- * `csv` - CSV file with rows being historical results and columns
+* `csv` - CSV file with rows being historical results and columns
    individual data sets. Example of a CSV file:
 
     id,name,results.duration
@@ -58,7 +58,7 @@ There are other plugins you can use to retrieve historical data:
     run-2022-01-09T04:20:04+00:00,Test XYZ,151
     run-2022-01-11T01:16:47+00:00,Test XYZ,144
 
- * `postgresql` - Retrieves historical data from a PostgreSQL database.
+* `postgresql` - Retrieves historical data from a PostgreSQL database.
    The SQL query should return rows where the first column is a JSON/JSONB
    document (a status data document). The query is Jinja2 template-able
    just like `es_query`. Example:
@@ -78,13 +78,17 @@ There are other plugins you can use to retrieve historical data:
    Requires the optional PostgreSQL dependency (not installed with core by default).
    Install one of:
 
+   <!-- markdownlint-disable MD034 -->
+
     pip install psycopg2-binary
     pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
-    pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
+    pip install "git+https://github.com/redhat-performance/opl.git"  # full install (includes extras)
+
+   <!-- markdownlint-enable MD034 -->
 
    Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
 
- * `sd_dir` - directory with status data files from past experiments
+* `sd_dir` - directory with status data files from past experiments
    which allows filtering by matching various fields before loading data.
    Below is example where we load data from SD files whose `name` matches
    `name` value from current result. `matchers` is Jinja2 template again:
@@ -93,7 +97,6 @@ There are other plugins you can use to retrieve historical data:
     dir: /tmp/historical_sd_storage/
     matchers: |
       name: "{{ current.get('name') }}"
-
 
 `current:`
 ----------
@@ -104,7 +107,6 @@ we will be evaluating.
 There is only one choice now that loads current result from status data file.
 
 This can be overwritten by `--current-file` command-line option.
-
 
 `methods:`
 ----------
@@ -134,7 +136,6 @@ These checks are defined in `check.py`. Impractical example:
 
 This is optional and if not present or empty, default set of checks will
 be used.
-
 
 `sets:`
 -------
@@ -176,7 +177,6 @@ rendered via Jinja2 and only then parsed as YAML to get the final list:
       {% endif %}
       - name: measurements.satellite.swap.swap-used.mean
 
-
 `decisions:`
 ------------
 
@@ -187,11 +187,11 @@ result) into system defined here.
 
 As of now you can use these decisions storage plugins:
 
- * `elasticsearch` - stores decisions to ElasticSearch index. Then in
-   Kibana you can have investigation of decision trends dashboards or so.
- * `csv` - stores all the decisions for current test in a CSV file
-   (overwritten every time the tool is invoked)
- * `postgresql` - stores each decision as a JSON document in a PostgreSQL
+* `elasticsearch` - stores decisions to ElasticSearch index. Then in
+  Kibana you can have investigation of decision trends dashboards or so.
+* `csv` - stores all the decisions for current test in a CSV file
+  (overwritten every time the tool is invoked)
+* `postgresql` - stores each decision as a JSON document in a PostgreSQL
    table. The table should have a `data` column of type `JSON` or `JSONB`.
    Example:
 
@@ -206,9 +206,13 @@ As of now you can use these decisions storage plugins:
    Requires the optional PostgreSQL dependency (not installed with core by default).
    Install one of:
 
+   <!-- markdownlint-disable MD034 -->
+
     pip install psycopg2-binary
     pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
-    pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
+    pip install "git+https://github.com/redhat-performance/opl.git"  # full install (includes extras)
+
+   <!-- markdownlint-enable MD034 -->
 
    Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
 

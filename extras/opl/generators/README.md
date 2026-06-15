@@ -4,7 +4,6 @@ OPL generators
 This directory contains bunch of classes that generate some random
 data based on some template and other input.
 
-
 `fifi_results.py`: `PlaybookRunMessageGenerator`
 ------------------------------------------------
 
@@ -12,13 +11,11 @@ This is very specific for Remediations service.
 
 Right now I can not recall on how does this work and what it is for :-)
 
-
 `inventory_egress.py`: `EgressHostsGenerator`
 ---------------------------------------------
 
 This was used in Patchman tests to generate `platform.inventory.events`
 messages (HBI output messages).
-
 
 `inventory_ingress.py`: `InventoryIngressGenerator`
 ---------------------------------------------------
@@ -46,7 +43,6 @@ Example usage:
     Message 30eddf6c-9537-4501-8215-1a45f8ed4e73: {'operation': 'add_host', 'data': {'account': '025
     Message e29b590d-3f07-41fc-aaf2-4ce32d989f6f: {'operation': 'add_host', 'data': {'account': '012
     Message 2980c74a-4876-4ef5-b277-3bdca3655f48: {'operation': 'add_host', 'data': {'account': '064
-
 
 `packages.py`: `PackagesGenerator`
 ----------------------------------
@@ -103,6 +99,7 @@ Example usage:
 
 `chrome_notifications.py`: `ChromeNotificationsGenerator`
 ---------------------------------------
+
 Generate Chrome notifications Kafka messages.
 
 Just supply the count of messages to be generated.
