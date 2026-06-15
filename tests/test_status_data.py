@@ -390,8 +390,8 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data._data["aaa"]["bbb"]["ccc"], [123, 456])
 
     def test_dicts_set_to_list(self):
-        d1 = {"id":42,"name":"Universe"}
-        d2 = {"id":0,"name":"Sun"}
+        d1 = {"id": 42, "name": "Universe"}
+        d2 = {"id": 0, "name": "Sun"}
         self.status_data.set("aaa[]", d1)
         self.status_data.set("aaa[]", d2)
         self.assertEqual(self.status_data._data["aaa"], [d1, d2])

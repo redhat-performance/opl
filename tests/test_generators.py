@@ -10,7 +10,9 @@ from .context import opl
 class TestGenericGenerator(unittest.TestCase):
 
     def test_count(self):
-        _, template = tempfile.mkstemp(dir=os.path.dirname(opl.generators.generic.__file__), text=True)
+        _, template = tempfile.mkstemp(
+            dir=os.path.dirname(opl.generators.generic.__file__), text=True
+        )
 
         try:
             with open(template, "w") as fd:
@@ -28,7 +30,9 @@ class TestGenericGenerator(unittest.TestCase):
             os.remove(template)
 
     def test_uuids(self):
-        _, template = tempfile.mkstemp(dir=os.path.dirname(opl.generators.generic.__file__), text=True)
+        _, template = tempfile.mkstemp(
+            dir=os.path.dirname(opl.generators.generic.__file__), text=True
+        )
 
         try:
             with open(template, "w") as fd:
