@@ -17,7 +17,7 @@ You can configure multiple things as of now:
    `monitoring.pod.cpu.mean` and `monitoring.pod.memory.mean`)
 8. Optionally you can also configure where to store metadata about
    decision the script done. This is useful to keep track about trends
-   (supports ElasticSearch and CSV)
+   (supports ElasticSearch, PostgreSQL and CSV)
 
 See `sample_config.yaml` for example configuration. This is what each
 section is for:
@@ -75,7 +75,14 @@ There are other plugins you can use to retrieve distorical data:
       ORDER BY (data->>'started')::timestamptz DESC
       LIMIT 30
 
-   Requires `psycopg2` to be installed.
+   Requires the optional PostgreSQL dependency (not installed with core by default).
+   Install one of:
+
+     pip install psycopg2-binary
+     pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
+     pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
+
+   Without this, using the postgresql plugin raises ModuleNotFoundError at runtime.
 
  * `sd_dir` - directory with status data files from past experiments
    which allows filtering by matching various fields before loading data.
@@ -196,6 +203,13 @@ As of now you can use these decisions storage plugins:
     pg_user: writer
     pg_password_env_var: OPL_DB_PASSWORD
 
-   Requires `psycopg2` to be installed.
+   Requires the optional PostgreSQL dependency (not installed with core by default).
+   Install one of:
+
+     pip install psycopg2-binary
+     pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
+     pip install git+https://github.com/redhat-performance/opl.git  # full install (includes extras)
+
+   Without this, using the postgresql plugin raises ModuleNotFoundError at runtime.
 
 This can be turned off with `--dry-run` command line option.

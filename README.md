@@ -71,6 +71,15 @@ Installs only the lightweight core tools from `core/opl/` to minimize dependency
     source venv/bin/activate
     python3 -m pip install --no-cache-dir -e "git+https://github.com/redhat-performance/opl.git#egg=opl-rhcloud-perf-team-core&subdirectory=core"
 
+PostgreSQL support in `pass_or_fail.py` (history/decisions plugins) is optional and
+requires `psycopg2-binary`, which is not included in the core install. Without it,
+selecting a postgresql plugin raises `ModuleNotFoundError` at runtime. Install one of:
+
+    pip install psycopg2-binary
+    pip install "git+https://github.com/redhat-performance/opl.git#egg=opl-rhcloud-perf-team-core[postgresql]&subdirectory=core"
+
+Or use the full installation below, which pulls in extras (including `psycopg2-binary`).
+
 **Extras Installation:**
 
 Note: Do you really need to do this? If you do full installation, it does exactly this.

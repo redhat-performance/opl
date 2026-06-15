@@ -6,7 +6,14 @@ import opl.status_data
 
 
 def load(pg_host, pg_port, pg_database, query, paths, **kwargs):
-    import psycopg2
+    try:
+        import psycopg2
+    except ImportError as exc:
+        raise ImportError(
+            "PostgreSQL support requires psycopg2-binary, which is not included in "
+            "the core install. Run 'pip install psycopg2-binary', install core with "
+            "the [postgresql] extra, or install the full opl package (includes extras)."
+        ) from exc
 
     pg_user = kwargs.get("pg_user")
     pg_password_env_var = kwargs.get("pg_password_env_var")
