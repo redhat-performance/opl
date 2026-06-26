@@ -39,7 +39,7 @@ class kafka_init:
                 "linger_ms": getattr(args, "kafka_linger_ms", 0),
                 "compression_type": getattr(args, "kafka_compression_type", None),
                 "batch_size": getattr(args, "kafka_batch_size", 16384),
-                "buffer_memory": getattr(args, "kafka_buffer_memory", 33554432),
+                "max_request_size": getattr(args, "kafka_max_request_size", 1048576),
                 "retries": getattr(args, "kafka_retries", 0),
             }
 
