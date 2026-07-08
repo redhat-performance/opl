@@ -98,6 +98,9 @@ def doit(args):
             es_server_pass_env_var=getattr(
                 args, "history_es_server_pass_env_var", None
             ),
+            skip_metadata_assert=getattr(
+                args, "history_es_skip_metadata_assert", False
+            ),
         )
 
     elif args.history_type == "postgresql":
