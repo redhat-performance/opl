@@ -48,6 +48,14 @@ There are other plugins you can use to retrieve historical data:
 * `elasticsearch` - Retrieves historical data from ElasticSearch
   and is described above
 
+  Optional settings (under `history:` when `type: elasticsearch`):
+
+  * `skip_metadata_assert` (boolean, default: `false`) - When loading
+    historical hits from ElasticSearch, each document is normally required
+    to contain the status data metadata fields `name`, `started`, `ended`,
+    and `result`. Set to `true` when history documents use a different
+    schema. Only the metric paths listed in `sets` are read for comparison.
+
 * `csv` - CSV file with rows being historical results and columns
    individual data sets. Example of a CSV file:
 
