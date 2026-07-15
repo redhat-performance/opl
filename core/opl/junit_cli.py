@@ -75,16 +75,6 @@ class JUnitXmlPlus(junitparser.JUnitXml):
     def add_to_suite(self, suite_name, new):
         case = TestCaseWithProp(new["name"])
 
-        suite_found = False
-        for suite in self:
-            if suite.name == suite_name:
-                logging.debug(f"Suite {suite_name} found, going to add into it")
-                suite_found = True
-        if not suite_found:
-            logging.debug(f"Suite {suite_name} not found, creating new one")
-            suite = junitparser.TestSuite(suite_name)
-            self.add_testsuite(suite)
-
         if new["result"] == "PASS":
             case.result = []
         elif new["result"] == "FAIL":
@@ -118,7 +108,21 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         case.add_property("start", new["start"].isoformat())
         case.add_property("end", new["end"].isoformat())
 
-        suite.add_testcase(case)
+        suite_found = False
+        for suite in self:
+            if suite.name == suite_name:
+                logging.debug(f"Suite {suite_name} found, going to add into it")
+                suite.add_testcase(case)
+                suite_found = True
+        if not suite_found:
+            # Add the testcase before add_testsuite(), not after: newer
+            # junitparser versions deepcopy the suite on add_testsuite(),
+            # so the tree would keep a copy made before the testcase existed
+            # and any case added afterwards would silently be lost.
+            logging.debug(f"Suite {suite_name} not found, creating new one")
+            suite = junitparser.TestSuite(suite_name)
+            suite.add_testcase(case)
+            self.add_testsuite(suite)
 
         self.write()
 
