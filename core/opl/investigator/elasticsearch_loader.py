@@ -40,8 +40,10 @@ def load(server, index, query, paths, **kwargs):
         response = opl.http.get(url, headers=headers, json=data)
 
     for item in response["hits"]["hits"]:
-        params = item['_source'].get('parameters', {})
-        logging.debug(f"Loading data from document ID {item['_id']} with field id={item['_source'].get('id')} or parameters.run={params.get('run')}")
+        params = item["_source"].get("parameters", {})
+        logging.debug(
+            f"Loading data from document ID {item['_id']} with field id={item['_source'].get('id')} or parameters.run={params.get('run')}"
+        )
         tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
         sd = opl.status_data.StatusData(
             tmpfile, data=item["_source"], skip_metadata_assert=skip_metadata_assert
