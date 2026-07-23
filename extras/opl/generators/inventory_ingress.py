@@ -75,15 +75,19 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 for i in self.per_account_data  # because per_account_data is a list not dictionary
             ]
         else:
-            return [
-                {
-                    "account": self._get_account(),
-                    "orgid": self._get_account(),
-                    "satellite_id": self._get_uuid(),
-                    "satellite_instance_id": self._get_uuid(),
-                }
-                for i in range(relatives)
-            ]
+            # Distinct account/org_id per relative; HBI RHSM path keeps them equal.
+            relatives_list = []
+            for _ in range(relatives):
+                acc_orgid = self._get_account()
+                relatives_list.append(
+                    {
+                        "account": acc_orgid,
+                        "orgid": acc_orgid,
+                        "satellite_id": self._get_uuid(),
+                        "satellite_instance_id": self._get_uuid(),
+                    }
+                )
+            return relatives_list
 
     def _mid(self, data):
         return data["subscription_manager_id"]
