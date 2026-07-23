@@ -182,7 +182,7 @@ class HorreumAPI:
             }
 
         url = f"{self.base_url}/api/schema/{schema_id}/labels"
-        response = self.session.post(url, json=label_data)
+        response = self.session.post(url, json=[label_data])
         response.raise_for_status()
         return response.json()
 

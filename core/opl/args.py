@@ -172,10 +172,10 @@ def add_kafka_opts(parser):
         help="Max size of the batch before sending (also use env variable KAFKA_BATCH_SIZE)",
     )
     parser.add_argument(
-        "--kafka-buffer-memory",
+        "--kafka-max-request-size",
         type=int,
-        default=int(os.getenv("KAFKA_BUFFER_MEMORY", 33554432)),
-        help="Memory the producer can use at max for batching (also use env variable KAFKA_BUFFER_MEMORY)",
+        default=int(os.getenv("KAFKA_MAX_REQUEST_SIZE", 1048576)),
+        help="Maximum size of a requests in bytes, effectively a cap on the maximum record size (also use env variable KAFKA_MAX_REQUEST_SIZE)",
     )
     parser.add_argument(
         "--kafka-retries",

@@ -361,7 +361,10 @@ def _get_es_dashboard_result_for_run_id(session, args, run_id, test=None):
 
 
 def _get_rp_result_defect_string(result):
-    return list(result["statistics"]["defects"].keys())[0]
+    keys = list(result["statistics"]["defects"].keys())
+    if not keys:
+        return "to_investigate"
+    return keys[0]
 
 
 def _get_rp_result_result_string(result):

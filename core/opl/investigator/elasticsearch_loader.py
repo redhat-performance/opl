@@ -11,6 +11,7 @@ from requests.auth import HTTPBasicAuth
 def load(server, index, query, paths, **kwargs):
     es_server_user = kwargs.get("es_server_user")
     es_server_pass_env_var = kwargs.get("es_server_pass_env_var")
+    skip_metadata_assert = kwargs.get("skip_metadata_assert", False)
 
     out = {}
 
@@ -39,11 +40,14 @@ def load(server, index, query, paths, **kwargs):
         response = opl.http.get(url, headers=headers, json=data)
 
     for item in response["hits"]["hits"]:
+        params = item["_source"].get("parameters", {})
         logging.debug(
-            f"Loading data from document ID {item['_id']} with field id={item['_source']['id'] if 'id' in item['_source'] else None} or parameters.run={item['_source']['parameters']['run'] if 'run' in item['_source']['parameters'] else None}"
+            f"Loading data from document ID {item['_id']} with field id={item['_source'].get('id')} or parameters.run={params.get('run')}"
         )
         tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
-        sd = opl.status_data.StatusData(tmpfile, data=item["_source"])
+        sd = opl.status_data.StatusData(
+            tmpfile, data=item["_source"], skip_metadata_assert=skip_metadata_assert
+        )
         for path in paths:
             tmp = sd.get(path)
             if tmp is not None:

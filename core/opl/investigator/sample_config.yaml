@@ -24,6 +24,7 @@ history:
   type: elasticsearch
   es_server: http://elasticsearch.example.com:9286
   es_index: my-index
+  # skip_metadata_assert: false  # set true when ES history docs lack fields name/started/ended/result
   es_query: |
     query:
       bool:

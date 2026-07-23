@@ -25,7 +25,7 @@ from opl import skelet
 
 
 class StatusData:
-    def __init__(self, filename, data=None):
+    def __init__(self, filename, data=None, skip_metadata_assert=False):
         self.filename = filename
         if filename.startswith("http://") or filename.startswith("https://"):
             tmp = tempfile.mktemp()
@@ -43,10 +43,11 @@ class StatusData:
             self.load()
         else:
             self._data = data
-            assert "name" in data
-            assert "started" in data
-            assert "ended" in data
-            assert "result" in data
+            if not skip_metadata_assert:
+                assert "name" in data
+                assert "started" in data
+                assert "ended" in data
+                assert "result" in data
 
     def load(self):
         try:

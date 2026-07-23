@@ -158,6 +158,9 @@ def load_config(conf, fp):
             conf.history_es_server_verify = data["history"]["es_server_verify"]
         else:
             conf.history_es_server_verify = True
+        conf.history_es_skip_metadata_assert = data["history"].get(
+            "skip_metadata_assert", False
+        )
 
     if conf.history_type == "postgresql":
         conf.history_pg_host = data["history"]["pg_host"]
