@@ -171,16 +171,16 @@ class GenericGenerator:
         device = ["/dev/fdd2", "/dev/fdd0", "/dev/fdd1"]
         label = ["bar", "foo", "baz"]
         mount_point = ["/mnt/local_nfs", "/mnt/foo", "/mnt/remote_nfs_shares"]
-        type = ["ext1", "ext2", "ext3"]
+        fstype = ["ext1", "ext2", "ext3"]
         return {
             "device": random.choice(device),
             "label": random.choice(label),
             "mount_point": random.choice(mount_point),
-            "type": random.choice(type),
+            "type": random.choice(fstype),
         }
 
     def _get_rpm_ostree_deployment(self):
-        id = [
+        deployment_id = [
             "fedora-blackpink-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
             "fedora-silverblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
             "fedora-orangeblue-63335a77f9853618ba1a5f139c5805e82176a2a040ef5e34d7402e12263af5bb.0",
@@ -198,7 +198,7 @@ class GenericGenerator:
         osname = ["fedora-blackpink", "fedora-silveblue", "fedora-orangeblue"]
         version = ["33.45", "31.12", "33.21"]
         return {
-            "id": random.choice(id),
+            "id": random.choice(deployment_id),
             "checksum": random.choice(checksum),
             "origin": random.choice(origin),
             "osname": random.choice(osname),

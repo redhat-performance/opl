@@ -131,7 +131,7 @@ def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-port",
         type=int,
-        default=int(os.getenv("KAFKA_PORT", 9092)),
+        default=int(os.getenv("KAFKA_PORT", "9092")),
         help="Kafka port (also use env variable KAFKA_PORT)",
     )
     parser.add_argument(
@@ -142,7 +142,7 @@ def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-timeout",
         type=int,
-        default=int(os.getenv("KAFKA_TIMEOUT", 100000)),
+        default=int(os.getenv("KAFKA_TIMEOUT", "100000")),
         help="Kafka timeout when consuming messages (also use env variable KAFKA_TIMEOUT)",
     )
     parser.add_argument(
@@ -163,19 +163,19 @@ def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-request-timeout-ms",
         type=int,
-        default=int(os.getenv("KAFKA_REQUEST_TIMEOUT_MS", 30000)),
+        default=int(os.getenv("KAFKA_REQUEST_TIMEOUT_MS", "30000")),
         help="The client is going to wait this much time for the server to respond to a request (also use env variable KAFKA_REQUEST_TIMEOUT_MS)",
     )
     parser.add_argument(
         "--kafka-max-block-ms",
         type=int,
-        default=int(os.getenv("KAFKA_MAX_BLOCK_MS", 60000)),
+        default=int(os.getenv("KAFKA_MAX_BLOCK_MS", "60000")),
         help="Max time to block send e.g. because buffer is full (also use env variable KAFKA_MAX_BLOCK_MS)",
     )
     parser.add_argument(
         "--kafka-linger-ms",
         type=int,
-        default=int(os.getenv("KAFKA_LINGER_MS", 0)),
+        default=int(os.getenv("KAFKA_LINGER_MS", "0")),
         help="Max time to wait for more messages when creating batch (also use env variable KAFKA_LINGER_MS)",
     )
     parser.add_argument(
@@ -187,19 +187,19 @@ def add_kafka_opts(parser):
     parser.add_argument(
         "--kafka-batch-size",
         type=int,
-        default=int(os.getenv("KAFKA_BATCH_SIZE", 16384)),
+        default=int(os.getenv("KAFKA_BATCH_SIZE", "16384")),
         help="Max size of the batch before sending (also use env variable KAFKA_BATCH_SIZE)",
     )
     parser.add_argument(
         "--kafka-max-request-size",
         type=int,
-        default=int(os.getenv("KAFKA_MAX_REQUEST_SIZE", 1048576)),
+        default=int(os.getenv("KAFKA_MAX_REQUEST_SIZE", "1048576")),
         help="Maximum size of a requests in bytes, effectively a cap on the maximum record size (also use env variable KAFKA_MAX_REQUEST_SIZE)",
     )
     parser.add_argument(
         "--kafka-retries",
         type=int,
-        default=int(os.getenv("KAFKA_RETRIES", 0)),
+        default=int(os.getenv("KAFKA_RETRIES", "0")),
         help="Resend any record whose send fails this many times. Can cause duplicates! (also use env variable KAFKA_RETRIES)",
     )
 
@@ -214,13 +214,13 @@ def add_mosquitto_opts(parser):
     parser.add_argument(
         "--mosquitto-port",
         type=int,
-        default=int(os.getenv("MOSQUITTO_PORT", 8883)),
+        default=int(os.getenv("MOSQUITTO_PORT", "8883")),
         help="Mosquitto port (also use env variable MOSQUITTO_PORT)",
     )
     parser.add_argument(
         "--mosquitto-timeout",
         type=int,
-        default=int(os.getenv("MOSQUITTO_TIMEOUT", 60)),
+        default=int(os.getenv("MOSQUITTO_TIMEOUT", "60")),
         help="Mosquitto timeout (also use env variable MOSQUITTO_TIMEOUT)",
     )
     parser.add_argument(
@@ -308,7 +308,7 @@ def add_locust_opts(parser):
         "--locust-master-expect-workers",
         dest="expect_workers",
         type=int,
-        default=int(os.getenv("LOCUST_MASTER_EXPECT_WORKERS", 1)),
+        default=int(os.getenv("LOCUST_MASTER_EXPECT_WORKERS", "1")),
         help="How many workers to expect before starting the test (also use env variable LOCUST_MASTER_EXPECT_WORKERS)",
     )
 
@@ -325,14 +325,14 @@ def add_locust_opts(parser):
         "--locust-num-clients",
         dest="num_clients",
         type=int,
-        default=int(os.getenv("LOCUST_NUM_CLIENTS", 100)),
+        default=int(os.getenv("LOCUST_NUM_CLIENTS", "100")),
         help="Locust number of clients (also use env variable LOCUST_NUM_CLIENTS)",
     )
     parser.add_argument(
         "--locust-hatch-rate",
         dest="hatch_rate",
         type=float,
-        default=float(os.getenv("LOCUST_HATCH_RATE", 10)),
+        default=float(os.getenv("LOCUST_HATCH_RATE", "10")),
         help="Locust hatch rate (also use env variable LOCUST_HATCH_RATE)",
     )
     parser.add_argument(
@@ -345,14 +345,14 @@ def add_locust_opts(parser):
         "--locust-stop-timeout",
         dest="stop_timeout",
         type=int,
-        default=int(os.getenv("LOCUST_STOP_TIMEOUT", 10)),
+        default=int(os.getenv("LOCUST_STOP_TIMEOUT", "10")),
         help="Locust stop timeout (also use env variable LOCUST_STOP_TIMEOUT)",
     )
     parser.add_argument(
         "--locust-wait-for-worker-timeout",
         dest="worker_wait_timeout",
         type=int,
-        default=int(os.getenv("LOCUST_WAIT_FOR_WORKER_TIMEOUT", 120)),
+        default=int(os.getenv("LOCUST_WAIT_FOR_WORKER_TIMEOUT", "120")),
         help="Locust timeout [s] for waiting until worker pods are ready. (also use env variable LOCUST_WAIT_FOR_WORKER_TIMEOUT)",
     )
 
@@ -360,13 +360,13 @@ def add_locust_opts(parser):
     parser.add_argument(
         "--test-duration",
         type=int,
-        default=os.getenv("TEST_DURATION", 100),
+        default=int(os.getenv("TEST_DURATION", "100")),
         help="Test duration (also use env variable TEST_DURATION)",
     )
     parser.add_argument(
         "--test-requests",
         type=int,
-        default=os.getenv("TEST_REQUESTS", 0),
+        default=int(os.getenv("TEST_REQUESTS", "0")),
         help="Number of requests - if non-0, this overrides test duration (also use env variable TEST_REQUESTS)",
     )
     parser.add_argument(
@@ -381,6 +381,6 @@ def add_tables_def_opts(parser):
     parser.add_argument(
         "--tables-definition",
         type=argparse.FileType("r"),
-        default=open(os.getenv("TABLES_DEFINITION", "tables.yaml"), "r"),
+        default=open(os.getenv("TABLES_DEFINITION", "tables.yaml"), "r", encoding="utf-8"),
         help="File defining tables and SQL to create them (also use env variable TABLES_DEFINITION)",
     )

@@ -10,6 +10,7 @@ import opl.status_data
 def load(pg_host, pg_port, pg_database, query, paths, **kwargs):
     """Run query against PostgreSQL and extract given paths."""
     try:
+        # pylint: disable-next=import-outside-toplevel  # optional dependency
         import psycopg2
     except ImportError as exc:
         raise ImportError(

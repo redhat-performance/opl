@@ -128,8 +128,9 @@ def get_timedelta_between_timestamp_n_dbcolumn(
 
 
 class BatchProcessor:
-    """Buffer rows and commit them to the DB in batches."""
     """
+    Buffer rows and commit them to the DB in batches.
+
     Goal of this object is to have some versatile mechanism, that would allow
     me to add data to DB one by one, but that would actually insert that data
     to DB only when it accumulated some amount of it (1 DB insert with 100

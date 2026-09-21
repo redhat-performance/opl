@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 """Store DB timestamps for latency measurement."""
 
 import argparse
@@ -16,57 +16,57 @@ import opl.data
 import opl.db
 import opl.skelet
 
-"""
-You want to use this helper if you want to get timestamps on when your
-hosts landed in application DB and store these timestamps in storage DB.
-
-To create a script using this helper, you can create this:
-
-    import opl.args
-    import opl.get_db_times
-
-
-    def func_add_more_args(parser):
-        opl.args.add_edge_db_opts(parser)
-
-
-    def func_create_app_db_config(args):
-        return {
-            'host': args.edge_db_host,
-            'port': args.edge_db_port,
-            'database': args.edge_db_name,
-            'user': args.edge_db_user,
-            'password': args.edge_db_pass,
-        }
-
-
-    if __name__ == "__main__":
-        config = {
-            "func_add_more_args": func_add_more_args,
-            "func_create_app_db_config": func_create_app_db_config,
-            "query_storage_update_timestamp": "query_storage_update_created_at",   # update query to store created_at into items table
-            "query_storage_count_applicable_hosts": "query_storage_count_applicable_hosts",   # query to get count of hosts with missing created_at value
-            "query_storage_get_applicable_hosts": "query_storage_get_applicable_hosts",   # query to get IDs of hosts with missing created_at value
-            "query_app_get_hosts": "query_edge_get_created_at",   # query host ID and created_at from Edge DB for given hosts
-        }
-        opl.get_db_times.get_db_times(config)
-
-And have something like this in your tables.yaml:
-
-    tables:
-        items:
-            - CREATE TABLE IF NOT EXISTS items (
-                  subscription_manager_id VARCHAR PRIMARY KEY,
-                  qpc_at TIMESTAMP WITH TIME ZONE NULL,
-                  created_at TIMESTAMP WITH TIME ZONE NULL)
-            - CREATE INDEX IF NOT EXISTS items_subscription_manager_id_idx
-                  ON items (subscription_manager_id)
-    queries:
-        query_storage_update_created_at: UPDATE items SET created_at = data.created_at FROM (VALUES %s) AS data(subscription_manager_id, created_at) WHERE items.subscription_manager_id = data.subscription_manager_id
-        query_storage_count_applicable_hosts: SELECT COUNT(*) FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL
-        query_storage_get_applicable_hosts: SELECT subscription_manager_id FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL OFFSET %s LIMIT %s
-        query_edge_get_created_at: SELECT uuid, created_at FROM devices WHERE uuid=ANY(%s)
-"""
+# """
+# You want to use this helper if you want to get timestamps on when your
+# hosts landed in application DB and store these timestamps in storage DB.
+#
+# To create a script using this helper, you can create this:
+#
+#     import opl.args
+#     import opl.get_db_times
+#
+#
+#     def func_add_more_args(parser):
+#         opl.args.add_edge_db_opts(parser)
+#
+#
+#     def func_create_app_db_config(args):
+#         return {
+#             'host': args.edge_db_host,
+#             'port': args.edge_db_port,
+#             'database': args.edge_db_name,
+#             'user': args.edge_db_user,
+#             'password': args.edge_db_pass,
+#         }
+#
+#
+#     if __name__ == "__main__":
+#         config = {
+#             "func_add_more_args": func_add_more_args,
+#             "func_create_app_db_config": func_create_app_db_config,
+#             "query_storage_update_timestamp": "query_storage_update_created_at",   # update query to store created_at into items table
+#             "query_storage_count_applicable_hosts": "query_storage_count_applicable_hosts",   # query to get count of hosts with missing created_at value
+#             "query_storage_get_applicable_hosts": "query_storage_get_applicable_hosts",   # query to get IDs of hosts with missing created_at value
+#             "query_app_get_hosts": "query_edge_get_created_at",   # query host ID and created_at from Edge DB for given hosts
+#         }
+#         opl.get_db_times.get_db_times(config)
+#
+# And have something like this in your tables.yaml:
+#
+#     tables:
+#         items:
+#             - CREATE TABLE IF NOT EXISTS items (
+#                   subscription_manager_id VARCHAR PRIMARY KEY,
+#                   qpc_at TIMESTAMP WITH TIME ZONE NULL,
+#                   created_at TIMESTAMP WITH TIME ZONE NULL)
+#             - CREATE INDEX IF NOT EXISTS items_subscription_manager_id_idx
+#                   ON items (subscription_manager_id)
+#     queries:
+#         query_storage_update_created_at: UPDATE items SET created_at = data.created_at FROM (VALUES %s) AS data(subscription_manager_id, created_at) WHERE items.subscription_manager_id = data.subscription_manager_id
+#         query_storage_count_applicable_hosts: SELECT COUNT(*) FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL
+#         query_storage_get_applicable_hosts: SELECT subscription_manager_id FROM items WHERE qpc_at IS NOT NULL AND created_at IS NULL OFFSET %s LIMIT %s
+#         query_edge_get_created_at: SELECT uuid, created_at FROM devices WHERE uuid=ANY(%s)
+# """
 
 
 class GetDbTimes:

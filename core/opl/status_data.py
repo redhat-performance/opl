@@ -50,7 +50,7 @@ class StatusData:
         """Load data from JSON file (missing file means empty data)."""
         try:
             self._filename_mtime = os.path.getmtime(self._filename)
-            with open(self._filename, "r") as fp:
+            with open(self._filename, "r", encoding="utf-8") as fp:
                 self._data = json.load(fp)
             logging.debug(f"Loaded status data from {self._filename}")
         except FileNotFoundError:
@@ -149,7 +149,7 @@ class StatusData:
         # Check that we are not attempting to change type of already existing key
         if array_key and not missing_key:
             assert (
-                type(data[current_key]) is list
+                isinstance(data[current_key], list)
             ), "You are trying to change type (e.g. 'aaa' was string and now you are trying to add to 'aaa[]')"
 
         if missing_key:
@@ -211,7 +211,7 @@ class StatusData:
         """
         Set given multikey to contents of JSON formated file provided by its path
         """
-        with open(file_path, "r") as fp:
+        with open(file_path, "r", encoding="utf-8") as fp:
             if file_path.endswith(".json"):
                 data = json.load(fp)
             elif file_path.endswith(".yaml"):
@@ -306,7 +306,7 @@ class StatusData:
 
     def _save(self, filename):
         """Just save status data document to JSON file on disk"""
-        with open(filename, "w+") as fp:
+        with open(filename, "w+", encoding="utf-8") as fp:
             json.dump(self.dump(), fp, sort_keys=True, indent=4)
         if filename == self._filename:
             self._filename_mtime = os.path.getmtime(filename)
@@ -524,7 +524,11 @@ def main_diff():
     first = StatusData(args.first[0])
     second = StatusData(args.second[0])
 
-    diff = deepdiff.DeepDiff(first._data, second._data, view="tree")
+    # pylint: disable=protected-access  # deliberate: comparing internals
+    diff = deepdiff.DeepDiff(
+        first._data, second._data, view="tree"
+    )
+    # pylint: enable=protected-access
     if args.report:
         print(f"Keys: {', '.join(diff.keys())}")
         if "dictionary_item_added" in diff:

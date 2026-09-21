@@ -215,7 +215,7 @@ def data_stats(data):
 
     non_zero_data = [i for i in data if i != 0]
 
-    if isinstance(data[0], int) or isinstance(data[0], float):
+    if isinstance(data[0], (int, float)):
         q25 = percentile(data, 25)
         q75 = percentile(data, 75)
         q90 = percentile(data, 90)

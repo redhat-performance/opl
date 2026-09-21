@@ -21,7 +21,7 @@ from opl import data, date, retry, status_data
 def execute(command):
     """Execute shell command and return its stdout (fail on non-zero exit)."""
     p = subprocess.run(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
     )
     if p.returncode != 0 or len(p.stderr) != 0:
         stderr = p.stderr.decode().strip().replace("\n", "\t")
@@ -36,13 +36,13 @@ def execute(command):
     return result
 
 
-def redact_sensitive_headers(data: dict):
+def redact_sensitive_headers(headers: dict):
     """Replace values of sensitive headers with <REDACTED>."""
     # Lower-case list of sensitive data in header
     sensitive_headers = ["authorization", "set-cookie", "x-api-key", "cookie"]
 
     redacted_headers = {}
-    for header, value in data.items():
+    for header, value in headers.items():
         if header.lower() in sensitive_headers:
             redacted_headers[header] = "<REDACTED>"
         else:
@@ -77,8 +77,6 @@ def dir_path(path):
 class NoDataException(Exception):
     """Raised when a plugin can not fetch any data."""
 
-    pass
-
 
 class BasePlugin:
     """Base class for measurement plugins."""
@@ -88,7 +86,6 @@ class BasePlugin:
 
     def measure(self, ri, **args):
         """Fetch measurement (to be overridden by plugins)."""
-        pass
 
     def _dump_raw_data(self, name, mydata):
         """
@@ -102,7 +99,7 @@ class BasePlugin:
         file_path = os.path.join(self.args.monitoring_raw_data_dir, file_name)
 
         logging.debug(f"Dumping raw data ({len(mydata)} rows) to {file_path}")
-        with open(file_path, "w", newline="") as csvfile:
+        with open(file_path, "w", encoding="utf-8", newline="") as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["timestamp", name])
             csvwriter.writerows(mydata)
@@ -110,7 +107,6 @@ class BasePlugin:
     @staticmethod
     def add_args(parser):
         """Add plugin specific CLI options (none in base class)."""
-        pass
 
 
 class PrometheusMeasurementsPlugin(BasePlugin):
@@ -609,18 +605,18 @@ def config_stuff(config):
         def __init__(self, main_template):
             self.main_template = main_template
 
-        def get_source(self, environment, path):
-            if path == "main_template":
+        def get_source(self, environment, template):
+            if template == "main_template":
                 return self.main_template, None, lambda: True
 
-            if not os.path.exists(path):
-                raise jinja2.exceptions.TemplateNotFound(path)
+            if not os.path.exists(template):
+                raise jinja2.exceptions.TemplateNotFound(template)
 
-            mtime = os.path.getmtime(path)
-            with open(path) as f:
+            mtime = os.path.getmtime(template)
+            with open(template, encoding="utf-8") as f:
                 source = f.read()
 
-            return source, path, lambda: mtime == os.path.getmtime(path)
+            return source, template, lambda: mtime == os.path.getmtime(template)
 
     if not isinstance(config, str):
         config = config.read()

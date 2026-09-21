@@ -15,7 +15,7 @@ class RbacTestData:
         self.filename = filename
         if self.filename is not None:
             if os.path.exists(filename):
-                with open(self.filename, "r") as fd:
+                with open(self.filename, "r", encoding="utf-8") as fd:
                     self.data = json.load(fd)
             else:
                 self.save()
@@ -28,7 +28,7 @@ class RbacTestData:
             self.filename = filename
         if self.filename is None:
             raise Exception("Where should I save to?")
-        with open(self.filename, "w") as fd:
+        with open(self.filename, "w", encoding="utf-8") as fd:
             json.dump(self.data, fd)
 
     def info(self):
@@ -83,8 +83,9 @@ class RbacTestData:
 
 
 class TestRequestedInfo(unittest.TestCase):
-    """Unit tests for RbacTestData."""
     """
+    Unit tests for RbacTestData.
+
     Run the tests with:
 
     python3 -m unittest rbac_utils.py

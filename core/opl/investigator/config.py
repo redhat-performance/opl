@@ -148,7 +148,7 @@ def load_config(conf, fp):
     conf.decisions_type = data["decisions"]["type"]
 
     if conf.history_type == "csv":
-        conf.history_file = open(data["history"]["file"], "r")
+        conf.history_file = open(data["history"]["file"], "r", encoding="utf-8")
 
     if conf.history_type == "elasticsearch":
         conf.history_es_server = data["history"]["es_server"]
@@ -184,7 +184,7 @@ def load_config(conf, fp):
 
     if conf.current_file is None:
         if conf.current_type == "status_data":
-            conf.current_file = open(data["current"]["file"], "r")
+            conf.current_file = open(data["current"]["file"], "r", encoding="utf-8")
 
     if conf.decisions_type == "elasticsearch":
         conf.decisions_es_server = data["decisions"]["es_server"]

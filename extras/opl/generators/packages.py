@@ -15,7 +15,7 @@ class PackagesGenerator:
         self.data_file = os.path.join(data_dirname, package_file_name)
 
         # Load data
-        with open(self.data_file, "r") as fp:
+        with open(self.data_file, "r", encoding="utf-8") as fp:
             data_raw = json.load(fp)
 
         # Only pick one version and drop rest of them to make

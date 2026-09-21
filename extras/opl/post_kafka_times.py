@@ -19,102 +19,102 @@ import opl.db
 import opl.skelet
 from opl.kafka_init import KafkaInit
 
-"""
-You want to use this helper if you want to achieve this:
-
-    * you have a messages generator like the in OPL `generators/`
-    * you want to produce them to Kafka topic
-    * you want to record when each message was sent
-
-To create a script using this helper, you can create this:
-
-    import json
-    import socket
-
-    import opl.generators.inventory_egress
-    import opl.post_kafka_times
-
-
-    def func_add_more_args(parser):
-        # This function allows to add more parameters to the tool besides
-        # what opl.post_kafka_times.post_kafka_times defines - maybe because
-        # you will need it later in func_return_generator.
-        parser.add_argument(
-            "--count",
-            default=100,
-            type=int,
-            help="How many messages to prepare",
-        )
-        parser.add_argument(
-            "--n-packages",
-            default=500,
-            type=int,
-            help="How many packages addresses should each host have",
-        )
-        parser.add_argument(
-            "--msg-type",
-            default="created",
-            choices=["created"],
-            help="Type of the message",
-        )
-
-
-    def func_return_generator(args):
-        # This function is supposed to return the generator and is given
-        # arguments passed on command line.
-        # Generator is supposed to return touple with message ID and message
-        # when iterating over it.
-        return opl.generators.inventory_egress.EgressHostsGenerator(
-            count=args.count,
-            n_packages=args.n_packages,
-            msg_type=args.msg_type,
-        )
-
-
-    def func_return_message_payload(args, message_id, message):
-        # This function is supposed to return payload usable by Kafka
-        # producer when sending - i.e. simple `string`. Helper will just
-        # encode it into `bytes`. If your producer returns strings, you
-        # might go with just `return message`.
-        # This function have access to arguments from argparse
-        # and message_id and message as provided by generator.
-        return json.dumps(message)
-
-
-    def func_return_message_key(args, message_id, message):
-        # This function is supposed to return message key. Just
-        # `return None` if your topic/app does not require it.
-        return message_id
-
-
-    def func_return_message_headers(args, message_id, message):
-        # This function is supposed to return message headers if your
-        # app/topic needs it. If you do not need it, just use `return []`.
-        _event_type = args.msg_type
-        _request_id = message["platform_metadata"]["request_id"]
-        _producer = socket.gethostname()
-        _insights_id = message["host"]["insights_id"]
-        return [
-            ("event_type", _event_type),
-            ("request_id", _request_id),
-            ("producer", _producer),
-            ("insights_id", _insights_id),
-        ]
-
-
-    if __name__ == "__main__":
-        # Here we just create config for the helper...
-        config = {
-            "func_add_more_args": func_add_more_args,
-            "query_store_info_produced": "query_store_info_produced",
-            "func_return_generator": func_return_generator,
-            "func_return_message_payload": func_return_message_payload,
-            "func_return_message_headers": func_return_message_headers,
-            "func_return_message_key": func_return_message_key,
-        }
-        # ...and run the helper
-        opl.post_kafka_times.post_kafka_times(config)
-"""
+# """
+# You want to use this helper if you want to achieve this:
+#
+#     * you have a messages generator like the in OPL `generators/`
+#     * you want to produce them to Kafka topic
+#     * you want to record when each message was sent
+#
+# To create a script using this helper, you can create this:
+#
+#     import json
+#     import socket
+#
+#     import opl.generators.inventory_egress
+#     import opl.post_kafka_times
+#
+#
+#     def func_add_more_args(parser):
+#         # This function allows to add more parameters to the tool besides
+#         # what opl.post_kafka_times.post_kafka_times defines - maybe because
+#         # you will need it later in func_return_generator.
+#         parser.add_argument(
+#             "--count",
+#             default=100,
+#             type=int,
+#             help="How many messages to prepare",
+#         )
+#         parser.add_argument(
+#             "--n-packages",
+#             default=500,
+#             type=int,
+#             help="How many packages addresses should each host have",
+#         )
+#         parser.add_argument(
+#             "--msg-type",
+#             default="created",
+#             choices=["created"],
+#             help="Type of the message",
+#         )
+#
+#
+#     def func_return_generator(args):
+#         # This function is supposed to return the generator and is given
+#         # arguments passed on command line.
+#         # Generator is supposed to return touple with message ID and message
+#         # when iterating over it.
+#         return opl.generators.inventory_egress.EgressHostsGenerator(
+#             count=args.count,
+#             n_packages=args.n_packages,
+#             msg_type=args.msg_type,
+#         )
+#
+#
+#     def func_return_message_payload(args, message_id, message):
+#         # This function is supposed to return payload usable by Kafka
+#         # producer when sending - i.e. simple `string`. Helper will just
+#         # encode it into `bytes`. If your producer returns strings, you
+#         # might go with just `return message`.
+#         # This function have access to arguments from argparse
+#         # and message_id and message as provided by generator.
+#         return json.dumps(message)
+#
+#
+#     def func_return_message_key(args, message_id, message):
+#         # This function is supposed to return message key. Just
+#         # `return None` if your topic/app does not require it.
+#         return message_id
+#
+#
+#     def func_return_message_headers(args, message_id, message):
+#         # This function is supposed to return message headers if your
+#         # app/topic needs it. If you do not need it, just use `return []`.
+#         _event_type = args.msg_type
+#         _request_id = message["platform_metadata"]["request_id"]
+#         _producer = socket.gethostname()
+#         _insights_id = message["host"]["insights_id"]
+#         return [
+#             ("event_type", _event_type),
+#             ("request_id", _request_id),
+#             ("producer", _producer),
+#             ("insights_id", _insights_id),
+#         ]
+#
+#
+#     if __name__ == "__main__":
+#         # Here we just create config for the helper...
+#         config = {
+#             "func_add_more_args": func_add_more_args,
+#             "query_store_info_produced": "query_store_info_produced",
+#             "func_return_generator": func_return_generator,
+#             "func_return_message_payload": func_return_message_payload,
+#             "func_return_message_headers": func_return_message_headers,
+#             "func_return_message_key": func_return_message_key,
+#         }
+#         # ...and run the helper
+#         opl.post_kafka_times.post_kafka_times(config)
+# """
 
 
 class PostKafkaTimes:
@@ -234,7 +234,7 @@ def post_kafka_times(config):
     parser.add_argument(
         "--kafka-producer-threads",
         type=int,
-        default=os.getenv("KAFKA_PRODUCER_THREADS", 1),
+        default=int(os.getenv("KAFKA_PRODUCER_THREADS", "1")),
         help="Produce in this many threads (also use env variable KAFKA_PRODUCER_THREADS)",
     )
     parser.add_argument(

@@ -7,7 +7,7 @@ import time
 
 import gevent
 import tabulate
-from locust import env as l_env  # pylint: disable=no-name-in-module
+from locust import env as l_env  # pylint: disable=no-name-in-module,import-self
 
 
 def run_locust(

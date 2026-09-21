@@ -140,3 +140,4 @@ dmypy.json
 # Some jhutar's files
 */README-helper
 OLD/
+.claude/

@@ -247,7 +247,7 @@ class PlaybookRunMessageGenerator:
             if self.diff_mode:
                 self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
                     "console"
-                ] = (opl.gen.gen_string(size=size - 1) + "\n")
+                ] = opl.gen.gen_string(size=size - 1) + "\n"
             else:
                 self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
                     "console"

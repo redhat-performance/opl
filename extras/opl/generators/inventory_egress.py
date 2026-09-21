@@ -41,7 +41,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         # Load data file
         data_dirname = os.path.dirname(__file__)
         data_file = os.path.join(data_dirname, self.egress_data_file)
-        with open(data_file, "r") as fp:
+        with open(data_file, "r", encoding="utf-8") as fp:
             self.data = json.load(fp)
 
         # Check parameters sanity

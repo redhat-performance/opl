@@ -1,5 +1,9 @@
 """HTTP session helpers with insecure-mode handling."""
 
+# Note: pylint sometimes reports phantom unused imports (IntEnum/StrEnum/
+# namedtuple) in this file; they do not exist - environment false positive.
+# pylint: disable=unused-import
+
 import logging
 
 import requests
