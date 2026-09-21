@@ -3,6 +3,8 @@ import collections
 import logging
 import sys
 
+import tabulate
+
 import opl.investigator.check
 import opl.investigator.config
 import opl.investigator.csv_decisions
@@ -13,7 +15,6 @@ import opl.investigator.postgresql_decisions
 import opl.investigator.postgresql_loader
 import opl.investigator.sd_dir_loader
 import opl.investigator.status_data_loader
-import tabulate
 
 STATUSES = {
     0: "PASS",
@@ -122,7 +123,7 @@ def doit(args):
     else:
         raise Exception("Not supported data source type for historical data")
 
-    total = sum([len(v) for v in history.values()])
+    total = sum(len(v) for v in history.values())
     if total == 0:
         logging.info(f"Current result metrics: {current}")
         logging.fatal("No data available in historical results!")

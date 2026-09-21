@@ -6,13 +6,14 @@ import logging
 import threading
 import time
 
+import psycopg2
+import psycopg2.extras
+import yaml
+
 import opl.args
 import opl.data
 import opl.db
 import opl.skelet
-import psycopg2
-import psycopg2.extras
-import yaml
 
 """
 You want to use this helper if you want to get timestamps on when your

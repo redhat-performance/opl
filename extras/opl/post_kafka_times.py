@@ -7,14 +7,15 @@ import os
 import threading
 import time
 
+import psycopg2
+import psycopg2.extras
+import yaml
+
 import opl.args
 import opl.data
 import opl.db
 import opl.skelet
-import psycopg2
-import psycopg2.extras
-import yaml
-from opl.kafka_init import kafka_init
+from opl.kafka_init import KafkaInit
 
 """
 You want to use this helper if you want to achieve this:
@@ -203,7 +204,7 @@ class PostKafkaTimes:
                     this_second = wait_for_next_second(this_second)
                     in_second = 0
             else:
-                if self.rate != 0 and self.rate != in_second:
+                if self.rate not in (0, in_second):
                     logging.warning(
                         f"In second {this_second} sent {in_second} messages (but wanted to send {self.rate})"
                     )
@@ -271,7 +272,7 @@ def post_kafka_times(config):
         args_copy["tables_definition"] = args_copy["tables_definition"].name
         status_data.set("parameters.produce_messages", args_copy)
 
-        produce_here = kafka_init.get_producer(args)
+        produce_here = KafkaInit.get_producer(args)
 
         logging.info(f"Loading queries definition from {args.tables_definition}")
         queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)[

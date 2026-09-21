@@ -265,19 +265,19 @@ def add_locust_opts(parser):
     parser.add_argument(
         "--locust-local-runner",
         action="store_true",
-        default=True if os.getenv("LOCUST_LOCAL_RUNNER", "true") == "true" else False,
+        default=os.getenv("LOCUST_LOCAL_RUNNER", "true") == "true",
         help="Make this a local runner (also use env variable LOCUST_LOCAL_RUNNER)",
     )
     parser.add_argument(
         "--locust-master-runner",
         action="store_true",
-        default=True if os.getenv("LOCUST_MASTER_RUNNER", "false") == "true" else False,
+        default=os.getenv("LOCUST_MASTER_RUNNER", "false") == "true",
         help="Make this a master runner which does not do any requests (also use env variable LOCUST_MASTER_RUNNER)",
     )
     parser.add_argument(
         "--locust-worker-runner",
         action="store_true",
-        default=True if os.getenv("LOCUST_WORKER_RUNNER", "false") == "true" else False,
+        default=os.getenv("LOCUST_WORKER_RUNNER", "false") == "true",
         help="Make this a worker runner (also use env variable LOCUST_WORKER_RUNNER)",
     )
 

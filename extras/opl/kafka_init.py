@@ -5,7 +5,7 @@ from kafka import KafkaConsumer, KafkaProducer
 # Common instantiators for KafkaProducer and KafkaConsumer
 
 
-class kafka_init:
+class KafkaInit:
     @staticmethod
     def kafka_bootstrap(args):
         try:
@@ -21,7 +21,7 @@ class kafka_init:
     # Based on the args, obtain KafkaProducer instance
     @staticmethod
     def get_producer(args, status_data=None):
-        bootstrap_servers = kafka_init.kafka_bootstrap(args)
+        bootstrap_servers = KafkaInit.kafka_bootstrap(args)
 
         # Sanitize acks setting
         if args.kafka_acks != "all":
@@ -70,7 +70,7 @@ class kafka_init:
     # If args.kafka_topic is supplied, subscribe to the topic.
     @staticmethod
     def get_consumer(args, status_data=None):
-        bootstrap_servers = kafka_init.kafka_bootstrap(args)
+        bootstrap_servers = KafkaInit.kafka_bootstrap(args)
 
         # Common parameters for both cases
         common_params = {

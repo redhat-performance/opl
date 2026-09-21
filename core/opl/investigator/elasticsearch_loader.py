@@ -3,9 +3,10 @@ import logging
 import os
 import tempfile
 
+from requests.auth import HTTPBasicAuth
+
 import opl.http
 import opl.status_data
-from requests.auth import HTTPBasicAuth
 
 
 def load(server, index, query, paths, **kwargs):

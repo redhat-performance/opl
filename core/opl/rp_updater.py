@@ -1,9 +1,10 @@
 import argparse
 import logging
 
+import tabulate
+
 import opl.http
 import opl.status_data
-import tabulate
 
 
 def _get_all_items(args):

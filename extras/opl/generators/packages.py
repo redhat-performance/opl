@@ -39,12 +39,11 @@ class PackagesGenerator:
 class YumReposGenerator:
     def __init__(self):
         data_dirname = os.path.dirname(__file__)
-        self.data = [
-            yum_repo
-            for yum_repo in open(os.path.join(data_dirname, "yum_repos.txt"), "r")
+        self.data = list(
+            open(os.path.join(data_dirname, "yum_repos.txt"), encoding="utf-8")
             .read()
             .split("\n")
-        ]
+        )
 
     def count(self):
         return len(self.data)
@@ -56,12 +55,11 @@ class YumReposGenerator:
 class EnabledServicesGenerator:
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        self.data = [
-            service
-            for service in open(os.path.join(data_dirname, "enabled_services.txt"), "r")
+        self.data = list(
+            open(os.path.join(data_dirname, "enabled_services.txt"), encoding="utf-8")
             .read()
             .split("\n")
-        ]
+        )
 
     def count(self):
         return len(self.data)
@@ -73,14 +71,13 @@ class EnabledServicesGenerator:
 class InstalledServicesGenerator:
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        self.data = [
-            service
-            for service in open(
-                os.path.join(data_dirname, "installed_services.txt"), "r"
+        self.data = list(
+            open(
+                os.path.join(data_dirname, "installed_services.txt"), encoding="utf-8"
             )
             .read()
             .split("\n")
-        ]
+        )
 
     def count(self):
         return len(self.data)
@@ -92,14 +89,13 @@ class InstalledServicesGenerator:
 class RunningProcessesGenerator:
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        self.data = [
-            service
-            for service in open(
-                os.path.join(data_dirname, "running_processes.txt"), "r"
+        self.data = list(
+            open(
+                os.path.join(data_dirname, "running_processes.txt"), encoding="utf-8"
             )
             .read()
             .split("\n")
-        ]
+        )
 
     def count(self):
         return len(self.data)

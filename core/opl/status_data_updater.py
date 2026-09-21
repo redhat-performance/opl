@@ -10,12 +10,13 @@ import tempfile
 import time
 from collections import OrderedDict
 
-import opl.status_data
 import requests
 import requests.adapters
 import tabulate
 import urllib3
 import yaml
+
+import opl.status_data
 
 RP_TO_ES_STATE = {
     "automation_bug": "FAIL",

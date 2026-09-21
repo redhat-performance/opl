@@ -5,14 +5,15 @@ import json
 import logging
 import os
 
+import psycopg2
+import psycopg2.extras
+import yaml
+
 import opl.args
 import opl.data
 import opl.db
 import opl.skelet
-import psycopg2
-import psycopg2.extras
-import yaml
-from opl.kafka_init import kafka_init
+from opl.kafka_init import KafkaInit
 
 
 class GetKafkaTimes:
@@ -75,7 +76,7 @@ class GetKafkaTimes:
     def create_consumer(self):
         self.args.kafka_auto_offset_reset = "earliest"
         self.args.kafka_enable_auto_commit = True
-        return kafka_init.get_consumer(self.args, self.status_data)
+        return KafkaInit.get_consumer(self.args, self.status_data)
 
     def store_now(self):
         """
