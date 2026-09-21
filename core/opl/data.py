@@ -1,3 +1,5 @@
+"""Data statistics helpers and waiting for data changes in DBs."""
+
 import datetime
 import logging
 import math
@@ -6,6 +8,8 @@ import time
 
 
 class WaitForDataAndSave:
+    """Watches a data DB for new rows in batches and saves them to storage."""
+
     def __init__(self, data_db, storage_db, queries, save_here):
         self.data_db = data_db
         self.storage_db = storage_db
@@ -86,6 +90,7 @@ class WaitForDataAndSave:
             time.sleep(10)
 
     def process(self):
+        """Wait until expected count of rows appears, saving them in batches."""
         logging.debug(f"Going to process {self.expected_count} items")
         iteration = 0
         iteration_wait = 10
@@ -139,6 +144,7 @@ class WaitForDataAndSave:
 
 
 def percentile(data, percent):
+    """Calculate the given percentile of a list of numbers."""
     if not data:
         return None
 
@@ -156,6 +162,7 @@ def percentile(data, percent):
 
 
 def create_bins(data, precision, bins_number=10):  # pylint: disable=unused-argument
+    """Create equal-width bins covering the data range."""
     bins = []
     borders = []
     min_data = min(data)
@@ -171,6 +178,7 @@ def create_bins(data, precision, bins_number=10):  # pylint: disable=unused-argu
 
 
 def find_bin(value, bins):
+    """Return index of the bin containing the value, or -1 if none."""
     for i in range(len(bins)):
         if bins[i][0] <= value < bins[i][1]:
             return i
@@ -178,6 +186,7 @@ def find_bin(value, bins):
 
 
 def histogram(data, precision=1):
+    """Compute histogram counts and bin borders for the data."""
     if len(data) == 0:
         return [0], [0, 1]
 
@@ -192,6 +201,7 @@ def histogram(data, precision=1):
 
 
 def data_stats(data):
+    """Compute basic statistics (min, max, mean, percentiles, ...) for data."""
     if len(data) == 0:
         return {"samples": 0}
 
@@ -247,6 +257,7 @@ def data_stats(data):
 
 
 def get_hist(data):
+    """Return histogram as list of ((start, end), count) tuples."""
     hist_counts, hist_borders = histogram(data)
     hist_counts = [float(i) for i in hist_counts]
     hist_borders = [float(i) for i in hist_borders]
@@ -257,6 +268,7 @@ def get_hist(data):
 
 
 def visualize_hist(data):
+    """Print a simple text histogram of the data."""
     for i in get_hist(data):
         print(f"<{i[0][0]:.2f}, {i[0][1]:.2f})\t: {i[1]}")
 

@@ -1,3 +1,5 @@
+"""RBAC test data helpers and unit tests."""
+
 import json
 import logging
 import os.path
@@ -6,6 +8,8 @@ import unittest
 
 
 class RbacTestData:
+    """In-memory RBAC data (accounts, users, applications), backed by JSON."""
+
     def __init__(self, filename=None):
         self.data = {"accounts": {}}
         self.filename = filename
@@ -17,6 +21,7 @@ class RbacTestData:
                 self.save()
 
     def save(self, filename=None):
+        """Save the data to a JSON file."""
         if filename is not None:
             if os.path.exists(filename):
                 logging.warning(f"File {filename} already exists. Overwriting it.")
@@ -27,6 +32,7 @@ class RbacTestData:
             json.dump(self.data, fd)
 
     def info(self):
+        """Return counts of accounts, users and applications."""
         return {
             "accounts_count": len(self.get_accounts()),
             "users_count": sum(
@@ -38,15 +44,19 @@ class RbacTestData:
         }
 
     def get_accounts(self):
+        """Return list of accounts."""
         return list(self.data["accounts"].keys())
 
     def get_users_for_account(self, account):
+        """Return users of the given account."""
         return self.data["accounts"][account]["users"]
 
     def get_applications_for_account(self, account):
+        """Return applications of the given account."""
         return self.data["accounts"][account]["applications"]
 
-    def add_account(self, account, users=[], applications=[]):
+    def add_account(self, account, users=[], applications=[]):  # pylint: disable=dangerous-default-value
+        """Add an account with optional users and applications (merging)."""
         if account not in self.data["accounts"]:
             self.data["accounts"][account] = {
                 "users": [],
@@ -60,16 +70,20 @@ class RbacTestData:
         )
 
     def pick_account(self):
+        """Return a random account."""
         return random.choice(self.get_accounts())
 
     def pick_user_for_account(self, account):
+        """Return a random user of the given account."""
         return random.choice(self.get_users_for_account(account))
 
     def pick_application_for_account(self, account):
+        """Return a random application of the given account."""
         return random.choice(self.get_applications_for_account(account))
 
 
 class TestRequestedInfo(unittest.TestCase):
+    """Unit tests for RbacTestData."""
     """
     Run the tests with:
 
@@ -77,10 +91,12 @@ class TestRequestedInfo(unittest.TestCase):
     """
 
     def test_empty(self):
+        """Test info() on empty data."""
         data = RbacTestData()
         self.assertEqual(data.get_accounts(), [])
 
     def test_add_get(self):
+        """Test adding an account and getting it back."""
         data = RbacTestData()
         data.add_account("10001", ["aaa", "bbb"], ["xxx", "yyy", "zzz"])
         self.assertEqual(set(data.get_accounts()), set(["10001"]))
@@ -90,6 +106,7 @@ class TestRequestedInfo(unittest.TestCase):
         )
 
     def test_add_more(self):
+        """Test adding more accounts."""
         data = RbacTestData()
         data.add_account("10001", ["aaa", "bbb"], ["xxx"])
         data.add_account("10002", ["ccc", "ddd"], ["yyy"])
@@ -98,6 +115,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(set(data.get_users_for_account("10002")), set(["ccc", "ddd"]))
 
     def test_add_merge(self):
+        """Test that adding an existing account merges data."""
         data = RbacTestData()
         data.add_account("10001", ["aaa", "bbb"], ["xxx"])
         data.add_account("10001", ["bbb", "ccc"], ["xxx", "yyy", "zzz"])
@@ -110,6 +128,7 @@ class TestRequestedInfo(unittest.TestCase):
         )
 
     def test_info(self):
+        """Test info() counts."""
         data = RbacTestData()
         data.add_account("10001", ["aaa", "bbb"], ["xxx"])
         data.add_account("10002", ["ccc", "ddd"], ["yyy", "zzz"])

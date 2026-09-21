@@ -1,3 +1,5 @@
+"""Locust test runner wrapper."""
+
 import copy
 import logging
 import re
@@ -11,6 +13,7 @@ from locust import env as l_env  # pylint: disable=no-name-in-module
 def run_locust(
     args, status_data, test_set, new_stats=False, summary_only=False, sort_stats=False
 ):
+    """Run a Locust test (local, master or worker runner) and collect stats."""
     # Local runner is True by default, bot overwrite it if we have selected
     # master or worker runner
     assert not (

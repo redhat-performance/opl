@@ -1,3 +1,5 @@
+"""Retry decorator mimicking tenacity without the dependency."""
+
 import logging
 import time
 from functools import wraps

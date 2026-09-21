@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Helpers for generating inventory account IDs."""
 import random
 
 import opl.db

@@ -1,3 +1,5 @@
+"""Store investigation decisions in ElasticSearch."""
+
 import datetime
 import json
 import logging
@@ -7,6 +9,7 @@ import requests
 
 
 def store(server, index, decisions, **kwargs):
+    """Index decisions in ElasticSearch."""
     es_server_user = kwargs.get("es_server_user")
     decisions_es_server_pass_env_var = kwargs.get("es_server_pass_env_var")
     # This is our workaround on how to add additional metadata about the decision

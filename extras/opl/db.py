@@ -1,3 +1,5 @@
+"""Database (PostgreSQL) helpers."""
+
 import logging
 import random
 import time
@@ -45,6 +47,7 @@ def execute_query(db_conf, sql):
 
 
 def connect_with_retry(db_conf, cattempt=1, cmax=100, csleep=5):
+    """Connect to the DB, retrying with backoff on failures."""
     while True:
         try:
             return psycopg2.connect(**db_conf)
@@ -86,6 +89,7 @@ def get_column_min_max(connection, column, table="items"):
 
 
 def get_timestamps(connection, column, table="items"):
+    """Return (min, max) of the given timestamp column."""
     sql = f"SELECT EXTRACT (EPOCH FROM {column}) as {column} FROM {table} WHERE {column} IS NOT NULL"
     logging.debug(f"Executing {sql}")
     cursor = connection.cursor()
@@ -115,6 +119,7 @@ def get_timedelta_between_columns(connection, columns, table="items"):
 def get_timedelta_between_timestamp_n_dbcolumn(
     start_time, connection, column, table="items"
 ):
+    """Time difference in seconds between a timestamp and a DB column."""
     timedelta = [
         (i - start_time).total_seconds()
         for i in get_column(connection, column, table=table)
@@ -123,6 +128,7 @@ def get_timedelta_between_timestamp_n_dbcolumn(
 
 
 class BatchProcessor:
+    """Buffer rows and commit them to the DB in batches."""
     """
     Goal of this object is to have some versatile mechanism, that would allow
     me to add data to DB one by one, but that would actually insert that data
@@ -139,6 +145,7 @@ class BatchProcessor:
         self.counter_commited = 0
 
     def commit(self):
+        """Commit buffered rows (no-op if buffer is empty)."""
         logging.debug(f"Executing '{self.sql}' with {len(self.data)} rows of data")
         cursor = self.db.cursor()
 
@@ -158,6 +165,7 @@ class BatchProcessor:
             self.lock.release()
 
     def add(self, row):
+        """Buffer a row, committing the batch when it is full."""
         if self.lock is not None:
             self.lock.acquire(True)
 

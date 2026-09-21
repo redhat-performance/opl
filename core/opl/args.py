@@ -1,3 +1,5 @@
+"""Shared argparse option definitions for the OPL tooling."""
+
 import argparse
 import os
 import socket
@@ -35,70 +37,87 @@ def _add_generic_db_opts(parser, name):
 
 
 def add_cyndi_db_opts(parser):
+    """Add Cyndi database connection options to the parser."""
     _add_generic_db_opts(parser, "cyndi")
 
 
 def add_edge_db_opts(parser):
+    """Add Edge database connection options to the parser."""
     _add_generic_db_opts(parser, "edge")
 
 
 def add_storage_db_opts(parser):
+    """Add Storage database connection options to the parser."""
     _add_generic_db_opts(parser, "storage")
 
 
 def add_subscriptions_db_opts(parser):
+    """Add Subscriptions database connection options to the parser."""
     _add_generic_db_opts(parser, "subscriptions")
 
 
 def add_inventory_db_opts(parser):
+    """Add Inventory database connection options to the parser."""
     _add_generic_db_opts(parser, "inventory")
 
 
 def add_patchman_db_opts(parser):
+    """Add Patchman database connection options to the parser."""
     _add_generic_db_opts(parser, "patchman")
 
 
 def add_rbac_db_opts(parser):
+    """Add RBAC database connection options to the parser."""
     _add_generic_db_opts(parser, "rbac")
 
 
 def add_sources_db_opts(parser):
+    """Add Sources database connection options to the parser."""
     _add_generic_db_opts(parser, "sources")
 
 
 def add_notifications_db_opts(parser):
+    """Add Notifications database connection options to the parser."""
     _add_generic_db_opts(parser, "notifications")
 
 
 def add_rhsm_db_opts(parser):
+    """Add RHSM database connection options to the parser."""
     _add_generic_db_opts(parser, "rhsm")
 
 
 def add_remediations_db_opts(parser):
+    """Add Remediations database connection options to the parser."""
     _add_generic_db_opts(parser, "remediations")
 
 
 def add_vulnerability_db_opts(parser):
+    """Add Vulnerability database connection options to the parser."""
     _add_generic_db_opts(parser, "vulnerability")
 
 
 def add_ros_db_opts(parser):
+    """Add ROS database connection options to the parser."""
     _add_generic_db_opts(parser, "ros")
 
 
 def add_compliance_db_opts(parser):
+    """Add Compliance database connection options to the parser."""
     _add_generic_db_opts(parser, "compliance")
 
 
 def add_export_db_opts(parser):
+    """Add Export database connection options to the parser."""
     _add_generic_db_opts(parser, "export")
 
 
 def add_playbook_db_opts(parser):
+    """Add Playbook database connection options to the parser."""
     _add_generic_db_opts(parser, "playbook")
 
 
 def add_kafka_opts(parser):
+    """Add Kafka connection options to the parser."""
     parser.add_argument(
         "--kafka-host",
         default=os.getenv("KAFKA_HOST", "localhost"),
@@ -186,6 +205,7 @@ def add_kafka_opts(parser):
 
 
 def add_mosquitto_opts(parser):
+    """Add Mosquitto (MQTT) broker options to the parser."""
     parser.add_argument(
         "--mosquitto-host",
         default=os.getenv("MOSQUITTO_HOST", "localhost"),
@@ -233,6 +253,7 @@ def add_mosquitto_opts(parser):
 
 
 def add_s3_opts(parser):
+    """Add S3 (AWS) options to the parser."""
     parser.add_argument(
         "--s3-aws-access-key-id",
         default=os.getenv("S3_AWS_ACCESS_KEY_ID", "abcdef"),
@@ -261,6 +282,7 @@ def add_s3_opts(parser):
 
 
 def add_locust_opts(parser):
+    """Add Locust runner options to the parser."""
     # Is this a simple local runner or master or worker?
     parser.add_argument(
         "--locust-local-runner",
@@ -355,6 +377,7 @@ def add_locust_opts(parser):
 
 
 def add_tables_def_opts(parser):
+    """Add table definitions options to the parser."""
     parser.add_argument(
         "--tables-definition",
         type=argparse.FileType("r"),

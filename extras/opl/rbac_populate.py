@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Create RBAC tenants and populate them with groups, roles and users."""
 
 # Basic setup for subsequent code
 import argparse
@@ -91,7 +92,8 @@ def _check_response(response):
     response.raise_for_status()
 
 
-def load_apps_and_perms(url_base, x_rh_identity, application=[]):
+def load_apps_and_perms(url_base, x_rh_identity, application=[]):  # pylint: disable=dangerous-default-value
+    """Load applications and permissions from the RBAC API."""
     global APPLICATIONS
     global PERMISSIONS
 
@@ -119,6 +121,7 @@ def load_apps_and_perms(url_base, x_rh_identity, application=[]):
 
 
 def create_tenant(url_base, x_rh_identity):
+    """Create a new tenant (account) in RBAC."""
     # Because we are behind 3Scale => we are authenticated and every request
     # with unknown account will create new tenant for it
     url = f"{url_base}/roles/"
@@ -132,6 +135,7 @@ def create_tenant(url_base, x_rh_identity):
 
 
 def create_group(url_base, x_rh_identity):
+    """Create a new group in RBAC."""
     url = f"{url_base}/groups/"
     headers = {
         "X-RH-IDENTITY": x_rh_identity,
@@ -147,6 +151,7 @@ def create_group(url_base, x_rh_identity):
 
 
 def create_role(url_base, x_rh_identity):
+    """Create a new role in RBAC."""
     url = f"{url_base}/roles/"
     headers = {
         "X-RH-IDENTITY": x_rh_identity,
@@ -162,6 +167,7 @@ def create_role(url_base, x_rh_identity):
 
 
 def add_roles_to_group(url_base, x_rh_identity, role_list, group_uuid):
+    """Add given roles to a group in RBAC."""
     url = f"{url_base}/groups/{group_uuid}/roles/"
     headers = {
         "X-RH-IDENTITY": x_rh_identity,
@@ -174,6 +180,7 @@ def add_roles_to_group(url_base, x_rh_identity, role_list, group_uuid):
 
 
 def create_principal(cursor, account):
+    """Create a user (principal) in the DB for the account."""
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     user_type = "user"
@@ -187,6 +194,7 @@ def create_principal(cursor, account):
 
 
 def add_principal_to_group(cursor, user_id, group_uuid):
+    """Add a user to a group in the DB."""
     logging.info(f"Adding principal {user_id} to group {group_uuid}")
     cursor.execute(
         "SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,)
@@ -199,6 +207,7 @@ def add_principal_to_group(cursor, user_id, group_uuid):
 
 
 def doit(rbac_test_data, args, status_data):
+    """Create tenants and populate them per the RBAC test data."""
     url_base = f"{args.rbac_host}{args.rbac_url_suffix}"
 
     global ERRORS_COUNTER
@@ -301,6 +310,7 @@ def doit(rbac_test_data, args, status_data):
 
 
 def main():
+    """CLI entry point for the rbac_populate tool."""
     parser = argparse.ArgumentParser(
         description="Create bunch of RBAC tenants and populate them",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

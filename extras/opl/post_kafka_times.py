@@ -1,3 +1,5 @@
+"""Post timestamps to Kafka for latency measurement."""
+
 import argparse
 import concurrent.futures
 import datetime

@@ -100,6 +100,8 @@ logger = logging.getLogger(__name__)
 
 
 class HorreumAPI:
+    """Client for the Horreum API (tests, schemas, labels, change detection)."""
+
     def __init__(
         self,
         base_url: str,

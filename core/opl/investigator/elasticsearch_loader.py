@@ -1,3 +1,5 @@
+"""Load data from ElasticSearch for investigation."""
+
 import json
 import logging
 import os
@@ -10,6 +12,7 @@ import opl.status_data
 
 
 def load(server, index, query, paths, **kwargs):
+    """Run query against ElasticSearch and extract given paths."""
     es_server_user = kwargs.get("es_server_user")
     es_server_pass_env_var = kwargs.get("es_server_pass_env_var")
     skip_metadata_assert = kwargs.get("skip_metadata_assert", False)

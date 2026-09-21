@@ -1,3 +1,5 @@
+"""Collect measurements (Prometheus, Grafana, commands, ...) into status data."""
+
 import argparse
 import csv
 import json
@@ -17,6 +19,7 @@ from opl import data, date, retry, status_data
 
 
 def execute(command):
+    """Execute shell command and return its stdout (fail on non-zero exit)."""
     p = subprocess.run(
         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
@@ -34,6 +37,7 @@ def execute(command):
 
 
 def redact_sensitive_headers(data: dict):
+    """Replace values of sensitive headers with <REDACTED>."""
     # Lower-case list of sensitive data in header
     sensitive_headers = ["authorization", "set-cookie", "x-api-key", "cookie"]
 
@@ -71,14 +75,19 @@ def dir_path(path):
 
 
 class NoDataException(Exception):
+    """Raised when a plugin can not fetch any data."""
+
     pass
 
 
 class BasePlugin:
+    """Base class for measurement plugins."""
+
     def __init__(self, args):
         self.args = args
 
     def measure(self, ri, **args):
+        """Fetch measurement (to be overridden by plugins)."""
         pass
 
     def _dump_raw_data(self, name, mydata):
@@ -100,10 +109,13 @@ class BasePlugin:
 
     @staticmethod
     def add_args(parser):
+        """Add plugin specific CLI options (none in base class)."""
         pass
 
 
 class PrometheusMeasurementsPlugin(BasePlugin):
+    """Fetch monitoring data from Prometheus."""
+
     def _get_token(self):
         if self.args.prometheus_token is None:
             self.args.prometheus_token = execute("oc whoami -t")
@@ -189,12 +201,15 @@ class PrometheusMeasurementsPlugin(BasePlugin):
 
 
 class GrafanaMeasurementsPlugin(BasePlugin):
+    """Fetch monitoring data from Grafana."""
+
     def __init__(self, args):
         super().__init__(args)
         self._session = requests.Session()
 
     @property
     def batch_size(self):
+        """Number of Grafana targets to fetch in a single request."""
         return getattr(self.args, "grafana_chunk_size", 50)
 
     @staticmethod
@@ -378,7 +393,10 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
 
 class PerformanceInsightsMeasurementPlugin(BasePlugin):
+    """Fetch monitoring data from Performance Insights."""
+
     def get_formatted_metric_query(self, metric_query):
+        """Format a metric query for the Performance Insights API."""
         return [{"Metric": metric_query}]
 
     def measure(self, requested_info, name, identifier, metric_query, metric_step):
@@ -453,6 +471,8 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
 
 
 class ConstantPlugin(BasePlugin):
+    """Store a constant value as a measurement."""
+
     def measure(self, ri, name, constant):
         """
         Just store given constant
@@ -461,6 +481,8 @@ class ConstantPlugin(BasePlugin):
 
 
 class EnvironmentPlugin(BasePlugin):
+    """Read an environment variable as a measurement."""
+
     def measure(self, ri, name, env_variable):
         """
         Just get value of given environment variable
@@ -469,6 +491,8 @@ class EnvironmentPlugin(BasePlugin):
 
 
 class CommandPlugin(BasePlugin):
+    """Execute a command and store its output as a measurement."""
+
     def measure(self, ri, name, command, output="text"):
         """
         Execute command "command" and return result as per its "output" configuration
@@ -491,6 +515,8 @@ class CommandPlugin(BasePlugin):
 
 
 class CountLinePlugin(BasePlugin):
+    """Count lines matching a pattern in command output."""
+
     def measure(
         self,
         ri,
@@ -522,6 +548,8 @@ class CountLinePlugin(BasePlugin):
 
 
 class CopyFromPlugin(BasePlugin):
+    """Copy value of a previously answered item."""
+
     def measure(self, ri, name, copy_from):
         """
         Just return value from previously answered item
@@ -532,6 +560,8 @@ class CopyFromPlugin(BasePlugin):
 
 
 class TestFailMePlugin(BasePlugin):
+    """Plugin that always fails; meant for tests only."""
+
     def measure(self, _ri, _name, **_kwargs):
         """
         Just raise an exception. Mean for tests only.
@@ -603,6 +633,8 @@ def config_stuff(config):
 
 
 class RequestedInfo:
+    """Config-driven collection of measurements into status data."""
+
     def __init__(
         self, config, start=None, end=None, args=argparse.Namespace(), sd=None
     ):
@@ -633,9 +665,11 @@ class RequestedInfo:
                 logging.warning(f"Failed to register plugin {name}: {e}")
 
     def register_measurement_plugin(self, key, instance):
+        """Register a measurement plugin instance under a config key."""
         self.measurement_plugins[key] = instance
 
     def get_config(self):
+        """Return the rendered config."""
         return self.config
 
     def __iter__(self):
@@ -705,6 +739,7 @@ class RequestedInfo:
 
 
 def doit(args):
+    """Run all requested measurements and store them in status data."""
     if args.requested_info_string:
         config = f"""
             - name: requested-info-string
@@ -732,6 +767,7 @@ def doit(args):
 
 
 def main():
+    """CLI entry point for the cluster_read tool."""
     parser = argparse.ArgumentParser(
         description="Run commands defined in a config file and show output",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

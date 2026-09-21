@@ -1,3 +1,5 @@
+"""Generator of inventory ingress (check-in) messages."""
+
 import json
 import logging
 import random

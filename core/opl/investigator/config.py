@@ -1,3 +1,5 @@
+"""Loading and rendering of investigator config (YAML + jinja2)."""
+
 import logging
 import os
 
@@ -65,6 +67,7 @@ def finalize_sets(args):
 
 
 def render_sets(args, template_data):
+    """Render 'sets' section of the config with template data."""
     if not isinstance(args.sets, str):
         logging.debug("No need to render, sets is not a string")
         finalize_sets(args)
@@ -82,6 +85,7 @@ def render_sets(args, template_data):
 
 
 def render_query(args, template_data):
+    """Render a query string with template data."""
     logging.debug(
         f"Rendering Jinja2 template query {args.history_es_query} with data {template_data}"
     )
@@ -93,6 +97,7 @@ def render_query(args, template_data):
 
 
 def render_pg_query(args, template_data):
+    """Render a PostgreSQL query with template data."""
     logging.debug(
         f"Rendering Jinja2 template pg_query {args.history_pg_query} with data {template_data}"
     )
@@ -104,6 +109,7 @@ def render_pg_query(args, template_data):
 
 
 def render_matchers(args, template_data):
+    """Render data matchers with template data."""
     logging.debug(
         f"Rendering Jinja2 template matchers {args.history_matchers} with data {template_data}"
     )
@@ -117,6 +123,7 @@ def render_matchers(args, template_data):
 
 
 def load_config_finish(args, sd):
+    """Finish config loading once current status data is available."""
     template_data = {"current": sd, "environ": os.environ}
     render_sets(args, template_data)
     if args.history_type == "elasticsearch":

@@ -1,3 +1,5 @@
+"""Load data from PostgreSQL for investigation."""
+
 import logging
 import os
 import tempfile
@@ -6,6 +8,7 @@ import opl.status_data
 
 
 def load(pg_host, pg_port, pg_database, query, paths, **kwargs):
+    """Run query against PostgreSQL and extract given paths."""
     try:
         import psycopg2
     except ImportError as exc:

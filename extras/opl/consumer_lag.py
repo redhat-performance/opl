@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Measure consumer lag for a Kafka topic."""
 
 import logging
 import time
@@ -29,6 +30,7 @@ class ConsumerLag:
         return KafkaInit.get_consumer(self.args)
 
     def store_offset_records(self):
+        """Store current latest offsets of the topic partitions."""
         consumer = self._getconsumer()
         partition_set = consumer.partitions_for_topic(self.args.kafka_topic)
         counter = 0
@@ -60,6 +62,7 @@ class ConsumerLag:
             self.offset_records[partition_id] = record
 
     def get_lag(self):
+        """Return the lag between stored and latest offsets."""
         self.store_offset_records()
         response = True
         for _, record in self.offset_records.items():

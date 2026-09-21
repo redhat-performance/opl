@@ -1,3 +1,5 @@
+"""S3 (AWS) helpers for uploading test artifacts."""
+
 import logging
 
 import boto3
@@ -25,6 +27,7 @@ def connect(s3_conf: dict) -> boto3.resource:
 
 
 def upload_file(s3_resource, local_name, bucket, remote_name):
+    """Upload a local file to an S3 bucket."""
     logging.debug(f"Going to upload {local_name}")
     s3_bucket = s3_resource.Bucket(name=bucket)
     s3_object = s3_bucket.Object(key=remote_name)
@@ -37,6 +40,7 @@ def upload_file(s3_resource, local_name, bucket, remote_name):
 
 
 def get_presigned_url(s3_resource, bucket, remote_name):
+    """Get a presigned URL for an object in the bucket."""
     logging.debug(f"Going to generate signed URL for {remote_name}")
     download_url = s3_resource.meta.client.generate_presigned_url(
         ClientMethod="get_object",

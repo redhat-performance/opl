@@ -1,3 +1,5 @@
+"""Store Kafka message timestamps to DB for latency measurement."""
+
 import argparse
 import contextlib
 import datetime
@@ -17,6 +19,8 @@ from opl.kafka_init import KafkaInit
 
 
 class GetKafkaTimes:
+    """Consume Kafka messages and store their timestamps."""
+
     def __init__(self, args, status_data, custom_methods):
         storage_db_conf = {
             "host": args.storage_db_host,
@@ -66,14 +70,17 @@ class GetKafkaTimes:
         logging.debug(f"Remains to get {self.remaining_count} items")
 
     def dt_now(self):
+        """Return current datetime as string."""
         return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
     def kafka_ts2dt(self, timestamp):
+        """Convert Kafka millisecond timestamp to datetime string."""
         return datetime.datetime.utcfromtimestamp(float(timestamp) / 1000).replace(
             tzinfo=datetime.timezone.utc
         )
 
     def create_consumer(self):
+        """Create the Kafka consumer for the topic."""
         self.args.kafka_auto_offset_reset = "earliest"
         self.args.kafka_enable_auto_commit = True
         return KafkaInit.get_consumer(self.args, self.status_data)
@@ -113,6 +120,7 @@ class GetKafkaTimes:
         return updated
 
     def store_item(self, item):
+        """Store a single timestamp record to the DB."""
         self.waiting_items.append(item)
 
         if (
@@ -122,6 +130,7 @@ class GetKafkaTimes:
             self.store_now()
 
     def process_messages(self):
+        """Poll consumer and store timestamps of received messages."""
         # Quit if we have all the data in the DB
         if self.remaining_count == 0:
             logging.info("All in, nothing to collect")
@@ -191,6 +200,7 @@ class GetKafkaTimes:
         return self.stored_counter
 
     def get_biggest(self):
+        """Return the biggest timestamp offset seen so far."""
         cursor = self.connection.cursor()
         sql = self.queries_definition[self.custom_methods["query_get_biggest"]()]
         cursor.execute(sql)
@@ -199,6 +209,7 @@ class GetKafkaTimes:
         return last
 
     def print_stats(self):
+        """Print summary statistics of stored timestamps."""
         if self.custom_methods["start_end_col_table_name"]() is not None:
             start_column, end_column, table = self.custom_methods[
                 "start_end_col_table_name"
@@ -225,6 +236,7 @@ class GetKafkaTimes:
             )
 
     def work(self):
+        """Main loop: consume messages until test duration is over."""
         count = self.process_messages()
         self.status_data.set(self.custom_methods["count_sd_name"](), count)
         last = self.get_biggest()
@@ -240,6 +252,7 @@ class GetKafkaTimes:
 
 
 def get_kafka_times(custom_methods):
+    """CLI entry point wrapping GetKafkaTimes."""
     parser = argparse.ArgumentParser(
         description="Listen for Kafka messages and put timestamps into DB",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

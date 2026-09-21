@@ -1,3 +1,5 @@
+"""Generator of inventory egress (delete) messages."""
+
 import json
 import os.path
 import random
@@ -8,6 +10,7 @@ import opl.generators.packages
 
 
 class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
+    """Generate host delete (egress) messages."""
     def __init__(
         self,
         count=1,

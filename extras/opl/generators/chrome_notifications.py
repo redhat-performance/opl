@@ -1,3 +1,4 @@
+"""Generator of payloads for notifications.drawer messages to the platform.chrome topic."""
 # Generator of payloads for notifications.drawer messages to the platform.chrome topic.
 # sample message:
 # echo '{"specversion":"1.0.2","type":"notifications.drawer","source":"https://whatever.service.com","id":"test-message","time":"2023-05-23T11:54:03.879689005+02:00","datacontenttype":"application/json","data":{"broadcast":true,"payload":{"id":"foo.bar.1","description":"string","title":"string","created":"2023-05-23T11:54:03.879689005+02:00","read":false,"source":"string"}}}'
@@ -8,6 +9,7 @@ import opl.generators.packages
 
 
 class ChromeNotificationsGenerator(opl.generators.generic.GenericGenerator):
+    """Generate platform.chrome notifications.drawer messages."""
     def __init__(
         self,
         count=100,

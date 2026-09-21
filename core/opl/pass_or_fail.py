@@ -1,3 +1,5 @@
+"""Compare current metrics against historical data and report pass/fail."""
+
 import argparse
 import collections
 import logging
@@ -24,6 +26,7 @@ STATUSES = {
 
 
 def get_stats(checks, key):
+    """Aggregate check results per key (PASS/FAIL/ERROR counts)."""
     per_key = {}
     for i in checks:
         if i[key] not in per_key:
@@ -57,6 +60,7 @@ def get_stats(checks, key):
 
 
 def doit(args):
+    """Load config, run checks against current data, store decisions, report."""
     opl.investigator.config.load_config(args, args.config)
 
     # Load current data
@@ -239,6 +243,7 @@ def doit(args):
 
 
 def main():
+    """CLI entry point for the pass_or_fail tool."""
     parser = argparse.ArgumentParser(
         description="Given historical numerical data, determine if latest result is PASS or FAIL",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

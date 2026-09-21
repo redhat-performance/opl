@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Seek Kafka consumer to the end of the topic."""
 
 import argparse
 import logging
@@ -10,6 +11,7 @@ from opl.kafka_init import KafkaInit
 
 
 def doit_seek_to_end(args):
+    """Seek the consumer to the latest offsets, retrying on races."""
     """
     Create consumer and seek to end
 
@@ -46,6 +48,7 @@ def doit_seek_to_end(args):
 
 
 def doit(args, status_data):
+    """Seek consumer to end and store the offsets."""
     doit_seek_to_end(args)
 
     status_data.set("parameters.kafka.seek_topic", args.kafka_topic)
@@ -54,6 +57,7 @@ def doit(args, status_data):
 
 
 def main():
+    """CLI entry point for the skip_to_end tool."""
     parser = argparse.ArgumentParser(
         description="Skip to end of the given Kafka topic",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
