@@ -92,11 +92,10 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
         if sum(data_stats.values()) == args.count:
             logging.info(f"Sent all {args.count} messages, great")
             break
-        else:
-            logging.debug(
-                f"Sent {data_stats['successes']}&{data_stats['failures']} out of {args.count} messages, waiting"
-            )
-            time.sleep(1)
+        logging.debug(
+            f"Sent {data_stats['successes']}&{data_stats['failures']} out of {args.count} messages, waiting"
+        )
+        time.sleep(1)
 
     logging.info("Finished message generation")
     status_data.set_now("parameters.payload_generator.ended_at")
@@ -135,7 +134,7 @@ def verify(args, previous_records, status_data, inventory, collect_info):  # pyl
         if existing_ids == expected_ids:
             logging.info("All IDs present in the Inventory DB")
             break
-        elif existing_ids > expected_ids:
+        if existing_ids > expected_ids:
             logging.warning(
                 f"We have more hosts than expected! We have {existing_ids - previous_records} of {args.count}"
             )

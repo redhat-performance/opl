@@ -76,10 +76,9 @@ class StatusData:
         """
         if multikey == "":
             return []
-        elif multikey.startswith("."):
+        if multikey.startswith("."):
             return multikey[1:].split(".")
-        else:
-            return multikey.split(".")
+        return multikey.split(".")
 
     def _get(self, data, split_key):
         if split_key == []:
@@ -98,8 +97,7 @@ class StatusData:
 
         if len(split_key) == 1:
             return new_data
-        else:
-            return self._get(new_data, split_key[1:])
+        return self._get(new_data, split_key[1:])
 
     def get(self, multikey):
         """
@@ -155,20 +153,17 @@ class StatusData:
                 else:
                     data[current_key] = value
                 return  # This was last key, we are done
+            data[current_key] = {}  # This is not last key, so it can not be array
+            return self._set(data[current_key], split_key[1:], value)
+        if last_key:
+            if array_key:
+                data[current_key].append(value)
             else:
-                data[current_key] = {}  # This is not last key, so it can not be array
-                return self._set(data[current_key], split_key[1:], value)
-        else:
-            if last_key:
-                if array_key:
-                    data[current_key].append(value)
-                else:
-                    data[current_key] = value
-                return  # This was last key, we are done
-            else:
-                return self._set(
-                    data[current_key], split_key[1:], value
-                )  # This is not last key, so no need to check for array
+                data[current_key] = value
+            return  # This was last key, we are done
+        return self._set(
+            data[current_key], split_key[1:], value
+        )  # This is not last key, so no need to check for array
 
     def set(self, multikey, value):
         """
@@ -230,8 +225,7 @@ class StatusData:
         if len(split_key) == 1:
             del data[split_key[0]]
             return
-        else:
-            return self._remove(new_data, split_key[1:])
+        return self._remove(new_data, split_key[1:])
 
     def remove(self, multikey):
         """

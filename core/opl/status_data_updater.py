@@ -303,11 +303,10 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
             raise Exception(
                 f"This result do not have result -> pathNames -> itemPaths, skipping it: {result}"
             )
-        else:
-            sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
-            response = _es_get_test(
-                session, args, ["id.keyword", "name.keyword"], [run_id, sd_name]
-            )
+        sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
+        response = _es_get_test(
+            session, args, ["id.keyword", "name.keyword"], [run_id, sd_name]
+        )
     elif args.rp_project == "aapcpt":
         response = _es_get_test(
             session, args, ["id.keyword", "name.keyword"], [run_id, result["name"]]
@@ -352,8 +351,7 @@ def _get_es_dashboard_result_for_run_id(session, args, run_id, test=None):
     except IndexError:
         logging.debug(f"Failed to find dashboard result in ES for {run_id}")
         return (None, None, None)
-    else:
-        return (response["hits"]["hits"][0]["_source"], source["_type"], source["_id"])
+    return (response["hits"]["hits"][0]["_source"], source["_type"], source["_id"])
 
 
 def _get_rp_result_defect_string(result):
@@ -456,11 +454,10 @@ def doit_rp_to_es(args):
                                 raise Exception(
                                     f"Failed to update data in ES after {attempt} attempts: {response}"
                                 )
-                            else:
-                                logging.info(
-                                    f"Request failed with '429 Client Error: Too Many Requests'. Will retry in a bit. Attempt {attempt}/{attempt_max}"
-                                )
-                                time.sleep(random.randint(1, 10))
+                            logging.info(
+                                f"Request failed with '429 Client Error: Too Many Requests'. Will retry in a bit. Attempt {attempt}/{attempt_max}"
+                            )
+                            time.sleep(random.randint(1, 10))
                         else:
                             break
                     response.raise_for_status()
