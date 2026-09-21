@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+"""Base generator class creating payloads from a Jinja2 template."""
 
 import datetime
 import json

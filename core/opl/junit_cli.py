@@ -1,3 +1,5 @@
+"""jUnit file manipulation and upload of results."""
+
 import argparse
 import datetime
 import json
@@ -13,10 +15,13 @@ from opl import date
 
 
 def now():
+    """Return current UTC time as datetime."""
     return datetime.datetime.now(tz=datetime.timezone.utc)
 
 
 class TestCaseWithProp(junitparser.TestCase):
+    """junitparser.TestCase with custom properties support."""
+
     def properties(self):
         """
         Iterates through all properties.
@@ -49,8 +54,11 @@ class TestCaseWithProp(junitparser.TestCase):
 
 
 class JUnitXmlPlus(junitparser.JUnitXml):
+    """junitparser.JUnitXml with OPL extensions (trim, info, upload)."""
+
     @classmethod
     def fromfile_or_new(cls, filename):
+        """Load JUnit file if it exists, return empty one otherwise."""
         if os.path.exists(filename):
             instance = cls.fromfile(filename)
         else:
@@ -64,6 +72,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         )
 
     def trim_string_fn(self, data, trim_length):
+        """Trim long string, keeping first trim_length words."""
         matches = list(re.finditer(r"\S+", data))
         if len(matches) <= trim_length:
             return data
@@ -72,6 +81,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return data[start_index:]
 
     def add_to_suite(self, suite_name, new):
+        """Add a test case (from dict) to a named suite."""
         case = TestCaseWithProp(new["name"])
 
         if new["result"] == "PASS":
@@ -125,6 +135,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         self.write()
 
     def get_info(self):
+        """Print basic info about suites and cases."""
         out = []
         for suite in self:
             print(f"suite: {suite}")
@@ -138,6 +149,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return "\n".join(out)
 
     def get_result(self):
+        """Compute overall result (PASSED/SKIPPED/FAILED/ERROR)."""
         RESULTS = ["PASSED", "SKIPPED", "FAILED", "ERROR"]  # pylint: disable=invalid-name
         result = 0
         for suite in self:
@@ -164,9 +176,11 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return RESULTS[result]
 
     def delete(self):
+        """Remove the JUnit file from disk."""
         os.remove(self.filepath)
 
     def ibutsu_upload(self, host, token, project, verify, file, metadata):
+        """Upload file to Ibutsu, return its metadata."""
         if not verify:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         headers = {"Authorization": f"Bearer {token}"}
@@ -206,6 +220,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return metadata
 
     def upload(self, host, verify, project, token, launch, properties):
+        """Upload the JUnit file (via Ibutsu) to the RP launch."""
         def req(method, url, data):
             logging.debug(f"Going to do {method} request to {url} with {data}")
             response = method(url, json=data, headers=headers, verify=verify)
@@ -386,6 +401,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
 
 
 def main():
+    """CLI entry point for the junit_cli tool."""
     parser = argparse.ArgumentParser(
         description="Manipulate jUnit file",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

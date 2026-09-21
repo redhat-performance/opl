@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Shovel data between systems (Prow, OpenSearch, Horreum, ...)."""
 
 import argparse
 import datetime
@@ -82,15 +83,21 @@ def _figure_out_option(option, data):
 
 
 class PluginBase:
+    """Base class for shovel plugins."""
+
     def __init__(self):
         self.logger = logging.getLogger(str(self.__class__))
 
     def set_args(self, parser, subparsers):
+        """Register plugin CLI options (none in base class)."""
         pass
 
 
 class PluginProw(PluginBase):
+    """Shovel test results from Prow."""
+
     def list(self, args):
+        """List job results from Prow."""
         response = requests.get(f"{args.base_url}/{args.job_name}")
         _check_response(self.logger, response)
 
@@ -104,6 +111,7 @@ class PluginProw(PluginBase):
             print(n)
 
     def download(self, args):
+        """Download a Prow artifact to a local file."""
         if os.path.isfile(args.output_path):
             raise Exception(
                 f"File {args.output_path} already present, refusing to overwrite it"
@@ -180,7 +188,10 @@ class PluginProw(PluginBase):
 
 
 class PluginOpenSearch(PluginBase):
+    """Upload results to OpenSearch."""
+
     def upload(self, args):
+        """Upload input file as an OpenSearch document."""
         self.logger.info(f"Loading document {args.input_file}")
         with open(args.input_file, "r") as fp:
             values = json.load(fp)
@@ -251,6 +262,8 @@ class PluginOpenSearch(PluginBase):
 
 
 class PluginHorreum(PluginBase):
+    """Shovel results to Horreum."""
+
     def __init__(self):
         super().__init__()
         self.session = requests.Session()
@@ -295,6 +308,7 @@ class PluginHorreum(PluginBase):
             self.test_id = response.json()["id"]
 
     def upload(self, args):
+        """Upload input file results to a Horreum launch."""
         self.logger.debug(f"Loading file {args.input_file}")
         with open(args.input_file, "r") as fd:
             self.input_file = json.load(fd)
@@ -416,6 +430,7 @@ class PluginHorreum(PluginBase):
         print(f"Uploaded {args.input_file}: {response.content}")
 
     def result(self, args):
+        """Upload a single result to Horreum."""
         self.logger.debug(f"Loading file {args.output_file}")
         with open(args.output_file, "r") as fd:
             self.output_file = json.load(fd)
@@ -515,6 +530,7 @@ class PluginHorreum(PluginBase):
             json.dump(self.output_file, fd, sort_keys=True, indent=4)
 
     def list(self, args):
+        """List Horreum launches."""
         self._setup(args)
 
         params = {
@@ -543,6 +559,7 @@ class PluginHorreum(PluginBase):
             params["page"] += 1
 
     def get(self, args):
+        """Get a Horreum launch."""
         self._setup(args)
 
         self.logger.debug(f"Geting data for run {args.run_id}")
@@ -584,6 +601,7 @@ class PluginHorreum(PluginBase):
         return data
 
     def schema_label_list(self, args):
+        """List Horreum schema labels."""
         self._setup(args)
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
@@ -596,6 +614,7 @@ class PluginHorreum(PluginBase):
             )
 
     def schema_label_add(self, args):
+        """Add a Horreum schema label."""
         self._setup(args)
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
@@ -639,6 +658,7 @@ class PluginHorreum(PluginBase):
         self.logger.debug(f"Created label ID {label_id} in schema ID {schema_id}")
 
     def schema_label_update(self, args):
+        """Update a Horreum schema label."""
         self._setup(args)
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
@@ -720,6 +740,7 @@ class PluginHorreum(PluginBase):
             self.logger.info(f"Updated label ID {label_id} in schema ID {schema_id}")
 
     def schema_label_delete(self, args):
+        """Delete a Horreum schema label."""
         self._setup(args)
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
@@ -1010,7 +1031,10 @@ class PluginHorreum(PluginBase):
 
 
 class PluginResultsDashboard(PluginBase):
+    """Upload results to the results dashboard."""
+
     def upload(self, args):
+        """Upload results to the results dashboard."""
         self.input_file = None
         if args.input_file is not None:
             self.logger.info(f"Loading input file {args.input_file}")
@@ -1152,7 +1176,10 @@ class PluginResultsDashboard(PluginBase):
 
 
 class PluginHtml(PluginBase):
+    """Extract links from an HTML document."""
+
     def links(self, args):
+        """Download a document and list links found in it."""
         self.logger.info("Downloading {args.url}")
         doc = requests.get(args.url)
 
@@ -1213,6 +1240,7 @@ PLUGINS = {
 
 
 def main():
+    """CLI entry point for the shovel tool."""
     parser = argparse.ArgumentParser(
         description="Shovel data from A to B",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

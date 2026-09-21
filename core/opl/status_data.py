@@ -1,3 +1,5 @@
+"""Status data file handling: load, set, get, compare, report."""
+
 import argparse
 import copy
 import datetime
@@ -18,6 +20,8 @@ from opl import cluster_read, date, skelet
 
 
 class StatusData:
+    """Status data with dot-notation access to nested dicts, stored as JSON."""
+
     def __init__(self, filename, data=None, skip_metadata_assert=False):
         self.filename = filename
         if filename.startswith("http://") or filename.startswith("https://"):
@@ -43,6 +47,7 @@ class StatusData:
                 assert "result" in data
 
     def load(self):
+        """Load data from JSON file (missing file means empty data)."""
         try:
             self._filename_mtime = os.path.getmtime(self._filename)
             with open(self._filename, "r") as fp:
@@ -120,6 +125,7 @@ class StatusData:
         return self._get(self._data, split_key)
 
     def get_date(self, multikey):
+        """Return value at multikey parsed as datetime, or None."""
         i = self.get(multikey)
         if i is None:
             logging.warning(f"Field {multikey} is None, so can not convert to datetime")
@@ -266,6 +272,7 @@ class StatusData:
         }
 
     def info(self):
+        """Return short human-readable summary of top-level scalar fields."""
         out = ""
         out += f"Filename: {self._filename}\n"
         for k, v in self._data.items():
@@ -274,6 +281,7 @@ class StatusData:
         return out
 
     def dump(self):
+        """Return the whole data structure."""
         return self._data
 
     def save(self, filename=None):
@@ -306,6 +314,7 @@ class StatusData:
 
 
 def doit_set(status_data, set_this):
+    """Parse key=value pairs and set them in the status data."""
     for item in set_this:
         if item == "":
             logging.warning("Got empty key=value pair to set - ignoring it")
@@ -337,11 +346,13 @@ def doit_set(status_data, set_this):
 
 
 def doit_remove(status_data, remove_this):
+    """Remove listed keys from the status data."""
     for item in remove_this:
         status_data.remove(item)
 
 
 def doit_set_subtree_json(status_data, set_this):
+    """Set subtrees in the status data from JSON files."""
     for item in set_this:
         if item == "":
             logging.warning("Got empty key=value pair to set - ignoring it")
@@ -359,6 +370,7 @@ def doit_set_subtree_json(status_data, set_this):
 
 
 def doit_print_oneline(status_data, get_this, get_rounding, get_delimiter):
+    """Print requested fields in one line, joined by delimiter."""
     if not get_rounding:
         print(get_delimiter.join([str(status_data.get(i)) for i in get_this]))
     else:
@@ -371,6 +383,7 @@ def doit_print_oneline(status_data, get_this, get_rounding, get_delimiter):
 
 
 def doit_additional(status_data, additional, monitoring_start, monitoring_end, args):
+    """Fill in additional monitoring data using cluster_read plugins."""
     requested_info = cluster_read.RequestedInfo(
         additional,
         start=monitoring_start,
@@ -394,10 +407,12 @@ def doit_additional(status_data, additional, monitoring_start, monitoring_end, a
 
 
 def doit_info(status_data):
+    """Print short info about the status data."""
     print(status_data.info())
 
 
 def main():
+    """CLI entry point for the status_data tool."""
     parser = argparse.ArgumentParser(
         description="Work with status data file",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -490,6 +505,7 @@ def main():
 
 
 def main_diff():
+    """CLI entry point for comparing two status data files."""
     parser = argparse.ArgumentParser(
         description="Compare two status data files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -555,6 +571,7 @@ def main_diff():
 
 
 def main_report():
+    """CLI entry point for rendering a report from a status data file."""
     parser = argparse.ArgumentParser(
         description="Create a report using provided template from status" " data file",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

@@ -1,3 +1,5 @@
+"""Helpers for HBI (Host Based Inventory) test data generation and verification."""
+
 import argparse
 import json
 import logging
@@ -15,6 +17,7 @@ from opl.kafka_init import KafkaInit
 
 # collect_info could be None
 def gen_and_send(args, status_data, payload_generator, producer, collect_info):
+    """Generate messages with the generator and produce them to Kafka."""
     def handle_send_success(*_args, **kwargs):
         with kwargs["data_lock"]:
             kwargs["data_stats"]["successes"] += 1
@@ -112,6 +115,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
 
 
 def fetch_records_count(inventory):
+    """Return current number of records in the inventory DB."""
     inventory_cursor = inventory.cursor()
     inventory_cursor.execute("select count(*) as exact_count from hbi.hosts")
     for i in inventory_cursor.fetchone():
@@ -121,6 +125,7 @@ def fetch_records_count(inventory):
 
 
 def verify(args, previous_records, status_data, inventory, collect_info):  # pylint: disable=unused-argument
+    """Wait until all generated hosts appear in the inventory DB."""
     # Generatate set of IDs to check in the DB
     inventory_cursor = inventory.cursor()
 
@@ -163,6 +168,7 @@ def verify(args, previous_records, status_data, inventory, collect_info):  # pyl
 
 
 def gen_send_verify(args, status_data):
+    """Generate, send and verify HBI host data."""
     logging.info("Creating payload generation instance")
     payload_generator = opl.generators.inventory_ingress.InventoryIngressGenerator(
         count=args.count,
@@ -233,6 +239,7 @@ def gen_send_verify(args, status_data):
 
 
 def parse_os_override(args):
+    """Parse --os-override option into a dict."""
     if args.os_override is not None:
         os_override_dict = json.loads(args.os_override)
         assert isinstance(os_override_dict, dict), (
@@ -251,6 +258,7 @@ def parse_os_override(args):
 
 
 def populate_main():
+    """Populate the inventory DB with host data (CLI entry)."""
     parser = argparse.ArgumentParser(
         description="Generate host-ingress messages, produce them to ingress topic and make sure they appear in DB",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -337,6 +345,7 @@ def populate_main():
 
 
 def cleanup(args, status_data):
+    """Remove hosts created by the test from the inventory DB."""
     logging.info("Creating Inventory DB connection")
     inventory_db_conf = {
         "host": args.inventory_db_host,
@@ -357,6 +366,7 @@ def cleanup(args, status_data):
 
 
 def cleanup_main():
+    """CLI entry point for inventory cleanup."""
     parser = argparse.ArgumentParser(
         description="Truncate HBI database",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

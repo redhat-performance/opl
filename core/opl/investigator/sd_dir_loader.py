@@ -1,3 +1,5 @@
+"""Load data from a directory of status data files."""
+
 import logging
 import os
 
@@ -15,6 +17,7 @@ def _matches(sd, matchers):
 
 
 def load(data_dir, data_matchers, paths):
+    """Load given paths from status data files matching the matchers."""
     out = {}
 
     for path in paths:

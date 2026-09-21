@@ -1,3 +1,5 @@
+"""Generator of QPC tarball report slices and their messages."""
+
 import json
 import logging
 import os
@@ -10,6 +12,7 @@ import opl.s3_tools
 
 
 def get_tarball_message(account, remotename, size, download_url):
+    """Build a message announcing a generated tarball."""
     data = {
         "account": account,
         "org_id": account,
@@ -38,20 +41,24 @@ class QPCTarballSlice:
         self.hosts_count = None
 
     def get_id(self):
+        """Return the slice ID."""
         return self.id
 
     def get_host_count(self):
+        """Return the number of hosts in the slice."""
         if self.hosts_count is None:
             return len(self.hosts)
         return self.hosts_count
 
     def add_host(self, host_json):
+        """Add a host to the slice (only before dump)."""
         assert (
             self.dump_file is None
         ), "Slice already dumped, do not temper with hosts please"
         self.hosts.append(host_json)
 
     def dump(self, dirname):
+        """Dump the slice to a JSON file, return its path."""
         if self.dump_file is None:
             self.dump_file = os.path.join(dirname.name, self.id + ".json")
             logging.debug(f"Writing {self.dump_file}")
@@ -82,6 +89,7 @@ class QPCTarball:
         self.dirname = tempfile.TemporaryDirectory()
 
     def upload(self):
+        """Dump the tarball and upload it to S3."""
         self.dump()
 
         s3_resource = opl.s3_tools.connect(self.s3_conf)
@@ -95,6 +103,7 @@ class QPCTarball:
         os.remove(self.filename)
 
     def dump_manifest(self, dirname):
+        """Dump the manifest JSON, return its filename."""
         filename = os.path.join(dirname.name, "metadata.json")
         data = {
             "report_id": opl.gen.gen_uuid(),
@@ -115,6 +124,7 @@ class QPCTarball:
         return "metadata.json"
 
     def dump(self):
+        """Create the tarball file from all slices, return its name."""
         files = []
 
         for s in self.slices:
@@ -135,11 +145,13 @@ class QPCTarball:
         return self.filename
 
     def dumps_message(self):
+        """Return the message for the generated tarball."""
         return get_tarball_message(
             self.account, self.remotename, self.size, self.download_url
         )
 
     def cleanup(self):
+        """Remove the temporary directory."""
         self.dirname.cleanup()
 
     def __iter__(self):

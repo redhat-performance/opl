@@ -1,3 +1,5 @@
+"""Generator of playbook dispatcher messages (runner updates, runs)."""
+
 import uuid
 
 import opl.generators.generic

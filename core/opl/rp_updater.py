@@ -1,3 +1,5 @@
+"""Update Red Hat Performance dashboard results and defects."""
+
 import argparse
 import logging
 
@@ -36,6 +38,7 @@ def _get_all_items(args):
 
 
 def doit_list_tests(args):
+    """List RP tests matching the given criteria."""
     items = _get_all_items(args)
 
     # Add suite name to tests
@@ -62,6 +65,7 @@ def doit_list_tests(args):
 
 
 def doit_change_defects(args):
+    """Update defects attached to RP test results."""
     changes = 0
     items = _get_all_items(args)
 
@@ -103,6 +107,7 @@ def doit_change_defects(args):
 
 
 def main():
+    """CLI entry point for the rp_updater tool."""
     parser = argparse.ArgumentParser(
         description="Investigate and modify status data documents in ElasticSearch",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

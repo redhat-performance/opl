@@ -1,3 +1,5 @@
+"""Kafka producer and consumer instantiation helpers."""
+
 import logging
 
 from kafka import KafkaConsumer, KafkaProducer
@@ -6,8 +8,11 @@ from kafka import KafkaConsumer, KafkaProducer
 
 
 class KafkaInit:
+    """Common instantiators for KafkaProducer and KafkaConsumer."""
+
     @staticmethod
     def kafka_bootstrap(args):
+        """Return Kafka bootstrap servers from args."""
         try:
             return args.kafka_bootstrap
         except AttributeError:
@@ -21,6 +26,7 @@ class KafkaInit:
     # Based on the args, obtain KafkaProducer instance
     @staticmethod
     def get_producer(args, status_data=None):
+        """Create a KafkaProducer from args."""
         bootstrap_servers = KafkaInit.kafka_bootstrap(args)
 
         # Sanitize acks setting
@@ -70,6 +76,7 @@ class KafkaInit:
     # If args.kafka_topic is supplied, subscribe to the topic.
     @staticmethod
     def get_consumer(args, status_data=None):
+        """Create a KafkaConsumer from args (optionally subscribed)."""
         bootstrap_servers = KafkaInit.kafka_bootstrap(args)
 
         # Common parameters for both cases

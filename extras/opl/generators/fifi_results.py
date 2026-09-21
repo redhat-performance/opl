@@ -1,9 +1,13 @@
+"""Generator of playbook run (fifi) result messages."""
+
 import logging
 
 import opl.gen
 
 
 class PlaybookRunMessageGenerator:
+    """Generate playbook run start/progress/finish message sequence."""
+
     def __init__(self, runs=1, nodes=1, hosts=1, duration=1, console=1, diff_mode=True):
         assert runs >= 1  # how many playbooks to run
         self.runs = runs

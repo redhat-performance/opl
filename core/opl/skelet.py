@@ -1,3 +1,5 @@
+"""Common test skeleton: logger setup and test context manager."""
+
 import logging
 import logging.handlers
 import os
@@ -51,6 +53,7 @@ def setup_logger(app_name, stderr_log_lvl):
 
 @contextmanager
 def test_setup(parser, logger_name="root", args=None):
+    """Context manager setting up logger and status data file for a test."""
     parser.add_argument(
         "--status-data-file",
         default=os.getenv("STATUS_DATA_FILE", "/tmp/status-data.json"),

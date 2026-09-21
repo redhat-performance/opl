@@ -1,3 +1,5 @@
+"""Check methods comparing current values against historical data."""
+
 import collections
 import inspect
 import logging
@@ -197,6 +199,7 @@ def check_is_zero(_, value):
 def check(
     methods, data, value, description="N/A", verbose=True
 ):  # pylint: disable=unused-argument
+    """Run all given check methods and return results and info."""
     assert value is not None, "Value to check should not be None"
 
     for method in methods:

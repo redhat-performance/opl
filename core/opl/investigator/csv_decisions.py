@@ -1,9 +1,12 @@
+"""Store investigation decisions to CSV file."""
+
 import csv
 import datetime
 import os
 
 
 def store(filename, decisions):
+    """Write decisions to CSV file."""
     # This is our workaround on how to add additional metadata about the decision
     job_name = os.environ.get("JOB_NAME", "")
     build_url = os.environ.get("BUILD_URL", "")

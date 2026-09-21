@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Manage test database tables (truncate, recreate, null columns)."""
 
 import argparse
 import logging
@@ -12,6 +13,7 @@ from opl import args, db, skelet
 
 
 def execute_query(connection, query):
+    """Execute a query, return affected row count (None on error)."""
     cursor = connection.cursor()
 
     try:
@@ -27,6 +29,7 @@ def execute_query(connection, query):
 
 
 def wait_for_count(connection, query, expected, timeout, progress):
+    """Poll query until it returns the expected count or timeout hits."""
     start = time.perf_counter()
     count_before = None
     count_change_at = None
@@ -57,6 +60,7 @@ def wait_for_count(connection, query, expected, timeout, progress):
 
 
 def truncate_table(connection, table):
+    """Truncate a table."""
     cursor = connection.cursor()
 
     logging.debug(f"Truncating table {table}")
@@ -101,6 +105,7 @@ def null_column(connection, table, column):
 
 
 def doit(args, status_data):
+    """Run the requested table maintenance operations."""
     storage_db_conf = {
         "host": args.storage_db_host,
         "port": args.storage_db_port,
@@ -163,6 +168,7 @@ def doit(args, status_data):
 
 
 def main():
+    """CLI entry point for the manage_db tool."""
     parser = argparse.ArgumentParser(
         description="Script to maintain tables in storage DB",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

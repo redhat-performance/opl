@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+"""Generator of notifications ingress messages."""
 
 import opl.generators.generic
 
 
 class NotificationsMessagesGenerator(opl.generators.generic.GenericGenerator):
+    """Generate notifications.drawer ingress messages."""
+
     def __init__(
         self,
         count=1,

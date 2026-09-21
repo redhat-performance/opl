@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Store DB timestamps for latency measurement."""
 
 import argparse
 import datetime

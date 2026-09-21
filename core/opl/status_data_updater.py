@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Sync Red Hat Performance results to the ElasticSearch dashboard."""
+
 import argparse
 import datetime
 import json
@@ -34,6 +36,7 @@ STATE_WEIGHTS = {
 
 
 def get_session():
+    """Create authenticated requests session for RP and ES."""
     session = requests.Session()
     retry_adapter = requests.adapters.HTTPAdapter(
         max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1)
@@ -122,6 +125,7 @@ def _add_comment(args, sd, author=None, text=None):
 
 
 def doit_list(args):
+    """List results stored in the dashboard."""
     assert args.list_name is not None
 
     response = _es_get_test(
@@ -153,6 +157,7 @@ def doit_list(args):
 
 
 def doit_change(args):
+    """Change fields on an existing dashboard result."""
     assert args.change_id is not None
 
     response = _es_get_test(None, args, ["id.keyword"], [args.change_id])
@@ -367,6 +372,7 @@ def _get_rp_result_result_string(result):
 
 
 def doit_rp_to_es(args):
+    """Store RP results in ElasticSearch."""
     assert args.es_server is not None
     assert args.rp_host is not None
 
@@ -470,6 +476,7 @@ def doit_rp_to_es(args):
 
 
 def doit_rp_to_dashboard_new(args):
+    """Create new dashboard results for a RP run."""
     assert args.es_server is not None
 
     if args.rp_noverify:
@@ -564,6 +571,7 @@ def _update_es_dashboard_result(session, args, es_id, result_string):
 
 
 def doit_rp_to_dashboard_update(args):
+    """Update existing dashboard results with RP data."""
     assert args.es_server is not None
     assert args.rp_host is not None
 
@@ -631,6 +639,7 @@ def doit_rp_to_dashboard_update(args):
 
 
 def doit_rp_backlog(args):
+    """Process backlog of unprocessed RP runs."""
     assert args.rp_host is not None
     assert args.jobs_ownership_config is not None
 
@@ -726,6 +735,7 @@ def doit_rp_backlog(args):
 
 
 def main():
+    """CLI entry point for the status_data_updater tool."""
     parser = argparse.ArgumentParser(
         description="Investigate and modify status data documents in ElasticSearch",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

@@ -1,3 +1,5 @@
+"""Create packages template JSON from dnf repoquery output."""
+
 import argparse
 import json
 import sys
@@ -31,6 +33,7 @@ def parse_repoquery_output_from_stdin():
 
 
 def main():
+    """Read repoquery output on stdin, write template JSON to stdout."""
     parser = argparse.ArgumentParser(
         description="This script helps process output of dnf with packages for a given host into a generator-friendly structure to generate installed packages with. Before using this, run `dnf repoquery --available --show-duplicates` on your desired machine/VM to get a list of all packages that could be installed on your mahcine and either pipe it into this script's stdin using `|`. :return: Dictionary of package names and their versions into stdout. You might want to store the results into a file using `>/path/to/output/file.json`. Made with the help of an LLM.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

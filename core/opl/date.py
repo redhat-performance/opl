@@ -1,3 +1,5 @@
+"""Date and time helpers (UTC)."""
+
 import datetime
 import logging
 

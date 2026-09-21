@@ -1,3 +1,5 @@
+"""Store investigation decisions in PostgreSQL."""
+
 import datetime
 import json
 import logging
@@ -13,6 +15,7 @@ def _validate_sql_identifier(name, kind="identifier"):
 
 
 def store(pg_host, pg_port, pg_database, table, decisions, **kwargs):
+    """Store decisions in a PostgreSQL table."""
     try:
         import psycopg2
     except ImportError as exc:

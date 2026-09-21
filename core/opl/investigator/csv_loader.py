@@ -1,8 +1,11 @@
+"""Load tabular data from CSV files."""
+
 import csv
 import logging
 
 
 def load(fp, columns):
+    """Load given columns from CSV file into dict of lists."""
     out = {}
 
     for col in columns:
