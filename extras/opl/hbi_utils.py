@@ -137,8 +137,12 @@ def verify(args, previous_records, status_data, inventory, collect_info):  # pyl
             logging.info("All IDs present in the Inventory DB")
             break
         if existing_ids > expected_ids:
-            logging.warning('We have more hosts than expected! We have %s of %s', existing_ids - previous_records, args.count)
-            break
+            # Excess rows can only mean unrelated inserts while some generated
+            # hosts are missing; never treat that as successful verification.
+            raise RuntimeError(
+                f"Inventory DB has more records than expected: {existing_ids} "
+                f"(baseline {previous_records} + generated {args.count} = {expected_ids})"
+            )
 
         # Are we out of attempts?
         attempt += 1
@@ -147,12 +151,9 @@ def verify(args, previous_records, status_data, inventory, collect_info):  # pyl
                 f"After {attempt} attempts, we only have {existing_ids - previous_records} out of {args.count}"
             )
 
-        # If there were no new hosts now, wait a bit
-        if existing_ids != expected_ids:
-            logging.debug('Waiting for IDs, attempt %s, remaining %s out of %s, in total there are %s out of %s expected hosts in HBI', attempt, existing_ids - previous_records, args.count, existing_ids, expected_ids)
-            time.sleep(15)
-        elif existing_ids > expected_ids:
-            logging.warning('We have more hosts than expected! We have %s of %s', existing_ids - previous_records, args.count)
+        # No new hosts yet, wait a bit and retry
+        logging.debug('Waiting for IDs, attempt %s, remaining %s out of %s, in total there are %s out of %s expected hosts in HBI', attempt, existing_ids - previous_records, args.count, existing_ids, expected_ids)
+        time.sleep(15)
 
     inventory_cursor.close()
 
