@@ -1,6 +1,6 @@
-from kafka import KafkaProducer, KafkaConsumer
-
 import logging
+
+from kafka import KafkaConsumer, KafkaProducer
 
 # Common instantiators for KafkaProducer and KafkaConsumer
 

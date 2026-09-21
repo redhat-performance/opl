@@ -10,18 +10,11 @@ import re
 import tempfile
 
 import deepdiff
-
 import jinja2
-
 import requests
-
 import tabulate
-
 import yaml
-
-from opl import cluster_read
-from opl import date
-from opl import skelet
+from opl import cluster_read, date, skelet
 
 
 class StatusData:
@@ -377,9 +370,9 @@ def doit_print_oneline(status_data, get_this, get_rounding, get_delimiter):
     else:
         for i in get_this:
             if isinstance(status_data.get(i), float):
-                print("{:.2f}".format(status_data.get(i)), end=get_delimiter)
+                print(f"{status_data.get(i):.2f}", end=get_delimiter)
             else:
-                print("{}".format(status_data.get(i)), end=get_delimiter)
+                print(f"{status_data.get(i)}", end=get_delimiter)
         print()
 
 

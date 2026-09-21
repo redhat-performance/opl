@@ -1,7 +1,6 @@
 import logging
 
 import requests
-
 import urllib3
 
 session = requests.Session()

@@ -208,4 +208,3 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
 class PayloadRHSMGenerator(InventoryIngressGenerator):
     """This is just a nickname so we do not need to change existing code."""
 
-    pass

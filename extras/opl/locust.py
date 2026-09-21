@@ -4,10 +4,8 @@ import re
 import time
 
 import gevent
-
-from locust import env as l_env  # pylint: disable=no-name-in-module
-
 import tabulate
+from locust import env as l_env  # pylint: disable=no-name-in-module
 
 
 def run_locust(

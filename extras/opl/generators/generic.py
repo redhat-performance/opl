@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import logging
-import string
+import datetime
 import json
+import logging
+import os
 import random
+import string
+
 import jinja2
 import jinja2.meta
-import datetime
-import os
-
-import opl.gen
 import opl.date
+import opl.gen
 
 
 class GenericGenerator:
@@ -114,7 +114,7 @@ class GenericGenerator:
         return opl.gen.gen_mac()
 
     def _get_now_iso(self):
-        return opl.date.get_now_str()  # noqa: E501
+        return opl.date.get_now_str()
 
     def _get_now_iso_z(self):
         return self._get_now_iso().replace("+00:00", "Z")
@@ -127,7 +127,7 @@ class GenericGenerator:
     def _get_tommorow_iso(self):
         return (
             opl.date.get_now() + datetime.timedelta(days=1)
-        ).isoformat()  # noqa: E501
+        ).isoformat()
 
     def _get_tommorow_iso_z(self):
         return self._get_tommorow_iso().replace("+00:00", "Z")

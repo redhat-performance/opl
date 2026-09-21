@@ -2,17 +2,16 @@
 
 import argparse
 import datetime
-import logging
-import requests
 import json
+import logging
 import os
 import re
-import urllib3
 import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from opl import skelet
-from opl import retry
+import requests
+import urllib3
+from opl import retry, skelet
 
 
 @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
@@ -43,8 +42,7 @@ def _ceil_datetime(obj):
 
 def _get_field_value(field, data):
     """Return content of filed like foo.bar or .baz or so."""
-    if field.startswith("."):
-        field = field[1:]
+    field = field.removeprefix(".")
 
     value = None
     for f in field.split("."):
@@ -60,8 +58,7 @@ def _get_field_value(field, data):
 
 def _set_field_value(field, value, data):
     """Find field (in doted notation) in data (being changed in place) and set it to value."""
-    if field.startswith("@"):
-        field = field[1:]
+    field = field.removeprefix("@")
 
     for f in field.split(".")[:-1]:
         if f not in data:
@@ -191,8 +188,7 @@ class pluginOpenSearch(pluginBase):
         with open(args.input_file, "r") as fp:
             values = json.load(fp)
 
-        if args.matcher_field.startswith("."):
-            args.matcher_field = args.matcher_field[1:]
+        args.matcher_field = args.matcher_field.removeprefix(".")
         self.logger.info(f"Looking for field {args.matcher_field}")
         matcher_value = _get_field_value(args.matcher_field, values)
         if matcher_value is None:

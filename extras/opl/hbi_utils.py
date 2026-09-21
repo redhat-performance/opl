@@ -8,9 +8,8 @@ import opl.args
 import opl.db
 import opl.generators.inventory_ingress
 import opl.skelet
-from opl.kafka_init import kafka_init
-
 import psycopg2
+from opl.kafka_init import kafka_init
 
 
 # collect_info could be None

@@ -1,6 +1,6 @@
 import argparse
-import sys
 import json
+import sys
 
 
 def parse_repoquery_output_from_stdin():

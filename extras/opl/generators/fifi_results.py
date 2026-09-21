@@ -147,28 +147,28 @@ class PlaybookRunMessageGenerator:
             host_id = int((float(self.index) / (self.runs * self.nodes)) % self.hosts)
 
         playbook_run_id = self.objects["runs"][run_id]["playbook_run_id"]
-        account = self.objects["runs"][run_id]["account"]  # noqa: E222
-        started = self.objects["runs"][run_id]["started"]  # noqa: E222
-        serial = self.objects["runs"][run_id]["serial"]  # noqa: E222
+        account = self.objects["runs"][run_id]["account"]
+        started = self.objects["runs"][run_id]["started"]
+        serial = self.objects["runs"][run_id]["serial"]
         in_response_to = self.objects["runs"][run_id]["nodes"][node_id][
             "in_response_to"
-        ]  # noqa: E222
-        sender = self.objects["runs"][run_id]["nodes"][node_id]["sender"]  # noqa: E222
+        ]
+        sender = self.objects["runs"][run_id]["nodes"][node_id]["sender"]
         host = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
             "host"
-        ]  # noqa: E222
+        ]
         sequence = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
             "sequence"
-        ]  # noqa: E222
+        ]
         size = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
             "size"
-        ]  # noqa: E222
+        ]
         duration = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
             "duration"
-        ]  # noqa: E222
+        ]
         finished = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
             "finished"
-        ]  # noqa: E222
+        ]
 
         logging.debug(
             f"Generating message index = {self.index}; run_id = {run_id}; node_id = {node_id}; host_id = {host_id}; serial = {serial}; sequence = {sequence}; duration = {duration}; started = {started}; finished = {finished}"
@@ -228,7 +228,6 @@ class PlaybookRunMessageGenerator:
         elif sequence == duration and finished:
             # This message seqence was already finished
             self.index += 1
-            pass
         else:
             # This is normal progress message
             logging.debug(

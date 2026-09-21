@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import unittest
 import argparse
+import unittest
+
 import pyfakefs.fake_filesystem_unittest
 
 from .context import opl

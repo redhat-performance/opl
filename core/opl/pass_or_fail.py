@@ -13,7 +13,6 @@ import opl.investigator.postgresql_decisions
 import opl.investigator.postgresql_loader
 import opl.investigator.sd_dir_loader
 import opl.investigator.status_data_loader
-
 import tabulate
 
 STATUSES = {

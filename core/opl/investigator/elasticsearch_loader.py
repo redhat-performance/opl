@@ -1,8 +1,8 @@
 import json
 import logging
+import os
 import tempfile
 
-import os
 import opl.http
 import opl.status_data
 from requests.auth import HTTPBasicAuth

@@ -3,8 +3,8 @@ import os.path
 import random
 
 import opl.gen
-import opl.generators.packages
 import opl.generators.generic
+import opl.generators.packages
 
 
 class EgressHostsGenerator(opl.generators.generic.GenericGenerator):

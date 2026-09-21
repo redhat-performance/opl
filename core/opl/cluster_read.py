@@ -1,22 +1,19 @@
-import logging
 import argparse
 import csv
-import yaml
 import json
-import subprocess
-import re
-import requests
+import logging
 import os
-import jinja2
-import jinja2.exceptions
-import boto3
-import urllib3
+import re
+import subprocess
 import tempfile
 
-from opl import data
-from opl import date
-from opl import status_data
-from opl import retry
+import boto3
+import jinja2
+import jinja2.exceptions
+import requests
+import urllib3
+import yaml
+from opl import data, date, retry, status_data
 
 
 def execute(command):

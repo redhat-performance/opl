@@ -171,7 +171,7 @@ def create_bins(data, precision, bins_number=10):
 
 
 def find_bin(value, bins):
-    for i in range(0, len(bins)):
+    for i in range(len(bins)):
         if bins[i][0] <= value < bins[i][1]:
             return i
     return -1

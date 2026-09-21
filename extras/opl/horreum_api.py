@@ -81,15 +81,16 @@ Usage:
     python3 horreum_api_example.py
 """
 
+import argparse
 import json
-import yaml
+import logging
+import os
+import sys
+from typing import Any
+
 import requests
 import requests.exceptions
-from typing import List, Dict, Any
-import sys
-import os
-import logging
-import argparse
+import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -124,14 +125,14 @@ class HorreumAPI:
             {"Content-Type": "application/json", "Accept": "application/json"}
         )
 
-    def create_test(self, test_data: Dict[str, Any]) -> Dict[str, Any]:
+    def create_test(self, test_data: dict[str, Any]) -> dict[str, Any]:
         """Create a new test in Horreum"""
         url = f"{self.base_url}/api/test"
         response = self.session.post(url, json=test_data)
         response.raise_for_status()
         return response.json()
 
-    def update_test(self, test_data: Dict[str, Any]) -> Dict[str, Any]:
+    def update_test(self, test_data: dict[str, Any]) -> dict[str, Any]:
         """Update an existing test in Horreum"""
         if self.dry_run:
             logger.info(
@@ -145,7 +146,7 @@ class HorreumAPI:
         response.raise_for_status()
         return response.json()
 
-    def create_schema(self, schema_data: Dict[str, Any]) -> int:
+    def create_schema(self, schema_data: dict[str, Any]) -> int:
         """Create a new schema in Horreum"""
         url = f"{self.base_url}/api/schema"
         logger.info(f"Creating schema at: {url}")
@@ -163,8 +164,8 @@ class HorreumAPI:
             raise Exception(f"Schema creation failed: {e.response.text}") from e
 
     def create_label(
-        self, schema_id: int, label_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, schema_id: int, label_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Create a label for a schema"""
         if self.dry_run:
             logger.info("[DRY RUN] Would create label:")
@@ -186,7 +187,7 @@ class HorreumAPI:
         response.raise_for_status()
         return response.json()
 
-    def get_schema_labels(self, schema_id: int) -> List[Dict[str, Any]]:
+    def get_schema_labels(self, schema_id: int) -> list[dict[str, Any]]:
         """Get existing labels for a schema"""
         url = f"{self.base_url}/api/schema/{schema_id}/labels"
         response = self.session.get(url)
@@ -217,7 +218,7 @@ class HorreumAPI:
             logger.error(f"Error deleting label {label_id}: {e}")
             return False
 
-    def get_schema_by_name(self, schema_name: str) -> Dict[str, Any]:
+    def get_schema_by_name(self, schema_name: str) -> dict[str, Any]:
         """Get schema by name"""
         try:
             url = f"{self.base_url}/api/schema"
@@ -254,7 +255,7 @@ class HorreumAPI:
             logger.warning(f"Warning: Could not retrieve schemas: {e}")
             return None
 
-    def get_test_by_name(self, test_name: str) -> Dict[str, Any]:
+    def get_test_by_name(self, test_name: str) -> dict[str, Any]:
         """Get test by name"""
         try:
             url = f"{self.base_url}/api/test"
@@ -288,8 +289,8 @@ class HorreumAPI:
             return None
 
     def create_change_detection_variable(
-        self, test_id: int, variable_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, test_id: int, variable_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Create a change detection variable for a test"""
         # Use the correct endpoint and format based on OpenAPI spec
         url = f"{self.base_url}/api/alerting/variables"
@@ -329,7 +330,7 @@ class HorreumAPI:
             logger.error(f"Response text: {e.response.text}")
             raise
 
-    def get_test_variables(self, test_id: int) -> List[Dict[str, Any]]:
+    def get_test_variables(self, test_id: int) -> list[dict[str, Any]]:
         """Get existing change detection variables for a test"""
         # Use the correct endpoint and parameter name based on OpenAPI spec
         url = f"{self.base_url}/api/alerting/variables"
@@ -349,7 +350,7 @@ class HorreumAPI:
             logger.warning("Could not get variables, returning empty list")
             return []
 
-    def update_variables(self, test_id: int, variables: List[Dict[str, Any]]) -> bool:
+    def update_variables(self, test_id: int, variables: list[dict[str, Any]]) -> bool:
         """Update variables (upsert) for a test via /api/alerting/variables.
 
         The API expects the FULL list of variables for the given test. Any variables
@@ -480,7 +481,7 @@ class HorreumAPI:
 
 def load_field_config(
     config_file: str = "horreum_fields_config.yaml",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Load field configuration from YAML file"""
 
     if not os.path.exists(config_file):
@@ -492,7 +493,7 @@ def load_field_config(
     return config
 
 
-def process_field_definitions(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def process_field_definitions(config: dict[str, Any]) -> list[dict[str, Any]]:
     """Process field definitions from configuration"""
 
     field_definitions = []
@@ -515,7 +516,7 @@ def process_field_definitions(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     return field_definitions
 
 
-def create_json_schema(config: Dict[str, Any]) -> Dict[str, Any]:
+def create_json_schema(config: dict[str, Any]) -> dict[str, Any]:
     """Create a JSON schema based on the field configuration"""
 
     # Build schema properties from field definitions
@@ -532,7 +533,7 @@ def create_json_schema(config: Dict[str, Any]) -> Dict[str, Any]:
 
     # Parse field JSONPaths to build nested schema structure
     def add_path_to_schema(
-        properties: Dict[str, Any], path_parts: List[str], field_info: Dict[str, Any]
+        properties: dict[str, Any], path_parts: list[str], field_info: dict[str, Any]
     ):
         """Recursively add a JSONPath to the schema properties"""
         if not path_parts:
@@ -633,7 +634,7 @@ def create_json_schema(config: Dict[str, Any]) -> Dict[str, Any]:
     return schema
 
 
-def create_fingerprint_labels(fields: List[Dict[str, Any]]) -> List[str]:
+def create_fingerprint_labels(fields: list[dict[str, Any]]) -> list[str]:
     """Create fingerprint labels from fields that have filtering=true and no change detection"""
     fingerprint_labels = []
 
@@ -662,8 +663,8 @@ def create_fingerprint_labels(fields: List[Dict[str, Any]]) -> List[str]:
 
 
 def create_test_definition(
-    config: Dict[str, Any], fields: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+    config: dict[str, Any], fields: list[dict[str, Any]]
+) -> dict[str, Any]:
     """Create the test definition from configuration with dynamic fingerprint labels
 
     Priority: YAML configuration takes precedence over dynamic generation.
@@ -717,8 +718,8 @@ def create_test_definition(
 
 
 def create_schema_definition(
-    config: Dict[str, Any], json_schema: Dict[str, Any]
-) -> Dict[str, Any]:
+    config: dict[str, Any], json_schema: dict[str, Any]
+) -> dict[str, Any]:
     """Create the schema definition from configuration"""
     schema_config = config.get("schema", {})
     if not schema_config:
@@ -748,8 +749,8 @@ def create_schema_definition(
 
 
 def create_label_definitions(
-    fields: List[Dict[str, Any]], schema_id: int, config: Dict[str, Any]
-) -> List[Dict[str, Any]]:
+    fields: list[dict[str, Any]], schema_id: int, config: dict[str, Any]
+) -> list[dict[str, Any]]:
     """Create label definitions for all extracted fields"""
     labels = []
 
@@ -782,8 +783,8 @@ def create_label_definitions(
 
 
 def group_labels_for_change_detection(
-    fields: List[Dict[str, Any]],
-) -> Dict[str, List[str]]:
+    fields: list[dict[str, Any]],
+) -> dict[str, list[str]]:
     """Group labels by logical categories for change detection using configuration"""
     groups = {}
 
@@ -798,8 +799,8 @@ def group_labels_for_change_detection(
 
 
 def create_change_detection_variables(
-    test_id: int, fields: List[Dict[str, Any]], config: Dict[str, Any]
-) -> List[Dict[str, Any]]:
+    test_id: int, fields: list[dict[str, Any]], config: dict[str, Any]
+) -> list[dict[str, Any]]:
     """Create change detection variable definitions - one per label using configuration"""
     variables = []
 
@@ -909,7 +910,7 @@ def create_change_detection_variables(
     return variables
 
 
-def _resolve_group_config(config: Dict[str, Any], group_name: str) -> Dict[str, Any]:
+def _resolve_group_config(config: dict[str, Any], group_name: str) -> dict[str, Any]:
     """Resolve desired change detection configuration for a group using defaults.
 
     Returns dict with keys based on model type:
@@ -971,8 +972,8 @@ def _resolve_group_config(config: Dict[str, Any], group_name: str) -> Dict[str, 
 
 
 def _extract_change_detection_values(
-    cd_config: Dict[str, Any], model: str
-) -> Dict[str, Any]:
+    cd_config: dict[str, Any], model: str
+) -> dict[str, Any]:
     """Extract comparable values from a server-side change detection config object."""
     if not isinstance(cd_config, dict):
         return {}
@@ -1010,7 +1011,7 @@ def _extract_change_detection_values(
         }
 
 
-def _needs_update(existing: Dict[str, Any], desired: Dict[str, Any]) -> bool:
+def _needs_update(existing: dict[str, Any], desired: dict[str, Any]) -> bool:
     """Whether existing change detection values differ from desired ones."""
     if not existing:
         return True
@@ -1046,7 +1047,7 @@ def _needs_update(existing: Dict[str, Any], desired: Dict[str, Any]) -> bool:
 
 
 def sync_change_detection_configs(
-    api: HorreumAPI, test_id: int, fields: List[Dict[str, Any]], config: Dict[str, Any]
+    api: HorreumAPI, test_id: int, fields: list[dict[str, Any]], config: dict[str, Any]
 ) -> None:
     """Ensure server variables match YAML change detection config.
 
@@ -1074,7 +1075,7 @@ def sync_change_detection_configs(
 
     # Map variable name -> variable object from server (using the copy)
     # Create mapping of variable name to variable object
-    vars_by_name: Dict[str, Dict[str, Any]] = {
+    vars_by_name: dict[str, dict[str, Any]] = {
         v.get("name"): v
         for v in variables_to_update
         if isinstance(v, dict) and v.get("name")
@@ -1083,9 +1084,9 @@ def sync_change_detection_configs(
     logger.info(f"Variables by name: {list(vars_by_name.keys())}")
 
     # Track updates
-    updated_names: List[str] = []
-    update_details: List[str] = []
-    no_update_needed: List[str] = []
+    updated_names: list[str] = []
+    update_details: list[str] = []
+    no_update_needed: list[str] = []
 
     for field in fields:
         group = field.get("change_detection_group")

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import junitparser
 import tempfile
 import unittest
+
+import junitparser
 
 from .context import opl
 

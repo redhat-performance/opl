@@ -1,6 +1,6 @@
+import argparse
 import os
 import socket
-import argparse
 
 
 def _add_generic_db_opts(parser, name):

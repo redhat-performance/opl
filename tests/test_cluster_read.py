@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-import yaml
-import unittest
-import tempfile
-import os
 import argparse
 import datetime
+import os
+import tempfile
+import unittest
 from urllib.parse import parse_qs, urlparse
 
 import responses
+import yaml
 
 from .context import opl
 

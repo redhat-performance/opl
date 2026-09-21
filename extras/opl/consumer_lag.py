@@ -2,6 +2,7 @@
 
 import logging
 import time
+
 from kafka import TopicPartition
 from opl.kafka_init import kafka_init
 

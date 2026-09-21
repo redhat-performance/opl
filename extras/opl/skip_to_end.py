@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-import logging
 import argparse
+import logging
 import os
 import time
 
+from opl import args, skelet
 from opl.kafka_init import kafka_init
-from opl import args
-from opl import skelet
 
 
 def doit_seek_to_end(args):

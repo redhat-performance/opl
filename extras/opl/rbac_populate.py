@@ -10,16 +10,13 @@ import sys
 import time
 import uuid
 
-import opl.args  # noqa: E402
-import opl.db  # noqa: E402
-import opl.gen  # noqa: E402
-import opl.rbac_utils  # noqa: E402
-import opl.skelet  # noqa: E402
-
+import opl.args
+import opl.db
+import opl.gen
+import opl.rbac_utils
+import opl.skelet
 import psycopg2
-
 import requests
-
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

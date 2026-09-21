@@ -3,13 +3,12 @@ import datetime
 import json
 import logging
 import os
-import unicodedata
-import junitparser
-import urllib3
 import re
+import unicodedata
 
+import junitparser
 import requests
-
+import urllib3
 from opl import date
 
 
@@ -401,11 +400,11 @@ def main():
     subparsers = parser.add_subparsers(dest="action", help="Select one of sub-commands")
 
     # Create the parser for the "print" command
-    subparsers.add_parser("print", help="Print content of the file")  # noqa: F841
+    subparsers.add_parser("print", help="Print content of the file")
 
     # Create the parser for the "result" command
     subparsers.add_parser(
-        "result", help="Print overall result from the file"  # noqa: F841
+        "result", help="Print overall result from the file"
     )
 
     # create the parser for the "add" command

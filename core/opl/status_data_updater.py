@@ -11,14 +11,10 @@ import time
 from collections import OrderedDict
 
 import opl.status_data
-
 import requests
 import requests.adapters
-
 import tabulate
-
 import urllib3
-
 import yaml
 
 RP_TO_ES_STATE = {

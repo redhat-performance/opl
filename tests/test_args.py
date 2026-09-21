@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import unittest
 import argparse
+import unittest
 
 from .context import opl
 

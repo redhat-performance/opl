@@ -1,10 +1,10 @@
 import logging
+
 import boto3
 import botocore.client
-from typing import List, Dict, Union
 
 
-def connect(s3_conf: Dict) -> boto3.resource:
+def connect(s3_conf: dict) -> boto3.resource:
     """
     Connect to s3
     Args:
@@ -51,8 +51,8 @@ def get_presigned_url(s3_resource, bucket, remote_name):
 
 
 def delete_files(
-    s3_resource: boto3.resource, bucket_name: str, file_paths: Union[str, List[str]]
-) -> Union[Dict, bool]:
+    s3_resource: boto3.resource, bucket_name: str, file_paths: str | list[str]
+) -> dict | bool:
     """
     Delete s3-objets from s3 bucket
     Args:

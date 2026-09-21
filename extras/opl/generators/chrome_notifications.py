@@ -3,8 +3,8 @@
 # echo '{"specversion":"1.0.2","type":"notifications.drawer","source":"https://whatever.service.com","id":"test-message","time":"2023-05-23T11:54:03.879689005+02:00","datacontenttype":"application/json","data":{"broadcast":true,"payload":{"id":"foo.bar.1","description":"string","title":"string","created":"2023-05-23T11:54:03.879689005+02:00","read":false,"source":"string"}}}'
 
 import opl.gen
-import opl.generators.packages
 import opl.generators.generic
+import opl.generators.packages
 
 
 class ChromeNotificationsGenerator(opl.generators.generic.GenericGenerator):

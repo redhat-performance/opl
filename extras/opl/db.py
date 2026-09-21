@@ -2,7 +2,6 @@ import logging
 import random
 import time
 
-
 import psycopg2
 import psycopg2.extras
 
@@ -24,7 +23,7 @@ def get_query_result(db_conf, sql):
         cursor.close()
         return data
     except Exception as e:
-        logging.error(f"failed to execute query as {str(e)}")
+        logging.error(f"failed to execute query as {e!s}")
         return False
 
 
@@ -41,7 +40,7 @@ def execute_query(db_conf, sql):
         cursor.close()
         return True
     except Exception as e:
-        logging.error(f"failed to execute query as {str(e)}")
+        logging.error(f"failed to execute query as {e!s}")
         return False
 
 
@@ -54,7 +53,7 @@ def connect_with_retry(db_conf, cattempt=1, cmax=100, csleep=5):
                 raise
             else:
                 logging.warning(
-                    f"Failed to connect to the DB in attempt {cattempt} of {cmax}: {str(e)}"
+                    f"Failed to connect to the DB in attempt {cattempt} of {cmax}: {e!s}"
                 )
                 time.sleep(random.random() * csleep)
                 cattempt += 1
@@ -173,7 +172,7 @@ class BatchProcessor:
             self.commit()
 
 
-def BatchReader(db, sql, limit=100):  # noqa: N802
+def BatchReader(db, sql, limit=100):
     """
     Creates named server side cursor (so not all results are fetched to
     the client when query is executed):

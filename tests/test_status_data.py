@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import datetime
-import os
-import unittest
 import json
+import os
 import tempfile
 import time
+import unittest
 
 import requests.exceptions
 

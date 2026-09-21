@@ -10,10 +10,8 @@ import opl.args
 import opl.data
 import opl.db
 import opl.skelet
-
 import psycopg2
 import psycopg2.extras
-
 import yaml
 
 """
