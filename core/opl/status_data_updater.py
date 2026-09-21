@@ -38,9 +38,7 @@ STATE_WEIGHTS = {
 def get_session():
     """Create authenticated requests session for RP and ES."""
     session = requests.Session()
-    retry_adapter = requests.adapters.HTTPAdapter(
-        max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1)
-    )
+    retry_adapter = requests.adapters.HTTPAdapter(max_retries=urllib3.Retry(total=None, connect=10, backoff_factor=1))
     session.mount("https://", retry_adapter)
     session.mount("http://", retry_adapter)
     return session
@@ -77,7 +75,7 @@ def _es_get_test(session, args, key, val, size=1, sort_by="started", sort_order=
     if session is None:
         session = get_session()
 
-    logging.info('Querying ES with url=%s, headers=%s and json=%s', url, headers, json.dumps(data))
+    logging.info("Querying ES with url=%s, headers=%s and json=%s", url, headers, json.dumps(data))
     attempt = 0
     attempt_max = 10
     while True:
@@ -91,7 +89,7 @@ def _es_get_test(session, args, key, val, size=1, sort_by="started", sort_order=
         else:
             break
     response.raise_for_status()
-    logging.debug('Got back this: %s', json.dumps(response.json(), sort_keys=True, indent=4))
+    logging.debug("Got back this: %s", json.dumps(response.json(), sort_keys=True, indent=4))
 
     return response.json()
 
@@ -102,7 +100,7 @@ def _add_comment(args, sd, author=None, text=None):
         sd.set("comments", [])
 
     if not isinstance(sd.get("comments"), list):
-        logging.error("Field 'comments' is not a list: %s", sd.get('comments'))
+        logging.error("Field 'comments' is not a list: %s", sd.get("comments"))
 
     if author is None:
         author = os.getenv("USER", "unknown")
@@ -112,9 +110,7 @@ def _add_comment(args, sd, author=None, text=None):
     sd.get("comments").append(
         {
             "author": author,
-            "date": datetime.datetime.utcnow()
-            .replace(tzinfo=datetime.timezone.utc)
-            .isoformat(),
+            "date": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
             "text": text,
         }
     )
@@ -124,9 +120,7 @@ def doit_list(args):
     """List results stored in the dashboard."""
     assert args.list_name is not None
 
-    response = _es_get_test(
-        None, args, ["name.keyword"], [args.list_name], args.list_size
-    )
+    response = _es_get_test(None, args, ["name.keyword"], [args.list_name], args.list_size)
 
     table_headers = [
         "Run ID",
@@ -178,7 +172,7 @@ def doit_change(args):
             except ValueError:
                 pass
 
-        logging.debug('Setting %s = %s (%s)', key, value, type(value))
+        logging.debug("Setting %s = %s (%s)", key, value, type(value))
         sd.set(key, value)
 
     # Add comment to log the change
@@ -186,14 +180,14 @@ def doit_change(args):
 
     url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
 
-    logging.info('Saving to ES with url=%s and json=%s', url, json.dumps(sd.dump()))
+    logging.info("Saving to ES with url=%s and json=%s", url, json.dumps(sd.dump()))
 
     if args.dry_run:
         logging.info("Not touching ES as we are running in dry run mode")
     else:
         response = requests.post(url, json=sd.dump(), timeout=60)
         response.raise_for_status()
-        logging.debug('Got back this: %s', json.dumps(response.json(), sort_keys=True, indent=4))
+        logging.debug("Got back this: %s", json.dumps(response.json(), sort_keys=True, indent=4))
 
     print(sd.info())
 
@@ -215,14 +209,12 @@ def _get_rp_launches(session, args, rp_launch=None, rp_launches_count=None):
         "page.size": rp_launches_count,
         "page.sort": "endTime,desc",
     }
-    logging.debug('Going to do GET request to %s with %s', url, data)
-    response = session.get(
-        url, params=data, headers=headers, verify=not args.rp_noverify
-    )
+    logging.debug("Going to do GET request to %s with %s", url, data)
+    response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
     if not response.ok:
-        logging.error('Request failed: %s', response.text)
+        logging.error("Request failed: %s", response.text)
     response.raise_for_status()
-    logging.debug('Request returned %s', response.json())
+    logging.debug("Request returned %s", response.json())
     return response.json()["content"]
 
 
@@ -242,7 +234,7 @@ def _filter_rp_launches_without_run_id(launches):
     for launch in launches:
         run_id = _get_run_id_from_rp_launch(launch)
         if run_id is None:
-            logging.warning('Launch id=%s do not have run_id attribute, skipping it', launch['id'])
+            logging.warning("Launch id=%s do not have run_id attribute, skipping it", launch["id"])
             continue
         launches_filtered.append(launch)
     return launches_filtered
@@ -265,26 +257,28 @@ def _get_rp_launch_results(session, args, launch):
         "page.sort": "id,asc",
     }
     while True:
-        logging.debug('Going to do GET request to %s with %s', url, data)
-        response = session.get(
-            url, params=data, headers=headers, verify=not args.rp_noverify
-        )
+        logging.debug("Going to do GET request to %s with %s", url, data)
+        response = session.get(url, params=data, headers=headers, verify=not args.rp_noverify)
         results += response.json()["content"]
         if response.json()["page"]["number"] < response.json()["page"]["totalPages"]:
             data["page.page"] += 1
         else:
-            logging.debug(
-                "No content in the response, considering this last page of data"
-            )
+            logging.debug("No content in the response, considering this last page of data")
             break
-    logging.debug('OK, we have %s results from RP for this launch', len(results))
+    logging.debug("OK, we have %s results from RP for this launch", len(results))
     return results
 
 
 def _create_sd_from_es_response(response):
     """Convert ElasticSearch response data structure to StatusData object."""
-    logging.debug('Loading data from document ID %s with field id=%s', response['_id'], response['_source']['id'] if 'id' in response['_source'] else None)
-    tmpfile = tempfile.NamedTemporaryFile(prefix=response["_id"], delete=False).name  # pylint: disable=consider-using-with  # file must outlive this scope
+    logging.debug(
+        "Loading data from document ID %s with field id=%s",
+        response["_id"],
+        response["_source"]["id"] if "id" in response["_source"] else None,
+    )
+    tmpfile = tempfile.NamedTemporaryFile(
+        prefix=response["_id"], delete=False
+    ).name  # pylint: disable=consider-using-with  # file must outlive this scope
     return opl.status_data.StatusData(tmpfile, data=response["_source"])
 
 
@@ -296,17 +290,11 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
         # well and that is composed differently in SatCPT and in other
         # CPTs :-(
         if "itemPaths" not in result["pathNames"]:
-            raise ValueError(
-                f"This result do not have result -> pathNames -> itemPaths, skipping it: {result}"
-            )
+            raise ValueError(f"This result do not have result -> pathNames -> itemPaths, skipping it: {result}")
         sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
-        response = _es_get_test(
-            session, args, ["id.keyword", "name.keyword"], [run_id, sd_name]
-        )
+        response = _es_get_test(session, args, ["id.keyword", "name.keyword"], [run_id, sd_name])
     elif args.rp_project == "aapcpt":
-        response = _es_get_test(
-            session, args, ["id.keyword", "name.keyword"], [run_id, result["name"]]
-        )
+        response = _es_get_test(session, args, ["id.keyword", "name.keyword"], [run_id, result["name"]])
     else:
         response = _es_get_test(session, args, ["id.keyword"], [run_id])
         assert response["hits"]["total"]["value"] == 1
@@ -345,7 +333,7 @@ def _get_es_dashboard_result_for_run_id(session, args, run_id, test=None):
         # In combination with _es_get_test()'s sort_order="asc", get the oldest result.
         source = response["hits"]["hits"][0]
     except IndexError:
-        logging.debug('Failed to find dashboard result in ES for %s', run_id)
+        logging.debug("Failed to find dashboard result in ES for %s", run_id)
         return (None, None, None)
     return (response["hits"]["hits"][0]["_source"], source["_type"], source["_id"])
 
@@ -396,7 +384,7 @@ def doit_rp_to_es(args):
 
         # Process individual results
         for result in results:
-            logging.debug('Processing RP result %s', result)
+            logging.debug("Processing RP result %s", result)
             stats["cases"] += 1
 
             # Get resuls from launch statistics
@@ -404,14 +392,12 @@ def doit_rp_to_es(args):
 
             # Get relevant status data document from ElasticSearch
             try:
-                sd, es_type, es_id = _get_es_result_for_rp_result(
-                    session, args, run_id, result
-                )
+                sd, es_type, es_id = _get_es_result_for_rp_result(session, args, run_id, result)
             except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-                logging.warning('Something went wrong when getting data for %s/%s: %s', run_id, result, e)
+                logging.warning("Something went wrong when getting data for %s/%s: %s", run_id, result, e)
                 continue
 
-            logging.debug('Comparing result from RP %s to result from ES %s', result_string, sd.get('result'))
+            logging.debug("Comparing result from RP %s to result from ES %s", result_string, sd.get("result"))
             if sd.get("result") != result_string:
                 stats["cases_changed"] += 1
 
@@ -422,12 +408,12 @@ def doit_rp_to_es(args):
                     comment = f"Automatic update as per ReportPortal change: {sd.get('result')} -> {result_string}"
                 _add_comment(args, sd, author="status_data_updater", text=comment)
 
-                logging.info('Results do not match, updating them: %s != %s', sd.get('result'), result_string)
+                logging.info("Results do not match, updating them: %s != %s", sd.get("result"), result_string)
                 sd.set("result", result_string)
 
                 # Save the changes to ES
                 url = f"{args.es_server}/{args.es_index}/{es_type}/{es_id}"
-                logging.info('Saving to ES with url=%s and json=%s', url, json.dumps(sd.dump()))
+                logging.info("Saving to ES with url=%s and json=%s", url, json.dumps(sd.dump()))
                 if args.dry_run:
                     logging.info("Not touching ES as we are running in dry run mode")
                 else:
@@ -440,15 +426,17 @@ def doit_rp_to_es(args):
                         ):  # 429 Client Error: Too Many Requests for url: http://.../<index>/_doc/...
                             attempt += 1
                             if attempt >= attempt_max:
-                                raise RuntimeError(
-                                    f"Failed to update data in ES after {attempt} attempts: {response}"
-                                )
-                            logging.info("Request failed with '429 Client Error: Too Many Requests'. Will retry in a bit. Attempt %s/%s", attempt, attempt_max)
+                                raise RuntimeError(f"Failed to update data in ES after {attempt} attempts: {response}")
+                            logging.info(
+                                "Request failed with '429 Client Error: Too Many Requests'. Will retry in a bit. Attempt %s/%s",
+                                attempt,
+                                attempt_max,
+                            )
                             time.sleep(random.randint(1, 10))
                         else:
                             break
                     response.raise_for_status()
-                    logging.debug('Got back this: %s', json.dumps(response.json(), sort_keys=True, indent=4))
+                    logging.debug("Got back this: %s", json.dumps(response.json(), sort_keys=True, indent=4))
 
     print(tabulate.tabulate(stats.items()))
 
@@ -469,17 +457,11 @@ def doit_rp_to_dashboard_new(args):
     if not args.dashboard_skip_uniqness_check:
         # Ensure there are no results for this run_id in ElasticSearch yet
         try:
-            dashboard, _es_type, _es_id = _get_es_dashboard_result_for_run_id(
-                session, args, run_id
-            )
+            dashboard, _es_type, _es_id = _get_es_dashboard_result_for_run_id(session, args, run_id)
         except requests.exceptions.HTTPError as e:
-            matching = (
-                "No mapping found for [date] in order to sort on" in e.response.text
-            )
+            matching = "No mapping found for [date] in order to sort on" in e.response.text
             if e.response.status_code == 400 and matching:
-                logging.debug(
-                    "Request failed, but I guess it was because index is still empty"
-                )
+                logging.debug("Request failed, but I guess it was because index is still empty")
                 dashboard = None
             else:
                 raise
@@ -502,12 +484,10 @@ def doit_rp_to_dashboard_new(args):
         "result": result,
         "date": args.dashboard_date,
     }
-    logging.debug('Going to do POST request to %s with %s', url, data)
-    response = session.post(
-        url, json=data, headers=headers, verify=not args.rp_noverify
-    )
+    logging.debug("Going to do POST request to %s with %s", url, data)
+    response = session.post(url, json=data, headers=headers, verify=not args.rp_noverify)
     response.raise_for_status()
-    logging.debug('Got back this: %s', json.dumps(response.json(), sort_keys=True, indent=4))
+    logging.debug("Got back this: %s", json.dumps(response.json(), sort_keys=True, indent=4))
     print(f"Created result {run_id} in the dashboard with value {result}")
 
 
@@ -522,7 +502,7 @@ def _update_es_dashboard_result(session, args, es_id, result_string):
             "result": result_string,
         },
     }
-    logging.debug('Going to do POST request to %s with %s', url, data)
+    logging.debug("Going to do POST request to %s with %s", url, data)
     if args.dry_run:
         logging.debug("Skipped because of dry-run")
     else:
@@ -530,9 +510,7 @@ def _update_es_dashboard_result(session, args, es_id, result_string):
         attempt_max = 10
         while True:
             try:
-                response = session.post(
-                    url, json=data, headers=headers, verify=not args.rp_noverify
-                )
+                response = session.post(url, json=data, headers=headers, verify=not args.rp_noverify)
             except requests.exceptions.ConnectionError:
                 if attempt >= attempt_max:
                     raise
@@ -541,7 +519,7 @@ def _update_es_dashboard_result(session, args, es_id, result_string):
             else:
                 break
         response.raise_for_status()
-        logging.debug('Got back this: %s', json.dumps(response.json(), sort_keys=True, indent=4))
+        logging.debug("Got back this: %s", json.dumps(response.json(), sort_keys=True, indent=4))
 
 
 def doit_rp_to_dashboard_update(args):
@@ -579,7 +557,7 @@ def doit_rp_to_dashboard_update(args):
 
         # Process individual results to get final result
         for result in results:
-            logging.debug('Processing RP result %s', result)
+            logging.debug("Processing RP result %s", result)
 
             result_string = _get_rp_result_result_string(result)
 
@@ -591,7 +569,9 @@ def doit_rp_to_dashboard_update(args):
                 result["name"],
             )
             if dashboard is None:
-                logging.warning("Result %s '%s' does not exist in the dashboard, skipping updating it", run_id, result['name'])
+                logging.warning(
+                    "Result %s '%s' does not exist in the dashboard, skipping updating it", run_id, result["name"]
+                )
                 continue
 
             # Update the result in dashboard if needed
@@ -653,9 +633,7 @@ def doit_rp_backlog(args):
             )
 
         # Get N newest launches
-        launches = _get_rp_launches(
-            session, args, rp_launch=rp_launch, rp_launches_count=rp_launches_count
-        )
+        launches = _get_rp_launches(session, args, rp_launch=rp_launch, rp_launches_count=rp_launches_count)
 
         # Filter out RP launches that does not have "run_id" attribute
         launches = _filter_rp_launches_without_run_id(launches)
@@ -666,11 +644,11 @@ def doit_rp_backlog(args):
 
             # Get test results from launch
             results = _get_rp_launch_results(session, args, launch)
-            logging.debug('Going to compare %s results for launch %s', len(results), launch['id'])
+            logging.debug("Going to compare %s results for launch %s", len(results), launch["id"])
 
             # Process individual results
             for result in results:
-                logging.debug('Processing RP result %s', result)
+                logging.debug("Processing RP result %s", result)
 
                 # Get resuls from launch statistics
                 assert (
@@ -679,7 +657,7 @@ def doit_rp_backlog(args):
                 result_string = result["status"]
                 defect_string = _get_rp_result_defect_string(result)
                 override_string = _get_rp_result_result_string(result)
-                logging.debug('Counted result %s: %s, %s, %s', run_id, result_string, defect_string, override_string)
+                logging.debug("Counted result %s: %s, %s, %s", run_id, result_string, defect_string, override_string)
                 data_per_owner[rp_launch_owner][defect_string] += 1
                 data_per_job[rp_launch][defect_string] += 1
 
@@ -733,9 +711,7 @@ def main():
         help="ElasticSearch index for the results data",
     )
 
-    parser.add_argument(
-        "--list-name", help="Name of the test to query for when listing"
-    )
+    parser.add_argument("--list-name", help="Name of the test to query for when listing")
     parser.add_argument(
         "--list-size",
         type=int,
@@ -750,12 +726,8 @@ def main():
     )
 
     parser.add_argument("--change-id", help="ID of a test run when changing")
-    parser.add_argument(
-        "--change-set", nargs="*", default=[], help="Set key=value data"
-    )
-    parser.add_argument(
-        "--change-comment-text", help="Comment to be added as part of change"
-    )
+    parser.add_argument("--change-set", nargs="*", default=[], help="Set key=value data")
+    parser.add_argument("--change-comment-text", help="Comment to be added as part of change")
 
     parser.add_argument("--rp-host", help="ReportPortal host")
     parser.add_argument(
@@ -820,9 +792,7 @@ def main():
     )
     parser.add_argument(
         "--dashboard-date",
-        default=datetime.datetime.utcnow()
-        .replace(tzinfo=datetime.timezone.utc)
-        .isoformat(),
+        default=datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
         help="When the test was executed for result dashboard",
     )
     parser.add_argument(
@@ -842,7 +812,7 @@ def main():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug('Args: %s', args)
+    logging.debug("Args: %s", args)
 
     if args.action == "list":
         return doit_list(args)

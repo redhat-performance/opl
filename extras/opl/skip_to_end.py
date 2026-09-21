@@ -36,7 +36,7 @@ def doit_seek_to_end(args):  # pylint: disable=redefined-outer-name
             consumer.poll(timeout_ms=5000)
             consumer.seek_to_end()
         except (AssertionError, ValueError) as e:
-            logging.warning('Retrying as seek to end failed with: %s', e)
+            logging.warning("Retrying as seek to end failed with: %s", e)
             time.sleep(1)
         else:
             break

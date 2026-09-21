@@ -96,9 +96,7 @@ class TestStatusData(unittest.TestCase):
         self.assertIsNone(self.status_data.get("aaa.bbb.ccc"))
 
     def test_datetime(self):
-        now_plus2 = datetime.datetime.now(
-            tz=datetime.timezone(datetime.timedelta(hours=2))
-        )
+        now_plus2 = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=2)))
         now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
         self.status_data.set("aaa", now_plus2)
         self.status_data.set("bbb", now_utc)
@@ -260,9 +258,7 @@ class TestStatusData(unittest.TestCase):
 
     def test_file_on_http(self):
         with self.assertRaises(requests.exceptions.ConnectionError):
-            _ = opl.status_data.StatusData(
-                "http://does.not.exist/status-data-file.json"
-            )
+            _ = opl.status_data.StatusData("http://does.not.exist/status-data-file.json")
 
     def test_comment(self):
         comment = {
@@ -281,9 +277,7 @@ class TestStatusData(unittest.TestCase):
     def test_save(self):
         tmp = tempfile.mktemp()
         with open(tmp, "w") as fp:
-            fp.write(
-                '{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}'
-            )
+            fp.write('{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
         self.assertEqual(sd.get("name"), "test")
         self.assertEqual(sd.get("started"), "2024-01-31T12:19:42,794470088+00:00")
@@ -319,13 +313,9 @@ class TestStatusData(unittest.TestCase):
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
-        time.sleep(
-            0.001
-        )  # workaround, see https://stackoverflow.com/a/77913929/2229885
+        time.sleep(0.001)  # workaround, see https://stackoverflow.com/a/77913929/2229885
         with open(tmp, "w") as fp:
-            fp.write(
-                '{"name":"test","results":{"number":42,"foo":"bar"}}'
-            )  # file on the disk changed
+            fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')  # file on the disk changed
 
         with self.assertRaises(Exception) as context:
             sd.save()  # file changed since last load so this will raise exception
@@ -342,12 +332,8 @@ class TestStatusData(unittest.TestCase):
 
         sd.load()  # load changed file, drop changes in the object
 
-        self.assertEqual(
-            sd.get("results.number_new"), None
-        )  # changes made to old object are lost
-        self.assertEqual(
-            sd.get("results.foo"), "bar"
-        )  # this was loaded from modified file
+        self.assertEqual(sd.get("results.number_new"), None)  # changes made to old object are lost
+        self.assertEqual(sd.get("results.foo"), "bar")  # this was loaded from modified file
 
         sd.save()  # save should work now as file did not changed since last load
 
@@ -358,13 +344,9 @@ class TestStatusData(unittest.TestCase):
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
-        time.sleep(
-            0.001
-        )  # workaround, see https://stackoverflow.com/a/77913929/2229885
+        time.sleep(0.001)  # workaround, see https://stackoverflow.com/a/77913929/2229885
         with open(tmp, "w") as fp:
-            fp.write(
-                '{"name":"test","results":{"number":42,"foo":"bar"}}'
-            )  # file on the disk changed
+            fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')  # file on the disk changed
 
         with self.assertRaises(Exception) as _:
             sd.save()  # file changed since last load so this will raise exception

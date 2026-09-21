@@ -91,9 +91,7 @@ class TestSkelet(unittest.TestCase):
         )
 
     def test_get_rps(self):
-        rps_vals = opl.data.get_rps(
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bucket_size=10, granularity=1
-        )
+        rps_vals = opl.data.get_rps([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bucket_size=10, granularity=1)
         self.assertEqual(len(rps_vals), 10)
         self.assertEqual(sum(rps_vals) / len(rps_vals), 1.0)
 

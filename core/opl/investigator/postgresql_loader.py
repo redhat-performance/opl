@@ -37,7 +37,7 @@ def load(pg_host, pg_port, pg_database, query, paths, **kwargs):
     for path in paths:
         out[path] = []
 
-    logging.info('Querying PostgreSQL on %s:%s/%s with query=%s', pg_host, pg_port, pg_database, query)
+    logging.info("Querying PostgreSQL on %s:%s/%s with query=%s", pg_host, pg_port, pg_database, query)
 
     connection = psycopg2.connect(**db_conf)
     cursor = connection.cursor()
@@ -45,8 +45,10 @@ def load(pg_host, pg_port, pg_database, query, paths, **kwargs):
 
     for row in cursor:
         data = row[0]
-        logging.debug('Loading data from row with id=%s name=%s', data.get('id', None), data.get('name', None))
-        tmpfile = tempfile.NamedTemporaryFile(delete=False).name  # pylint: disable=consider-using-with  # file must outlive this scope
+        logging.debug("Loading data from row with id=%s name=%s", data.get("id", None), data.get("name", None))
+        tmpfile = tempfile.NamedTemporaryFile(
+            delete=False
+        ).name  # pylint: disable=consider-using-with  # file must outlive this scope
         sd = opl.status_data.StatusData(tmpfile, data=data)
         for path in paths:
             tmp = sd.get(path)
@@ -56,5 +58,5 @@ def load(pg_host, pg_port, pg_database, query, paths, **kwargs):
     cursor.close()
     connection.close()
 
-    logging.debug('Loaded %s', out)
+    logging.debug("Loaded %s", out)
     return out

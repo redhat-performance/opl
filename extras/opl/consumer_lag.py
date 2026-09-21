@@ -55,9 +55,7 @@ class ConsumerLag:
         for partition_id, value in curr_offsets.items():
             record = {
                 "curr_offset": value,
-                "end_offset": end_offsets[
-                    TopicPartition(topic=self.args.kafka_topic, partition=partition_id)
-                ],
+                "end_offset": end_offsets[TopicPartition(topic=self.args.kafka_topic, partition=partition_id)],
             }
             self.offset_records[partition_id] = record
 
@@ -67,7 +65,7 @@ class ConsumerLag:
         response = True
         for _, record in self.offset_records.items():
             if record["curr_offset"] is None:
-                self.logger.warning('For some reason current offset is None, replacing it with 0 in: %s', record)
+                self.logger.warning("For some reason current offset is None, replacing it with 0 in: %s", record)
                 record["curr_offset"] = 0
             diff = record["end_offset"] - record["curr_offset"]
             if diff == 0:

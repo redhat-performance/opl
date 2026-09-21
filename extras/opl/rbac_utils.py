@@ -24,7 +24,7 @@ class RbacTestData:
         """Save the data to a JSON file."""
         if filename is not None:
             if os.path.exists(filename):
-                logging.warning('File %s already exists. Overwriting it.', filename)
+                logging.warning("File %s already exists. Overwriting it.", filename)
             self.filename = filename
         if self.filename is None:
             raise ValueError("Where should I save to?")
@@ -35,12 +35,8 @@ class RbacTestData:
         """Return counts of accounts, users and applications."""
         return {
             "accounts_count": len(self.get_accounts()),
-            "users_count": sum(
-                len(self.get_users_for_account(a)) for a in self.get_accounts()
-            ),
-            "applications_count": sum(
-                len(self.get_applications_for_account(a)) for a in self.get_accounts()
-            ),
+            "users_count": sum(len(self.get_users_for_account(a)) for a in self.get_accounts()),
+            "applications_count": sum(len(self.get_applications_for_account(a)) for a in self.get_accounts()),
         }
 
     def get_accounts(self):
@@ -62,9 +58,7 @@ class RbacTestData:
                 "users": [],
                 "applications": [],
             }
-        self.data["accounts"][account]["users"] = list(
-            set(self.data["accounts"][account]["users"] + users)
-        )
+        self.data["accounts"][account]["users"] = list(set(self.data["accounts"][account]["users"] + users))
         self.data["accounts"][account]["applications"] = list(
             set(self.data["accounts"][account]["applications"] + applications)
         )
@@ -102,9 +96,7 @@ class TestRequestedInfo(unittest.TestCase):
         data.add_account("10001", ["aaa", "bbb"], ["xxx", "yyy", "zzz"])
         self.assertEqual(set(data.get_accounts()), set(["10001"]))
         self.assertEqual(set(data.get_users_for_account("10001")), set(["aaa", "bbb"]))
-        self.assertEqual(
-            set(data.get_applications_for_account("10001")), set(["xxx", "yyy", "zzz"])
-        )
+        self.assertEqual(set(data.get_applications_for_account("10001")), set(["xxx", "yyy", "zzz"]))
 
     def test_add_more(self):
         """Test adding more accounts."""
@@ -121,12 +113,8 @@ class TestRequestedInfo(unittest.TestCase):
         data.add_account("10001", ["aaa", "bbb"], ["xxx"])
         data.add_account("10001", ["bbb", "ccc"], ["xxx", "yyy", "zzz"])
         self.assertEqual(set(data.get_accounts()), set(["10001"]))
-        self.assertEqual(
-            set(data.get_users_for_account("10001")), set(["aaa", "bbb", "ccc"])
-        )
-        self.assertEqual(
-            set(data.get_applications_for_account("10001")), set(["xxx", "yyy", "zzz"])
-        )
+        self.assertEqual(set(data.get_users_for_account("10001")), set(["aaa", "bbb", "ccc"]))
+        self.assertEqual(set(data.get_applications_for_account("10001")), set(["xxx", "yyy", "zzz"]))
 
     def test_info(self):
         """Test info() counts."""

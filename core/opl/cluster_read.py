@@ -20,13 +20,17 @@ from opl import data, date, retry, status_data
 
 def execute(command):
     """Execute shell command and return its stdout (fail on non-zero exit)."""
-    p = subprocess.run(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
-    )
+    p = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     if p.returncode != 0 or len(p.stderr) != 0:
         stderr = p.stderr.decode().strip().replace("\n", "\t")
         stdout = p.stdout.decode().strip().replace("\n", "\t")
-        logging.error("Failed to execute command '%s' - returned stdout '%s', stderr '%s' and returncode '%s'", command, stdout, stderr, p.returncode)
+        logging.error(
+            "Failed to execute command '%s' - returned stdout '%s', stderr '%s' and returncode '%s'",
+            command,
+            stdout,
+            stderr,
+            p.returncode,
+        )
         result = None
     else:
         result = p.stdout.decode().strip()
@@ -54,9 +58,7 @@ def _debug_response(r):
     request failed
     """
     logging.error("URL = %s", r.url)
-    logging.error(
-        "Request headers = %s", redact_sensitive_headers(r.request.headers)
-    )
+    logging.error("Request headers = %s", redact_sensitive_headers(r.request.headers))
     logging.error("Response headers = %s", redact_sensitive_headers(r.headers))
     logging.error("Response status code = %s", r.status_code)
     logging.error("Response content = %s", r.content[:500])
@@ -96,7 +98,7 @@ class BasePlugin:
         file_name = re.sub("[^a-zA-Z0-9-]+", "_", name) + ".csv"
         file_path = os.path.join(self.args.monitoring_raw_data_dir, file_name)
 
-        logging.debug('Dumping raw data (%s rows) to %s', len(mydata), file_path)
+        logging.debug("Dumping raw data (%s rows) to %s", len(mydata), file_path)
         with open(file_path, "w", encoding="utf-8", newline="") as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["timestamp", name])
@@ -117,12 +119,14 @@ class PrometheusMeasurementsPlugin(BasePlugin):
                 raise RuntimeError("Failsed to get token")
         return self.args.prometheus_token
 
-    def measure(self, ri, name, monitoring_query, monitoring_step):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
-        logging.debug('/Getting data for %s using Prometheus query %s and step %s', name, monitoring_query, monitoring_step)
+    def measure(
+        self, ri, name, monitoring_query, monitoring_step
+    ):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
+        logging.debug(
+            "/Getting data for %s using Prometheus query %s and step %s", name, monitoring_query, monitoring_step
+        )
 
-        assert (
-            ri.start is not None and ri.end is not None
-        ), "We need timerange to approach Prometheus"
+        assert ri.start is not None and ri.end is not None, "We need timerange to approach Prometheus"
         # Get data from Prometheus
         url = f"{self.args.prometheus_host}:{self.args.prometheus_port}/api/v1/query_range"
         headers = {
@@ -137,9 +141,7 @@ class PrometheusMeasurementsPlugin(BasePlugin):
             "end": ri.end.timestamp(),
         }
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        response = requests.get(
-            url, headers=headers, params=params, verify=False, timeout=60
-        )
+        response = requests.get(url, headers=headers, params=params, verify=False, timeout=60)
         if not response.ok or response.headers["Content-Type"] != "application/json":
             _debug_response(response)
 
@@ -148,21 +150,13 @@ class PrometheusMeasurementsPlugin(BasePlugin):
         logging.debug("Response: %s", json_response)
         assert json_response["status"] == "success", "'status' needs to be 'success'"
         assert "data" in json_response, "'data' needs to be in response"
-        assert (
-            "result" in json_response["data"]
-        ), "'result' needs to be in response's 'data'"
+        assert "result" in json_response["data"], "'result' needs to be in response's 'data'"
         if len(json_response["data"]["result"]) == 0:
             raise NoDataException("missing 'response' in response's 'data'")
-        assert (
-            len(json_response["data"]["result"]) == 1
-        ), "we need exactly one 'response' in response's 'data'"
-        assert (
-            "values" in json_response["data"]["result"][0]
-        ), "we need expected form of response"
+        assert len(json_response["data"]["result"]) == 1, "we need exactly one 'response' in response's 'data'"
+        assert "values" in json_response["data"]["result"][0], "we need expected form of response"
 
-        mydata = [
-            (i[0], float(i[1])) for i in json_response["data"]["result"][0]["values"]
-        ]
+        mydata = [(i[0], float(i[1])) for i in json_response["data"]["result"][0]["values"]]
         stats = data.data_stats([i[1] for i in mydata])
         self._dump_raw_data(name, mydata)
         return name, stats
@@ -206,11 +200,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
     @staticmethod
     def _empty_timerange(ri):
-        return (
-            ri.start is None
-            or ri.end is None
-            or int(ri.start.timestamp()) == int(ri.end.timestamp())
-        )
+        return ri.start is None or ri.end is None or int(ri.start.timestamp()) == int(ri.end.timestamp())
 
     def _sanitize_target(self, target):
         target = target.replace("$Node", self.args.grafana_node)
@@ -234,14 +224,8 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             f"/api/datasources/proxy/{self.args.grafana_datasource}/render"
         )
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        r = self._session.post(
-            url=url, headers=headers, data=params, timeout=60, verify=False
-        )
-        if (
-            not r.ok
-            or r.headers["Content-Type"] != "application/json"
-            or r.json() == []
-        ):
+        r = self._session.post(url=url, headers=headers, data=params, timeout=60, verify=False)
+        if not r.ok or r.headers["Content-Type"] != "application/json" or r.json() == []:
             _debug_response(r)
         return r.json()
 
@@ -254,9 +238,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         grafana_enritchment=None,
         grafana_include_vars=False,
     ):
-        assert (
-            ri.start is not None and ri.end is not None
-        ), "We need timerange to approach Grafana"
+        assert ri.start is not None and ri.end is not None, "We need timerange to approach Grafana"
         if self._empty_timerange(ri):
             return name, None
 
@@ -297,23 +279,19 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         A malformed response that silently omits an interior target
         could cause positional mismatches for later items.
         """
-        targets = [
-            self._sanitize_target(item["grafana_target"]) for item in config_items
-        ]
+        targets = [self._sanitize_target(item["grafana_target"]) for item in config_items]
         response = self._fetch_targets(ri, targets)
 
         results = []
         for idx, item in enumerate(config_items):
             if idx < len(response):
-                points = [
-                    float(p[0]) for p in response[idx]["datapoints"] if p[0] is not None
-                ]
+                points = [float(p[0]) for p in response[idx]["datapoints"] if p[0] is not None]
                 stats = self._apply_item_extras(data.data_stats(points), item)
             else:
                 stats = self._apply_item_extras(data.data_stats([]), item)
             results.append((item["name"], stats))
 
-        logging.debug('Batched %s Grafana targets in one request', len(results))
+        logging.debug("Batched %s Grafana targets in one request", len(results))
         return results
 
     def measure_many(self, ri, config_items):
@@ -329,21 +307,23 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         try:
             return self._measure_batched(ri, config_items)
         except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-            logging.warning('Batch request failed (%s), falling back to individual queries for %s targets', e, len(config_items))
+            logging.warning(
+                "Batch request failed (%s), falling back to individual queries for %s targets", e, len(config_items)
+            )
             results = []
             for item in config_items:
                 try:
                     results.append(self.measure(ri, **item))
-                except Exception as e2:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-                    logging.exception('Failed to measure %s: %s', item['name'], e2)
+                except (
+                    Exception
+                ) as e2:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    logging.exception("Failed to measure %s: %s", item["name"], e2)
                     results.append((None, None))
             return results
 
     @staticmethod
     def add_args(parser):
-        parser.add_argument(
-            "--grafana-host", default="", help="Grafana server to talk to"
-        )
+        parser.add_argument("--grafana-host", default="", help="Grafana server to talk to")
         parser.add_argument(
             "--grafana-chunk-size",
             type=int,
@@ -361,9 +341,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             default="satellite62",
             help="Prefix for data in Graphite",
         )
-        parser.add_argument(
-            "--grafana-datasource", type=int, default=1, help="Datasource ID in Grafana"
-        )
+        parser.add_argument("--grafana-datasource", type=int, default=1, help="Datasource ID in Grafana")
         parser.add_argument(
             "--grafana-token",
             default=None,
@@ -388,16 +366,19 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         """Format a metric query for the Performance Insights API."""
         return [{"Metric": metric_query}]
 
-    def measure(self, requested_info, name, identifier, metric_query, metric_step):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
-        logging.debug('/Getting data for %s using PI query %s with monitoring interval %s', identifier, metric_query, metric_step)
+    def measure(
+        self, requested_info, name, identifier, metric_query, metric_step
+    ):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
+        logging.debug(
+            "/Getting data for %s using PI query %s with monitoring interval %s", identifier, metric_query, metric_step
+        )
 
         assert (
             requested_info.start is not None and requested_info.end is not None
         ), "We need timerange to approach AWS PI service"
 
         assert (
-            self.args.aws_pi_access_key_id is not None
-            and self.args.aws_pi_secret_access_key is not None
+            self.args.aws_pi_access_key_id is not None and self.args.aws_pi_secret_access_key is not None
         ), "We need AWS access key and secret key to create the client for accessing PI service"
 
         # Create a low-level service client
@@ -417,22 +398,20 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         )
 
         # Check that what we got back seems OK
-        logging.debug('Response: %s', response)
+        logging.debug("Response: %s", response)
         assert len(response["MetricList"]) > 0, "'MetricList' should not be empty"
-        assert (
-            response["MetricList"][0]["Key"]["Metric"] == metric_query
-        ), "'metric_query' needs to be in response"
-        assert (
-            len(response["MetricList"][0]["DataPoints"]) > 0
-        ), "'DataPoints' needs to be in response"
+        assert response["MetricList"][0]["Key"]["Metric"] == metric_query, "'metric_query' needs to be in response"
+        assert len(response["MetricList"][0]["DataPoints"]) > 0, "'DataPoints' needs to be in response"
 
         points = [
-            data_point["Value"]
-            for data_point in response["MetricList"][0]["DataPoints"]
-            if "Value" in data_point
+            data_point["Value"] for data_point in response["MetricList"][0]["DataPoints"] if "Value" in data_point
         ]
         if len(points) < len(response["MetricList"][0]["DataPoints"]):
-            logging.info('Value is missing in the AWS PI datapoints, total data points: %s, available values: %s', len(response['MetricList'][0]['DataPoints']), len(points))
+            logging.info(
+                "Value is missing in the AWS PI datapoints, total data points: %s, available values: %s",
+                len(response["MetricList"][0]["DataPoints"]),
+                len(points),
+            )
         stats = data.data_stats(points)
         return name, stats
 
@@ -468,7 +447,9 @@ class ConstantPlugin(BasePlugin):
 class EnvironmentPlugin(BasePlugin):
     """Read an environment variable as a measurement."""
 
-    def measure(self, ri, name, env_variable):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
+    def measure(
+        self, ri, name, env_variable
+    ):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Just get value of given environment variable
         """
@@ -478,7 +459,9 @@ class EnvironmentPlugin(BasePlugin):
 class CommandPlugin(BasePlugin):
     """Execute a command and store its output as a measurement."""
 
-    def measure(self, ri, name, command, output="text"):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
+    def measure(
+        self, ri, name, command, output="text"
+    ):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Execute command "command" and return result as per its "output" configuration
         """
@@ -547,7 +530,9 @@ class CopyFromPlugin(BasePlugin):
 class TestFailMePlugin(BasePlugin):
     """Plugin that always fails; meant for tests only."""
 
-    def measure(self, _ri, _name, **_kwargs):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
+    def measure(
+        self, _ri, _name, **_kwargs
+    ):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Just raise an exception. Mean for tests only.
         """
@@ -620,9 +605,7 @@ def config_stuff(config):
 class RequestedInfo:
     """Config-driven collection of measurements into status data."""
 
-    def __init__(
-        self, config, start=None, end=None, args=argparse.Namespace(), sd=None
-    ):
+    def __init__(self, config, start=None, end=None, args=argparse.Namespace(), sd=None):
         """
         "config" is input for config_stuff function
         "start" and "end" are datetimes needed if config file contains some
@@ -638,16 +621,14 @@ class RequestedInfo:
         self._index = 0  # which config item are we processing?
         self._batch_buffer = []  # buffered results from a batched request
         self._token = None  # OCP token - we will take it from `oc whoami -t` if needed
-        self.measurement_plugins = (
-            {}
-        )  # objects to use for measurements (it's 'measure()' method) by key in config
+        self.measurement_plugins = {}  # objects to use for measurements (it's 'measure()' method) by key in config
 
         # Register plugins
         for name, plugin in PLUGINS.items():
             try:
                 self.register_measurement_plugin(name, plugin(args))
             except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-                logging.warning('Failed to register plugin %s: %s', name, e)
+                logging.warning("Failed to register plugin %s: %s", name, e)
 
     def register_measurement_plugin(self, key, instance):
         """Register a measurement plugin instance under a config key."""
@@ -715,10 +696,10 @@ class RequestedInfo:
             else:
                 output = instance.measure(self, **self.config[i])
         except NoDataException as e:
-            logging.warning('Failed to measure %s: %s', self.config[i]['name'], e)
+            logging.warning("Failed to measure %s: %s", self.config[i]["name"], e)
             output = (None, None)
         except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-            logging.exception('Failed to measure %s: %s', self.config[i]['name'], e)
+            logging.exception("Failed to measure %s: %s", self.config[i]["name"], e)
             output = (None, None)
         return output
 
@@ -763,9 +744,7 @@ def main():
         type=argparse.FileType("r"),
         help="File with list of commands to run",
     )
-    parser.add_argument(
-        "--requested-info-string", help="Ad-hoc command you want to run"
-    )
+    parser.add_argument("--requested-info-string", help="Ad-hoc command you want to run")
     parser.add_argument(
         "--requested-info-outputtype",
         default="text",
@@ -787,9 +766,7 @@ def main():
         type=dir_path,
         help="Provide a direcotory if you want raw monitoring data to be dumped in CSV files form",
     )
-    parser.add_argument(
-        "--render-config", action="store_true", help="Just render config"
-    )
+    parser.add_argument("--render-config", action="store_true", help="Just render config")
     parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
     for _name, plugin in PLUGINS.items():
         plugin.add_args(parser)
@@ -799,20 +776,13 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
 
     if args.requested_info_config is None and args.requested_info_string is None:
-        logging.error(
-            "At least one of '--requested-info-config' or '--requested-info-string' needs to be set"
-        )
+        logging.error("At least one of '--requested-info-config' or '--requested-info-string' needs to be set")
         return 1
-    if (
-        args.requested_info_config is not None
-        and args.requested_info_string is not None
-    ):
-        logging.error(
-            "Only one of '--requested-info-config' or '--requested-info-string' can be set"
-        )
+    if args.requested_info_config is not None and args.requested_info_string is not None:
+        logging.error("Only one of '--requested-info-config' or '--requested-info-string' can be set")
         return 1
 
-    logging.debug('Args: %s', args)
+    logging.debug("Args: %s", args)
 
     doit(args)
     return None

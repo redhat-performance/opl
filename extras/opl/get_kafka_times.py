@@ -35,9 +35,7 @@ class GetKafkaTimes:
         self.args = args
         self.args.kafka_max_poll_records = 100
 
-        self.queries_definition = yaml.load(
-            args.tables_definition, Loader=yaml.SafeLoader
-        )["queries"]
+        self.queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)["queries"]
         self.custom_methods = custom_methods
 
         # Number of items we are still missing set by "remaining_count" query
@@ -69,7 +67,7 @@ class GetKafkaTimes:
         cursor.execute(sql)
         self.remaining_count = int(cursor.fetchone()[0])
         cursor.close()
-        logging.debug('Remains to get %s items', self.remaining_count)
+        logging.debug("Remains to get %s items", self.remaining_count)
 
     def dt_now(self):
         """Return current datetime as string."""
@@ -77,9 +75,7 @@ class GetKafkaTimes:
 
     def kafka_ts2dt(self, timestamp):
         """Convert Kafka millisecond timestamp to datetime string."""
-        return datetime.datetime.utcfromtimestamp(float(timestamp) / 1000).replace(
-            tzinfo=datetime.timezone.utc
-        )
+        return datetime.datetime.utcfromtimestamp(float(timestamp) / 1000).replace(tzinfo=datetime.timezone.utc)
 
     def create_consumer(self):
         """Create the Kafka consumer for the topic."""
@@ -95,13 +91,11 @@ class GetKafkaTimes:
         """
         cursor = self.connection.cursor()
         sql = self.queries_definition[self.custom_methods["query_store_info"]()]
-        psycopg2.extras.execute_values(
-            cursor, sql, self.waiting_items, template=None, page_size=self.batches_size
-        )
+        psycopg2.extras.execute_values(cursor, sql, self.waiting_items, template=None, page_size=self.batches_size)
         try:
             updated = cursor.fetchall()
         except psycopg2.ProgrammingError as e:
-            logging.warning('Hit psycopg2.ProgrammingError when fetching number of updated items: %s', e)
+            logging.warning("Hit psycopg2.ProgrammingError when fetching number of updated items: %s", e)
             updated = []
         self.connection.commit()
         cursor.close()
@@ -115,7 +109,7 @@ class GetKafkaTimes:
             self.stored_counter += updated
             self.last_stored_at = self.dt_now()
             self.update_remaining_count()
-        logging.debug('Updated %s items', updated)
+        logging.debug("Updated %s items", updated)
 
         return updated
 
@@ -123,10 +117,7 @@ class GetKafkaTimes:
         """Store a single timestamp record to the DB."""
         self.waiting_items.append(item)
 
-        if (
-            len(self.waiting_items) >= self.batches_size
-            or len(self.waiting_items) >= self.remaining_count
-        ):
+        if len(self.waiting_items) >= self.batches_size or len(self.waiting_items) >= self.remaining_count:
             self.store_now()
 
     def process_messages(self):
@@ -148,13 +139,16 @@ class GetKafkaTimes:
                 )
                 for topic, messages in msg_pack.items():
                     for message in messages:
-                        key = (
-                            message.key.decode("utf-8")
-                            if message.key is not None
-                            else None
-                        )
+                        key = message.key.decode("utf-8") if message.key is not None else None
                         value = json.loads(message.value.decode("utf-8"))
-                        logging.debug('Received %s %s %s %s %s...', message.timestamp, topic.topic, topic.partition, message.offset, str(value)[:100])
+                        logging.debug(
+                            "Received %s %s %s %s %s...",
+                            message.timestamp,
+                            topic.topic,
+                            topic.partition,
+                            message.offset,
+                            str(value)[:100],
+                        )
 
                         if self.custom_methods["message_validation"](value):
                             if self.show_processed_messages:
@@ -175,7 +169,7 @@ class GetKafkaTimes:
 
                 # Quit if we have all the data in the DB
                 if self.remaining_count == 0:
-                    logging.info('All %s messages received', self.stored_counter)
+                    logging.info("All %s messages received", self.stored_counter)
                     break
 
                 # Quit if we have not got enough useful data for too long
@@ -183,9 +177,15 @@ class GetKafkaTimes:
                 if quiet_period > self.max_quiet_period:
                     updated = self.store_now()
                     if updated > 0:
-                        logging.warning('It was quiet for %s, but we have saved %s items so lets wait some more.', quiet_period, updated)
+                        logging.warning(
+                            "It was quiet for %s, but we have saved %s items so lets wait some more.",
+                            quiet_period,
+                            updated,
+                        )
                         continue
-                    logging.warning('It was quiet here for %s. Skipping remaining items as they are not coming.', quiet_period)
+                    logging.warning(
+                        "It was quiet here for %s. Skipping remaining items as they are not coming.", quiet_period
+                    )
                     break
 
         self.store_now()
@@ -204,13 +204,9 @@ class GetKafkaTimes:
     def print_stats(self):
         """Print summary statistics of stored timestamps."""
         if self.custom_methods["start_end_col_table_name"]() is not None:
-            start_column, end_column, table = self.custom_methods[
-                "start_end_col_table_name"
-            ]()
+            start_column, end_column, table = self.custom_methods["start_end_col_table_name"]()
 
-            durations = opl.db.get_timedelta_between_columns(
-                self.connection, [end_column, start_column], table=table
-            )
+            durations = opl.db.get_timedelta_between_columns(self.connection, [end_column, start_column], table=table)
             end_ats = opl.db.get_timestamps(self.connection, end_column, table=table)
             end_rps = opl.data.get_rps(end_ats)
 

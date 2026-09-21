@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Helpers for generating inventory account IDs."""
+
 import random
 
 import opl.db
@@ -28,9 +29,7 @@ def get_unique_key(d_dict):
     so subsequent selections in the same run cannot collide with it.
     """
     while True:
-        account_id = "".join(
-            [str(random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9])) for _ in range(5)]
-        )
+        account_id = "".join([str(random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9])) for _ in range(5)])
         if account_id not in d_dict:
             d_dict[account_id] = True
             return account_id

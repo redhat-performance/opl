@@ -93,9 +93,7 @@ class TestRequestedInfo(unittest.TestCase):
               test_measurement_query: simple
         """
         ri = opl.cluster_read.RequestedInfo(string)
-        ri.register_measurement_plugin(
-            "test_measurement_query", TestMeasurementPlugin({})
-        )
+        ri.register_measurement_plugin("test_measurement_query", TestMeasurementPlugin({}))
         k, v = next(ri)
         self.assertEqual(k, "mymeasurement")
         self.assertEqual(v["samples"], 3)
@@ -450,17 +448,13 @@ class TestGrafanaPlugin(unittest.TestCase):
                 status=200,
             )
 
-        args_single = argparse.Namespace(
-            **{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 1}
-        )
+        args_single = argparse.Namespace(**{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 1})
         single = list(self._make_batch_requested_info(args=args_single))
 
         # Run with chunk_size=50 (batched, new behavior)
         responses.add(**self.mock_post_get_batch["mock"])
 
-        args_batched = argparse.Namespace(
-            **{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 50}
-        )
+        args_batched = argparse.Namespace(**{**vars(self.mock_post_get_batch["args"]), "grafana_chunk_size": 50})
         batched = list(self._make_batch_requested_info(args=args_batched))
 
         self.assertEqual(single, batched)

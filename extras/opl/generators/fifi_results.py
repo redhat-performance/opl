@@ -18,11 +18,16 @@ class PlaybookRunMessageGenerator:
         assert duration >= 1  # how many run updates to send per run per node
         assert console >= 1  # how big should console output be (last char is newline)
         self.diff_mode = diff_mode  # console update is aditive, or total
-        logging.debug('Created generator with runs = %s; nodes = %s; duration = %s; console = %s; diff_mode = %s', runs, nodes, duration, console, diff_mode)
+        logging.debug(
+            "Created generator with runs = %s; nodes = %s; duration = %s; console = %s; diff_mode = %s",
+            runs,
+            nodes,
+            duration,
+            console,
+            diff_mode,
+        )
 
-        self.index = (
-            -runs
-        )  # what message are we sending? (-number means start messages)
+        self.index = -runs  # what message are we sending? (-number means start messages)
 
         self.objects = {
             "runs": [],
@@ -54,7 +59,7 @@ class PlaybookRunMessageGenerator:
                 run["nodes"].append(node)
             self.objects["runs"].append(run)
 
-        logging.debug('Prepared %s', self.objects)
+        logging.debug("Prepared %s", self.objects)
 
     def seed_db(self, db, queries):
         """
@@ -65,7 +70,7 @@ class PlaybookRunMessageGenerator:
         for run in self.objects["runs"]:
             remediations__id = opl.gen.gen_uuid()
             sql = queries["seed_remediations"]
-            logging.debug('%s %s', sql, remediations__id)
+            logging.debug("%s %s", sql, remediations__id)
             cursor.execute(
                 sql,
                 (
@@ -78,7 +83,7 @@ class PlaybookRunMessageGenerator:
             )
             playbook_runs__id = run["playbook_run_id"]
             sql = queries["seed_playbook_runs"]
-            logging.debug('%s %s', sql, playbook_runs__id)
+            logging.debug("%s %s", sql, playbook_runs__id)
             cursor.execute(
                 sql,
                 (
@@ -90,7 +95,7 @@ class PlaybookRunMessageGenerator:
             for node in run["nodes"]:
                 playbook_run_executors__id = opl.gen.gen_uuid()
                 sql = queries["seed_playbook_run_executors"]
-                logging.debug('%s %s', sql, playbook_run_executors__id)
+                logging.debug("%s %s", sql, playbook_run_executors__id)
                 cursor.execute(
                     sql,
                     (
@@ -106,7 +111,7 @@ class PlaybookRunMessageGenerator:
                 )
                 for host in node["hosts"]:
                     sql = queries["seed_playbook_run_systems"]
-                    logging.debug('%s %s', sql, host['host'])
+                    logging.debug("%s %s", sql, host["host"])
                     cursor.execute(
                         sql,
                         (
@@ -152,27 +157,26 @@ class PlaybookRunMessageGenerator:
         account = self.objects["runs"][run_id]["account"]
         started = self.objects["runs"][run_id]["started"]
         serial = self.objects["runs"][run_id]["serial"]
-        in_response_to = self.objects["runs"][run_id]["nodes"][node_id][
-            "in_response_to"
-        ]
+        in_response_to = self.objects["runs"][run_id]["nodes"][node_id]["in_response_to"]
         sender = self.objects["runs"][run_id]["nodes"][node_id]["sender"]
-        host = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-            "host"
-        ]
-        sequence = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-            "sequence"
-        ]
-        size = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-            "size"
-        ]
-        duration = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-            "duration"
-        ]
-        finished = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-            "finished"
-        ]
+        host = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["host"]
+        sequence = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["sequence"]
+        size = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["size"]
+        duration = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["duration"]
+        finished = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["finished"]
 
-        logging.debug('Generating message index = %s; run_id = %s; node_id = %s; host_id = %s; serial = %s; sequence = %s; duration = %s; started = %s; finished = %s', self.index, run_id, node_id, host_id, serial, sequence, duration, started, finished)
+        logging.debug(
+            "Generating message index = %s; run_id = %s; node_id = %s; host_id = %s; serial = %s; sequence = %s; duration = %s; started = %s; finished = %s",
+            self.index,
+            run_id,
+            node_id,
+            host_id,
+            serial,
+            sequence,
+            duration,
+            started,
+            finished,
+        )
 
         if sequence > duration:
             # End of game
@@ -180,7 +184,7 @@ class PlaybookRunMessageGenerator:
 
         if not started:
             # This is starting message
-            logging.debug('START message %s for run_id = %s', self.index, run_id)
+            logging.debug("START message %s for run_id = %s", self.index, run_id)
             self.index += 1
             self.objects["runs"][run_id]["started"] = True
             return {
@@ -199,15 +203,13 @@ class PlaybookRunMessageGenerator:
 
         if sequence == duration and not finished:
             # This is final message
-            logging.debug('FINAL message %s for run_id = %s; node_id = %s; host_id = %s', self.index, run_id, node_id, host_id)
+            logging.debug(
+                "FINAL message %s for run_id = %s; node_id = %s; host_id = %s", self.index, run_id, node_id, host_id
+            )
             self.index += 1
             self.objects["runs"][run_id]["serial"] += 1
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-                "sequence"
-            ] += 1
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-                "finished"
-            ] = True
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["sequence"] += 1
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["finished"] = True
             return {
                 "account": account,
                 "code": 0,
@@ -228,25 +230,23 @@ class PlaybookRunMessageGenerator:
             self.index += 1
             return None
         # This is normal progress message
-        logging.debug('Normal message %s for run_id = %s; node_id = %s; host_id = %s', self.index, run_id, node_id, host_id)
+        logging.debug(
+            "Normal message %s for run_id = %s; node_id = %s; host_id = %s", self.index, run_id, node_id, host_id
+        )
         self.index += 1
         self.objects["runs"][run_id]["serial"] += 1
-        self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-            "sequence"
-        ] += 1
+        self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["sequence"] += 1
 
         # Determine console content
         if self.diff_mode:
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-                "console"
-            ] = opl.gen.gen_string(size=size - 1) + "\n"
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["console"] = (
+                opl.gen.gen_string(size=size - 1) + "\n"
+            )
         else:
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-                "console"
-            ] += (opl.gen.gen_string(size=size - 1) + "\n")
-        console = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-            "console"
-        ]
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["console"] += (
+                opl.gen.gen_string(size=size - 1) + "\n"
+            )
+        console = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["console"]
 
         return {
             "account": account,

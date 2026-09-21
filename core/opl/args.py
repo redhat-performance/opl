@@ -381,6 +381,8 @@ def add_tables_def_opts(parser):
     parser.add_argument(
         "--tables-definition",
         type=argparse.FileType("r"),
-        default=open(os.getenv("TABLES_DEFINITION", "tables.yaml"), "r", encoding="utf-8"),  # pylint: disable=consider-using-with  # handle kept open for the process lifetime
+        default=open(
+            os.getenv("TABLES_DEFINITION", "tables.yaml"), "r", encoding="utf-8"
+        ),  # pylint: disable=consider-using-with  # handle kept open for the process lifetime
         help="File defining tables and SQL to create them (also use env variable TABLES_DEFINITION)",
     )

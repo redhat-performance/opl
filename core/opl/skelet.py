@@ -14,16 +14,12 @@ def setup_logger(app_name, stderr_log_lvl):
     Create logger that logs to both stderr and log file but with different log levels
     """
     # Remove all handlers from root logger if any
-    logging.basicConfig(
-        level=logging.NOTSET, handlers=[]
-    )  # `force=True` was added in Python 3.8 :-(
+    logging.basicConfig(level=logging.NOTSET, handlers=[])  # `force=True` was added in Python 3.8 :-(
     # Change root logger level from WARNING (default) to NOTSET in order for all messages to be delegated
     logging.getLogger().setLevel(logging.NOTSET)
 
     # Log message format
-    formatter = logging.Formatter(
-        "%(asctime)s %(name)s %(threadName)s %(levelname)s %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s %(name)s %(threadName)s %(levelname)s %(message)s")
     formatter.converter = time.gmtime
 
     # Silence loggers of some chatty libraries we use
@@ -80,7 +76,7 @@ def test_setup(parser, logger_name="root", args=None):
     else:
         logger = setup_logger(logger_name, logging.WARNING)
 
-    logger.debug('Args: %s', parsed_args)
+    logger.debug("Args: %s", parsed_args)
 
     sdata = status_data.StatusData(parsed_args.status_data_file)
 

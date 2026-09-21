@@ -26,7 +26,7 @@ def _check_response(logger, response):
     try:
         response.raise_for_status()
     except Exception:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-        logger.error('Request failed with text: %s', response.text)
+        logger.error("Request failed with text: %s", response.text)
         raise
 
 
@@ -113,12 +113,10 @@ class PluginProw(PluginBase):
     def download(self, args):
         """Download a Prow artifact to a local file."""
         if os.path.isfile(args.output_path):
-            raise FileExistsError(
-                f"File {args.output_path} already present, refusing to overwrite it"
-            )
+            raise FileExistsError(f"File {args.output_path} already present, refusing to overwrite it")
 
         from_url = f"{args.base_url}/{args.job_name}/{args.job_run_id}/artifacts/{args.run_name}/{args.artifact_path}"
-        logging.info('Downloading %s to %s', from_url, args.output_path)
+        logging.info("Downloading %s to %s", from_url, args.output_path)
         response = requests.get(from_url, timeout=60)
         _check_response(self.logger, response)
         response_content = response.content
@@ -130,9 +128,7 @@ class PluginProw(PluginBase):
                 self.logger.error("Failed to parse JSON, ignoring --record-link option")
             else:
                 _set_field_value(args.record_link, from_url, data)
-                response_content = str.encode(
-                    json.dumps(data, sort_keys=True, indent=4)
-                )
+                response_content = str.encode(json.dumps(data, sort_keys=True, indent=4))
 
         with open(args.output_path, "wb") as f:
             f.write(response_content)
@@ -151,15 +147,11 @@ class PluginProw(PluginBase):
         )
 
         # Options for listing Prow runs
-        parser_list = subparsers.add_parser(
-            "list", help="List runs for specific Prow job"
-        )
+        parser_list = subparsers.add_parser("list", help="List runs for specific Prow job")
         parser_list.set_defaults(func=self.list)
 
         # Options for downloading artifacts from Prow
-        parser_download = subparsers.add_parser(
-            "download", help="Download file from Prow run artifacts"
-        )
+        parser_download = subparsers.add_parser("download", help="Download file from Prow run artifacts")
         parser_download.set_defaults(func=self.download)
         parser_download.add_argument(
             "--job-run-id",
@@ -192,19 +184,17 @@ class PluginOpenSearch(PluginBase):
 
     def upload(self, args):
         """Upload input file as an OpenSearch document."""
-        self.logger.info('Loading document %s', args.input_file)
+        self.logger.info("Loading document %s", args.input_file)
         with open(args.input_file, "r", encoding="utf-8") as fp:
             values = json.load(fp)
 
         args.matcher_field = args.matcher_field.removeprefix(".")
-        self.logger.info('Looking for field %s', args.matcher_field)
+        self.logger.info("Looking for field %s", args.matcher_field)
         matcher_value = _get_field_value(args.matcher_field, values)
         if matcher_value is None:
-            raise ValueError(
-                f"Failed to load {args.matcher_field} from {args.input_file}"
-            )
+            raise ValueError(f"Failed to load {args.matcher_field} from {args.input_file}")
 
-        self.logger.info('Checking if document %s=%s is already present', args.matcher_field, matcher_value)
+        self.logger.info("Checking if document %s=%s is already present", args.matcher_field, matcher_value)
         query = {"query": {"match": {f"{args.matcher_field}": matcher_value}}}
         headers = {"Content-Type": "application/json"}
 
@@ -218,9 +208,7 @@ class PluginOpenSearch(PluginBase):
         current_doc_in_es = current_doc_in_es.json()
 
         if current_doc_in_es["hits"]["total"]["value"] > 0:
-            print(
-                f"Document {args.matcher_field}={matcher_value} is already present, skipping upload"
-            )
+            print(f"Document {args.matcher_field}={matcher_value} is already present, skipping upload")
             return
 
         self.logger.info("Uploading document")
@@ -246,9 +234,7 @@ class PluginOpenSearch(PluginBase):
         )
 
         # Options for uploading document to OpenSearch
-        parser_upload = subparsers.add_parser(
-            "upload", help="Upload document to OpenSearch"
-        )
+        parser_upload = subparsers.add_parser("upload", help="Upload document to OpenSearch")
         parser_upload.set_defaults(func=self.upload)
         parser_upload.add_argument(
             "--input-file",
@@ -302,7 +288,7 @@ class PluginHorreum(PluginBase):
         }
 
         if "test_name" in args:
-            self.logger.debug('Getting test id for %s', args.test_name)
+            self.logger.debug("Getting test id for %s", args.test_name)
             response = self._session_get(
                 f"{args.base_url}/api/test/byName/{args.test_name}",
                 headers=self.headers,
@@ -313,29 +299,23 @@ class PluginHorreum(PluginBase):
 
     def upload(self, args):
         """Upload input file results to a Horreum launch."""
-        self.logger.debug('Loading file %s', args.input_file)
+        self.logger.debug("Loading file %s", args.input_file)
         with open(args.input_file, "r", encoding="utf-8") as fd:
             self.input_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
         args.test_name = _figure_out_option(args.test_name, self.input_file)
-        args.start = datetime.datetime.fromisoformat(
-            _figure_out_option(args.start, self.input_file)
-        )
-        args.end = datetime.datetime.fromisoformat(
-            _figure_out_option(args.end, self.input_file)
-        )
+        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.input_file))
+        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.input_file))
 
         self._setup(args)
 
-        self.logger.info('Looking for field %s', args.matcher_field)
+        self.logger.info("Looking for field %s", args.matcher_field)
         matcher_value = _get_field_value(args.matcher_field, self.input_file)
         if matcher_value is None:
-            raise ValueError(
-                f"Failed to load {args.matcher_field} from {args.input_file}"
-            )
+            raise ValueError(f"Failed to load {args.matcher_field} from {args.input_file}")
 
-        self.logger.debug('Searching if result %s=%s is already there', args.matcher_label, matcher_value)
+        self.logger.debug("Searching if result %s=%s is already there", args.matcher_label, matcher_value)
         filter_data = {args.matcher_label: matcher_value}
         response = self._session_get(
             f"{args.base_url}/api/dataset/list/byTest/{self.test_id}",
@@ -346,15 +326,11 @@ class PluginHorreum(PluginBase):
         _check_response(self.logger, response)
         datasets = response.json().get("datasets", [])
         if len(datasets) > 0:
-            print(
-                f"Result {args.matcher_label}={matcher_value} is already there, skipping upload"
-            )
+            print(f"Result {args.matcher_label}={matcher_value} is already there, skipping upload")
             return
 
         if args.trashed:
-            self.logger.debug(
-                "WORKAROUND: Searching if result already there amongst trashed runs"
-            )
+            self.logger.debug("WORKAROUND: Searching if result already there amongst trashed runs")
             params = {
                 "trashed": True,
                 "limit": args.trashed_workaround_count,
@@ -375,7 +351,7 @@ class PluginHorreum(PluginBase):
             trashed_runs = [run for run in runs if run["trashed"] is True]
 
             if trashed_runs:
-                self.logger.debug('Checking %s trashed runs concurrently', len(trashed_runs))
+                self.logger.debug("Checking %s trashed runs concurrently", len(trashed_runs))
 
                 def check_run_data(run):
                     """Check if a single run matches the matcher value."""
@@ -395,10 +371,7 @@ class PluginHorreum(PluginBase):
 
                 # Check runs concurrently with max 5 workers to avoid overwhelming the server
                 with ThreadPoolExecutor(max_workers=5) as executor:
-                    future_to_run = {
-                        executor.submit(check_run_data, run): run
-                        for run in trashed_runs
-                    }
+                    future_to_run = {executor.submit(check_run_data, run): run for run in trashed_runs}
 
                     for future in as_completed(future_to_run):
                         if future.result():
@@ -431,22 +404,22 @@ class PluginHorreum(PluginBase):
 
     def result(self, args):
         """Upload a single result to Horreum."""
-        self.logger.debug('Loading file %s', args.output_file)
+        self.logger.debug("Loading file %s", args.output_file)
         with open(args.output_file, "r", encoding="utf-8") as fd:
             self.output_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
         args.test_name = _figure_out_option(args.test_name, self.output_file)
-        args.start = datetime.datetime.fromisoformat(
-            _figure_out_option(args.start, self.output_file)
-        ).astimezone(tz=datetime.timezone.utc)
-        args.end = datetime.datetime.fromisoformat(
-            _figure_out_option(args.end, self.output_file)
-        ).astimezone(tz=datetime.timezone.utc)
+        args.start = datetime.datetime.fromisoformat(_figure_out_option(args.start, self.output_file)).astimezone(
+            tz=datetime.timezone.utc
+        )
+        args.end = datetime.datetime.fromisoformat(_figure_out_option(args.end, self.output_file)).astimezone(
+            tz=datetime.timezone.utc
+        )
 
         self._setup(args)
 
-        self.logger.debug('Loading list of alerting variables for test %s', self.test_id)
+        self.logger.debug("Loading list of alerting variables for test %s", self.test_id)
         response = self._session_get(
             f"{args.base_url}/api/alerting/variables",
             params={"test": self.test_id},
@@ -465,7 +438,7 @@ class PluginHorreum(PluginBase):
         if not alerting_variables:
             self.logger.info("No alerting variables configured for this test")
         else:
-            self.logger.debug('Checking %s alerting variables concurrently', len(alerting_variables))
+            self.logger.debug("Checking %s alerting variables concurrently", len(alerting_variables))
 
             def check_alerting_variable(alerting_variable):
                 """Check a single alerting variable for changes."""
@@ -490,28 +463,27 @@ class PluginHorreum(PluginBase):
                     if len(changes) > 0:
                         return (True, alerting_variable, changes)
                     return (False, alerting_variable, None)
-                except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-                    self.logger.warning('Error checking %s: %s', alerting_variable.get('name', 'unknown'), e)
+                except (
+                    Exception
+                ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    self.logger.warning("Error checking %s: %s", alerting_variable.get("name", "unknown"), e)
                     return (False, alerting_variable, None)
 
             # Check alerting variables concurrently with max 10 workers
             with ThreadPoolExecutor(max_workers=10) as executor:
-                future_to_var = {
-                    executor.submit(check_alerting_variable, var): var
-                    for var in alerting_variables
-                }
+                future_to_var = {executor.submit(check_alerting_variable, var): var for var in alerting_variables}
 
                 for future in as_completed(future_to_var):
                     has_change, var, changes = future.result()
 
                     if has_change:
-                        self.logger.info('For %s detected change %s', var['name'], changes)
+                        self.logger.info("For %s detected change %s", var["name"], changes)
                         change_detected = True
                         # Cancel remaining futures for early termination
                         for f in future_to_var:
                             f.cancel()
                         break
-                    self.logger.info('For %s all looks good', var['name'])
+                    self.logger.info("For %s all looks good", var["name"])
 
         result = "FAIL" if change_detected else "PASS"
 
@@ -535,7 +507,7 @@ class PluginHorreum(PluginBase):
             "page": 1,
         }
 
-        self.logger.debug('Listing results for test %s', args.test_name)
+        self.logger.debug("Listing results for test %s", args.test_name)
         while True:
             response = self._session_get(
                 f"{args.base_url}/api/run/list/{self.test_id}",
@@ -558,7 +530,7 @@ class PluginHorreum(PluginBase):
         """Get a Horreum launch."""
         self._setup(args)
 
-        self.logger.debug('Geting data for run %s', args.run_id)
+        self.logger.debug("Geting data for run %s", args.run_id)
         response = self._session_get(
             f"{args.base_url}/api/run/{args.run_id}/data",
             headers=self.headers,
@@ -569,7 +541,7 @@ class PluginHorreum(PluginBase):
         print(json.dumps(data))
 
     def _schema_uri_to_id(self, base_url, schema_uri):
-        self.logger.debug('Geting schema ID for URI %s', schema_uri)
+        self.logger.debug("Geting schema ID for URI %s", schema_uri)
         response = self._session_get(
             f"{base_url}/api/schema/idByUri/{schema_uri}",
             headers=self.headers,
@@ -577,14 +549,14 @@ class PluginHorreum(PluginBase):
         )
         _check_response(self.logger, response)
         schema_id = int(response.json())
-        self.logger.debug('Schema ID for URI %s is %s', schema_uri, schema_id)
+        self.logger.debug("Schema ID for URI %s is %s", schema_uri, schema_id)
         return schema_id
 
     def _sanitize_string(self, input_string):
         return re.sub(r"[^a-zA-Z0-9]", "_", input_string)
 
     def _schema_id_labels(self, args, schema_id):
-        self.logger.debug('Getting list of labels for schema ID %s', schema_id)
+        self.logger.debug("Getting list of labels for schema ID %s", schema_id)
         response = self._session_get(
             f"{args.base_url}/api/schema/{schema_id}/labels",
             headers=self.headers,
@@ -592,7 +564,7 @@ class PluginHorreum(PluginBase):
         )
         _check_response(self.logger, response)
         data = response.json()
-        self.logger.debug('Obtained %s labels for schema ID %s', len(data), schema_id)
+        self.logger.debug("Obtained %s labels for schema ID %s", len(data), schema_id)
 
         return data
 
@@ -605,9 +577,7 @@ class PluginHorreum(PluginBase):
         labels = self._schema_id_labels(args, schema_id)
 
         for label in labels:
-            print(
-                f"{label['id']}\t{label['name']}\t{label['extractors'][0]['jsonpath']}"
-            )
+            print(f"{label['id']}\t{label['name']}\t{label['extractors'][0]['jsonpath']}")
 
     def schema_label_add(self, args):
         """Add a Horreum schema label."""
@@ -615,15 +585,9 @@ class PluginHorreum(PluginBase):
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
 
-        new_name = (
-            self._sanitize_string(args.extractor_jsonpath)
-            if args.name is None
-            else args.name
-        )
+        new_name = self._sanitize_string(args.extractor_jsonpath) if args.name is None else args.name
         new_ext_name = (
-            self._sanitize_string(args.extractor_jsonpath)
-            if args.extractor_name is None
-            else args.extractor_name
+            self._sanitize_string(args.extractor_jsonpath) if args.extractor_name is None else args.extractor_name
         )
         new = {
             "access": args.access,
@@ -642,7 +606,7 @@ class PluginHorreum(PluginBase):
             "schemaId": schema_id,
         }
 
-        self.logger.debug('Adding label to schema id %s: %s', schema_id, new)
+        self.logger.debug("Adding label to schema id %s: %s", schema_id, new)
         response = self._session_post(
             f"{args.base_url}/api/schema/{schema_id}/labels",
             headers=self.headers,
@@ -651,7 +615,7 @@ class PluginHorreum(PluginBase):
         )
         _check_response(self.logger, response)
         label_id = int(response.json())
-        self.logger.debug('Created label ID %s in schema ID %s', label_id, schema_id)
+        self.logger.debug("Created label ID %s in schema ID %s", label_id, schema_id)
 
     def schema_label_update(self, args):
         """Update a Horreum schema label."""
@@ -659,15 +623,9 @@ class PluginHorreum(PluginBase):
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
 
-        new_name = (
-            self._sanitize_string(args.extractor_jsonpath)
-            if args.name is None
-            else args.name
-        )
+        new_name = self._sanitize_string(args.extractor_jsonpath) if args.name is None else args.name
         new_ext_name = (
-            self._sanitize_string(args.extractor_jsonpath)
-            if args.extractor_name is None
-            else args.extractor_name
+            self._sanitize_string(args.extractor_jsonpath) if args.extractor_name is None else args.extractor_name
         )
         new = {
             "access": args.access,
@@ -691,9 +649,7 @@ class PluginHorreum(PluginBase):
             labels = self._schema_id_labels(args, schema_id)
 
         if args.update_by_id is not None:
-            label = next(
-                (item for item in labels if item["id"] == args.update_by_id), False
-            )
+            label = next((item for item in labels if item["id"] == args.update_by_id), False)
 
             if label:
                 # Label with provided id found, lets update it
@@ -711,16 +667,18 @@ class PluginHorreum(PluginBase):
             else:
                 # Label not found, shall we fail now?
                 if args.add_if_missing:
-                    self.logger.warning('Label with name %s not found, so adding new one with new ID', new_name)
+                    self.logger.warning("Label with name %s not found, so adding new one with new ID", new_name)
                     return self.schema_label_add(args)
                 raise KeyError(f"Failed to find label with name {new_name}")
         else:
             raise ValueError("Either --update-by-id or --update-by-name have to be used")
 
         if new == label:
-            self.logger.info('Proposed and current label %s in schema ID %s are same, nothing to change', label['id'], schema_id)
+            self.logger.info(
+                "Proposed and current label %s in schema ID %s are same, nothing to change", label["id"], schema_id
+            )
         else:
-            self.logger.debug('Updating label in schema id %s: %s', schema_id, new)
+            self.logger.debug("Updating label in schema id %s: %s", schema_id, new)
             response = self._session_put(
                 f"{args.base_url}/api/schema/{schema_id}/labels",
                 headers=self.headers,
@@ -729,7 +687,7 @@ class PluginHorreum(PluginBase):
             )
             _check_response(self.logger, response)
             label_id = int(response.json())
-            self.logger.info('Updated label ID %s in schema ID %s', label_id, schema_id)
+            self.logger.info("Updated label ID %s in schema ID %s", label_id, schema_id)
         return None
 
     def schema_label_delete(self, args):
@@ -738,14 +696,14 @@ class PluginHorreum(PluginBase):
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
 
-        self.logger.debug('Deleting label ID %s from schema ID %s', args.id, schema_id)
+        self.logger.debug("Deleting label ID %s from schema ID %s", args.id, schema_id)
         response = self._session_delete(
             f"{args.base_url}/api/schema/{schema_id}/labels/{args.id}",
             headers=self.headers,
             verify=False,
         )
         _check_response(self.logger, response)
-        self.logger.debug('Deleted label ID %s in schema ID %s', args.id, schema_id)
+        self.logger.debug("Deleted label ID %s in schema ID %s", args.id, schema_id)
 
     def set_args(self, parser, subparsers):
         parser.add_argument(
@@ -760,9 +718,7 @@ class PluginHorreum(PluginBase):
         )
 
         # Options for uploading document to Horreum
-        subparser = subparsers.add_parser(
-            "upload", help="Upload file to Horreum if it is not there already"
-        )
+        subparser = subparsers.add_parser("upload", help="Upload file to Horreum if it is not there already")
         subparser.set_defaults(func=self.upload)
         subparser.add_argument(
             "--test-name",
@@ -814,9 +770,7 @@ class PluginHorreum(PluginBase):
         )
 
         # Options for detecting no-/change signal
-        subparser = subparsers.add_parser(
-            "result", help="Get Horreum no-/change signal for a given time range"
-        )
+        subparser = subparsers.add_parser("result", help="Get Horreum no-/change signal for a given time range")
         subparser.set_defaults(func=self.result)
         subparser.add_argument(
             "--test-name",
@@ -856,9 +810,7 @@ class PluginHorreum(PluginBase):
         )
 
         # Options for listing schema labels
-        subparser = subparsers.add_parser(
-            "schema-label-list", help="List schema labels"
-        )
+        subparser = subparsers.add_parser("schema-label-list", help="List schema labels")
         subparser.set_defaults(func=self.schema_label_list)
         subparser.add_argument(
             "--schema-uri",
@@ -928,9 +880,7 @@ class PluginHorreum(PluginBase):
         )
 
         # Options for updating schema label
-        subparser = subparsers.add_parser(
-            "schema-label-update", help="Update schema label"
-        )
+        subparser = subparsers.add_parser("schema-label-update", help="Update schema label")
         subparser.set_defaults(func=self.schema_label_update)
         subparser.add_argument(
             "--schema-uri",
@@ -1005,9 +955,7 @@ class PluginHorreum(PluginBase):
         )
 
         # Options for deleting schema label
-        subparser = subparsers.add_parser(
-            "schema-label-delete", help="Delete schema label"
-        )
+        subparser = subparsers.add_parser("schema-label-delete", help="Delete schema label")
         subparser.set_defaults(func=self.schema_label_delete)
         subparser.add_argument(
             "--schema-uri",
@@ -1034,14 +982,12 @@ class PluginResultsDashboard(PluginBase):
         """Upload results to the results dashboard."""
         self.input_file = None
         if args.input_file is not None:
-            self.logger.info('Loading input file %s', args.input_file)
+            self.logger.info("Loading input file %s", args.input_file)
             with open(args.input_file, "r", encoding="utf-8") as fd:
                 self.input_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
-        args.date = datetime.datetime.fromisoformat(
-            _figure_out_option(args.date, self.input_file)
-        )
+        args.date = datetime.datetime.fromisoformat(_figure_out_option(args.date, self.input_file))
         args.group = _figure_out_option(args.group, self.input_file)
         args.link = _figure_out_option(args.link, self.input_file)
         args.product = _figure_out_option(args.product, self.input_file)
@@ -1051,7 +997,7 @@ class PluginResultsDashboard(PluginBase):
         args.test = _figure_out_option(args.test, self.input_file)
         args.version = _figure_out_option(args.version, self.input_file)
 
-        self.logger.info('Checking if result with test=%s and result_id=%s is already there', args.test, args.result_id)
+        self.logger.info("Checking if result with test=%s and result_id=%s is already there", args.test, args.result_id)
         json_data = json.dumps(
             {
                 "query": {
@@ -1075,9 +1021,7 @@ class PluginResultsDashboard(PluginBase):
         current_doc_in_es = current_doc_in_es.json()
 
         if current_doc_in_es["hits"]["total"]["value"] > 0:
-            print(
-                f"Result test={args.test} and result_id={args.result_id} already there, skipping upload"
-            )
+            print(f"Result test={args.test} and result_id={args.result_id} already there, skipping upload")
             return
 
         logging.info("Uploading result to Results Dashboard")
@@ -1188,19 +1132,17 @@ class PluginHtml(PluginBase):
         #           makes it a non-greedy match so we do not consume href as well.
         href_regex = r'<a\s+(?:[^>]*?\s+)?href=["\']([^"\']*)["\']'
         matched_hrefs = re.findall(href_regex, doc.text, re.IGNORECASE)
-        self.logger.info('Found %s links', len(matched_hrefs))
+        self.logger.info("Found %s links", len(matched_hrefs))
 
         # Filter links down as per user provided expression
         compiled_regex = re.compile(args.regexp)
         filtered_hrefs = [href for href in matched_hrefs if compiled_regex.match(href)]
-        self.logger.info('Filtered links down to %s links', len(filtered_hrefs))
+        self.logger.info("Filtered links down to %s links", len(filtered_hrefs))
 
         # Make all the links absolute to initial user provided URL.
         # If there is already absolute link like 'http://www.example.com',
         # it will not be affected
-        absolute_hrefs = [
-            urllib.parse.urljoin(args.url, href) for href in filtered_hrefs
-        ]
+        absolute_hrefs = [urllib.parse.urljoin(args.url, href) for href in filtered_hrefs]
 
         # Print what we found
         for href in absolute_hrefs:

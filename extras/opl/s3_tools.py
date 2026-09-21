@@ -28,20 +28,18 @@ def connect(s3_conf: dict) -> boto3.resource:
 
 def upload_file(s3_resource, local_name, bucket, remote_name):
     """Upload a local file to an S3 bucket."""
-    logging.debug('Going to upload %s', local_name)
+    logging.debug("Going to upload %s", local_name)
     s3_bucket = s3_resource.Bucket(name=bucket)
     s3_object = s3_bucket.Object(key=remote_name)
-    s3_object.upload_file(
-        Filename=local_name, ExtraArgs={"ServerSideEncryption": "AES256"}
-    )
+    s3_object.upload_file(Filename=local_name, ExtraArgs={"ServerSideEncryption": "AES256"})
     size = s3_object.content_length
-    logging.info('Uploaded %sB of %s as %s', size, local_name, remote_name)
+    logging.info("Uploaded %sB of %s as %s", size, local_name, remote_name)
     return size
 
 
 def get_presigned_url(s3_resource, bucket, remote_name):
     """Get a presigned URL for an object in the bucket."""
-    logging.debug('Going to generate signed URL for %s', remote_name)
+    logging.debug("Going to generate signed URL for %s", remote_name)
     download_url = s3_resource.meta.client.generate_presigned_url(
         ClientMethod="get_object",
         Params={
@@ -50,13 +48,11 @@ def get_presigned_url(s3_resource, bucket, remote_name):
         },
         ExpiresIn=3600 * 3,
     )
-    logging.info('For %s obtained signed url %s', remote_name, download_url)
+    logging.info("For %s obtained signed url %s", remote_name, download_url)
     return download_url
 
 
-def delete_files(
-    s3_resource: boto3.resource, bucket_name: str, file_paths: str | list[str]
-) -> dict | bool:
+def delete_files(s3_resource: boto3.resource, bucket_name: str, file_paths: str | list[str]) -> dict | bool:
     """
     Delete s3-objets from s3 bucket
     Args:
@@ -76,9 +72,7 @@ def delete_files(
         return False
     logging.debug("Going to delete")
     if objects_to_delete:
-        response = s3_resource.meta.client.delete_objects(
-            Bucket=bucket_name, Delete={"Objects": objects_to_delete}
-        )
+        response = s3_resource.meta.client.delete_objects(Bucket=bucket_name, Delete={"Objects": objects_to_delete})
         logging.debug("object/objects deleted")
         return response
     return False

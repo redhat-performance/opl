@@ -27,7 +27,7 @@ def load(server, index, query, paths, **kwargs):
         "Content-Type": "application/json",
     }
     data = query
-    logging.info('Querying ES with url=%s, headers=%s and json=%s', url, headers, json.dumps(data))
+    logging.info("Querying ES with url=%s, headers=%s and json=%s", url, headers, json.dumps(data))
 
     if es_server_user and es_server_pass_env_var:
         # fetch the password from Jenkins credentials
@@ -43,15 +43,20 @@ def load(server, index, query, paths, **kwargs):
 
     for item in response["hits"]["hits"]:
         params = item["_source"].get("parameters", {})
-        logging.debug('Loading data from document ID %s with field id=%s or parameters.run=%s', item['_id'], item['_source'].get('id'), params.get('run'))
-        tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name  # pylint: disable=consider-using-with  # file must outlive this scope
-        sd = opl.status_data.StatusData(
-            tmpfile, data=item["_source"], skip_metadata_assert=skip_metadata_assert
+        logging.debug(
+            "Loading data from document ID %s with field id=%s or parameters.run=%s",
+            item["_id"],
+            item["_source"].get("id"),
+            params.get("run"),
         )
+        tmpfile = tempfile.NamedTemporaryFile(
+            prefix=item["_id"], delete=False
+        ).name  # pylint: disable=consider-using-with  # file must outlive this scope
+        sd = opl.status_data.StatusData(tmpfile, data=item["_source"], skip_metadata_assert=skip_metadata_assert)
         for path in paths:
             tmp = sd.get(path)
             if tmp is not None:
                 out[path].append(tmp)
 
-    logging.debug('Loaded %s', out)
+    logging.debug("Loaded %s", out)
     return out

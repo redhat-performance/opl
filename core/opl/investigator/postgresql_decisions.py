@@ -47,7 +47,7 @@ def store(pg_host, pg_port, pg_database, table, decisions, **kwargs):
     try:
         connection = psycopg2.connect(**db_conf)
     except psycopg2.Error as exc:
-        logging.warning('Failed to connect to PostgreSQL %s:%s/%s: %s', pg_host, pg_port, pg_database, exc)
+        logging.warning("Failed to connect to PostgreSQL %s:%s/%s: %s", pg_host, pg_port, pg_database, exc)
         return
 
     cursor = connection.cursor()
@@ -56,11 +56,16 @@ def store(pg_host, pg_port, pg_database, table, decisions, **kwargs):
         for decision in decisions:
             decision["job_name"] = job_name
             decision["build_url"] = build_url
-            decision["uploaded"] = datetime.datetime.now(
-                tz=datetime.timezone.utc
-            ).isoformat()
+            decision["uploaded"] = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
 
-            logging.info('Storing decision to PostgreSQL %s:%s/%s table=%s json=%s', pg_host, pg_port, pg_database, table, json.dumps(decision))
+            logging.info(
+                "Storing decision to PostgreSQL %s:%s/%s table=%s json=%s",
+                pg_host,
+                pg_port,
+                pg_database,
+                table,
+                json.dumps(decision),
+            )
             try:
                 cursor.execute("SAVEPOINT store_decision")
                 cursor.execute(
@@ -69,12 +74,12 @@ def store(pg_host, pg_port, pg_database, table, decisions, **kwargs):
                 )
                 cursor.execute("RELEASE SAVEPOINT store_decision")
             except psycopg2.Error as exc:
-                logging.warning('Failed to store decision to PostgreSQL: %s', exc)
+                logging.warning("Failed to store decision to PostgreSQL: %s", exc)
                 cursor.execute("ROLLBACK TO SAVEPOINT store_decision")
 
         connection.commit()
     except psycopg2.Error as exc:
-        logging.warning('Failed to commit decisions to PostgreSQL: %s', exc)
+        logging.warning("Failed to commit decisions to PostgreSQL: %s", exc)
     finally:
         cursor.close()
         connection.close()

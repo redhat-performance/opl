@@ -73,7 +73,7 @@ def _run_request(func, *args, **kwargs):
             _check_response(response)
         except requests.exceptions.HTTPError:
             if attempt <= max_attempts:
-                logging.warning('Waiting to try again, attempt %s of %s', attempt, max_attempts)
+                logging.warning("Waiting to try again, attempt %s of %s", attempt, max_attempts)
                 time.sleep(sleep)
                 attempt += 1
                 ERRORS_COUNTER += 1
@@ -84,7 +84,7 @@ def _run_request(func, *args, **kwargs):
 
 def _check_response(response):
     if not response.ok:
-        logging.error('Request failed with %s', response.content)
+        logging.error("Request failed with %s", response.content)
     response.raise_for_status()
 
 
@@ -102,7 +102,7 @@ def load_apps_and_perms(url_base, x_rh_identity, application=[]):  # pylint: dis
     params = {
         "limit": 1000,
     }
-    logging.info('Loading applications and permissions with identity header %s', x_rh_identity)
+    logging.info("Loading applications and permissions with identity header %s", x_rh_identity)
     r = _run_request(requests.get, url, params=params, headers=headers, verify=False)
 
     for i in r.json()["data"]:
@@ -124,7 +124,7 @@ def create_tenant(url_base, x_rh_identity):
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
-    logging.info('Creating tenant with identity header %s', x_rh_identity)
+    logging.info("Creating tenant with identity header %s", x_rh_identity)
     _run_request(requests.get, url, headers=headers, verify=False)
 
 
@@ -137,10 +137,8 @@ def create_group(url_base, x_rh_identity):
         "Content-Type": "application/json",
     }
     data = _get_group()
-    logging.info('Creating group name = %s', data['name'])
-    response = _run_request(
-        requests.post, url, headers=headers, verify=False, json=data
-    )
+    logging.info("Creating group name = %s", data["name"])
+    response = _run_request(requests.post, url, headers=headers, verify=False, json=data)
     return response.json()["uuid"]
 
 
@@ -153,10 +151,8 @@ def create_role(url_base, x_rh_identity):
         "Content-Type": "application/json",
     }
     data = _get_role()
-    logging.info('Creating role name = %s', data['name'])
-    response = _run_request(
-        requests.post, url, headers=headers, verify=False, json=data
-    )
+    logging.info("Creating role name = %s", data["name"])
+    response = _run_request(requests.post, url, headers=headers, verify=False, json=data)
     return response.json()["uuid"]
 
 
@@ -169,7 +165,7 @@ def add_roles_to_group(url_base, x_rh_identity, role_list, group_uuid):
         "Content-Type": "application/json",
     }
     data = {"roles": role_list}
-    logging.info('Adding roles = %s to group = %s', role_list, group_uuid)
+    logging.info("Adding roles = %s to group = %s", role_list, group_uuid)
     _run_request(requests.post, url, headers=headers, verify=False, json=data)
 
 
@@ -178,7 +174,7 @@ def create_principal(cursor, account):
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     user_type = "user"
-    logging.info('Creating principal username = %s', user_name)
+    logging.info("Creating principal username = %s", user_name)
     cursor.execute(
         "INSERT INTO public.management_principal (uuid, username, tenant_id, type) VALUES (%s, %s, (SELECT id FROM public.api_tenant WHERE tenant_name = 'acct' || %s), %s) RETURNING id",
         (user_uuid, user_name, account, user_type),
@@ -189,10 +185,8 @@ def create_principal(cursor, account):
 
 def add_principal_to_group(cursor, user_id, group_uuid):
     """Add a user to a group in the DB."""
-    logging.info('Adding principal %s to group %s', user_id, group_uuid)
-    cursor.execute(
-        "SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,)
-    )
+    logging.info("Adding principal %s to group %s", user_id, group_uuid)
+    cursor.execute("SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,))
     group_id = cursor.fetchone()[0]
     cursor.execute(
         "INSERT INTO public.management_group_principals (group_id, principal_id) VALUES (%s, %s)",
@@ -217,7 +211,7 @@ def doit(rbac_test_data, args, status_data):
         # Create identity header for this tenant
         account = opl.gen.gen_account()
         user = _get_user()
-        logging.info('Creating tenant account = %s and user = %s', account, user)
+        logging.info("Creating tenant account = %s and user = %s", account, user)
         x_rh_identity = opl.gen.get_auth_header(account, user, account)
 
         # Load applications and permissions to work with
@@ -259,7 +253,7 @@ def doit(rbac_test_data, args, status_data):
             "user": args.rbac_db_user,
             "password": args.rbac_db_pass,
         }
-        logging.info('Connecting to DB: %s', rbac_db_conf)
+        logging.info("Connecting to DB: %s", rbac_db_conf)
         connection = psycopg2.connect(**rbac_db_conf)
         cursor = connection.cursor()
         cursor.execute(f"SET search_path TO acct{account}")
@@ -283,9 +277,7 @@ def doit(rbac_test_data, args, status_data):
 
     # rbac_test_data.save()
 
-    print(
-        f"DB population finished in {(population_end - population_start).total_seconds()} seconds"
-    )
+    print(f"DB population finished in {(population_end - population_start).total_seconds()} seconds")
     print(f"Tenants created: {tenant_counter}")
     print(f"Groups created: {group_counter}")
     print(f"Roles created: {role_counter}")
@@ -317,9 +309,7 @@ def main():
         help="application permissions to be considered",
     )
 
-    parser.add_argument(
-        "--tenants-number", type=int, default=1, help="Number of tenants to create"
-    )
+    parser.add_argument("--tenants-number", type=int, default=1, help="Number of tenants to create")
 
     parser.add_argument(
         "--groups-number",
