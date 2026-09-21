@@ -478,6 +478,7 @@ class HorreumAPI:
             logger.error(f"Failed to update variables: {response.status_code}")
             logger.info(f"Response: {response.text}")
             response.raise_for_status()
+            return None  # unreachable: raise_for_status() raises
 
 
 def load_field_config(

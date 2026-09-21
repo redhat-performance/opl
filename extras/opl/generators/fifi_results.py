@@ -233,43 +233,42 @@ class PlaybookRunMessageGenerator:
             # This message seqence was already finished
             self.index += 1
             return None
-        else:
-            # This is normal progress message
-            logging.debug(
-                f"Normal message {self.index} for run_id = {run_id}; node_id = {node_id}; host_id = {host_id}"
-            )
-            self.index += 1
-            self.objects["runs"][run_id]["serial"] += 1
+        # This is normal progress message
+        logging.debug(
+            f"Normal message {self.index} for run_id = {run_id}; node_id = {node_id}; host_id = {host_id}"
+        )
+        self.index += 1
+        self.objects["runs"][run_id]["serial"] += 1
+        self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+            "sequence"
+        ] += 1
+
+        # Determine console content
+        if self.diff_mode:
             self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-                "sequence"
-            ] += 1
-
-            # Determine console content
-            if self.diff_mode:
-                self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-                    "console"
-                ] = opl.gen.gen_string(size=size - 1) + "\n"
-            else:
-                self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
-                    "console"
-                ] += (opl.gen.gen_string(size=size - 1) + "\n")
-            console = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
                 "console"
-            ]
+            ] = opl.gen.gen_string(size=size - 1) + "\n"
+        else:
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+                "console"
+            ] += (opl.gen.gen_string(size=size - 1) + "\n")
+        console = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+            "console"
+        ]
 
-            return {
-                "account": account,
-                "code": 0,
-                "in_response_to": in_response_to,
-                "message_id": opl.gen.gen_uuid(),
-                "message_type": "response",
-                "payload": {
-                    "console": console,
-                    "host": host,
-                    "playbook_run_id": playbook_run_id,
-                    "sequence": sequence,
-                    "type": "playbook_run_update",
-                },
-                "sender": sender,
-                "serial": serial,
-            }
+        return {
+            "account": account,
+            "code": 0,
+            "in_response_to": in_response_to,
+            "message_id": opl.gen.gen_uuid(),
+            "message_type": "response",
+            "payload": {
+                "console": console,
+                "host": host,
+                "playbook_run_id": playbook_run_id,
+                "sequence": sequence,
+                "type": "playbook_run_update",
+            },
+            "sender": sender,
+            "serial": serial,
+        }
