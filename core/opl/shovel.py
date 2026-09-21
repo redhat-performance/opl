@@ -18,7 +18,7 @@ from opl import retry, skelet
 @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
 def _requests_get_with_retry(*args, **kwargs):
     kwargs.setdefault("timeout", 60)
-    return requests.get(*args, **kwargs)
+    return requests.get(*args, **kwargs)  # pylint: disable=missing-timeout  # timeout defaulted above
 
 
 def _check_response(logger, response):

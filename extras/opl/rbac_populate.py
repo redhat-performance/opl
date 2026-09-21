@@ -81,8 +81,7 @@ def _run_request(func, *args, **kwargs):
                 ERRORS_COUNTER += 1
                 continue
             raise
-        else:
-            return response
+        return response
 
 
 def _check_response(response):
