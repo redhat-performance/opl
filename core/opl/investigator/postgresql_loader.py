@@ -50,7 +50,7 @@ def load(pg_host, pg_port, pg_database, query, paths, **kwargs):
         logging.debug(
             f"Loading data from row with id={data.get('id', None)} name={data.get('name', None)}"
         )
-        tmpfile = tempfile.NamedTemporaryFile(delete=False).name
+        tmpfile = tempfile.NamedTemporaryFile(delete=False).name  # pylint: disable=consider-using-with  # file must outlive this scope
         sd = opl.status_data.StatusData(tmpfile, data=data)
         for path in paths:
             tmp = sd.get(path)

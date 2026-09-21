@@ -86,6 +86,7 @@ class QPCTarball:
         self.download_url = None
         self.size = None
         self.account = opl.gen.gen_account()
+        # pylint: disable-next=consider-using-with  # kept open; cleaned up in cleanup()
         self.dirname = tempfile.TemporaryDirectory()
 
     def upload(self):
@@ -134,10 +135,9 @@ class QPCTarball:
 
         orig_cwd = os.getcwd()
         os.chdir(self.dirname.name)
-        tar = tarfile.open(self.filename, "w:gz")
-        for name in files:
-            tar.add(os.path.basename(name))
-        tar.close()
+        with tarfile.open(self.filename, "w:gz") as tar:
+            for name in files:
+                tar.add(os.path.basename(name))
         os.chdir(orig_cwd)
 
         logging.info(f"Wrote {self.filename}")

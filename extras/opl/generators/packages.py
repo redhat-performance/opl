@@ -46,11 +46,10 @@ class YumReposGenerator:
 
     def __init__(self):
         data_dirname = os.path.dirname(__file__)
-        self.data = list(
-            open(os.path.join(data_dirname, "yum_repos.txt"), encoding="utf-8")
-            .read()
-            .split("\n")
-        )
+        with open(
+            os.path.join(data_dirname, "yum_repos.txt"), encoding="utf-8"
+        ) as fp:
+            self.data = list(fp.read().split("\n"))
 
     def count(self):
         """Return number of available yum repositories."""
@@ -66,11 +65,10 @@ class EnabledServicesGenerator:
 
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        self.data = list(
-            open(os.path.join(data_dirname, "enabled_services.txt"), encoding="utf-8")
-            .read()
-            .split("\n")
-        )
+        with open(
+            os.path.join(data_dirname, "enabled_services.txt"), encoding="utf-8"
+        ) as fp:
+            self.data = list(fp.read().split("\n"))
 
     def count(self):
         """Return number of available enabled services."""
@@ -86,13 +84,10 @@ class InstalledServicesGenerator:
 
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        self.data = list(
-            open(
-                os.path.join(data_dirname, "installed_services.txt"), encoding="utf-8"
-            )
-            .read()
-            .split("\n")
-        )
+        with open(
+            os.path.join(data_dirname, "installed_services.txt"), encoding="utf-8"
+        ) as fp:
+            self.data = list(fp.read().split("\n"))
 
     def count(self):
         """Return number of available installed services."""
@@ -108,13 +103,10 @@ class RunningProcessesGenerator:
 
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        self.data = list(
-            open(
-                os.path.join(data_dirname, "running_processes.txt"), encoding="utf-8"
-            )
-            .read()
-            .split("\n")
-        )
+        with open(
+            os.path.join(data_dirname, "running_processes.txt"), encoding="utf-8"
+        ) as fp:
+            self.data = list(fp.read().split("\n"))
 
     def count(self):
         """Return number of available running processes."""

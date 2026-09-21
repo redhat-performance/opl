@@ -17,6 +17,7 @@ from opl import retry, skelet
 
 @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
 def _requests_get_with_retry(*args, **kwargs):
+    kwargs.setdefault("timeout", 60)
     return requests.get(*args, **kwargs)
 
 
@@ -97,7 +98,7 @@ class PluginProw(PluginBase):
 
     def list(self, args):
         """List job results from Prow."""
-        response = requests.get(f"{args.base_url}/{args.job_name}")
+        response = requests.get(f"{args.base_url}/{args.job_name}", timeout=60)
         _check_response(self.logger, response)
 
         # Extract 19-digit numbers using regular expression
@@ -118,7 +119,7 @@ class PluginProw(PluginBase):
 
         from_url = f"{args.base_url}/{args.job_name}/{args.job_run_id}/artifacts/{args.run_name}/{args.artifact_path}"
         logging.info(f"Downloading {from_url} to {args.output_path}")
-        response = requests.get(from_url)
+        response = requests.get(from_url, timeout=60)
         _check_response(self.logger, response)
         response_content = response.content
 
@@ -213,6 +214,7 @@ class PluginOpenSearch(PluginBase):
             f"{args.base_url}/{args.index}/_search",
             headers=headers,
             json=query,
+            timeout=60,
         )
         _check_response(self.logger, current_doc_in_es)
         current_doc_in_es = current_doc_in_es.json()
@@ -228,6 +230,7 @@ class PluginOpenSearch(PluginBase):
             f"{args.base_url}/{args.index}/_doc",
             headers=headers,
             json=values,
+            timeout=60,
         )
         _check_response(self.logger, response)
         print(f"Uploaded: {response.content}")
@@ -265,6 +268,10 @@ class PluginHorreum(PluginBase):
 
     def __init__(self):
         super().__init__()
+        self.headers = None
+        self.test_id = None
+        self.input_file = None
+        self.output_file = None
         self.session = requests.Session()
 
     @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
@@ -737,6 +744,7 @@ class PluginHorreum(PluginBase):
             _check_response(self.logger, response)
             label_id = int(response.json())
             self.logger.info(f"Updated label ID {label_id} in schema ID {schema_id}")
+        return None
 
     def schema_label_delete(self, args):
         """Delete a Horreum schema label."""
@@ -1032,6 +1040,10 @@ class PluginHorreum(PluginBase):
 class PluginResultsDashboard(PluginBase):
     """Upload results to the results dashboard."""
 
+    def __init__(self):
+        super().__init__()
+        self.input_file = None
+
     def upload(self, args):
         """Upload results to the results dashboard."""
         self.input_file = None
@@ -1073,6 +1085,7 @@ class PluginResultsDashboard(PluginBase):
             f"{args.base_url}/{args.index}/_search",
             headers=headers,
             data=json_data,
+            timeout=60,
         )
         _check_response(self.logger, current_doc_in_es)
         current_doc_in_es = current_doc_in_es.json()
@@ -1100,6 +1113,7 @@ class PluginResultsDashboard(PluginBase):
             f"{args.base_url}/{args.index}/_doc",
             headers=headers,
             json=upload_data,
+            timeout=60,
         )
         _check_response(self.logger, response)
 
@@ -1180,7 +1194,7 @@ class PluginHtml(PluginBase):
     def links(self, args):
         """Download a document and list links found in it."""
         self.logger.info("Downloading {args.url}")
-        doc = requests.get(args.url)
+        doc = requests.get(args.url, timeout=60)
 
         # Regular expression to find all href attributes within <a> tags
         # Cheatsheet:

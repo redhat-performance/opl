@@ -232,6 +232,7 @@ class PlaybookRunMessageGenerator:
         if sequence == duration and finished:
             # This message seqence was already finished
             self.index += 1
+            return None
         else:
             # This is normal progress message
             logging.debug(

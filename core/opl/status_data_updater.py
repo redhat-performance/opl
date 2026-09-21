@@ -195,7 +195,7 @@ def doit_change(args):
     if args.dry_run:
         logging.info("Not touching ES as we are running in dry run mode")
     else:
-        response = requests.post(url, json=sd.dump())
+        response = requests.post(url, json=sd.dump(), timeout=60)
         response.raise_for_status()
         logging.debug(
             f"Got back this: {json.dumps(response.json(), sort_keys=True, indent=4)}"
@@ -294,7 +294,7 @@ def _create_sd_from_es_response(response):
     logging.debug(
         f"Loading data from document ID {response['_id']} with field id={response['_source']['id'] if 'id' in response['_source'] else None}"
     )
-    tmpfile = tempfile.NamedTemporaryFile(prefix=response["_id"], delete=False).name
+    tmpfile = tempfile.NamedTemporaryFile(prefix=response["_id"], delete=False).name  # pylint: disable=consider-using-with  # file must outlive this scope
     return opl.status_data.StatusData(tmpfile, data=response["_source"])
 
 
@@ -888,3 +888,4 @@ def main():
         return doit_rp_to_dashboard_update(args)
     if args.action == "rp-backlog":
         return doit_rp_backlog(args)
+    raise Exception(f"Unknown action '{args.action}'")

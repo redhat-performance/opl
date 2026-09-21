@@ -179,8 +179,8 @@ def create_bins(data, precision, bins_number=10):  # pylint: disable=unused-argu
 
 def find_bin(value, bins):
     """Return index of the bin containing the value, or -1 if none."""
-    for i in range(len(bins)):
-        if bins[i][0] <= value < bins[i][1]:
+    for i, (bin_start, bin_end) in enumerate(bins):
+        if bin_start <= value < bin_end:
             return i
     return -1
 
@@ -262,8 +262,8 @@ def get_hist(data):
     hist_counts = [float(i) for i in hist_counts]
     hist_borders = [float(i) for i in hist_borders]
     out = []
-    for i in range(len(hist_counts)):
-        out.append(((hist_borders[i], hist_borders[i + 1]), hist_counts[i]))
+    for i, count in enumerate(hist_counts):
+        out.append(((hist_borders[i], hist_borders[i + 1]), count))
     return out
 
 

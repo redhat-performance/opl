@@ -20,7 +20,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         package_file="packages_data.json",
         egress_data_file="inventory_egress_data.json",
         s3_presigned_url=None,
-        per_account_data=[],
+        per_account_data=None,
     ):
         # per_account_data=[] is a json stored in /tmp/edge-test-data.json
         # the value it takes is in the form :
@@ -33,7 +33,7 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
         self.egress_data_file = egress_data_file
         self.msg_type = msg_type
         self.s3_presigned_url = s3_presigned_url
-        self.per_account_data = per_account_data
+        self.per_account_data = per_account_data or []
 
         # Load package profile generator
         self.pg = opl.generators.packages.PackagesGenerator(self.package_file)
