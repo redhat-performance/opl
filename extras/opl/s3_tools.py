@@ -81,3 +81,4 @@ def delete_files(
         )
         logging.debug("object/objects deleted")
         return response
+    return False

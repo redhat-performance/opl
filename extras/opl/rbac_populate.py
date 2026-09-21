@@ -80,8 +80,7 @@ def _run_request(func, *args, **kwargs):
                 attempt += 1
                 ERRORS_COUNTER += 1
                 continue
-            else:
-                raise
+            raise
         else:
             return response
 

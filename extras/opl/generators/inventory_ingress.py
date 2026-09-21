@@ -22,7 +22,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         mac_addresses=1,
         packages=500,
         template="inventory_ingress_RHSM_template.json.j2",
-        per_account_data=[],
+        per_account_data=None,
         per_account_data_add_filed=None,
         per_host_random_packages=True,
         package_file_name="packages_data.json",
@@ -39,7 +39,9 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             mac_addresses  # how many MAC addresses should the host have
         )
         self.packages = packages  # how many packages should be in RHSM package profile
-        self.per_account_data = per_account_data  # this is used e.g. when generating messages for Edge where wee need specific rpm-ostree commit for given account
+        self.per_account_data = (  # this is used e.g. when generating messages for Edge where wee need specific rpm-ostree commit for given account
+            per_account_data or []
+        )
         self.per_account_data_add_filed = per_account_data_add_filed  # set to non-None to add these values to per account json data file (e.g. to track host UUIDs created for individual account)
 
         if len(self.per_account_data) > 0:

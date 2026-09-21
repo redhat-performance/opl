@@ -29,7 +29,7 @@ class StatusData:
             logging.info(
                 f"Downloading {filename} to {tmp} and will work with that file from now on"
             )
-            r = requests.get(filename, verify=False)
+            r = requests.get(filename, verify=False, timeout=60)
             with open(tmp, "wb") as fp:
                 fp.write(r.content)
             filename = tmp
@@ -158,7 +158,7 @@ class StatusData:
                     data[current_key] = [value]
                 else:
                     data[current_key] = value
-                return  # This was last key, we are done
+                return None  # This was last key, we are done
             data[current_key] = {}  # This is not last key, so it can not be array
             return self._set(data[current_key], split_key[1:], value)
         if last_key:
@@ -166,7 +166,7 @@ class StatusData:
                 data[current_key].append(value)
             else:
                 data[current_key] = value
-            return  # This was last key, we are done
+            return None  # This was last key, we are done
         return self._set(
             data[current_key], split_key[1:], value
         )  # This is not last key, so no need to check for array
@@ -226,11 +226,11 @@ class StatusData:
         try:
             new_data = data[split_key[0]]
         except KeyError:
-            return
+            return None
 
         if len(split_key) == 1:
             del data[split_key[0]]
-            return
+            return None
         return self._remove(new_data, split_key[1:])
 
     def remove(self, multikey):

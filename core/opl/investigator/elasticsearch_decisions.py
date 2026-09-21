@@ -39,9 +39,10 @@ def store(server, index, decisions, **kwargs):
                 auth=requests.auth.HTTPBasicAuth(es_server_user, open_search_password),
                 headers=headers,
                 json=decision,
+                timeout=60,
             )
         else:
-            response = requests.post(url, headers=headers, json=decision)
+            response = requests.post(url, headers=headers, json=decision, timeout=60)
 
         if not response.ok:
             logging.warning(f"Failed to store decision to ES: {response.text}")

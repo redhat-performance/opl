@@ -185,15 +185,17 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         headers = {"Authorization": f"Bearer {token}"}
         if metadata:
             metadata = json.dumps(self.parse_ibutsu_metadata(metadata))
-        res = requests.post(
-            f"{host}/api/import",
-            headers=headers,
-            files={
-                "importFile": (file, open(file, "rb"), "text/xml"),
-            },
-            verify=verify,
-            data={"project": project, "metadata": metadata},
-        )
+        with open(file, "rb") as f:
+            res = requests.post(
+                f"{host}/api/import",
+                headers=headers,
+                files={
+                    "importFile": (file, f, "text/xml"),
+                },
+                verify=verify,
+                data={"project": project, "metadata": metadata},
+                timeout=60,
+            )
         if not res.ok:
             raise Exception(res.text)
         logging.debug(res.text)

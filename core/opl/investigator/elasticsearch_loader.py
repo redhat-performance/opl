@@ -48,7 +48,7 @@ def load(server, index, query, paths, **kwargs):
         logging.debug(
             f"Loading data from document ID {item['_id']} with field id={item['_source'].get('id')} or parameters.run={params.get('run')}"
         )
-        tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name
+        tmpfile = tempfile.NamedTemporaryFile(prefix=item["_id"], delete=False).name  # pylint: disable=consider-using-with  # file must outlive this scope
         sd = opl.status_data.StatusData(
             tmpfile, data=item["_source"], skip_metadata_assert=skip_metadata_assert
         )

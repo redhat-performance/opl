@@ -255,7 +255,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         ri,
         name,
         grafana_target,
-        grafana_enritchment={},
+        grafana_enritchment=None,
         grafana_include_vars=False,
     ):
         assert (
@@ -269,7 +269,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
         points = [float(i[0]) for i in response[0]["datapoints"] if i[0] is not None]
         item = {
-            "grafana_enritchment": grafana_enritchment,
+            "grafana_enritchment": grafana_enritchment or {},
             "grafana_include_vars": grafana_include_vars,
         }
         stats = self._apply_item_extras(data.data_stats(points), item)
@@ -745,6 +745,7 @@ def doit(args):
     else:
         config = args.requested_info_config
 
+    # pylint: disable-next=consider-using-with  # temp file must outlive this scope
     sd = status_data.StatusData(tempfile.NamedTemporaryFile().name)
 
     requested_info = RequestedInfo(
@@ -825,3 +826,4 @@ def main():
     logging.debug(f"Args: {args}")
 
     doit(args)
+    return None

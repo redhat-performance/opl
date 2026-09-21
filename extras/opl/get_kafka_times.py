@@ -53,6 +53,8 @@ class GetKafkaTimes:
         self.stored_counter = 0
         # Buffer of messages we received and not stored to DB yet
         self.waiting_items = []
+        # Last time when we stored something to DB
+        self.last_stored_at = None
 
         # Which messages to show during processing
         self.show_processed_messages = args.show_processed_messages
@@ -189,11 +191,10 @@ class GetKafkaTimes:
                             f"It was quiet for {quiet_period}, but we have saved {updated} items so lets wait some more."
                         )
                         continue
-                    else:
-                        logging.warning(
-                            f"It was quiet here for {quiet_period}. Skipping remaining items as they are not coming."
-                        )
-                        break
+                    logging.warning(
+                        f"It was quiet here for {quiet_period}. Skipping remaining items as they are not coming."
+                    )
+                    break
 
         self.store_now()
 

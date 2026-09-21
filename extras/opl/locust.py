@@ -146,6 +146,7 @@ def run_locust(
         env.runner.greenlet.join()
         status_data.set_now("results.end")
         logging.info("Worker Locust run finished")
+        return None
 
     else:
         raise Exception("No runner specified")
