@@ -7,16 +7,15 @@ import statistics
 def _count_deviation(value, lower_boundary, upper_boundary):
     if lower_boundary <= value <= upper_boundary:
         return None
-    else:
-        dist = min(abs(lower_boundary - value), abs(value - upper_boundary))
-        try:
-            frac = dist / abs(upper_boundary - lower_boundary)
-        except ZeroDivisionError:
-            frac = 1
-        logging.debug(
-            f"_count_deviation({value}, {lower_boundary}, {upper_boundary}): dist={dist} frac={frac}"
-        )
-        return frac
+    dist = min(abs(lower_boundary - value), abs(value - upper_boundary))
+    try:
+        frac = dist / abs(upper_boundary - lower_boundary)
+    except ZeroDivisionError:
+        frac = 1
+    logging.debug(
+        f"_count_deviation({value}, {lower_boundary}, {upper_boundary}): dist={dist} frac={frac}"
+    )
+    return frac
 
 
 def _calculate_lower_upper_boundary(data, comparator):
@@ -34,10 +33,9 @@ def _calculate_lower_upper_boundary(data, comparator):
     upper_boundary = float(max(data))
     if comparator == "lte_max":
         return (float("-inf"), upper_boundary)
-    elif comparator == "gte_min":
+    if comparator == "gte_min":
         return (lower_boundary, float("inf"))
-    else:
-        return (lower_boundary, upper_boundary)
+    return (lower_boundary, upper_boundary)
 
 
 def _check_by_min_max(data, value, comparator):

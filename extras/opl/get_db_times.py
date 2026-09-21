@@ -211,9 +211,8 @@ class GetDbTimes:
             if self._storage_count_applicable_hosts() == 0:
                 logging.debug("All hosts processes")
                 break
-            else:
-                logging.debug("Waiting so more hosts can be processed")
-                time.sleep(10)
+            logging.debug("Waiting so more hosts can be processed")
+            time.sleep(10)
 
 
 def get_db_times(config):

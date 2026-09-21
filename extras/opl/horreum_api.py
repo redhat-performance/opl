@@ -311,11 +311,10 @@ class HorreumAPI:
             try:
                 if response.text.strip():
                     return response.json()
-                else:
-                    # Empty response - return success indicator
-                    return {
-                        "status": "success",
-                        "message": "Variable created successfully",
+                # Empty response - return success indicator
+                return {
+                    "status": "success",
+                    "message": "Variable created successfully",
                     }
             except json.JSONDecodeError:
                 # Non-JSON response - return success indicator
@@ -389,8 +388,7 @@ class HorreumAPI:
                 except (ValueError, json.JSONDecodeError):
                     logger.info("Update successful (no JSON response)")
                 return True
-            else:
-                response.raise_for_status()
+            response.raise_for_status()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to update variables: {e}")
@@ -992,15 +990,14 @@ def _extract_change_detection_values(
             "max_value": max_config.get("value"),
             "max_inclusive": max_config.get("inclusive", True),
         }
-    elif model == "eDivisive":
+    if model == "eDivisive":
         # Extract eDivisive values (simple - no configuration parameters)
         return {
             "model": model,
             # eDivisive doesn't have configurable parameters - just the model type
         }
-    else:
-        # Extract relative difference values (default)
-        return {
+    # Extract relative difference values (default)
+    return {
             "model": model,
             "window": cd_config.get("window"),
             "minPrevious": cd_config.get("minPrevious"),

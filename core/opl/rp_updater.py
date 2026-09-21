@@ -153,7 +153,6 @@ def main():
 
     if args.action == "list_tests":
         return doit_list_tests(args)
-    elif args.action == "change_defects":
+    if args.action == "change_defects":
         return doit_change_defects(args)
-    else:
-        raise Exception(f"Unknown action '{args.action}'")
+    raise Exception(f"Unknown action '{args.action}'")

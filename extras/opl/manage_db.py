@@ -18,12 +18,11 @@ def execute_query(connection, query):
     except psycopg2.ProgrammingError as e:
         logging.error(f"Failed to execute query {query}: {e}")
         return None
-    else:
-        count = cursor.fetchone()[0]
-        cursor.close()
-        connection.commit()
-        logging.debug(f"Query {query} returned {count}")
-        return count
+    count = cursor.fetchone()[0]
+    cursor.close()
+    connection.commit()
+    logging.debug(f"Query {query} returned {count}")
+    return count
 
 
 def wait_for_count(connection, query, expected, timeout, progress):

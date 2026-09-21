@@ -75,13 +75,10 @@ def _figure_out_option(option, data):
         value = _get_field_value(field, data)
         if value is None:
             raise Exception(f"Can not load {field} in {option}")
-        else:
-            return value
-    else:
-        if option is None:
-            raise Exception("Some option was not provided")
-        else:
-            return option
+        return value
+    if option is None:
+        raise Exception("Some option was not provided")
+    return option
 
 
 class pluginBase:
@@ -479,8 +476,7 @@ class pluginHorreum(pluginBase):
 
                     if len(changes) > 0:
                         return (True, alerting_variable, changes)
-                    else:
-                        return (False, alerting_variable, None)
+                    return (False, alerting_variable, None)
                 except Exception as e:
                     self.logger.warning(
                         f"Error checking {alerting_variable.get('name', 'unknown')}: {e}"
@@ -504,8 +500,7 @@ class pluginHorreum(pluginBase):
                         for f in future_to_var:
                             f.cancel()
                         break
-                    else:
-                        self.logger.info(f"For {var['name']} all looks good")
+                    self.logger.info(f"For {var['name']} all looks good")
 
         result = "FAIL" if change_detected else "PASS"
 
@@ -704,8 +699,7 @@ class pluginHorreum(pluginBase):
                         f"Label with name {new_name} not found, so adding new one with new ID"
                     )
                     return self.schema_label_add(args)
-                else:
-                    raise KeyError(f"Failed to find label with name {new_name}")
+                raise KeyError(f"Failed to find label with name {new_name}")
         else:
             raise Exception("Either --update-by-id or --update-by-name have to be used")
 

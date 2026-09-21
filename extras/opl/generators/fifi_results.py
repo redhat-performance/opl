@@ -225,7 +225,7 @@ class PlaybookRunMessageGenerator:
                 "sender": sender,
                 "serial": serial,
             }
-        elif sequence == duration and finished:
+        if sequence == duration and finished:
             # This message seqence was already finished
             self.index += 1
         else:

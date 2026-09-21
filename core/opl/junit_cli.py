@@ -183,8 +183,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         )
         if not res.ok:
             raise Exception(res.text)
-        else:
-            logging.debug(res.text)
+        logging.debug(res.text)
 
     def parse_ibutsu_metadata(self, metadata_list):
         """Parse the metadata from a set of strings to a dictionary"""

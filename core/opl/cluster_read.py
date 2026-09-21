@@ -65,8 +65,7 @@ def dir_path(path):
     """
     if os.path.isdir(path):
         return path
-    else:
-        raise argparse.ArgumentTypeError(f"{path} is not directory")
+    raise argparse.ArgumentTypeError(f"{path} is not directory")
 
 
 class NoDataException(Exception):
@@ -527,8 +526,7 @@ class CopyFromPlugin(BasePlugin):
         """
         if ri.sd is None:
             return name, None
-        else:
-            return name, ri.sd.get(copy_from)
+        return name, ri.sd.get(copy_from)
 
 
 class TestFailMePlugin(BasePlugin):

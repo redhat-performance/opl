@@ -51,12 +51,11 @@ def connect_with_retry(db_conf, cattempt=1, cmax=100, csleep=5):
         except psycopg2.OperationalError as e:
             if cattempt >= cmax:
                 raise
-            else:
-                logging.warning(
-                    f"Failed to connect to the DB in attempt {cattempt} of {cmax}: {e!s}"
-                )
-                time.sleep(random.random() * csleep)
-                cattempt += 1
+            logging.warning(
+                f"Failed to connect to the DB in attempt {cattempt} of {cmax}: {e!s}"
+            )
+            time.sleep(random.random() * csleep)
+            cattempt += 1
 
 
 def get_column(connection, column, include_null=False, table="items"):
@@ -102,16 +101,15 @@ def get_timedelta_between_columns(connection, columns, table="items"):
     """
     if len(columns) != 2:
         raise Exception("This function requires exactly 2 column names as input.")
-    else:
-        queryfrom = (
-            f"SELECT EXTRACT (EPOCH FROM({columns[0]} - {columns[1]})) FROM {table}"
-        )
-        querycondition = f" WHERE {columns[0]} IS NOT NULL AND {columns[1]} IS NOT NULL"
-        sql = f"{queryfrom} {querycondition}"
-        logging.debug(f"Executing {sql}")
-        cursor = connection.cursor()
-        cursor.execute(sql)
-        return [i[0] for i in cursor.fetchall()]
+    queryfrom = (
+        f"SELECT EXTRACT (EPOCH FROM({columns[0]} - {columns[1]})) FROM {table}"
+    )
+    querycondition = f" WHERE {columns[0]} IS NOT NULL AND {columns[1]} IS NOT NULL"
+    sql = f"{queryfrom} {querycondition}"
+    logging.debug(f"Executing {sql}")
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    return [i[0] for i in cursor.fetchall()]
 
 
 def get_timedelta_between_timestamp_n_dbcolumn(

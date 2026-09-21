@@ -235,7 +235,7 @@ def data_stats(data):
             "percentile999": q999,
             "iqr": q75 - q25,
         }
-    elif isinstance(data[0], datetime.datetime):
+    if isinstance(data[0], datetime.datetime):
         return {
             "samples": len(data),
             "min": min(data),
@@ -243,8 +243,7 @@ def data_stats(data):
             "mean": (max(data) - min(data)) / len(data),
             "range": max(data) - min(data),
         }
-    else:
-        raise Exception(f"Do not know how to get stats for list of {type(data[0])}")
+    raise Exception(f"Do not know how to get stats for list of {type(data[0])}")
 
 
 def get_hist(data):

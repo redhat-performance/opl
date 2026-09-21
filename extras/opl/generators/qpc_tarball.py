@@ -43,8 +43,7 @@ class QPCTarballSlice:
     def get_host_count(self):
         if self.hosts_count is None:
             return len(self.hosts)
-        else:
-            return self.hosts_count
+        return self.hosts_count
 
     def add_host(self, host_json):
         assert (

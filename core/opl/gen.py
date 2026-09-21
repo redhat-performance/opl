@@ -33,9 +33,8 @@ def gen_datetime(plus_hours=None):
     utc_now = datetime.datetime.now(tz=datetime.timezone.utc)
     if plus_hours is None:
         return utc_now.isoformat()
-    else:
-        add_hours = datetime.timedelta(hours=plus_hours)
-        return (utc_now + add_hours).isoformat()
+    add_hours = datetime.timedelta(hours=plus_hours)
+    return (utc_now + add_hours).isoformat()
 
 
 def gen_account():

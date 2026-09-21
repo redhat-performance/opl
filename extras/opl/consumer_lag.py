@@ -37,8 +37,7 @@ class ConsumerLag:
             partition_set = consumer.partitions_for_topic(self.args.kafka_topic)
             if partition_set:
                 break
-            else:
-                time.sleep(10)
+            time.sleep(10)
 
         partitions = []
         for partition_id in partition_set:

@@ -83,7 +83,7 @@ def run_locust(
             env.stats, status_data, new_stats, summary_only, sort_stats
         )
 
-    elif args.locust_master_runner:
+    if args.locust_master_runner:
         env.create_master_runner(
             master_bind_host=args.master_bind_host,
             master_bind_port=args.master_bind_port,
@@ -126,7 +126,7 @@ def run_locust(
             env.stats, status_data, new_stats, summary_only, sort_stats
         )
 
-    elif args.locust_worker_runner:
+    if args.locust_worker_runner:
         env.create_worker_runner(
             master_host=args.master_host,
             master_port=args.master_port,
