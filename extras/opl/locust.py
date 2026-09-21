@@ -72,7 +72,7 @@ def run_locust(
         else:
             time.sleep(args.test_duration)
             logging.debug(f"Waited for {args.test_duration} seconds")
-        gevent.spawn(lambda: env.runner.quit())
+        gevent.spawn(env.runner.quit)
 
         # Wait for the greenlets to finish
         env.runner.greenlet.join()
@@ -115,7 +115,7 @@ def run_locust(
 
         # Wait configured time and quit the test
         time.sleep(args.test_duration)
-        gevent.spawn(lambda: env.runner.quit())
+        gevent.spawn(env.runner.quit)
 
         # Wait for the greenlets to finish
         env.runner.greenlet.join()

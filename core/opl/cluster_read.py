@@ -532,7 +532,7 @@ class CopyFromPlugin(BasePlugin):
 
 
 class TestFailMePlugin(BasePlugin):
-    def measure(self, ri, name, **kwargs):
+    def measure(self, _ri, _name, **_kwargs):
         """
         Just raise an exception. Mean for tests only.
         """
@@ -769,7 +769,7 @@ def main():
         "--render-config", action="store_true", help="Just render config"
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Show debug output")
-    for name, plugin in PLUGINS.items():
+    for _name, plugin in PLUGINS.items():
         plugin.add_args(parser)
     args = parser.parse_args()
 

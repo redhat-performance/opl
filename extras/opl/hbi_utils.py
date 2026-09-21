@@ -14,7 +14,7 @@ from opl.kafka_init import kafka_init
 
 # collect_info could be None
 def gen_and_send(args, status_data, payload_generator, producer, collect_info):
-    def handle_send_success(*args, **kwargs):
+    def handle_send_success(*_args, **kwargs):
         with kwargs["data_lock"]:
             kwargs["data_stats"]["successes"] += 1
 
@@ -88,7 +88,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     status_data.set_now("parameters.payload_generator.sent_at")
 
     # Make sure all messages were produced
-    for i in range(10):
+    for _ in range(10):
         if sum(data_stats.values()) == args.count:
             logging.info(f"Sent all {args.count} messages, great")
             break
@@ -120,7 +120,7 @@ def fetch_records_count(inventory):
     return existing_records
 
 
-def verify(args, previous_records, status_data, inventory, collect_info):
+def verify(args, previous_records, status_data, inventory, collect_info):  # pylint: disable=unused-argument
     # Generatate set of IDs to check in the DB
     inventory_cursor = inventory.cursor()
 

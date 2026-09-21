@@ -486,7 +486,7 @@ def doit_rp_to_dashboard_new(args):
     if not args.dashboard_skip_uniqness_check:
         # Ensure there are no results for this run_id in ElasticSearch yet
         try:
-            dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
+            dashboard, _es_type, _es_id = _get_es_dashboard_result_for_run_id(
                 session, args, run_id
             )
         except requests.exceptions.HTTPError as e:
@@ -604,7 +604,7 @@ def doit_rp_to_dashboard_update(args):
             result_string = _get_rp_result_result_string(result)
 
             # Get relevant dashboard result from ElasticSearch
-            dashboard, es_type, es_id = _get_es_dashboard_result_for_run_id(
+            dashboard, _es_type, es_id = _get_es_dashboard_result_for_run_id(
                 session,
                 args,
                 run_id,
