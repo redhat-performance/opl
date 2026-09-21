@@ -104,7 +104,7 @@ def null_column(connection, table, column):
     connection.commit()
 
 
-def doit(args, status_data):
+def doit(args, status_data):  # pylint: disable=redefined-outer-name
     """Run the requested table maintenance operations."""
     storage_db_conf = {
         "host": args.storage_db_host,

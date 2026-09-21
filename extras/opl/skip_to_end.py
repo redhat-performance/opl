@@ -10,9 +10,10 @@ from opl import args, skelet
 from opl.kafka_init import KafkaInit
 
 
-def doit_seek_to_end(args):
-    """Seek the consumer to the latest offsets, retrying on races."""
+def doit_seek_to_end(args):  # pylint: disable=redefined-outer-name
     """
+    Seek the consumer to the latest offsets, retrying on races.
+
     Create consumer and seek to end
 
     This seek to end is important so we are not wasting our time processing
@@ -47,7 +48,7 @@ def doit_seek_to_end(args):
     consumer.close()
 
 
-def doit(args, status_data):
+def doit(args, status_data):  # pylint: disable=redefined-outer-name
     """Seek consumer to end and store the offsets."""
     doit_seek_to_end(args)
 

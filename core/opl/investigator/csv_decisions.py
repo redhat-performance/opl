@@ -24,7 +24,7 @@ def store(filename, decisions):
             if k not in fieldnames:
                 fieldnames.append(k)
 
-    with open(filename, "w") as fp:
+    with open(filename, "w", encoding="utf-8") as fp:
         writer = csv.DictWriter(fp, fieldnames=fieldnames)
 
         writer.writeheader()

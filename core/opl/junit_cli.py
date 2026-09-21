@@ -29,8 +29,7 @@ class TestCaseWithProp(junitparser.TestCase):
         props = self.child(junitparser.Properties)
         if props is None:
             return
-        for prop in props:
-            yield prop
+        yield from props
 
     def add_property(self, name, value):
         """

@@ -62,7 +62,7 @@ class QPCTarballSlice:
         if self.dump_file is None:
             self.dump_file = os.path.join(dirname.name, self.id + ".json")
             logging.debug(f"Writing {self.dump_file}")
-            with open(self.dump_file, "w") as fp:
+            with open(self.dump_file, "w", encoding="utf-8") as fp:
                 json.dump({"report_slice_id": self.id, "hosts": self.hosts}, fp)
 
             # Store hosts count and free the memory now
@@ -118,7 +118,7 @@ class QPCTarball:
         }
 
         logging.debug(f"Writing {filename}")
-        with open(filename, "w") as fp:
+        with open(filename, "w", encoding="utf-8") as fp:
             json.dump(data, fp)
 
         return "metadata.json"

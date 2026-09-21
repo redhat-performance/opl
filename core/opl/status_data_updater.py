@@ -322,8 +322,8 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
         assert response["hits"]["total"]["value"] == 1
     try:
         source = response["hits"]["hits"][0]
-    except IndexError:
-        raise Exception(f"Failed to find test result in ES for {run_id}")
+    except IndexError as exc:
+        raise Exception(f"Failed to find test result in ES for {run_id}") from exc
     es_type = source["_type"]
     es_id = source["_id"]
     sd = _create_sd_from_es_response(source)
@@ -649,7 +649,7 @@ def doit_rp_backlog(args):
     # Start a session
     session = requests.Session()
 
-    with open(args.jobs_ownership_config, "r") as fp:
+    with open(args.jobs_ownership_config, "r", encoding="utf-8") as fp:
         launches_to_check = yaml.load(fp, Loader=yaml.Loader)
 
     data_per_owner = OrderedDict()

@@ -63,7 +63,7 @@ def _get_role():
 
 
 def _run_request(func, *args, **kwargs):
-    global ERRORS_COUNTER
+    global ERRORS_COUNTER  # pylint: disable=global-statement
     max_attempts = 30
     sleep = 10
     attempt = 0
@@ -94,8 +94,8 @@ def _check_response(response):
 
 def load_apps_and_perms(url_base, x_rh_identity, application=[]):  # pylint: disable=dangerous-default-value
     """Load applications and permissions from the RBAC API."""
-    global APPLICATIONS
-    global PERMISSIONS
+    global APPLICATIONS  # pylint: disable=global-statement
+    global PERMISSIONS  # pylint: disable=global-statement,global-variable-not-assigned
 
     url = f"{url_base}/permissions/"
     headers = {
@@ -210,7 +210,7 @@ def doit(rbac_test_data, args, status_data):
     """Create tenants and populate them per the RBAC test data."""
     url_base = f"{args.rbac_host}{args.rbac_url_suffix}"
 
-    global ERRORS_COUNTER
+    global ERRORS_COUNTER  # pylint: disable=global-statement,global-variable-not-assigned
 
     tenant_counter = 0
     group_counter = 0

@@ -90,7 +90,6 @@ class PluginBase:
 
     def set_args(self, parser, subparsers):
         """Register plugin CLI options (none in base class)."""
-        pass
 
 
 class PluginProw(PluginBase):
@@ -193,7 +192,7 @@ class PluginOpenSearch(PluginBase):
     def upload(self, args):
         """Upload input file as an OpenSearch document."""
         self.logger.info(f"Loading document {args.input_file}")
-        with open(args.input_file, "r") as fp:
+        with open(args.input_file, "r", encoding="utf-8") as fp:
             values = json.load(fp)
 
         args.matcher_field = args.matcher_field.removeprefix(".")
@@ -310,7 +309,7 @@ class PluginHorreum(PluginBase):
     def upload(self, args):
         """Upload input file results to a Horreum launch."""
         self.logger.debug(f"Loading file {args.input_file}")
-        with open(args.input_file, "r") as fd:
+        with open(args.input_file, "r", encoding="utf-8") as fd:
             self.input_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
@@ -432,7 +431,7 @@ class PluginHorreum(PluginBase):
     def result(self, args):
         """Upload a single result to Horreum."""
         self.logger.debug(f"Loading file {args.output_file}")
-        with open(args.output_file, "r") as fd:
+        with open(args.output_file, "r", encoding="utf-8") as fd:
             self.output_file = json.load(fd)
 
         self.logger.info("Preparing all the options")
@@ -526,7 +525,7 @@ class PluginHorreum(PluginBase):
         self.output_file["result"] = result
 
         print(f"Writing result to {args.output_file}: {self.output_file['result']}")
-        with open(args.output_file, "w") as fd:
+        with open(args.output_file, "w", encoding="utf-8") as fd:
             json.dump(self.output_file, fd, sort_keys=True, indent=4)
 
     def list(self, args):
@@ -1038,7 +1037,7 @@ class PluginResultsDashboard(PluginBase):
         self.input_file = None
         if args.input_file is not None:
             self.logger.info(f"Loading input file {args.input_file}")
-            with open(args.input_file, "r") as fd:
+            with open(args.input_file, "r", encoding="utf-8") as fd:
                 self.input_file = json.load(fd)
 
         self.logger.info("Preparing all the options")

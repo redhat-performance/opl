@@ -234,7 +234,7 @@ def gen_send_verify(args, status_data):
     status_data.set("parameters.inventory_db", inventory_db_conf)
 
     logging.info(f"Dumping data to file {args.data_file}")
-    with open(args.data_file, "w") as fp:
+    with open(args.data_file, "w", encoding="utf-8") as fp:
         json.dump(collect_info, fp, sort_keys=True, indent=4)
 
 

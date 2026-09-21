@@ -265,7 +265,7 @@ def get_kafka_times(custom_methods):
     parser.add_argument(
         "--max-quiet-period",
         type=int,
-        default=int(os.getenv("MAX_QUIET_PERIOD", 300)),
+        default=int(os.getenv("MAX_QUIET_PERIOD", "300")),
         help="Stop waiting for useful messages if none has appeared in this amount of seconds (also use env variable MAX_QUIET_PERIOD)",
     )
     parser.add_argument(

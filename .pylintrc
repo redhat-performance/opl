@@ -1,23 +1,25 @@
 [MAIN]
 # Structural / refactoring checks are tracked separately; keeping them here
 # would drown out actionable issues. Line length is deliberately not enforced,
-# matching .flake8 (which ignores E501).
+# matching .flake8 (which ignores E501). FIXME/TODO markers are tracked as
+# work items, not code issues.
 disable=
+    fixme,
     line-too-long,
     duplicate-code,
     too-few-public-methods,
-    too-many-arguments,
-    too-many-branches,
-    too-many-locals,
-    too-many-returns,
-    too-many-statements,
-    too-many-instance-attributes,
     too-many-lines,
-    too-many-public-methods,
     too-many-ancestors,
+    too-many-instance-attributes,
+    too-many-public-methods,
+    too-many-return-statements,
+    too-many-branches,
+    too-many-arguments,
+    too-many-locals,
+    too-many-statements,
     too-many-boolean-expressions,
-    too-many-nested-blocks,
-    too-many-positional-arguments
+    too-many-positional-arguments,
+    too-many-nested-blocks
 
 [REPORTS]
 score=y

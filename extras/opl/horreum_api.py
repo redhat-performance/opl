@@ -82,6 +82,7 @@ Usage:
 """
 
 import argparse
+import copy
 import json
 import logging
 import os
@@ -487,7 +488,7 @@ def load_field_config(
     if not os.path.exists(config_file):
         raise FileNotFoundError(f"Configuration file {config_file} not found")
 
-    with open(config_file, "r") as f:
+    with open(config_file, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     return config
@@ -1058,7 +1059,6 @@ def sync_change_detection_configs(
       - fixedThreshold: min/max enabled, value, inclusive settings
       - eDivisive: Hunter algorithm with automatic change point detection (no parameters)
     """
-    import copy
 
     logger.info("\nSynchronizing change detection configs with server...")
     server_variables = api.get_test_variables(test_id)
@@ -1763,7 +1763,7 @@ def main():
                         # The API replaces ALL variables, so we must send the complete list
                         all_variables = existing_variables + new_variables
 
-                        result = api.create_multiple_change_detection_variables(
+                        api.create_multiple_change_detection_variables(
                             test["id"], all_variables
                         )
                         created_variables = (
@@ -1949,7 +1949,7 @@ def main():
             "fields": fields,
         }
 
-        with open("horreum_config.json", "w") as f:
+        with open("horreum_config.json", "w", encoding="utf-8") as f:
             json.dump(output_config, f, indent=2)
 
         logger.info("\nConfiguration saved to horreum_config.json")
