@@ -296,7 +296,7 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
         # well and that is composed differently in SatCPT and in other
         # CPTs :-(
         if "itemPaths" not in result["pathNames"]:
-            raise Exception(
+            raise ValueError(
                 f"This result do not have result -> pathNames -> itemPaths, skipping it: {result}"
             )
         sd_name = f"{result['pathNames']['itemPaths'][0]['name']}/{result['name']}"
@@ -313,7 +313,7 @@ def _get_es_result_for_rp_result(session, args, run_id, result):
     try:
         source = response["hits"]["hits"][0]
     except IndexError as exc:
-        raise Exception(f"Failed to find test result in ES for {run_id}") from exc
+        raise KeyError(f"Failed to find test result in ES for {run_id}") from exc
     es_type = source["_type"]
     es_id = source["_id"]
     sd = _create_sd_from_es_response(source)
@@ -407,7 +407,7 @@ def doit_rp_to_es(args):
                 sd, es_type, es_id = _get_es_result_for_rp_result(
                     session, args, run_id, result
                 )
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logging.warning('Something went wrong when getting data for %s/%s: %s', run_id, result, e)
                 continue
 
@@ -440,7 +440,7 @@ def doit_rp_to_es(args):
                         ):  # 429 Client Error: Too Many Requests for url: http://.../<index>/_doc/...
                             attempt += 1
                             if attempt >= attempt_max:
-                                raise Exception(
+                                raise RuntimeError(
                                     f"Failed to update data in ES after {attempt} attempts: {response}"
                                 )
                             logging.info("Request failed with '429 Client Error: Too Many Requests'. Will retry in a bit. Attempt %s/%s", attempt, attempt_max)
@@ -856,4 +856,4 @@ def main():
         return doit_rp_to_dashboard_update(args)
     if args.action == "rp-backlog":
         return doit_rp_backlog(args)
-    raise Exception(f"Unknown action '{args.action}'")
+    raise ValueError(f"Unknown action '{args.action}'")

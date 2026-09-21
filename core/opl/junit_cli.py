@@ -90,7 +90,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         elif new["result"] == "ERROR":
             case.result = [junitparser.Error(new["message"])]
         else:
-            raise Exception(f"Invalid result {new['result']}")
+            raise ValueError(f"Invalid result {new['result']}")
 
         case.system_out = ""
         if new["system-out"]:
@@ -165,11 +165,11 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     elif isinstance(r, junitparser.junitparser.Skipped):
                         result = max(result, 1)
                     else:
-                        raise Exception(
+                        raise ValueError(
                             f"No idea how to handle this result type: {r} - {type(r)}"
                         )
                 else:
-                    raise Exception(
+                    raise ValueError(
                         f"No idea how to handle this case result: {case.result}"
                     )
         return RESULTS[result]
@@ -197,7 +197,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                 timeout=60,
             )
         if not res.ok:
-            raise Exception(res.text)
+            raise RuntimeError(res.text)
         logging.debug(res.text)
 
     def parse_ibutsu_metadata(self, metadata_list):
@@ -335,7 +335,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     result = "skipped"
                     issue = "ti001"
                 else:
-                    raise Exception(f"Unknown result for {case}: {case.result}")
+                    raise ValueError(f"Unknown result for {case}: {case.result}")
 
                 # Start child(container) item
                 url = f"https://{host}/api/v1/{project}/item/{suite_id}"
@@ -543,4 +543,4 @@ def main():
             args.metadata,
         )
     else:
-        raise Exception("I do not know what to do")
+        raise ValueError("I do not know what to do")

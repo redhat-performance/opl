@@ -25,7 +25,7 @@ def _check_response(logger, response):
     """Check if requests response is OKish and if not, log useful data and raise exception."""
     try:
         response.raise_for_status()
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
         logger.error('Request failed with text: %s', response.text)
         raise
 
@@ -76,10 +76,10 @@ def _figure_out_option(option, data):
         field = option[1:]
         value = _get_field_value(field, data)
         if value is None:
-            raise Exception(f"Can not load {field} in {option}")
+            raise ValueError(f"Can not load {field} in {option}")
         return value
     if option is None:
-        raise Exception("Some option was not provided")
+        raise ValueError("Some option was not provided")
     return option
 
 
@@ -113,7 +113,7 @@ class PluginProw(PluginBase):
     def download(self, args):
         """Download a Prow artifact to a local file."""
         if os.path.isfile(args.output_path):
-            raise Exception(
+            raise FileExistsError(
                 f"File {args.output_path} already present, refusing to overwrite it"
             )
 
@@ -200,7 +200,7 @@ class PluginOpenSearch(PluginBase):
         self.logger.info('Looking for field %s', args.matcher_field)
         matcher_value = _get_field_value(args.matcher_field, values)
         if matcher_value is None:
-            raise Exception(
+            raise ValueError(
                 f"Failed to load {args.matcher_field} from {args.input_file}"
             )
 
@@ -331,7 +331,7 @@ class PluginHorreum(PluginBase):
         self.logger.info('Looking for field %s', args.matcher_field)
         matcher_value = _get_field_value(args.matcher_field, self.input_file)
         if matcher_value is None:
-            raise Exception(
+            raise ValueError(
                 f"Failed to load {args.matcher_field} from {args.input_file}"
             )
 
@@ -389,7 +389,7 @@ class PluginHorreum(PluginBase):
                         run_data = response.json()
                         marker = _get_field_value(args.matcher_field, run_data)
                         return marker == matcher_value
-                    except (KeyError, Exception):
+                    except Exception:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                         # If matcher was not found or request failed, assume not a duplicate
                         return False
 
@@ -490,7 +490,7 @@ class PluginHorreum(PluginBase):
                     if len(changes) > 0:
                         return (True, alerting_variable, changes)
                     return (False, alerting_variable, None)
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     self.logger.warning('Error checking %s: %s', alerting_variable.get('name', 'unknown'), e)
                     return (False, alerting_variable, None)
 
@@ -715,7 +715,7 @@ class PluginHorreum(PluginBase):
                     return self.schema_label_add(args)
                 raise KeyError(f"Failed to find label with name {new_name}")
         else:
-            raise Exception("Either --update-by-id or --update-by-name have to be used")
+            raise ValueError("Either --update-by-id or --update-by-name have to be used")
 
         if new == label:
             self.logger.info('Proposed and current label %s in schema ID %s are same, nothing to change', label['id'], schema_id)

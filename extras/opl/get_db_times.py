@@ -203,7 +203,7 @@ class GetDbTimes:
                     print(
                         f"Unable to process {self._storage_count_applicable_hosts()} hosts"
                     )
-                    raise Exception(
+                    raise TimeoutError(
                         f"No new host added for too long ({delay}), giving up"
                     )
 

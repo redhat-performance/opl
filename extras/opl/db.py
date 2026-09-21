@@ -24,7 +24,7 @@ def get_query_result(db_conf, sql):
         connection.commit()
         cursor.close()
         return data
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
         logging.error('failed to execute query as %s', e)
         return False
 
@@ -41,7 +41,7 @@ def execute_query(db_conf, sql):
         connection.commit()
         cursor.close()
         return True
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
         logging.error('failed to execute query as %s', e)
         return False
 
@@ -102,7 +102,7 @@ def get_timedelta_between_columns(connection, columns, table="items"):
     in seconds (first - second).
     """
     if len(columns) != 2:
-        raise Exception("This function requires exactly 2 column names as input.")
+        raise ValueError("This function requires exactly 2 column names as input.")
     queryfrom = (
         f"SELECT EXTRACT (EPOCH FROM({columns[0]} - {columns[1]})) FROM {table}"
     )

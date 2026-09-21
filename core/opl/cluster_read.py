@@ -60,7 +60,7 @@ def _debug_response(r):
     logging.error("Response headers = %s", redact_sensitive_headers(r.headers))
     logging.error("Response status code = %s", r.status_code)
     logging.error("Response content = %s", r.content[:500])
-    raise Exception("Request failed")
+    raise RuntimeError("Request failed")
 
 
 def dir_path(path):
@@ -114,10 +114,10 @@ class PrometheusMeasurementsPlugin(BasePlugin):
         if self.args.prometheus_token is None:
             self.args.prometheus_token = execute("oc whoami -t")
             if self.args.prometheus_token is None:
-                raise Exception("Failsed to get token")
+                raise RuntimeError("Failsed to get token")
         return self.args.prometheus_token
 
-    def measure(self, ri, name, monitoring_query, monitoring_step):
+    def measure(self, ri, name, monitoring_query, monitoring_step):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         logging.debug('/Getting data for %s using Prometheus query %s and step %s', name, monitoring_query, monitoring_step)
 
         assert (
@@ -246,7 +246,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         return r.json()
 
     @retry.retry_on_traceback(max_attempts=10, wait_seconds=1)
-    def measure(
+    def measure(  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         self,
         ri,
         name,
@@ -328,13 +328,13 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
         try:
             return self._measure_batched(ri, config_items)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logging.warning('Batch request failed (%s), falling back to individual queries for %s targets', e, len(config_items))
             results = []
             for item in config_items:
                 try:
                     results.append(self.measure(ri, **item))
-                except Exception as e2:
+                except Exception as e2:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     logging.exception('Failed to measure %s: %s', item['name'], e2)
                     results.append((None, None))
             return results
@@ -388,7 +388,7 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         """Format a metric query for the Performance Insights API."""
         return [{"Metric": metric_query}]
 
-    def measure(self, requested_info, name, identifier, metric_query, metric_step):
+    def measure(self, requested_info, name, identifier, metric_query, metric_step):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         logging.debug('/Getting data for %s using PI query %s with monitoring interval %s', identifier, metric_query, metric_step)
 
         assert (
@@ -458,7 +458,7 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
 class ConstantPlugin(BasePlugin):
     """Store a constant value as a measurement."""
 
-    def measure(self, ri, name, constant):
+    def measure(self, ri, name, constant):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Just store given constant
         """
@@ -468,7 +468,7 @@ class ConstantPlugin(BasePlugin):
 class EnvironmentPlugin(BasePlugin):
     """Read an environment variable as a measurement."""
 
-    def measure(self, ri, name, env_variable):
+    def measure(self, ri, name, env_variable):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Just get value of given environment variable
         """
@@ -478,7 +478,7 @@ class EnvironmentPlugin(BasePlugin):
 class CommandPlugin(BasePlugin):
     """Execute a command and store its output as a measurement."""
 
-    def measure(self, ri, name, command, output="text"):
+    def measure(self, ri, name, command, output="text"):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Execute command "command" and return result as per its "output" configuration
         """
@@ -494,7 +494,7 @@ class CommandPlugin(BasePlugin):
             elif output == "yaml":
                 result = yaml.load(result, Loader=yaml.SafeLoader)
             else:
-                raise Exception(f"Unexpected output type '{output}' for '{name}'")
+                raise ValueError(f"Unexpected output type '{output}' for '{name}'")
 
         return name, result
 
@@ -502,7 +502,7 @@ class CommandPlugin(BasePlugin):
 class CountLinePlugin(BasePlugin):
     """Count lines matching a pattern in command output."""
 
-    def measure(
+    def measure(  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         self,
         ri,
         config,
@@ -535,7 +535,7 @@ class CountLinePlugin(BasePlugin):
 class CopyFromPlugin(BasePlugin):
     """Copy value of a previously answered item."""
 
-    def measure(self, ri, name, copy_from):
+    def measure(self, ri, name, copy_from):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Just return value from previously answered item
         """
@@ -547,7 +547,7 @@ class CopyFromPlugin(BasePlugin):
 class TestFailMePlugin(BasePlugin):
     """Plugin that always fails; meant for tests only."""
 
-    def measure(self, _ri, _name, **_kwargs):
+    def measure(self, _ri, _name, **_kwargs):  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
         """
         Just raise an exception. Mean for tests only.
         """
@@ -646,7 +646,7 @@ class RequestedInfo:
         for name, plugin in PLUGINS.items():
             try:
                 self.register_measurement_plugin(name, plugin(args))
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logging.warning('Failed to register plugin %s: %s', name, e)
 
     def register_measurement_plugin(self, key, instance):
@@ -685,7 +685,7 @@ class RequestedInfo:
         instance = self._find_plugin(self.config[i].keys())
         if not instance:
             self._index += 1
-            raise Exception(f"Unknown config '{self.config[i]}'")
+            raise ValueError(f"Unknown config '{self.config[i]}'")
 
         # Group consecutive items handled by the same plugin if it
         # supports measure_many()
@@ -717,7 +717,7 @@ class RequestedInfo:
         except NoDataException as e:
             logging.warning('Failed to measure %s: %s', self.config[i]['name'], e)
             output = (None, None)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logging.exception('Failed to measure %s: %s', self.config[i]['name'], e)
             output = (None, None)
         return output
