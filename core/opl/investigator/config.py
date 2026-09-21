@@ -73,52 +73,44 @@ def render_sets(args, template_data):
         finalize_sets(args)
         return
 
-    logging.debug(
-        f"Rendering Jinja2 template sets {args.sets} with data {template_data}"
-    )
+    logging.debug('Rendering Jinja2 template sets %s with data %s', args.sets, template_data)
     env = jinja2.Environment(loader=jinja2.DictLoader({"sets": args.sets}))
     template = env.get_template("sets")
     rendered = template.render(template_data)
-    logging.debug(f"Rendered Jinja2 template sets {rendered}")
+    logging.debug('Rendered Jinja2 template sets %s', rendered)
     args.sets = yaml.load(rendered, Loader=yaml.SafeLoader)
     finalize_sets(args)
 
 
 def render_query(args, template_data):
     """Render a query string with template data."""
-    logging.debug(
-        f"Rendering Jinja2 template query {args.history_es_query} with data {template_data}"
-    )
+    logging.debug('Rendering Jinja2 template query %s with data %s', args.history_es_query, template_data)
     env = jinja2.Environment(loader=jinja2.DictLoader({"query": args.history_es_query}))
     template = env.get_template("query")
     rendered = template.render(template_data)
-    logging.debug(f"Rendered Jinja2 template query {rendered}")
+    logging.debug('Rendered Jinja2 template query %s', rendered)
     args.history_es_query = yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
 def render_pg_query(args, template_data):
     """Render a PostgreSQL query with template data."""
-    logging.debug(
-        f"Rendering Jinja2 template pg_query {args.history_pg_query} with data {template_data}"
-    )
+    logging.debug('Rendering Jinja2 template pg_query %s with data %s', args.history_pg_query, template_data)
     env = jinja2.Environment(loader=jinja2.DictLoader({"query": args.history_pg_query}))
     template = env.get_template("query")
     rendered = template.render(template_data)
-    logging.debug(f"Rendered Jinja2 template pg_query {rendered}")
+    logging.debug('Rendered Jinja2 template pg_query %s', rendered)
     args.history_pg_query = rendered
 
 
 def render_matchers(args, template_data):
     """Render data matchers with template data."""
-    logging.debug(
-        f"Rendering Jinja2 template matchers {args.history_matchers} with data {template_data}"
-    )
+    logging.debug('Rendering Jinja2 template matchers %s with data %s', args.history_matchers, template_data)
     env = jinja2.Environment(
         loader=jinja2.DictLoader({"matchers": args.history_matchers})
     )
     template = env.get_template("matchers")
     rendered = template.render(template_data)
-    logging.debug(f"Rendered Jinja2 template matchers {rendered}")
+    logging.debug('Rendered Jinja2 template matchers %s', rendered)
     args.history_matchers = yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
@@ -139,7 +131,7 @@ def load_config(conf, fp):
     Load config from yaml file pointer and add to conf which is an ArgParser namespace
     """
     data = yaml.load(fp, Loader=yaml.SafeLoader)
-    logging.debug(f"Loaded config from {fp.name}: {data}")
+    logging.debug('Loaded config from %s: %s', fp.name, data)
 
     conf.history_type = data["history"]["type"]
     conf.current_type = data["current"]["type"]

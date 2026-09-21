@@ -24,7 +24,7 @@ class RbacTestData:
         """Save the data to a JSON file."""
         if filename is not None:
             if os.path.exists(filename):
-                logging.warning(f"File {filename} already exists. Overwriting it.")
+                logging.warning('File %s already exists. Overwriting it.', filename)
             self.filename = filename
         if self.filename is None:
             raise Exception("Where should I save to?")

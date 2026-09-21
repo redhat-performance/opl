@@ -129,7 +129,7 @@ def doit(args):
 
     total = sum(len(v) for v in history.values())
     if total == 0:
-        logging.info(f"Current result metrics: {current}")
+        logging.info('Current result metrics: %s', current)
         logging.fatal("No data available in historical results!")
         sys.exit(1)
 
@@ -145,7 +145,7 @@ def doit(args):
                 methods, history[var], current[var], description=var
             )
         except Exception as e:
-            logging.exception(f"Check on {var} failed with: {e}")
+            logging.exception('Check on %s failed with: %s', var, e)
             info_all.append({"result": "ERROR", "exception": str(e)})
             summary_this = collections.OrderedDict(
                 [("data set", var), ("exception", str(e))]
@@ -235,7 +235,7 @@ def doit(args):
             result = "FAIL"
         else:
             result = "ERROR"
-        logging.info(f"In {current_sd} setting result to {result}")
+        logging.info('In %s setting result to %s', current_sd, result)
         current_sd.set("result", result)
         current_sd.save()
 
@@ -276,6 +276,6 @@ def main():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug(f"Args: {args}")
+    logging.debug('Args: %s', args)
 
     sys.exit(doit(args))

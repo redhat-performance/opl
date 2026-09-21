@@ -43,7 +43,7 @@ class GenericGenerator:
         )
         self.template = self.env.get_template(self.template_file)
 
-        logging.info(f"Created {self}")
+        logging.info('Created %s', self)
 
     def __repr__(self):
         return f"<GenricGenerator({self.count}, {self.template_file}, {self.dump_message})>"

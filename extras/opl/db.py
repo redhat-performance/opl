@@ -25,7 +25,7 @@ def get_query_result(db_conf, sql):
         cursor.close()
         return data
     except Exception as e:
-        logging.error(f"failed to execute query as {e!s}")
+        logging.error('failed to execute query as %s', e)
         return False
 
 
@@ -42,7 +42,7 @@ def execute_query(db_conf, sql):
         cursor.close()
         return True
     except Exception as e:
-        logging.error(f"failed to execute query as {e!s}")
+        logging.error('failed to execute query as %s', e)
         return False
 
 
@@ -54,9 +54,7 @@ def connect_with_retry(db_conf, cattempt=1, cmax=100, csleep=5):
         except psycopg2.OperationalError as e:
             if cattempt >= cmax:
                 raise
-            logging.warning(
-                f"Failed to connect to the DB in attempt {cattempt} of {cmax}: {e!s}"
-            )
+            logging.warning('Failed to connect to the DB in attempt %s of %s: %s', cattempt, cmax, e)
             time.sleep(random.random() * csleep)
             cattempt += 1
 
@@ -69,7 +67,7 @@ def get_column(connection, column, include_null=False, table="items"):
     queryfrom = f"SELECT {column} FROM {table}"
     querycondition = f" WHERE {column} IS NOT NULL"
     sql = f"{queryfrom} {querycondition}" if not include_null else queryfrom
-    logging.debug(f"Executing {sql}")
+    logging.debug('Executing %s', sql)
     cursor = connection.cursor()
     cursor.execute(sql)
     results = cursor.fetchall()
@@ -81,7 +79,7 @@ def get_column_min_max(connection, column, table="items"):
     Return min and max from the column
     """
     sql = f"SELECT MIN({column}), MAX({column}) FROM {table} WHERE {column} IS NOT NULL"
-    logging.debug(f"Executing {sql}")
+    logging.debug('Executing %s', sql)
     cursor = connection.cursor()
     cursor.execute(sql)
     result = cursor.fetchone()
@@ -91,7 +89,7 @@ def get_column_min_max(connection, column, table="items"):
 def get_timestamps(connection, column, table="items"):
     """Return (min, max) of the given timestamp column."""
     sql = f"SELECT EXTRACT (EPOCH FROM {column}) as {column} FROM {table} WHERE {column} IS NOT NULL"
-    logging.debug(f"Executing {sql}")
+    logging.debug('Executing %s', sql)
     cursor = connection.cursor()
     cursor.execute(sql)
     results = cursor.fetchall()
@@ -110,7 +108,7 @@ def get_timedelta_between_columns(connection, columns, table="items"):
     )
     querycondition = f" WHERE {columns[0]} IS NOT NULL AND {columns[1]} IS NOT NULL"
     sql = f"{queryfrom} {querycondition}"
-    logging.debug(f"Executing {sql}")
+    logging.debug('Executing %s', sql)
     cursor = connection.cursor()
     cursor.execute(sql)
     return [i[0] for i in cursor.fetchall()]
@@ -147,7 +145,7 @@ class BatchProcessor:
 
     def commit(self):
         """Commit buffered rows (no-op if buffer is empty)."""
-        logging.debug(f"Executing '{self.sql}' with {len(self.data)} rows of data")
+        logging.debug("Executing '%s' with %s rows of data", self.sql, len(self.data))
         cursor = self.db.cursor()
 
         if self.lock is not None:

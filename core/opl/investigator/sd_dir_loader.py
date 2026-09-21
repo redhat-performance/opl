@@ -9,10 +9,10 @@ import opl.status_data
 def _matches(sd, matchers):
     for key, val in matchers.items():
         if sd.get(key) != val:
-            logging.debug(f"File {sd} key {key} does not match {val} != {sd.get(key)}")
+            logging.debug('File %s key %s does not match %s != %s', sd, key, val, sd.get(key))
             return False
 
-    logging.debug(f"File {sd} matches with matchers {matchers}")
+    logging.debug('File %s matches with matchers %s', sd, matchers)
     return True
 
 
@@ -36,5 +36,5 @@ def load(data_dir, data_matchers, paths):
                     if tmp is not None:
                         out[path].append(tmp)
 
-    logging.debug(f"Loaded {out}")
+    logging.debug('Loaded %s', out)
     return out

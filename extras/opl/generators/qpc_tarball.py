@@ -61,7 +61,7 @@ class QPCTarballSlice:
         """Dump the slice to a JSON file, return its path."""
         if self.dump_file is None:
             self.dump_file = os.path.join(dirname.name, self.id + ".json")
-            logging.debug(f"Writing {self.dump_file}")
+            logging.debug('Writing %s', self.dump_file)
             with open(self.dump_file, "w", encoding="utf-8") as fp:
                 json.dump({"report_slice_id": self.id, "hosts": self.hosts}, fp)
 
@@ -118,7 +118,7 @@ class QPCTarball:
             },
         }
 
-        logging.debug(f"Writing {filename}")
+        logging.debug('Writing %s', filename)
         with open(filename, "w", encoding="utf-8") as fp:
             json.dump(data, fp)
 
@@ -140,7 +140,7 @@ class QPCTarball:
                 tar.add(os.path.basename(name))
         os.chdir(orig_cwd)
 
-        logging.info(f"Wrote {self.filename}")
+        logging.info('Wrote %s', self.filename)
 
         return self.filename
 

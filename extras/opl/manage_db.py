@@ -19,12 +19,12 @@ def execute_query(connection, query):
     try:
         cursor.execute(query)
     except psycopg2.ProgrammingError as e:
-        logging.error(f"Failed to execute query {query}: {e}")
+        logging.error('Failed to execute query %s: %s', query, e)
         return None
     count = cursor.fetchone()[0]
     cursor.close()
     connection.commit()
-    logging.debug(f"Query {query} returned {count}")
+    logging.debug('Query %s returned %s', query, count)
     return count
 
 
@@ -63,11 +63,11 @@ def truncate_table(connection, table):
     """Truncate a table."""
     cursor = connection.cursor()
 
-    logging.debug(f"Truncating table {table}")
+    logging.debug('Truncating table %s', table)
     try:
         cursor.execute(f"TRUNCATE TABLE {table}")
     except psycopg2.ProgrammingError as e:
-        logging.error(f"Failed to truncate table {table}: {e}")
+        logging.error('Failed to truncate table %s: %s', table, e)
     else:
         connection.commit()
 
@@ -79,15 +79,15 @@ def recreate_table(connection, table, table_sql):
     """
     cursor = connection.cursor()
 
-    logging.debug(f"Dropping table {table}")
+    logging.debug('Dropping table %s', table)
     try:
         cursor.execute(f"DROP TABLE {table}")
     except (psycopg2.InternalError, UndefinedTable) as e:
-        logging.error(f"Failed to drop {table}: {e}")
+        logging.error('Failed to drop %s: %s', table, e)
         cursor = connection.cursor()
     connection.commit()
 
-    logging.debug(f"Creating table {table}")
+    logging.debug('Creating table %s', table)
     for sql in table_sql:
         cursor.execute(sql)
     connection.commit()
@@ -99,7 +99,7 @@ def null_column(connection, table, column):
     """
     cursor = connection.cursor()
 
-    logging.debug(f"Setting {table}.{column} to NULL")
+    logging.debug('Setting %s.%s to NULL', table, column)
     cursor.execute(f"UPDATE {table} SET {column} = NULL")
     connection.commit()
 

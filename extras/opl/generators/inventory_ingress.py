@@ -199,9 +199,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 )
             if self.per_account_data_add_filed not in account_data:
                 account_data[self.per_account_data_add_filed] = []
-            logging.debug(
-                f"Adding {self.per_account_data_add_filed}={data[self.per_account_data_add_filed]} to per account data file for account {data['account']}"
-            )
+            logging.debug('Adding %s=%s to per account data file for account %s', self.per_account_data_add_filed, data[self.per_account_data_add_filed], data['account'])
             account_data[self.per_account_data_add_filed].append(
                 data[self.per_account_data_add_filed]
             )

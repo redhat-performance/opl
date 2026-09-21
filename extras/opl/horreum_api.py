@@ -138,10 +138,7 @@ class HorreumAPI:
     def update_test(self, test_data: dict[str, Any]) -> dict[str, Any]:
         """Update an existing test in Horreum"""
         if self.dry_run:
-            logger.info(
-                f"[DRY RUN] Would update test: {test_data.get('name', 'N/A')} "
-                f"(ID: {test_data.get('id', 'N/A')})"
-            )
+            logger.info('[DRY RUN] Would update test: %s (ID: %s)', test_data.get('name', 'N/A'), test_data.get('id', 'N/A'))
             return test_data
 
         url = f"{self.base_url}/api/test"
@@ -152,16 +149,16 @@ class HorreumAPI:
     def create_schema(self, schema_data: dict[str, Any]) -> int:
         """Create a new schema in Horreum"""
         url = f"{self.base_url}/api/schema"
-        logger.info(f"Creating schema at: {url}")
+        logger.info('Creating schema at: %s', url)
         try:
             response = self.session.post(url, json=schema_data)
             response.raise_for_status()
             return response.json()  # Returns schema ID
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Schema creation failed: {e.response.status_code}")
-            logger.error(f"Response text: {e.response.text}")
-            logger.error(f"Schema data keys: {list(schema_data.keys())}")
-            logger.error(f"Schema URI: {schema_data.get('uri', 'N/A')}")
+            logger.error('Schema creation failed: %s', e.response.status_code)
+            logger.error('Response text: %s', e.response.text)
+            logger.error('Schema data keys: %s', list(schema_data.keys()))
+            logger.error('Schema URI: %s', schema_data.get('uri', 'N/A'))
 
             # Re-raise with the response text for easier handling
             raise Exception(f"Schema creation failed: {e.response.text}") from e
@@ -172,12 +169,10 @@ class HorreumAPI:
         """Create a label for a schema"""
         if self.dry_run:
             logger.info("[DRY RUN] Would create label:")
-            logger.info(f"   Name: {label_data.get('name', 'N/A')}")
-            logger.info(
-                f"   JSONPath: {label_data.get('extractors', [{}])[0].get('jsonpath', 'N/A')}"
-            )
-            logger.info(f"   Schema ID: {schema_id}")
-            logger.info(f"   URL: POST {self.base_url}/api/schema/{schema_id}/labels")
+            logger.info('   Name: %s', label_data.get('name', 'N/A'))
+            logger.info('   JSONPath: %s', label_data.get('extractors', [{}])[0].get('jsonpath', 'N/A'))
+            logger.info('   Schema ID: %s', schema_id)
+            logger.info('   URL: POST %s/api/schema/%s/labels', self.base_url, schema_id)
             # Return a mock response for dry run
             return {
                 "id": 777,  # Mock ID
@@ -201,11 +196,9 @@ class HorreumAPI:
         """Delete a label from a schema"""
         if self.dry_run:
             logger.info("[DRY RUN] Would delete label:")
-            logger.info(f"   Label ID: {label_id}")
-            logger.info(f"   Schema ID: {schema_id}")
-            logger.info(
-                f"   URL: DELETE {self.base_url}/api/schema/{schema_id}/labels/{label_id}"
-            )
+            logger.info('   Label ID: %s', label_id)
+            logger.info('   Schema ID: %s', schema_id)
+            logger.info('   URL: DELETE %s/api/schema/%s/labels/%s', self.base_url, schema_id, label_id)
             return True
 
         try:
@@ -214,11 +207,11 @@ class HorreumAPI:
             response.raise_for_status()
             return True
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Failed to delete label {label_id}: {e.response.status_code}")
-            logger.error(f"Response text: {e.response.text}")
+            logger.error('Failed to delete label %s: %s', label_id, e.response.status_code)
+            logger.error('Response text: %s', e.response.text)
             return False
         except Exception as e:
-            logger.error(f"Error deleting label {label_id}: {e}")
+            logger.error('Error deleting label %s: %s', label_id, e)
             return False
 
     def get_schema_by_name(self, schema_name: str) -> dict[str, Any]:
@@ -237,17 +230,17 @@ class HorreumAPI:
                 # Response is directly a list
                 schemas = response_data
             else:
-                logger.info(f"Unexpected schema response format: {type(response_data)}")
+                logger.info('Unexpected schema response format: %s', type(response_data))
                 keys = (
                     list(response_data.keys())
                     if isinstance(response_data, dict)
                     else "Not a dict"
                 )
-                logger.info(f"Response keys: {keys}")
+                logger.info('Response keys: %s', keys)
                 return None
 
             if not isinstance(schemas, list):
-                logger.info(f"Unexpected schema list format: {type(schemas)}")
+                logger.info('Unexpected schema list format: %s', type(schemas))
                 return None
 
             for schema in schemas:
@@ -255,7 +248,7 @@ class HorreumAPI:
                     return schema
             return None
         except Exception as e:
-            logger.warning(f"Warning: Could not retrieve schemas: {e}")
+            logger.warning('Warning: Could not retrieve schemas: %s', e)
             return None
 
     def get_test_by_name(self, test_name: str) -> dict[str, Any]:
@@ -274,13 +267,13 @@ class HorreumAPI:
                 # Response is directly a list
                 tests = response_data
             else:
-                logger.info(f"Unexpected test response format: {type(response_data)}")
+                logger.info('Unexpected test response format: %s', type(response_data))
                 if isinstance(response_data, dict):
-                    logger.info(f"Response keys: {list(response_data.keys())}")
+                    logger.info('Response keys: %s', list(response_data.keys()))
                 return None
 
             if not isinstance(tests, list):
-                logger.info(f"Unexpected test list format: {type(tests)}")
+                logger.info('Unexpected test list format: %s', type(tests))
                 return None
 
             for test in tests:
@@ -288,7 +281,7 @@ class HorreumAPI:
                     return test
             return None
         except Exception as e:
-            logger.warning(f"Warning: Could not retrieve tests: {e}")
+            logger.warning('Warning: Could not retrieve tests: %s', e)
             return None
 
     def create_change_detection_variable(
@@ -302,8 +295,8 @@ class HorreumAPI:
         # Convert to the correct format - API expects array of variables
         variables_array = [variable_data]
 
-        logger.info(f"Creating variable at: {url}?test={test_id}")
-        logger.info(f"Variable data: {json.dumps(variable_data, indent=2)}")
+        logger.info('Creating variable at: %s?test=%s', url, test_id)
+        logger.info('Variable data: %s', json.dumps(variable_data, indent=2))
 
         try:
             response = self.session.post(url, params=params, json=variables_array)
@@ -328,8 +321,8 @@ class HorreumAPI:
                 }
 
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Failed with {e.response.status_code}: {e}")
-            logger.error(f"Response text: {e.response.text}")
+            logger.error('Failed with %s: %s', e.response.status_code, e)
+            logger.error('Response text: %s', e.response.text)
             raise
 
     def get_test_variables(self, test_id: int) -> list[dict[str, Any]]:
@@ -337,17 +330,17 @@ class HorreumAPI:
         # Use the correct endpoint and parameter name based on OpenAPI spec
         url = f"{self.base_url}/api/alerting/variables"
         params = {"test": test_id}  # Parameter name is "test", not "testId"
-        logger.info(f"Getting variables from: {url}?test={test_id}")
+        logger.info('Getting variables from: %s?test=%s', url, test_id)
 
         try:
             response = self.session.get(url, params=params)
             response.raise_for_status()
             variables = response.json()
-            logger.info(f"Retrieved {len(variables)} variables")
+            logger.info('Retrieved %s variables', len(variables))
             return variables
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Failed to get variables: {e.response.status_code}")
-            logger.error(f"Response text: {e.response.text}")
+            logger.error('Failed to get variables: %s', e.response.status_code)
+            logger.error('Response text: %s', e.response.text)
             # Return empty list but don't crash - this is not critical
             logger.warning("Could not get variables, returning empty list")
             return []
@@ -360,47 +353,43 @@ class HorreumAPI:
         variables with any desired modifications.
         """
         if self.dry_run:
-            logger.info(
-                f"[DRY RUN] Would update {len(variables)} variables for test {test_id}"
-            )
+            logger.info('[DRY RUN] Would update %s variables for test %s', len(variables), test_id)
             return True
 
         url = f"{self.base_url}/api/alerting/variables"
         params = {"test": test_id}
 
-        logger.info(f"Updating variables at: {url}?test={test_id}")
-        logger.info(f"Sending {len(variables)} variables to server")
+        logger.info('Updating variables at: %s?test=%s', url, test_id)
+        logger.info('Sending %s variables to server', len(variables))
 
         # Debug: Show a summary of what we're sending
         for i, var in enumerate(variables):
             var_name = var.get("name", "unnamed")
             has_cd = bool(var.get("changeDetection"))
             cd_count = len(var.get("changeDetection", []))
-            logger.info(
-                f"  [{i + 1}] {var_name} (changeDetection: {has_cd}, entries: {cd_count})"
-            )
+            logger.info('  [%s] %s (changeDetection: %s, entries: %s)', i + 1, var_name, has_cd, cd_count)
 
         try:
             response = self.session.post(url, params=params, json=variables)
-            logger.info(f"Server response: {response.status_code}")
+            logger.info('Server response: %s', response.status_code)
 
             if response.status_code == 200:
                 try:
                     result = response.json()
-                    logger.info(f"Update successful. Response: {result}")
+                    logger.info('Update successful. Response: %s', result)
                 except (ValueError, json.JSONDecodeError):
                     logger.info("Update successful (no JSON response)")
                 return True
             response.raise_for_status()
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to update variables: {e}")
+            logger.error('Failed to update variables: %s', e)
             if hasattr(e, "response") and e.response:
-                logger.error(f"   Status code: {e.response.status_code}")
-                logger.error(f"   Response text: {e.response.text[:500]}")
+                logger.error('   Status code: %s', e.response.status_code)
+                logger.error('   Response text: %s', e.response.text[:500])
             return False
         except Exception as e:
-            logger.error(f"Failed to update variables: {e}")
+            logger.error('Failed to update variables: %s', e)
             return False
 
         return True
@@ -409,10 +398,8 @@ class HorreumAPI:
         """Delete a change detection variable"""
         if self.dry_run:
             logger.info("[DRY RUN] Would delete variable:")
-            logger.info(f"   Variable ID: {variable_id}")
-            logger.info(
-                f"   URL: DELETE {self.base_url}/api/alerting/variables/{variable_id}"
-            )
+            logger.info('   Variable ID: %s', variable_id)
+            logger.info('   URL: DELETE %s/api/alerting/variables/%s', self.base_url, variable_id)
             return True
 
         try:
@@ -421,13 +408,11 @@ class HorreumAPI:
             response.raise_for_status()
             return True
         except requests.exceptions.HTTPError as e:
-            logger.error(
-                f"Failed to delete variable {variable_id}: {e.response.status_code}"
-            )
-            logger.error(f"Response text: {e.response.text}")
+            logger.error('Failed to delete variable %s: %s', variable_id, e.response.status_code)
+            logger.error('Response text: %s', e.response.text)
             return False
         except Exception as e:
-            logger.error(f"Error deleting variable {variable_id}: {e}")
+            logger.error('Error deleting variable %s: %s', variable_id, e)
             return False
 
     def create_multiple_change_detection_variables(self, test_id, variables_data):
@@ -437,35 +422,25 @@ class HorreumAPI:
         To preserve existing variables, you must include them in variables_data.
         """
         if self.dry_run:
-            logger.info(
-                f"[DRY RUN] Would update/replace ALL variables with {len(variables_data)} total variables:"
-            )
+            logger.info('[DRY RUN] Would update/replace ALL variables with %s total variables:', len(variables_data))
             for i, var in enumerate(variables_data[:10]):  # Show first 10
-                logger.info(
-                    f"   {i + 1}. {var.get('name', 'N/A')} (group: {var.get('group', 'N/A')})"
-                )
+                logger.info('   %s. %s (group: %s)', i + 1, var.get('name', 'N/A'), var.get('group', 'N/A'))
             if len(variables_data) > 10:
-                logger.info(f"   ... and {len(variables_data) - 10} more")
-            logger.info(f"   Test ID: {test_id}")
-            logger.info(
-                f"   URL: POST {self.base_url}/api/alerting/variables?test={test_id}"
-            )
+                logger.info('   ... and %s more', len(variables_data) - 10)
+            logger.info('   Test ID: %s', test_id)
+            logger.info('   URL: POST %s/api/alerting/variables?test=%s', self.base_url, test_id)
             return {"status": "success", "message": "Variables would be updated"}
 
         url = f"{self.base_url}/api/alerting/variables"
         params = {"test": test_id}
 
-        logger.info(
-            f"Updating/replacing ALL variables with {len(variables_data)} total variables at: {url}"
-        )
+        logger.info('Updating/replacing ALL variables with %s total variables at: %s', len(variables_data), url)
         # Note: Detailed variable data output removed to avoid excessive logging
 
         response = self.session.post(url, json=variables_data, params=params)
 
         if response.status_code in [200, 201, 204]:  # All success codes
-            logger.info(
-                f"Variables updated successfully (status: {response.status_code})"
-            )
+            logger.info('Variables updated successfully (status: %s)', response.status_code)
             try:
                 return (
                     response.json()
@@ -475,8 +450,8 @@ class HorreumAPI:
             except (ValueError, json.JSONDecodeError):
                 return {"status": "success", "message": "Variables updated"}
         else:
-            logger.error(f"Failed to update variables: {response.status_code}")
-            logger.info(f"Response: {response.text}")
+            logger.error('Failed to update variables: %s', response.status_code)
+            logger.info('Response: %s', response.text)
             response.raise_for_status()
             return None  # unreachable: raise_for_status() raises
 
@@ -654,13 +629,9 @@ def create_fingerprint_labels(fields: list[dict[str, Any]]) -> list[str]:
         label_name = field.get("label_name") or field.get("name")
         if label_name:
             fingerprint_labels.append(label_name)
-            logger.info(
-                f"Added '{label_name}' to fingerprint labels (filtering=true, no change detection)"
-            )
+            logger.info("Added '%s' to fingerprint labels (filtering=true, no change detection)", label_name)
 
-    logger.info(
-        f"Generated {len(fingerprint_labels)} fingerprint labels: {fingerprint_labels}"
-    )
+    logger.info('Generated %s fingerprint labels: %s', len(fingerprint_labels), fingerprint_labels)
     return fingerprint_labels
 
 
@@ -700,16 +671,12 @@ def create_test_definition(
         # YAML config has priority - use the explicitly defined labels with __ prefix
         prefixed_labels = [f"__{label}" for label in yaml_fingerprint_labels]
         test_def["fingerprintLabels"] = prefixed_labels
-        logger.info(
-            f"Using fingerprintLabels from YAML configuration: {yaml_fingerprint_labels} -> {prefixed_labels}"
-        )
+        logger.info('Using fingerprintLabels from YAML configuration: %s -> %s', yaml_fingerprint_labels, prefixed_labels)
     else:
         # No fingerprintLabels in YAML, generate them dynamically from fields
         fingerprint_labels = create_fingerprint_labels(fields)
         if fingerprint_labels:
-            logger.info(
-                f"Setting dynamic fingerprintLabels (no YAML config found): {fingerprint_labels}"
-            )
+            logger.info('Setting dynamic fingerprintLabels (no YAML config found): %s', fingerprint_labels)
             test_def["fingerprintLabels"] = fingerprint_labels
         else:
             logger.info(
@@ -1068,7 +1035,7 @@ def sync_change_detection_configs(
         logger.info("No variables found on server. Nothing to synchronize.")
         return
 
-    logger.info(f"Found {len(server_variables)} variables on server")
+    logger.info('Found %s variables on server', len(server_variables))
 
     # Make a deep copy to avoid modifying original data
     variables_to_update = copy.deepcopy(server_variables)
@@ -1081,7 +1048,7 @@ def sync_change_detection_configs(
         if isinstance(v, dict) and v.get("name")
     }
 
-    logger.info(f"Variables by name: {list(vars_by_name.keys())}")
+    logger.info('Variables by name: %s', list(vars_by_name.keys()))
 
     # Track updates
     updated_names: list[str] = []
@@ -1095,11 +1062,11 @@ def sync_change_detection_configs(
 
         var_name = field.get("label_name")
         if not var_name:
-            logger.info(f"Field missing label_name: {field}")
+            logger.info('Field missing label_name: %s', field)
             continue
 
         if var_name not in vars_by_name:
-            logger.info(f"Variable '{var_name}' not found on server")
+            logger.info("Variable '%s' not found on server", var_name)
             continue
 
         desired = _resolve_group_config(config, group)
@@ -1118,7 +1085,7 @@ def sync_change_detection_configs(
             cd_list = [cd_entry]
             variable["changeDetection"] = cd_list
             # Only log when creating new entries
-            logger.info(f"Created new CD entry for {var_name}: {cd_entry}")
+            logger.info('Created new CD entry for %s: %s', var_name, cd_entry)
 
         # Determine model type from existing or desired configuration
         current_model = cd_entry.get("model", "relativeDifference")
@@ -1130,13 +1097,11 @@ def sync_change_detection_configs(
 
         if _needs_update(existing_values, desired):
             # Only show verbose logging for variables that need updates
-            logger.info(
-                f"Processing variable '{var_name}' with group '{group}': desired={desired}"
-            )
-            logger.info(f"   Current changeDetection: {cd_list}")
-            logger.info(f"   Using existing CD entry: {cd_entry}")
-            logger.info(f"   Existing values: {existing_values}")
-            logger.info(f"   Desired values: {desired}")
+            logger.info("Processing variable '%s' with group '%s': desired=%s", var_name, group, desired)
+            logger.info('   Current changeDetection: %s', cd_list)
+            logger.info('   Using existing CD entry: %s', cd_entry)
+            logger.info('   Existing values: %s', existing_values)
+            logger.info('   Desired values: %s', desired)
             # Update configuration based on model type
             old_config = cd_entry.get("config", {})
             new_cfg = dict(old_config)
@@ -1173,28 +1138,28 @@ def sync_change_detection_configs(
             update_details.append(
                 f"   {var_name} ({desired_model}): {old_config} → {new_cfg}"
             )
-            logger.info(f"   Marked for update: {var_name}")
+            logger.info('   Marked for update: %s', var_name)
         else:
             # Just track variables that don't need updates, don't log each one
             no_update_needed.append(var_name)
 
     if updated_names:
-        logger.info(f"\nFound {len(updated_names)} variable(s) to update:")
+        logger.info('\nFound %s variable(s) to update:', len(updated_names))
         for name in updated_names:
-            logger.info(f"  - {name}")
+            logger.info('  - %s', name)
 
         logger.info("\nUpdate details:")
         for detail in update_details:
             logger.info(detail)
 
         # Debug: Show what we're sending to server
-        logger.info(f"\nSending {len(variables_to_update)} variables to server...")
+        logger.info('\nSending %s variables to server...', len(variables_to_update))
         if api.dry_run:
             logger.info("[DRY RUN] Variable data that would be sent:")
             for var in variables_to_update:
                 if var.get("name") in updated_names:
-                    logger.info(f"  Variable: {var.get('name')}")
-                    logger.info(f"    changeDetection: {var.get('changeDetection')}")
+                    logger.info('  Variable: %s', var.get('name'))
+                    logger.info('    changeDetection: %s', var.get('changeDetection'))
 
         # IMPORTANT: Send full list back, not just updated ones
         result = api.update_variables(test_id, variables_to_update)
@@ -1204,9 +1169,7 @@ def sync_change_detection_configs(
             logger.error("Failed to synchronize server change detection configs.")
     else:
         if no_update_needed:
-            logger.info(
-                f"All {len(no_update_needed)} variables are up to date. No synchronization needed."
-            )
+            logger.info('All %s variables are up to date. No synchronization needed.', len(no_update_needed))
         else:
             logger.info("No differences found. Server is up to date.")
 
@@ -1276,7 +1239,7 @@ def main():
         logger.info("=" * 50)
 
     # Log the config file being used
-    logger.info(f"Using configuration file: {config_file}")
+    logger.info('Using configuration file: %s', config_file)
 
     if not horreum_api_key and not horreum_token:
         logger.error(
@@ -1301,7 +1264,7 @@ def main():
         # Process field definitions
         logger.info("Processing field definitions...")
         fields = process_field_definitions(config)
-        logger.info(f"Found {len(fields)} fields")
+        logger.info('Found %s fields', len(fields))
 
         # Initialize tracking variables
         removed_labels = []
@@ -1317,7 +1280,7 @@ def main():
         if existing_schema_id:
             schema_id = int(existing_schema_id)
             schema_created = False
-            logger.info(f"Using existing schema ID from environment: {schema_id}")
+            logger.info('Using existing schema ID from environment: %s', schema_id)
         else:
             schema_def = create_schema_definition(config, json_schema)
 
@@ -1329,38 +1292,28 @@ def main():
                 schema_id = existing_schema["id"]
                 schema_created = False
                 if dry_run:
-                    logger.info(
-                        f"[DRY RUN] Would use existing schema: {schema_def['name']} (ID: {schema_id})"
-                    )
+                    logger.info('[DRY RUN] Would use existing schema: %s (ID: %s)', schema_def['name'], schema_id)
                 else:
-                    logger.info(
-                        f"Found existing schema: {schema_def['name']} (ID: {schema_id})"
-                    )
+                    logger.info('Found existing schema: %s (ID: %s)', schema_def['name'], schema_id)
             else:
                 # Schema doesn't exist, need to create it
                 schema_created = True
                 if dry_run:
-                    logger.info(
-                        f"[DRY RUN] Would create new schema: {schema_def['name']}"
-                    )
+                    logger.info('[DRY RUN] Would create new schema: %s', schema_def['name'])
                     schema_id = 888  # Mock ID for dry-run
                 else:
                     logger.info("Creating schema in Horreum...")
                     try:
                         schema_id = api.create_schema(schema_def)
-                        logger.info(f"Created schema with ID: {schema_id}")
+                        logger.info('Created schema with ID: %s', schema_id)
                     except Exception as e:
                         if "Name already used" in str(e) or "already exists" in str(e):
-                            logger.info(
-                                f"Schema '{schema_def['name']}' already exists (race condition)"
-                            )
+                            logger.info("Schema '%s' already exists (race condition)", schema_def['name'])
                             logger.info("Looking up existing schema...")
                             existing_schema = api.get_schema_by_name(schema_def["name"])
                             if existing_schema:
                                 schema_id = existing_schema["id"]
-                                logger.info(
-                                    f"Found existing schema: {schema_def['name']} (ID: {schema_id})"
-                                )
+                                logger.info('Found existing schema: %s (ID: %s)', schema_def['name'], schema_id)
                             else:
                                 logger.warning("Could not find existing schema by name")
                                 logger.error(
@@ -1379,7 +1332,7 @@ def main():
             test_name = config["test"]["name"]  # name is now mandatory
             test_id = int(existing_test_id)
             test_created = False
-            logger.info(f"Using existing test ID from environment: {existing_test_id}")
+            logger.info('Using existing test ID from environment: %s', existing_test_id)
 
             # Get full test details and check fingerprint labels
             try:
@@ -1396,8 +1349,8 @@ def main():
                     # Compare as sets to ignore order differences
                     if set(existing_fingerprint_labels) != set(new_fingerprint_labels):
                         logger.info("Updating test fingerprint labels:")
-                        logger.info(f"  Current: {existing_fingerprint_labels}")
-                        logger.info(f"  New: {new_fingerprint_labels}")
+                        logger.info('  Current: %s', existing_fingerprint_labels)
+                        logger.info('  New: %s', new_fingerprint_labels)
 
                         # Create updated test data with new fingerprint labels
                         updated_test_data = dict(existing_test)
@@ -1409,9 +1362,7 @@ def main():
                             logger.info("Updated test fingerprint labels successfully")
                     else:
                         test = existing_test
-                        logger.info(
-                            f"Test fingerprint labels are up to date: {existing_fingerprint_labels}"
-                        )
+                        logger.info('Test fingerprint labels are up to date: %s', existing_fingerprint_labels)
                 else:
                     # Fallback to basic test object if name lookup fails
                     test = {"id": test_id, "name": test_name}
@@ -1421,7 +1372,7 @@ def main():
             except Exception as e:
                 # Fallback to basic test object on error
                 test = {"id": test_id, "name": test_name}
-                logger.warning(f"Error retrieving test details: {e}")
+                logger.warning('Error retrieving test details: %s', e)
         else:
             test_def = create_test_definition(config, fields)
 
@@ -1433,13 +1384,9 @@ def main():
                 test = existing_test
                 test_created = False
                 if dry_run:
-                    logger.info(
-                        f"[DRY RUN] Would use existing test: {test_def['name']} (ID: {test['id']})"
-                    )
+                    logger.info('[DRY RUN] Would use existing test: %s (ID: %s)', test_def['name'], test['id'])
                 else:
-                    logger.info(
-                        f"Found existing test: {test_def['name']} (ID: {test['id']})"
-                    )
+                    logger.info('Found existing test: %s (ID: %s)', test_def['name'], test['id'])
 
                 # Check if fingerprint labels need to be updated
                 existing_fingerprint_labels = existing_test.get("fingerprintLabels", [])
@@ -1448,8 +1395,8 @@ def main():
                 # Compare as sets to ignore order differences
                 if set(existing_fingerprint_labels) != set(new_fingerprint_labels):
                     logger.info("Updating test fingerprint labels:")
-                    logger.info(f"  Current: {existing_fingerprint_labels}")
-                    logger.info(f"  New: {new_fingerprint_labels}")
+                    logger.info('  Current: %s', existing_fingerprint_labels)
+                    logger.info('  New: %s', new_fingerprint_labels)
 
                     # Create updated test data with new fingerprint labels
                     updated_test_data = dict(existing_test)
@@ -1460,14 +1407,12 @@ def main():
                     if not dry_run:
                         logger.info("Updated test fingerprint labels successfully")
                 else:
-                    logger.info(
-                        f"Test fingerprint labels are up to date: {existing_fingerprint_labels}"
-                    )
+                    logger.info('Test fingerprint labels are up to date: %s', existing_fingerprint_labels)
             else:
                 # Test doesn't exist, need to create it
                 test_created = True
                 if dry_run:
-                    logger.info(f"[DRY RUN] Would create new test: {test_def['name']}")
+                    logger.info('[DRY RUN] Would create new test: %s', test_def['name'])
                     test = {
                         "id": 999,
                         "name": test_def["name"],
@@ -1476,23 +1421,19 @@ def main():
                     logger.info("Creating test in Horreum...")
                     try:
                         test = api.create_test(test_def)
-                        logger.info(f"Created test: {test['name']} (ID: {test['id']})")
+                        logger.info('Created test: %s (ID: %s)', test['name'], test['id'])
                     except Exception as e:
                         if (
                             "409" in str(e)
                             or "Conflict" in str(e)
                             or "already exists" in str(e)
                         ):
-                            logger.info(
-                                f"Test '{test_def['name']}' already exists (race condition)"
-                            )
+                            logger.info("Test '%s' already exists (race condition)", test_def['name'])
                             logger.info("Looking up existing test...")
                             existing_test = api.get_test_by_name(test_def["name"])
                             if existing_test:
                                 test = existing_test
-                                logger.info(
-                                    f"Found existing test: {test_def['name']} (ID: {test['id']})"
-                                )
+                                logger.info('Found existing test: %s (ID: %s)', test_def['name'], test['id'])
                             else:
                                 logger.warning("Could not find existing test by name")
                                 logger.info(
@@ -1508,7 +1449,7 @@ def main():
                                         ).strip()
                                     )
                                     test = {"id": test_id, "name": test_def["name"]}
-                                    logger.info(f"Using existing test ID: {test_id}")
+                                    logger.info('Using existing test ID: %s', test_id)
                         else:
                             raise
 
@@ -1518,11 +1459,9 @@ def main():
             try:
                 existing_labels = api.get_schema_labels(schema_id)
                 existing_label_names = {label.get("name") for label in existing_labels}
-                logger.info(f"Found {len(existing_labels)} existing labels in schema")
+                logger.info('Found %s existing labels in schema', len(existing_labels))
             except Exception as e:
-                logger.warning(
-                    f"Warning: Could not retrieve existing labels, will attempt to create all: {e}"
-                )
+                logger.warning('Warning: Could not retrieve existing labels, will attempt to create all: %s', e)
                 existing_label_names = set()
         else:
             if skip_labels:
@@ -1550,21 +1489,17 @@ def main():
                 # Check if label already exists
                 if label_name in existing_label_names:
                     skipped_labels.append(label_name)
-                    logger.warning(
-                        f"Skipped {i + 1}/{len(label_defs)}: {label_name} (already exists)"
-                    )
+                    logger.warning('Skipped %s/%s: %s (already exists)', i + 1, len(label_defs), label_name)
                     continue
 
                 # Try to create the label
                 try:
                     label = api.create_label(schema_id, label_def)
                     created_labels.append(label)
-                    logger.info(f"Created {i + 1}/{len(label_defs)}: {label_name}")
+                    logger.info('Created %s/%s: %s', i + 1, len(label_defs), label_name)
                 except Exception as e:
                     failed_labels.append((label_name, str(e)))
-                    logger.error(
-                        f"Failed {i + 1}/{len(label_defs)}: {label_name} - {e}"
-                    )
+                    logger.error('Failed %s/%s: %s - %s', i + 1, len(label_defs), label_name, e)
         else:
             if not skip_labels:
                 logger.warning("Skipping label creation - no valid schema ID")
@@ -1590,18 +1525,14 @@ def main():
 
                 if labels_to_remove:
                     action = "Would remove" if dry_run else "Found"
-                    logger.info(
-                        f"{action} {len(labels_to_remove)} obsolete labels {'to remove' if dry_run else ''}:"
-                    )
+                    logger.info('%s %s obsolete labels %s:', action, len(labels_to_remove), 'to remove' if dry_run else '')
                     for label_name in labels_to_remove:
-                        logger.info(f"  - {label_name}")
+                        logger.info('  - %s', label_name)
 
                     if dry_run:
                         # In dry-run mode, just count what would be removed
                         removed_labels.extend(labels_to_remove)
-                        logger.info(
-                            f"[DRY RUN] Would remove {len(labels_to_remove)} obsolete labels"
-                        )
+                        logger.info('[DRY RUN] Would remove %s obsolete labels', len(labels_to_remove))
                     else:
                         # Actually remove obsolete labels
                         for label in current_labels:
@@ -1611,17 +1542,15 @@ def main():
                             if label_name in labels_to_remove:
                                 if api.delete_label(schema_id, label_id):
                                     removed_labels.append(label_name)
-                                    logger.info(f"Removed label: {label_name}")
+                                    logger.info('Removed label: %s', label_name)
                                 else:
-                                    logger.error(
-                                        f"Failed to remove label: {label_name}"
-                                    )
+                                    logger.error('Failed to remove label: %s', label_name)
                 else:
                     action = "Would find" if dry_run else ""
-                    logger.info(f"{action} No obsolete labels found")
+                    logger.info('%s No obsolete labels found', action)
 
             except Exception as e:
-                logger.error(f"Label cleanup failed: {e}")
+                logger.error('Label cleanup failed: %s', e)
         elif cleanup_labels:
             logger.warning(
                 "Skipping label cleanup - no valid schema ID or labels disabled"
@@ -1635,37 +1564,37 @@ def main():
         if schema_created:
             action = "Would create" if dry_run else "Created"
             schema_name = schema_def["name"] if "schema_de" in locals() else "N/A"
-            logger.info(f"- {action} schema: {schema_name} (ID: {schema_id})")
+            logger.info('- %s schema: %s (ID: %s)', action, schema_name, schema_id)
         else:
             action = "Would use" if dry_run else "Using"
             schema_name = schema_def["name"] if "schema_de" in locals() else "N/A"
-            logger.info(f"- {action} existing schema: {schema_name} (ID: {schema_id})")
+            logger.info('- %s existing schema: %s (ID: %s)', action, schema_name, schema_id)
 
         # Test summary
         if test_created:
             action = "Would create" if dry_run else "Created"
-            logger.info(f"- {action} test: {test['name']} (ID: {test['id']})")
+            logger.info('- %s test: %s (ID: %s)', action, test['name'], test['id'])
         else:
             action = "Would use" if dry_run else "Using"
-            logger.info(f"- {action} existing test: {test['name']} (ID: {test['id']})")
-        logger.info(f"- Labels created: {len(created_labels)}")
-        logger.info(f"- Labels skipped (already exist): {len(skipped_labels)}")
-        logger.error(f"- Labels failed: {len(failed_labels)}")
+            logger.info('- %s existing test: %s (ID: %s)', action, test['name'], test['id'])
+        logger.info('- Labels created: %s', len(created_labels))
+        logger.info('- Labels skipped (already exist): %s', len(skipped_labels))
+        logger.error('- Labels failed: %s', len(failed_labels))
 
         # Label removal summary
         if dry_run and removed_labels:
-            logger.info(f"- Labels would be removed: {len(removed_labels)}")
+            logger.info('- Labels would be removed: %s', len(removed_labels))
         elif not dry_run and removed_labels:
-            logger.info(f"- Labels removed: {len(removed_labels)}")
+            logger.info('- Labels removed: %s', len(removed_labels))
         else:
-            logger.info(f"- Labels removed: {len(removed_labels)}")
+            logger.info('- Labels removed: %s', len(removed_labels))
 
-        logger.info(f"- Total labels processed: {len(label_defs)}")
+        logger.info('- Total labels processed: %s', len(label_defs))
 
         if failed_labels:
             logger.error("\nFailed labels:")
             for name, error in failed_labels:
-                logger.error(f"  - {name}: {error}")
+                logger.error('  - %s: %s', name, error)
 
         # Create change detection variables
         logger.info("\nCreating change detection variables...")
@@ -1685,27 +1614,21 @@ def main():
                 var_name = var_def["name"]
                 if var_name in seen_names:
                     duplicates_found.append(var_name)
-                    logger.warning(
-                        f"Duplicate variable detected: {var_name} (removing duplicate)"
-                    )
+                    logger.warning('Duplicate variable detected: %s (removing duplicate)', var_name)
                 else:
                     seen_names.add(var_name)
                     variable_defs.append(var_def)
 
-            logger.info(
-                f"Generated {len(variable_defs_raw)} variable definitions ({len(duplicates_found)} duplicates removed)"
-            )
-            logger.info(f"Unique variables to process: {len(variable_defs)}")
+            logger.info('Generated %s variable definitions (%s duplicates removed)', len(variable_defs_raw), len(duplicates_found))
+            logger.info('Unique variables to process: %s', len(variable_defs))
 
             if duplicates_found:
-                logger.warning(
-                    f"Removed {len(duplicates_found)} duplicate variables: {', '.join(duplicates_found)}"
-                )
+                logger.warning('Removed %s duplicate variables: %s', len(duplicates_found), ', '.join(duplicates_found))
 
             # Log all unique variables
             logger.info("\nUnique change detection variables generated:")
             for i, var_def in enumerate(variable_defs, 1):
-                logger.info(f"  {i:2d}. {var_def['name']} (group: {var_def['group']})")
+                logger.info("  %f'2d'. %s (group: %s)", i, var_def['name'], var_def['group'])
 
             # Get existing variables to check for duplicates
             try:
@@ -1713,13 +1636,9 @@ def main():
                 existing_variable_names = {
                     var.get("name") for var in existing_variables
                 }
-                logger.info(
-                    f"\nFound {len(existing_variables)} existing variables in Horreum"
-                )
+                logger.info('\nFound %s existing variables in Horreum', len(existing_variables))
             except Exception as e:
-                logger.warning(
-                    f"Warning: Could not retrieve existing variables, will attempt to create all: {e}"
-                )
+                logger.warning('Warning: Could not retrieve existing variables, will attempt to create all: %s', e)
                 existing_variables = []  # Initialize as empty list if retrieval fails
                 existing_variable_names = set()
 
@@ -1733,30 +1652,27 @@ def main():
                 variable_name = variable_def["name"]
                 if variable_name in existing_variable_names:
                     skipped_variables.append(variable_name)
-                    logger.info(f"  ✓ {variable_name} (already exists)")
+                    logger.info('  ✓ %s (already exists)', variable_name)
                 else:
                     new_variables.append(variable_def)
-                    logger.info(f"  + {variable_name} (NEW - will be created)")
+                    logger.info('  + %s (NEW - will be created)', variable_name)
 
             # Create variables: merge existing + new to preserve all existing variables
             created_variables = []
             failed_variables = []
 
             logger.info("\n=== VARIABLE CREATION SUMMARY ===")
-            logger.info(f"Generated from config: {len(variable_defs)} unique variables")
-            logger.info(f"Already exist in Horreum: {len(skipped_variables)} variables")
-            logger.info(f"New variables to create: {len(new_variables)} variables")
+            logger.info('Generated from config: %s unique variables', len(variable_defs))
+            logger.info('Already exist in Horreum: %s variables', len(skipped_variables))
+            logger.info('New variables to create: %s variables', len(new_variables))
 
             if new_variables:
                 logger.info("\nNEW VARIABLES TO CREATE:")
                 for i, var in enumerate(new_variables, 1):
-                    logger.info(f"  {i}. {var['name']} (group: {var['group']})")
+                    logger.info('  %s. %s (group: %s)', i, var['name'], var['group'])
 
                 action = "[DRY RUN] Would create" if dry_run else "Creating"
-                logger.info(
-                    f"\n{action} {len(new_variables)} new variables while preserving "
-                    f"{len(existing_variables)} existing..."
-                )
+                logger.info('\n%s %s new variables while preserving %s existing...', action, len(new_variables), len(existing_variables))
 
                 if not dry_run:
                     try:
@@ -1770,27 +1686,20 @@ def main():
                         created_variables = (
                             new_variables  # Track only the newly added ones
                         )
-                        logger.info(
-                            f"Successfully updated variable list: {len(existing_variables)} existing + "
-                            f"{len(new_variables)} new = {len(all_variables)} total"
-                        )
+                        logger.info('Successfully updated variable list: %s existing + %s new = %s total', len(existing_variables), len(new_variables), len(all_variables))
 
                         # Verify final state
                         final_variables = api.get_test_variables(test["id"])
-                        logger.info(
-                            f"Total variables now in system: {len(final_variables)}"
-                        )
+                        logger.info('Total variables now in system: %s', len(final_variables))
 
                     except Exception as e:
-                        logger.error(f"Variable update failed: {e}")
+                        logger.error('Variable update failed: %s', e)
                         failed_variables = [
                             (var["name"], str(e)) for var in new_variables
                         ]
                 else:
                     # In dry-run mode
-                    logger.info(
-                        f"[DRY RUN] Would update variable list with {len(new_variables)} new variables"
-                    )
+                    logger.info('[DRY RUN] Would update variable list with %s new variables', len(new_variables))
                     created_variables = []  # Don't count as created in dry-run
             else:
                 logger.info(
@@ -1801,55 +1710,45 @@ def main():
 
             # Show clear breakdown
             if dry_run:
-                logger.info(f"- Variables that would be created: {len(new_variables)}")
-                logger.info(
-                    f"- Variables skipped (already exist): {len(skipped_variables)}"
-                )
+                logger.info('- Variables that would be created: %s', len(new_variables))
+                logger.info('- Variables skipped (already exist): %s', len(skipped_variables))
             else:
-                logger.info(f"- Variables created: {len(created_variables)}")
-                logger.info(
-                    f"- Variables skipped (already exist): {len(skipped_variables)}"
-                )
+                logger.info('- Variables created: %s', len(created_variables))
+                logger.info('- Variables skipped (already exist): %s', len(skipped_variables))
 
-            logger.error(f"- Variables failed: {len(failed_variables)}")
+            logger.error('- Variables failed: %s', len(failed_variables))
 
             # Show any extra variables in Horreum not in config
             expected_variable_names = {var["name"] for var in variable_defs}
             extra_variables = existing_variable_names - expected_variable_names
             if extra_variables:
-                logger.info(
-                    f"- Extra variables in Horreum (not in config): {len(extra_variables)}"
-                )
-                logger.info(f"  Extra variables: {', '.join(sorted(extra_variables))}")
+                logger.info('- Extra variables in Horreum (not in config): %s', len(extra_variables))
+                logger.info('  Extra variables: %s', ', '.join(sorted(extra_variables)))
 
             # Variable removal summary
             if dry_run and removed_variables:
-                logger.info(f"- Variables would be removed: {len(removed_variables)}")
+                logger.info('- Variables would be removed: %s', len(removed_variables))
             elif not dry_run and removed_variables:
-                logger.info(f"- Variables removed: {len(removed_variables)}")
+                logger.info('- Variables removed: %s', len(removed_variables))
             else:
-                logger.info(f"- Variables removed: {len(removed_variables)}")
+                logger.info('- Variables removed: %s', len(removed_variables))
 
-            logger.info(f"- Total unique variables processed: {len(variable_defs)}")
+            logger.info('- Total unique variables processed: %s', len(variable_defs))
 
             # Final accounting
             expected_total = len(skipped_variables) + len(new_variables)
             if expected_total != len(variable_defs):
-                logger.warning(
-                    f"⚠️  Accounting mismatch: {len(skipped_variables)} + {len(new_variables)} != {len(variable_defs)}"
-                )
+                logger.warning('⚠️  Accounting mismatch: %s + %s != %s', len(skipped_variables), len(new_variables), len(variable_defs))
             else:
-                logger.info(
-                    f"✓ Accounting verified: {len(skipped_variables)} existing + {len(new_variables)} new = {len(variable_defs)} total"
-                )
+                logger.info('✓ Accounting verified: %s existing + %s new = %s total', len(skipped_variables), len(new_variables), len(variable_defs))
 
             if failed_variables:
                 logger.error("\n❌ FAILED VARIABLES:")
                 for i, (name, error) in enumerate(failed_variables, 1):
-                    logger.error(f"  {i}. {name}: {error}")
+                    logger.error('  %s. %s: %s', i, name, error)
 
         except Exception as e:
-            logger.error(f"Error creating change detection variables: {e}")
+            logger.error('Error creating change detection variables: %s', e)
             # Continue anyway - this is not critical to basic functionality
             created_variables = []
             skipped_variables = []
@@ -1881,18 +1780,14 @@ def main():
                 if variables_to_remove:
                     action = "Would remove" if dry_run else "Found"
                     suffix = "to remove" if dry_run else ""
-                    logger.info(
-                        f"{action} {len(variables_to_remove)} obsolete variables {suffix}:"
-                    )
+                    logger.info('%s %s obsolete variables %s:', action, len(variables_to_remove), suffix)
                     for variable_name in variables_to_remove:
-                        logger.info(f"  - {variable_name}")
+                        logger.info('  - %s', variable_name)
 
                     if dry_run:
                         # In dry-run mode, just count what would be removed
                         removed_variables.extend(variables_to_remove)
-                        logger.info(
-                            f"[DRY RUN] Would remove {len(variables_to_remove)} obsolete variables"
-                        )
+                        logger.info('[DRY RUN] Would remove %s obsolete variables', len(variables_to_remove))
                     else:
                         # Actually remove obsolete variables
                         for variable in current_variables:
@@ -1902,17 +1797,15 @@ def main():
                             if variable_name in variables_to_remove:
                                 if api.delete_variable(variable_id):
                                     removed_variables.append(variable_name)
-                                    logger.info(f"Removed variable: {variable_name}")
+                                    logger.info('Removed variable: %s', variable_name)
                                 else:
-                                    logger.error(
-                                        f"Failed to remove variable: {variable_name}"
-                                    )
+                                    logger.error('Failed to remove variable: %s', variable_name)
                 else:
                     action = "Would find" if dry_run else ""
-                    logger.info(f"{action} No obsolete variables found")
+                    logger.info('%s No obsolete variables found', action)
 
             except Exception as e:
-                logger.error(f"Variable cleanup failed: {e}")
+                logger.error('Variable cleanup failed: %s', e)
         else:
             logger.info(
                 "Variable cleanup disabled (set CLEANUP_VARIABLES=true to enable)"
@@ -1922,7 +1815,7 @@ def main():
         try:
             sync_change_detection_configs(api, test["id"], fields, config)
         except Exception as e:
-            logger.error(f"Sync of change detection configs failed: {e}")
+            logger.error('Sync of change detection configs failed: %s', e)
 
         # Save configuration for reference
         output_config = {
@@ -1956,7 +1849,7 @@ def main():
         logger.info("\nConfiguration saved to horreum_config.json")
 
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.error('Error: %s', e)
         sys.exit(1)
 
 

@@ -155,7 +155,7 @@ class PostKafkaTimes:
             self.save_here.add((kwargs["message_id"], self.dt_now()))
 
         def handle_send_error(e, message_id):
-            logging.error(f"Failed to produce message {message_id}", exc_info=e)
+            logging.error("Failed to produce message %s", message_id, exc_info=e)
 
         def wait_for_next_second(second=int(time.perf_counter())):
             while second == int(time.perf_counter()):
@@ -202,14 +202,12 @@ class PostKafkaTimes:
             if int(time.perf_counter()) == this_second:
                 in_second += 1
                 if in_second == self.rate:
-                    logging.debug(f"In second {this_second} sent {in_second} messages")
+                    logging.debug('In second %s sent %s messages', this_second, in_second)
                     this_second = wait_for_next_second(this_second)
                     in_second = 0
             else:
                 if self.rate not in (0, in_second):
-                    logging.warning(
-                        f"In second {this_second} sent {in_second} messages (but wanted to send {self.rate})"
-                    )
+                    logging.warning('In second %s sent %s messages (but wanted to send %s)', this_second, in_second, self.rate)
                     this_second = int(time.perf_counter())
                     in_second = 0
 
@@ -276,7 +274,7 @@ def post_kafka_times(config):
 
         produce_here = KafkaInit.get_producer(args)
 
-        logging.info(f"Loading queries definition from {args.tables_definition}")
+        logging.info('Loading queries definition from %s', args.tables_definition)
         queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)[
             "queries"
         ]
@@ -291,7 +289,7 @@ def post_kafka_times(config):
         storage_db_connection = psycopg2.connect(**storage_db_conf)
         sql = queries_definition[config["query_store_info_produced"]]
         data_lock = threading.Lock()
-        logging.info(f"Creating storage DB batch inserter with {sql}")
+        logging.info('Creating storage DB batch inserter with %s', sql)
         save_here = opl.db.BatchProcessor(
             storage_db_connection, sql, batch=100, lock=data_lock
         )
@@ -309,10 +307,10 @@ def post_kafka_times(config):
                 try:
                     future.result()
                 except Exception as exc:
-                    logging.info(f"Thread {future} caused exception: {exc}")
+                    logging.info('Thread %s caused exception: %s', future, exc)
                     logging.exception(exc)
                 else:
-                    logging.info(f"Thread {future} worked")
+                    logging.info('Thread %s worked', future)
 
         produce_here.flush()
 

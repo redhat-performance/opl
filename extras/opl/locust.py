@@ -64,17 +64,13 @@ def run_locust(
             while True:
                 num_requests = env.stats.num_requests
                 if num_requests >= args.test_requests:
-                    logging.debug(
-                        f"Finished {num_requests} requests while requested number was {args.test_requests}"
-                    )
+                    logging.debug('Finished %s requests while requested number was %s', num_requests, args.test_requests)
                     break
-                logging.debug(
-                    f"Still waiting for test requests count ({num_requests} out of {args.test_requests})"
-                )
+                logging.debug('Still waiting for test requests count (%s out of %s)', num_requests, args.test_requests)
                 time.sleep(1)
         else:
             time.sleep(args.test_duration)
-            logging.debug(f"Waited for {args.test_duration} seconds")
+            logging.debug('Waited for %s seconds', args.test_duration)
         gevent.spawn(env.runner.quit)
 
         # Wait for the greenlets to finish
@@ -287,9 +283,7 @@ def show_locust_stats(
             sd_data = data_new
 
     if status_data is not None:
-        logging.debug(
-            f"Adding {'new' if new_stats else 'old'} style results to status data file"
-        )
+        logging.debug('Adding %s style results to status data file', 'new' if new_stats else 'old')
         status_data.set("results.requests", sd_data)
 
     return sum_failures

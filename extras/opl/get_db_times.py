@@ -114,7 +114,7 @@ class GetDbTimes:
 
         # Create object to make it easy to add timestamps to storage DB
         sql = self.queries_definition[self.config["query_storage_update_timestamp"]]
-        logging.info(f"Creating storage DB batch inserter with {sql}")
+        logging.info('Creating storage DB batch inserter with %s', sql)
         data_lock = threading.Lock()
         self.save_here = opl.db.BatchProcessor(
             self.storage_db, sql, batch=100, lock=data_lock
@@ -142,7 +142,7 @@ class GetDbTimes:
         cursor.execute(sql)
         count = int(cursor.fetchone()[0])
         cursor.close()
-        logging.debug(f"There are {count} applicable hosts")
+        logging.debug('There are %s applicable hosts', count)
         return count
 
     def _storage_get_applicable_hosts(self, batch_counter, batch_size):
@@ -156,9 +156,7 @@ class GetDbTimes:
         cursor.execute(sql, (batch_offset, batch_size))
         hosts = [h[0] for h in cursor.fetchall()]
         cursor.close()
-        logging.debug(
-            f"Going to process batch {batch_counter} of hosts on offset {batch_offset} and limit {batch_size}: {', '.join(hosts)[:50]}..."
-        )
+        logging.debug('Going to process batch %s of hosts on offset %s and limit %s: %s...', batch_counter, batch_offset, batch_size, ', '.join(hosts)[:50])
         return hosts
 
     def _app_get_hosts(self, batch_hosts):
@@ -171,7 +169,7 @@ class GetDbTimes:
         cursor.execute(sql, (batch_hosts,))
         timestamps = cursor.fetchall()
         cursor.close()
-        logging.debug(f"Gathered {len(timestamps)} timestamps for the hosts")
+        logging.debug('Gathered %s timestamps for the hosts', len(timestamps))
         return timestamps
 
     def work(self):
