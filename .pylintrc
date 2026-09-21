@@ -1,4 +1,6 @@
 [MAIN]
+# Match .flake8 exclude list; also skip build/ (stale code copies) and htmlcov/.
+ignore=.git,__pycache__,venv,.venv,build,htmlcov
 # Structural / refactoring checks are tracked separately; keeping them here
 # would drown out actionable issues. Line length is deliberately not enforced,
 # matching .flake8 (which ignores E501). FIXME/TODO markers are tracked as
