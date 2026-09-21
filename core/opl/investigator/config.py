@@ -73,44 +73,42 @@ def render_sets(args, template_data):
         finalize_sets(args)
         return
 
-    logging.debug('Rendering Jinja2 template sets %s with data %s', args.sets, template_data)
+    logging.debug("Rendering Jinja2 template sets %s with data %s", args.sets, template_data)
     env = jinja2.Environment(loader=jinja2.DictLoader({"sets": args.sets}))
     template = env.get_template("sets")
     rendered = template.render(template_data)
-    logging.debug('Rendered Jinja2 template sets %s', rendered)
+    logging.debug("Rendered Jinja2 template sets %s", rendered)
     args.sets = yaml.load(rendered, Loader=yaml.SafeLoader)
     finalize_sets(args)
 
 
 def render_query(args, template_data):
     """Render a query string with template data."""
-    logging.debug('Rendering Jinja2 template query %s with data %s', args.history_es_query, template_data)
+    logging.debug("Rendering Jinja2 template query %s with data %s", args.history_es_query, template_data)
     env = jinja2.Environment(loader=jinja2.DictLoader({"query": args.history_es_query}))
     template = env.get_template("query")
     rendered = template.render(template_data)
-    logging.debug('Rendered Jinja2 template query %s', rendered)
+    logging.debug("Rendered Jinja2 template query %s", rendered)
     args.history_es_query = yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
 def render_pg_query(args, template_data):
     """Render a PostgreSQL query with template data."""
-    logging.debug('Rendering Jinja2 template pg_query %s with data %s', args.history_pg_query, template_data)
+    logging.debug("Rendering Jinja2 template pg_query %s with data %s", args.history_pg_query, template_data)
     env = jinja2.Environment(loader=jinja2.DictLoader({"query": args.history_pg_query}))
     template = env.get_template("query")
     rendered = template.render(template_data)
-    logging.debug('Rendered Jinja2 template pg_query %s', rendered)
+    logging.debug("Rendered Jinja2 template pg_query %s", rendered)
     args.history_pg_query = rendered
 
 
 def render_matchers(args, template_data):
     """Render data matchers with template data."""
-    logging.debug('Rendering Jinja2 template matchers %s with data %s', args.history_matchers, template_data)
-    env = jinja2.Environment(
-        loader=jinja2.DictLoader({"matchers": args.history_matchers})
-    )
+    logging.debug("Rendering Jinja2 template matchers %s with data %s", args.history_matchers, template_data)
+    env = jinja2.Environment(loader=jinja2.DictLoader({"matchers": args.history_matchers}))
     template = env.get_template("matchers")
     rendered = template.render(template_data)
-    logging.debug('Rendered Jinja2 template matchers %s', rendered)
+    logging.debug("Rendered Jinja2 template matchers %s", rendered)
     args.history_matchers = yaml.load(rendered, Loader=yaml.SafeLoader)
 
 
@@ -131,7 +129,7 @@ def load_config(conf, fp):
     Load config from yaml file pointer and add to conf which is an ArgParser namespace
     """
     data = yaml.load(fp, Loader=yaml.SafeLoader)
-    logging.debug('Loaded config from %s: %s', fp.name, data)
+    logging.debug("Loaded config from %s: %s", fp.name, data)
 
     conf.history_type = data["history"]["type"]
     conf.current_type = data["current"]["type"]
@@ -140,7 +138,9 @@ def load_config(conf, fp):
     conf.decisions_type = data["decisions"]["type"]
 
     if conf.history_type == "csv":
-        conf.history_file = open(data["history"]["file"], "r", encoding="utf-8")  # pylint: disable=consider-using-with  # handle kept for later use
+        conf.history_file = open(
+            data["history"]["file"], "r", encoding="utf-8"
+        )  # pylint: disable=consider-using-with  # handle kept for later use
 
     if conf.history_type == "elasticsearch":
         conf.history_es_server = data["history"]["es_server"]
@@ -149,16 +149,12 @@ def load_config(conf, fp):
         conf.history_es_query = data["history"]["es_query"]
         if "es_server_user" in data["history"]:
             conf.history_es_server_user = data["history"]["es_server_user"]
-            conf.history_es_server_pass_env_var = data["history"][
-                "es_server_pass_env_var"
-            ]
+            conf.history_es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
         if "es_server_verify" in data["history"]:
             conf.history_es_server_verify = data["history"]["es_server_verify"]
         else:
             conf.history_es_server_verify = True
-        conf.history_es_skip_metadata_assert = data["history"].get(
-            "skip_metadata_assert", False
-        )
+        conf.history_es_skip_metadata_assert = data["history"].get("skip_metadata_assert", False)
 
     if conf.history_type == "postgresql":
         conf.history_pg_host = data["history"]["pg_host"]
@@ -176,7 +172,9 @@ def load_config(conf, fp):
 
     if conf.current_file is None:
         if conf.current_type == "status_data":
-            conf.current_file = open(data["current"]["file"], "r", encoding="utf-8")  # pylint: disable=consider-using-with  # handle kept for later use
+            conf.current_file = open(
+                data["current"]["file"], "r", encoding="utf-8"
+            )  # pylint: disable=consider-using-with  # handle kept for later use
 
     if conf.decisions_type == "elasticsearch":
         conf.decisions_es_server = data["decisions"]["es_server"]
@@ -184,9 +182,7 @@ def load_config(conf, fp):
         conf.decisions_es_index = data["decisions"]["es_index"]
         if "es_server_user" in data["decisions"]:
             conf.decisions_es_server_user = data["decisions"]["es_server_user"]
-            conf.decisions_es_server_pass_env_var = data["decisions"][
-                "es_server_pass_env_var"
-            ]
+            conf.decisions_es_server_pass_env_var = data["decisions"]["es_server_pass_env_var"]
         if "es_server_verify" in data["decisions"]:
             conf.decisions_es_server_verify = data["decisions"]["es_server_verify"]
         else:
@@ -200,11 +196,7 @@ def load_config(conf, fp):
         if "pg_user" in data["decisions"]:
             conf.decisions_pg_user = data["decisions"]["pg_user"]
         if "pg_password_env_var" in data["decisions"]:
-            conf.decisions_pg_password_env_var = data["decisions"][
-                "pg_password_env_var"
-            ]
+            conf.decisions_pg_password_env_var = data["decisions"]["pg_password_env_var"]
 
     if conf.decisions_type == "csv":
-        conf.decisions_filename = data["decisions"].get(
-            "file", data["decisions"].get("filename")
-        )
+        conf.decisions_filename = data["decisions"].get("file", data["decisions"].get("filename"))

@@ -170,14 +170,10 @@ class PostKafkaTimes:
         for message_id, message in self.generator:
             # If we have this function defined, allow custom message_id
             if "func_return_message_id" in self.config:
-                message_id = self.config["func_return_message_id"](
-                    self.args, message_id, message
-                )
+                message_id = self.config["func_return_message_id"](self.args, message_id, message)
 
             # Message payload
-            value = self.config["func_return_message_payload"](
-                self.args, message_id, message
-            )
+            value = self.config["func_return_message_payload"](self.args, message_id, message)
             send_params = {"value": value.encode("UTF-8")}
 
             # Do we need message key?
@@ -186,9 +182,7 @@ class PostKafkaTimes:
                 send_params["key"] = key.encode("UTF-8")
 
             # Do we need message headers?
-            headers = self.config["func_return_message_headers"](
-                self.args, message_id, message
-            )
+            headers = self.config["func_return_message_headers"](self.args, message_id, message)
             send_params["headers"] = [(h, k.encode("UTF-8")) for h, k in headers]
 
             # Show message if we wanted it
@@ -202,12 +196,14 @@ class PostKafkaTimes:
             if int(time.perf_counter()) == this_second:
                 in_second += 1
                 if in_second == self.rate:
-                    logging.debug('In second %s sent %s messages', this_second, in_second)
+                    logging.debug("In second %s sent %s messages", this_second, in_second)
                     this_second = wait_for_next_second(this_second)
                     in_second = 0
             else:
                 if self.rate not in (0, in_second):
-                    logging.warning('In second %s sent %s messages (but wanted to send %s)', this_second, in_second, self.rate)
+                    logging.warning(
+                        "In second %s sent %s messages (but wanted to send %s)", this_second, in_second, self.rate
+                    )
                     this_second = int(time.perf_counter())
                     in_second = 0
 
@@ -274,10 +270,8 @@ def post_kafka_times(config):
 
         produce_here = KafkaInit.get_producer(args)
 
-        logging.info('Loading queries definition from %s', args.tables_definition)
-        queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)[
-            "queries"
-        ]
+        logging.info("Loading queries definition from %s", args.tables_definition)
+        queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)["queries"]
 
         storage_db_conf = {
             "host": args.storage_db_host,
@@ -289,16 +283,12 @@ def post_kafka_times(config):
         storage_db_connection = psycopg2.connect(**storage_db_conf)
         sql = queries_definition[config["query_store_info_produced"]]
         data_lock = threading.Lock()
-        logging.info('Creating storage DB batch inserter with %s', sql)
-        save_here = opl.db.BatchProcessor(
-            storage_db_connection, sql, batch=100, lock=data_lock
-        )
+        logging.info("Creating storage DB batch inserter with %s", sql)
+        save_here = opl.db.BatchProcessor(storage_db_connection, sql, batch=100, lock=data_lock)
 
         status_data.set_now("parameters.produce.started_at")
 
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=args.kafka_producer_threads
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.kafka_producer_threads) as executor:
             my_threads = [
                 executor.submit(produce_thread, args, config, produce_here, save_here)
                 for i in range(args.kafka_producer_threads)
@@ -306,11 +296,13 @@ def post_kafka_times(config):
             for future in concurrent.futures.as_completed(my_threads):
                 try:
                     future.result()
-                except Exception as exc:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
-                    logging.info('Thread %s caused exception: %s', future, exc)
+                except (
+                    Exception
+                ) as exc:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    logging.info("Thread %s caused exception: %s", future, exc)
                     logging.exception(exc)
                 else:
-                    logging.info('Thread %s worked', future)
+                    logging.info("Thread %s worked", future)
 
         produce_here.flush()
 

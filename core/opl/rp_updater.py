@@ -24,15 +24,13 @@ def _get_all_items(args):
 
     items = []
     while True:
-        response = opl.http.get(
-            url, params=params, headers=headers, verify=not args.rp_noverify
-        )
+        response = opl.http.get(url, params=params, headers=headers, verify=not args.rp_noverify)
         items += response["content"]
         if len(response["content"]) == 0:
-            logging.debug('Page %s was last page of results', params['page.page'])
+            logging.debug("Page %s was last page of results", params["page.page"])
             break
         params["page.page"] += 1
-        logging.debug('Going to query for page %s of results', params['page.page'])
+        logging.debug("Going to query for page %s of results", params["page.page"])
 
     return items
 
@@ -135,18 +133,10 @@ def main():
     subparsers.add_parser("list_tests", help="Print tests in given launch")
 
     # create the parser for the "change_defects" command
-    parser_change_defects = subparsers.add_parser(
-        "change_defects", help="Change defects in given launch"
-    )
-    parser_change_defects.add_argument(
-        "--from-defect", help="Take these defects (e.g. to_investigate/ti001"
-    )
-    parser_change_defects.add_argument(
-        "--to-defect", help="And change them to these defects (e.g. no_issue/ni001)"
-    )
-    parser_change_defects.add_argument(
-        "--to-defect-comment", help="Comment to add to the test with changed defect"
-    )
+    parser_change_defects = subparsers.add_parser("change_defects", help="Change defects in given launch")
+    parser_change_defects.add_argument("--from-defect", help="Take these defects (e.g. to_investigate/ti001")
+    parser_change_defects.add_argument("--to-defect", help="And change them to these defects (e.g. no_issue/ni001)")
+    parser_change_defects.add_argument("--to-defect-comment", help="Comment to add to the test with changed defect")
 
     args = parser.parse_args()
 
@@ -155,7 +145,7 @@ def main():
 
     opl.http.disable_insecure_request_warnings(args.rp_noverify)
 
-    logging.debug('Args: %s', args)
+    logging.debug("Args: %s", args)
 
     if args.action == "list_tests":
         return doit_list_tests(args)

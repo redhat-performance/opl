@@ -24,9 +24,7 @@ def parse_repoquery_output_from_stdin():
                 # Add to dictionary:
                 if package_name not in packages:
                     packages[package_name] = []
-                if (
-                    version_arch not in packages[package_name]
-                ):  # Avoid duplicates just in case
+                if version_arch not in packages[package_name]:  # Avoid duplicates just in case
                     packages[package_name].append(f"{package_name}-0:{version_arch}")
 
     return packages

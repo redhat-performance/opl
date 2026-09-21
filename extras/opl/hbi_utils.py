@@ -18,12 +18,13 @@ from opl.kafka_init import KafkaInit
 # collect_info could be None
 def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     """Generate messages with the generator and produce them to Kafka."""
+
     def handle_send_success(*_args, **kwargs):
         with kwargs["data_lock"]:
             kwargs["data_stats"]["successes"] += 1
 
     def handle_send_failure(*args, **kwargs):
-        logging.error('Failed to send message %s; %s', args, kwargs)
+        logging.error("Failed to send message %s; %s", args, kwargs)
         with kwargs["data_lock"]:
             kwargs["data_stats"]["failures"] += 1
 
@@ -43,7 +44,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     status_data.set_now("parameters.payload_generator.started_at")
 
     for mid, message in payload_generator:
-        logging.debug('Processing message %s: %s', mid, message)
+        logging.debug("Processing message %s: %s", mid, message)
 
         if collect_info is not None:
             # Add currently processed host to data
@@ -64,24 +65,22 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
             handle_send_success(data_stats=data_stats, data_lock=data_lock)
         else:
             future = producer.send(args.kafka_topic, value=value)
-            future.add_callback(
-                handle_send_success, data_stats=data_stats, data_lock=data_lock
-            )
-            future.add_errback(
-                handle_send_failure, data_stats=data_stats, data_lock=data_lock
-            )
+            future.add_callback(handle_send_success, data_stats=data_stats, data_lock=data_lock)
+            future.add_errback(handle_send_failure, data_stats=data_stats, data_lock=data_lock)
 
         # Limit producing rate to given value
         if int(time.perf_counter()) == this_second:
             in_second += 1
             if in_second == args.rate:
-                logging.debug('In second %s sent %s messages', this_second, in_second)
+                logging.debug("In second %s sent %s messages", this_second, in_second)
                 wait_for_next_second()
                 this_second += 1
                 in_second = 0
         else:
             if args.rate not in (0, in_second):
-                logging.warning('In second %s sent %s messages (but wanted to send %s)', this_second, in_second, args.rate)
+                logging.warning(
+                    "In second %s sent %s messages (but wanted to send %s)", this_second, in_second, args.rate
+                )
                 this_second = int(time.perf_counter())
                 in_second = 0
 
@@ -92,18 +91,18 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     # Make sure all messages were produced
     for _ in range(10):
         if sum(data_stats.values()) == args.count:
-            logging.info('Sent all %s messages, great', args.count)
+            logging.info("Sent all %s messages, great", args.count)
             break
-        logging.debug('Sent %s&%s out of %s messages, waiting', data_stats['successes'], data_stats['failures'], args.count)
+        logging.debug(
+            "Sent %s&%s out of %s messages, waiting", data_stats["successes"], data_stats["failures"], args.count
+        )
         time.sleep(1)
 
     logging.info("Finished message generation")
     status_data.set_now("parameters.payload_generator.ended_at")
 
     if data_stats["failures"] > 0:
-        raise RuntimeError(
-            f"Failed to send {data_stats['failures']} messages out of totally requested {args.count}"
-        )
+        raise RuntimeError(f"Failed to send {data_stats['failures']} messages out of totally requested {args.count}")
     if sum(data_stats.values()) != args.count:
         raise RuntimeError(
             f"Not all messages sent {data_stats['successes']} + {data_stats['failures']} != {args.count}"
@@ -152,7 +151,14 @@ def verify(args, previous_records, status_data, inventory, collect_info):  # pyl
             )
 
         # No new hosts yet, wait a bit and retry
-        logging.debug('Waiting for IDs, attempt %s, remaining %s out of %s, in total there are %s out of %s expected hosts in HBI', attempt, existing_ids - previous_records, args.count, existing_ids, expected_ids)
+        logging.debug(
+            "Waiting for IDs, attempt %s, remaining %s out of %s, in total there are %s out of %s expected hosts in HBI",
+            attempt,
+            existing_ids - previous_records,
+            args.count,
+            existing_ids,
+            expected_ids,
+        )
         time.sleep(15)
 
     inventory_cursor.close()
@@ -185,11 +191,9 @@ def gen_send_verify(args, status_data):
         exist_records_in_db = 0
     else:
         inventory = psycopg2.connect(**inventory_db_conf)
-        exist_records_in_db = fetch_records_count(
-            inventory
-        )  # fetch existing records count
+        exist_records_in_db = fetch_records_count(inventory)  # fetch existing records count
 
-    logging.info('Creating producer to %s', args.kafka_host)
+    logging.info("Creating producer to %s", args.kafka_host)
 
     # With MSK, a few % of connections usually drop with BrokerNotAvailable error so we need to retry here.
     # This oneliner below overrides args.py's default of 0 retries to 3.
@@ -224,7 +228,7 @@ def gen_send_verify(args, status_data):
     status_data.set("parameters.payload_generator.template", args.template)
     status_data.set("parameters.inventory_db", inventory_db_conf)
 
-    logging.info('Dumping data to file %s', args.data_file)
+    logging.info("Dumping data to file %s", args.data_file)
     with open(args.data_file, "w", encoding="utf-8") as fp:
         json.dump(collect_info, fp, sort_keys=True, indent=4)
 
@@ -235,16 +239,11 @@ def parse_os_override(args):
         os_override_dict = json.loads(args.os_override)
         assert isinstance(os_override_dict, dict), (
             "Invalid os-override parameter, should be a dict, maybe something like this: "
-            '{"major": 7, "minor": 6, "name": "RHEL"}, but we have this: '
-            + str(os_override_dict)
+            '{"major": 7, "minor": 6, "name": "RHEL"}, but we have this: ' + str(os_override_dict)
         )
         assert (
-            "major" in os_override_dict
-            and "minor" in os_override_dict
-            and "name" in os_override_dict
-        ), "Missing required keys major, minor, name in os_override! Got this: " + str(
-            os_override_dict
-        )
+            "major" in os_override_dict and "minor" in os_override_dict and "name" in os_override_dict
+        ), "Missing required keys major, minor, name in os_override! Got this: " + str(os_override_dict)
         args.os_override = os_override_dict
 
 
@@ -254,9 +253,7 @@ def populate_main():
         description="Generate host-ingress messages, produce them to ingress topic and make sure they appear in DB",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "--count", default=100, type=int, help="How many messages to prepare"
-    )
+    parser.add_argument("--count", default=100, type=int, help="How many messages to prepare")
     parser.add_argument(
         "--relatives",
         default=100,

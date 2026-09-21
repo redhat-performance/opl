@@ -19,12 +19,12 @@ def execute_query(connection, query):
     try:
         cursor.execute(query)
     except psycopg2.ProgrammingError as e:
-        logging.error('Failed to execute query %s: %s', query, e)
+        logging.error("Failed to execute query %s: %s", query, e)
         return None
     count = cursor.fetchone()[0]
     cursor.close()
     connection.commit()
-    logging.debug('Query %s returned %s', query, count)
+    logging.debug("Query %s returned %s", query, count)
     return count
 
 
@@ -63,11 +63,11 @@ def truncate_table(connection, table):
     """Truncate a table."""
     cursor = connection.cursor()
 
-    logging.debug('Truncating table %s', table)
+    logging.debug("Truncating table %s", table)
     try:
         cursor.execute(f"TRUNCATE TABLE {table}")
     except psycopg2.ProgrammingError as e:
-        logging.error('Failed to truncate table %s: %s', table, e)
+        logging.error("Failed to truncate table %s: %s", table, e)
     else:
         connection.commit()
 
@@ -79,15 +79,15 @@ def recreate_table(connection, table, table_sql):
     """
     cursor = connection.cursor()
 
-    logging.debug('Dropping table %s', table)
+    logging.debug("Dropping table %s", table)
     try:
         cursor.execute(f"DROP TABLE {table}")
     except (psycopg2.InternalError, UndefinedTable) as e:
-        logging.error('Failed to drop %s: %s', table, e)
+        logging.error("Failed to drop %s: %s", table, e)
         cursor = connection.cursor()
     connection.commit()
 
-    logging.debug('Creating table %s', table)
+    logging.debug("Creating table %s", table)
     for sql in table_sql:
         cursor.execute(sql)
     connection.commit()
@@ -99,7 +99,7 @@ def null_column(connection, table, column):
     """
     cursor = connection.cursor()
 
-    logging.debug('Setting %s.%s to NULL', table, column)
+    logging.debug("Setting %s.%s to NULL", table, column)
     cursor.execute(f"UPDATE {table} SET {column} = NULL")
     connection.commit()
 
@@ -137,9 +137,7 @@ def doit(args, status_data):  # pylint: disable=redefined-outer-name
                 args.wait_for_count_timeout,
                 args.wait_for_count_progress,
             )
-            print(
-                f"Table {table} reached {count} rows (goal was {args.wait_for_count})"
-            )
+            print(f"Table {table} reached {count} rows (goal was {args.wait_for_count})")
         if args.wait_for_result:
             query = tables_definition["queries"][args.wait_for_result_query]
             count = wait_for_count(
@@ -161,9 +159,7 @@ def doit(args, status_data):  # pylint: disable=redefined-outer-name
             print(f"Table {table} dropped and created")
         if args.null_column:
             null_column(connection, table, args.null_column)
-            status_data.set_now(
-                f"parameters.storage.{table}.columnt_{args.null_column}_nulled_at"
-            )
+            status_data.set_now(f"parameters.storage.{table}.columnt_{args.null_column}_nulled_at")
             print(f"Column {table}.{args.null_column} nulled")
 
 
@@ -173,9 +169,7 @@ def main():
         description="Script to maintain tables in storage DB",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "--count", action="store_true", help="Count rows in the table(s)"
-    )
+    parser.add_argument("--count", action="store_true", help="Count rows in the table(s)")
     parser.add_argument(
         "--wait-for-count",
         type=int,
@@ -203,12 +197,8 @@ def main():
         help="What query from tables.yaml to use for --wait-for-result function",
     )
     parser.add_argument("--truncate", action="store_true", help="Truncate the table(s)")
-    parser.add_argument(
-        "--recreate", action="store_true", help="Just drop and create the table(s)"
-    )
-    parser.add_argument(
-        "--null-column", help="Put NULL to column in table specified by tables"
-    )
+    parser.add_argument("--recreate", action="store_true", help="Just drop and create the table(s)")
+    parser.add_argument("--null-column", help="Put NULL to column in table specified by tables")
     parser.add_argument(
         "tables",
         nargs="*",

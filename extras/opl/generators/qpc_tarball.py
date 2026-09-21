@@ -23,9 +23,7 @@ def get_tarball_message(account, remotename, size, download_url):
         "service": "qpc",
         "size": size,
         "url": download_url,
-        "b64_identity": opl.gen.get_auth_header(account, account, account).decode(
-            "UTF-8"
-        ),
+        "b64_identity": opl.gen.get_auth_header(account, account, account).decode("UTF-8"),
         "timestamp": opl.gen.gen_datetime().replace("+00:00", "Z"),
     }
     return json.dumps(data)
@@ -52,16 +50,14 @@ class QPCTarballSlice:
 
     def add_host(self, host_json):
         """Add a host to the slice (only before dump)."""
-        assert (
-            self.dump_file is None
-        ), "Slice already dumped, do not temper with hosts please"
+        assert self.dump_file is None, "Slice already dumped, do not temper with hosts please"
         self.hosts.append(host_json)
 
     def dump(self, dirname):
         """Dump the slice to a JSON file, return its path."""
         if self.dump_file is None:
             self.dump_file = os.path.join(dirname.name, self.id + ".json")
-            logging.debug('Writing %s', self.dump_file)
+            logging.debug("Writing %s", self.dump_file)
             with open(self.dump_file, "w", encoding="utf-8") as fp:
                 json.dump({"report_slice_id": self.id, "hosts": self.hosts}, fp)
 
@@ -78,9 +74,7 @@ class QPCTarball:
     def __init__(self, tarball_conf, s3_conf=None):
         self.slices = []
         self.filename = tempfile.mkstemp(suffix="-output.tar.gz")[1]
-        self.remotename = os.path.join(
-            "upload-service-opl", os.path.basename(self.filename)
-        )
+        self.remotename = os.path.join("upload-service-opl", os.path.basename(self.filename))
         self.s3_conf = s3_conf
         self.tarball_conf = tarball_conf
         self.download_url = None
@@ -94,12 +88,8 @@ class QPCTarball:
         self.dump()
 
         s3_resource = opl.s3_tools.connect(self.s3_conf)
-        self.size = opl.s3_tools.upload_file(
-            s3_resource, self.filename, self.s3_conf["bucket"], self.remotename
-        )
-        self.download_url = opl.s3_tools.get_presigned_url(
-            s3_resource, self.s3_conf["bucket"], self.remotename
-        )
+        self.size = opl.s3_tools.upload_file(s3_resource, self.filename, self.s3_conf["bucket"], self.remotename)
+        self.download_url = opl.s3_tools.get_presigned_url(s3_resource, self.s3_conf["bucket"], self.remotename)
 
         os.remove(self.filename)
 
@@ -113,12 +103,10 @@ class QPCTarball:
             "source_metadata": {
                 "foreman_rh_cloud_version": "3.0.14",
             },
-            "report_slices": {
-                s.get_id(): {"number_hosts": s.get_host_count()} for s in self.slices
-            },
+            "report_slices": {s.get_id(): {"number_hosts": s.get_host_count()} for s in self.slices},
         }
 
-        logging.debug('Writing %s', filename)
+        logging.debug("Writing %s", filename)
         with open(filename, "w", encoding="utf-8") as fp:
             json.dump(data, fp)
 
@@ -140,15 +128,13 @@ class QPCTarball:
                 tar.add(os.path.basename(name))
         os.chdir(orig_cwd)
 
-        logging.info('Wrote %s', self.filename)
+        logging.info("Wrote %s", self.filename)
 
         return self.filename
 
     def dumps_message(self):
         """Return the message for the generated tarball."""
-        return get_tarball_message(
-            self.account, self.remotename, self.size, self.download_url
-        )
+        return get_tarball_message(self.account, self.remotename, self.size, self.download_url)
 
     def cleanup(self):
         """Remove the temporary directory."""

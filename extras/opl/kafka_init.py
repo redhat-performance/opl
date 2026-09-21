@@ -49,7 +49,7 @@ class KafkaInit:
         }
 
         if args.kafka_username != "" and args.kafka_password != "":
-            logging.info('Creating SASL password-protected producer to %s', bootstrap_servers)
+            logging.info("Creating SASL password-protected producer to %s", bootstrap_servers)
             sasl_params = {
                 "security_protocol": "SASL_SSL",
                 "sasl_mechanism": "SCRAM-SHA-512",
@@ -58,7 +58,7 @@ class KafkaInit:
             }
             producer = KafkaProducer(**common_params, **sasl_params)
         else:
-            logging.info('Creating passwordless producer to %s', bootstrap_servers)
+            logging.info("Creating passwordless producer to %s", bootstrap_servers)
             producer = KafkaProducer(**common_params)
 
         if status_data is not None:
@@ -85,15 +85,18 @@ class KafkaInit:
             "max_poll_interval_ms": getattr(args, "kafka_max_poll_interval_ms", 300000),
             "group_id": getattr(args, "kafka_group", None),
             "session_timeout_ms": getattr(args, "kafka_session_timeout_ms", 50000),
-            "heartbeat_interval_ms": getattr(
-                args, "kafka_heartbeat_interval_ms", 10000
-            ),
+            "heartbeat_interval_ms": getattr(args, "kafka_heartbeat_interval_ms", 10000),
             "consumer_timeout_ms": getattr(args, "kafka_timeout", 100000),
         }
 
         # Kafka consumer creation: SASL or noauth
         if args.kafka_username != "" and args.kafka_password != "":
-            logging.info('Creating SASL password-protected Kafka consumer for %s in group %s with timeout %s ms', bootstrap_servers, common_params['group_id'], common_params['session_timeout_ms'])
+            logging.info(
+                "Creating SASL password-protected Kafka consumer for %s in group %s with timeout %s ms",
+                bootstrap_servers,
+                common_params["group_id"],
+                common_params["session_timeout_ms"],
+            )
             sasl_params = {
                 "security_protocol": "SASL_SSL",
                 "sasl_mechanism": "SCRAM-SHA-512",
@@ -102,7 +105,12 @@ class KafkaInit:
             }
             consumer = KafkaConsumer(**common_params, **sasl_params)
         else:
-            logging.info('Creating passwordless Kafka consumer for %s in group %s with timeout %s ms', bootstrap_servers, common_params['group_id'], common_params['session_timeout_ms'])
+            logging.info(
+                "Creating passwordless Kafka consumer for %s in group %s with timeout %s ms",
+                bootstrap_servers,
+                common_params["group_id"],
+                common_params["session_timeout_ms"],
+            )
             consumer = KafkaConsumer(**common_params)
 
         if status_data is not None:

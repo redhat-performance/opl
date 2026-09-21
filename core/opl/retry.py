@@ -30,12 +30,16 @@ def retry_on_traceback(max_attempts=10, wait_seconds=1):
             while True:
                 try:
                     return func(*args, **kwargs)
-                except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                except (
+                    Exception
+                ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     if attempt >= max_attempts:
                         raise  # Reraise the exception after all retries are exhausted
 
                     attempt += 1
-                    logging.debug('Retrying in %s seconds. Attempt %s/%s failed with: %s', wait_seconds, attempt, max_attempts, e)
+                    logging.debug(
+                        "Retrying in %s seconds. Attempt %s/%s failed with: %s", wait_seconds, attempt, max_attempts, e
+                    )
                     time.sleep(wait_seconds)
 
         return wrapper

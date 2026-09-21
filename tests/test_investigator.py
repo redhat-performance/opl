@@ -107,14 +107,8 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         # Check recorded decisions
         with open("/tmp/decisions.csv", "r") as fd:
             decisions = fd.readlines()
-        self.assertTrue(
-            decisions[1].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,")
-        )
-        self.assertTrue(
-            decisions[2].startswith(
-                "metric2,PASS,check_by_min_max_0_1,1000,995.0,1005.0,,,,"
-            )
-        )
+        self.assertTrue(decisions[1].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,"))
+        self.assertTrue(decisions[2].startswith("metric2,PASS,check_by_min_max_0_1,1000,995.0,1005.0,,,,"))
 
     def test_happy_methods_partial(self):
         files = {
@@ -160,19 +154,9 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         # Check recorded decisions
         with open("/tmp/decisions.csv", "r") as fd:
             decisions = fd.readlines()
-        self.assertTrue(
-            decisions[1].startswith(
-                "metric1,PASS,check_by_provided_min_max,5,4.5,5.5,,,,"
-            )
-        )
-        self.assertTrue(
-            decisions[2].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,")
-        )
-        self.assertTrue(
-            decisions[3].startswith(
-                "metric2,PASS,check_by_min_max_0_1,1000,995.0,1005.0,,,,"
-            )
-        )
+        self.assertTrue(decisions[1].startswith("metric1,PASS,check_by_provided_min_max,5,4.5,5.5,,,,"))
+        self.assertTrue(decisions[2].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,"))
+        self.assertTrue(decisions[3].startswith("metric2,PASS,check_by_min_max_0_1,1000,995.0,1005.0,,,,"))
 
 
 class TestCheckIsZero(unittest.TestCase):

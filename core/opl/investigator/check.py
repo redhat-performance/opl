@@ -14,7 +14,7 @@ def _count_deviation(value, lower_boundary, upper_boundary):
         frac = dist / abs(upper_boundary - lower_boundary)
     except ZeroDivisionError:
         frac = 1
-    logging.debug('_count_deviation(%s, %s, %s): dist=%s frac=%s', value, lower_boundary, upper_boundary, dist, frac)
+    logging.debug("_count_deviation(%s, %s, %s): dist=%s frac=%s", value, lower_boundary, upper_boundary, dist, frac)
     return frac
 
 
@@ -65,10 +65,17 @@ def _check_by_min_max(data, value, comparator):
     Returns:
         Boolean value
     """
-    logging.debug('data=%s and value=%s', data, value)
+    logging.debug("data=%s and value=%s", data, value)
     mean = statistics.mean(data)
     lower_boundary, upper_boundary = _calculate_lower_upper_boundary(data, comparator)
-    logging.info("value=%s, data len=%s mean=%f'.03f', i.e. boundaries=%f'.03f'--%f'.03f'", value, len(data), mean, lower_boundary, upper_boundary)
+    logging.info(
+        "value=%s, data len=%s mean=%f'.03f', i.e. boundaries=%f'.03f'--%f'.03f'",
+        value,
+        len(data),
+        mean,
+        lower_boundary,
+        upper_boundary,
+    )
     info = collections.OrderedDict(
         [
             ("method", inspect.stack()[1][3]),
@@ -85,13 +92,21 @@ def _check_by_min_max(data, value, comparator):
 
 
 def _check_by_stdev(data, value, num_deviations):
-    logging.debug('data=%s and value=%s', data, value)
+    logging.debug("data=%s and value=%s", data, value)
     mean = statistics.mean(data)
     stdev = statistics.stdev(data)
     acceptable_deviation = stdev * num_deviations
     lower_boundary = float(mean - acceptable_deviation)
     upper_boundary = float(mean + acceptable_deviation)
-    logging.info("value=%s, data len=%s mean=%f'.03f', stdev=%f'.03f', boundaries=%f'.03f'--%f'.03f'", value, len(data), mean, stdev, lower_boundary, upper_boundary)
+    logging.info(
+        "value=%s, data len=%s mean=%f'.03f', stdev=%f'.03f', boundaries=%f'.03f'--%f'.03f'",
+        value,
+        len(data),
+        mean,
+        stdev,
+        lower_boundary,
+        upper_boundary,
+    )
     info = collections.OrderedDict(
         [
             ("method", inspect.stack()[1][3]),
@@ -110,12 +125,19 @@ def _check_by_stdev(data, value, num_deviations):
 
 def check_by_iqr(data, value):
     """Checks if the current value is within the interquartile range of the previous values"""
-    logging.debug('data=%s and value=%s', data, value)
+    logging.debug("data=%s and value=%s", data, value)
     mean = statistics.mean(data)
     quantiles = statistics.quantiles(data)
     lower_boundary = float(quantiles[0])
     upper_boundary = float(quantiles[2])
-    logging.info("value=%s, data len=%s mean=%f'.03f', boundaries=%f'.03f'--%f'.03f'", value, len(data), mean, lower_boundary, upper_boundary)
+    logging.info(
+        "value=%s, data len=%s mean=%f'.03f', boundaries=%f'.03f'--%f'.03f'",
+        value,
+        len(data),
+        mean,
+        lower_boundary,
+        upper_boundary,
+    )
     info = collections.OrderedDict(
         [
             ("method", inspect.stack()[0][3]),
@@ -188,9 +210,7 @@ def check_is_zero(_, value):
     return value == 0, info
 
 
-def check(
-    methods, data, value, description="N/A", verbose=True
-):  # pylint: disable=unused-argument
+def check(methods, data, value, description="N/A", verbose=True):  # pylint: disable=unused-argument
     """Run all given check methods and return results and info."""
     assert value is not None, "Value to check should not be None"
 
@@ -204,15 +224,19 @@ def check(
         method_args = method.get("args", [])
         result, info = globals()[method_name](data, value, *method_args)
         results.append(result)
-        logging.info('%s(%s) value %s returned %s', method_name, ', '.join([str(i) for i in method_args]), value, 'PASS' if result else 'FAIL')
+        logging.info(
+            "%s(%s) value %s returned %s",
+            method_name,
+            ", ".join([str(i) for i in method_args]),
+            value,
+            "PASS" if result else "FAIL",
+        )
 
         info_full = collections.OrderedDict()
         info_full["description"] = description
         info_full["result"] = "PASS" if result else "FAIL"
         info_full.update(info)
-        info_full["deviation"] = _count_deviation(
-            value, info["lower_boundary"], info["upper_boundary"]
-        )
+        info_full["deviation"] = _count_deviation(value, info["lower_boundary"], info["upper_boundary"])
         for k, v in info_full.items():
             if isinstance(v, float) and v in (float("inf"), float("-inf")):
                 info_full[k] = None

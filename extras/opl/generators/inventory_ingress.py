@@ -35,9 +35,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         assert fraction > 0
         self.fraction = fraction  # how often we should be returning new system
         self.addresses = addresses  # how many IP addresses should the host have
-        self.mac_addresses = (
-            mac_addresses  # how many MAC addresses should the host have
-        )
+        self.mac_addresses = mac_addresses  # how many MAC addresses should the host have
         self.packages = packages  # how many packages should be in RHSM package profile
         self.per_account_data = (  # this is used e.g. when generating messages for Edge where wee need specific rpm-ostree commit for given account
             per_account_data or []
@@ -45,24 +43,16 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
         self.per_account_data_add_filed = per_account_data_add_filed  # set to non-None to add these values to per account json data file (e.g. to track host UUIDs created for individual account)
 
         if len(self.per_account_data) > 0:
-            assert (
-                relatives is None
-            ), "If you provide per_account_data, relatives is ignored. Set it to None."
-        self.relatives = self._get_relatives(
-            relatives
-        )  # list of accounts/... to choose from
+            assert relatives is None, "If you provide per_account_data, relatives is ignored. Set it to None."
+        self.relatives = self._get_relatives(relatives)  # list of accounts/... to choose from
         self.relatives_index = 0  # into what account we should put a host
 
-        assert (
-            fraction == 1
-        ), "'fraction' handling not yet implemented, please just use 1"
+        assert fraction == 1, "'fraction' handling not yet implemented, please just use 1"
 
         # This will be used to generate list of packages
         self.per_host_random_packages = per_host_random_packages
         self.packages = packages
-        self.pg = opl.generators.packages.PackagesGenerator(
-            package_file_name=package_file_name
-        )
+        self.pg = opl.generators.packages.PackagesGenerator(package_file_name=package_file_name)
         if not self.per_host_random_packages:
             self.packages_generated = self.pg.generate(self.packages)
 
@@ -115,17 +105,11 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                     "Intel(R) I7(R) CPU I7-10900k 0 @ 4.90GHz",
                 ]
             ),
-            "operating_system": json.dumps(
-                self._get_operating_system(self.os_override)
-            ),
+            "operating_system": json.dumps(self._get_operating_system(self.os_override)),
             "installed_packages": json.dumps(packages_generated),
             "tuned_profile": random.choice(["desktop", "example", "laptop"]),
-            "selinux_current_mode": random.choice(
-                ["enforcing", "permissive", "disabled"]
-            ),
-            "selinux_config_file": random.choice(
-                ["permissive", "sleepy", "authoritative"]
-            ),
+            "selinux_current_mode": random.choice(["enforcing", "permissive", "disabled"]),
+            "selinux_config_file": random.choice(["permissive", "sleepy", "authoritative"]),
             "rhsm": json.dumps(self._get_rhsm()),
             "rhc_client_id": self._get_uuid(),
             "rhc_config_state": self._get_uuid(),
@@ -170,39 +154,30 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
             "tommorowz": self._get_tommorow_iso_z(),
             "packages": packages_generated,
             "yum_repos": opl.generators.packages.YumReposGenerator().generate(137),
-            "enabled_services": opl.generators.packages.EnabledServicesGenerator().generate(
-                139
-            ),
-            "installed_services": opl.generators.packages.InstalledServicesGenerator().generate(
-                160
-            ),
-            "running_processes": opl.generators.packages.RunningProcessesGenerator().generate(
-                89
-            ),
+            "enabled_services": opl.generators.packages.EnabledServicesGenerator().generate(139),
+            "installed_services": opl.generators.packages.InstalledServicesGenerator().generate(160),
+            "running_processes": opl.generators.packages.RunningProcessesGenerator().generate(89),
         }
-        data.update(
-            self.relatives[self.relatives_index % len(self.relatives)]
-        )  # add account and orgid
+        data.update(self.relatives[self.relatives_index % len(self.relatives)])  # add account and orgid
         self.relatives_index += 1  # increment where are we going to put next host
         if "os_tree_commits" in data:
             data["os_tree_commit"] = data["os_tree_commits"][0]
-        data.update(
-            {"b64_identity": self._get_b64_identity(data["account"], data["orgid"])}
-        )
+        data.update({"b64_identity": self._get_b64_identity(data["account"], data["orgid"])})
         if self.per_account_data_add_filed is not None:
             for account_data in self.per_account_data:
                 if account_data["account"] == data["account"]:
                     break
             else:
-                raise ValueError(
-                    f"Failed to find account data for account {data['account']} in per_account_data file"
-                )
+                raise ValueError(f"Failed to find account data for account {data['account']} in per_account_data file")
             if self.per_account_data_add_filed not in account_data:
                 account_data[self.per_account_data_add_filed] = []
-            logging.debug('Adding %s=%s to per account data file for account %s', self.per_account_data_add_filed, data[self.per_account_data_add_filed], data['account'])
-            account_data[self.per_account_data_add_filed].append(
-                data[self.per_account_data_add_filed]
+            logging.debug(
+                "Adding %s=%s to per account data file for account %s",
+                self.per_account_data_add_filed,
+                data[self.per_account_data_add_filed],
+                data["account"],
             )
+            account_data[self.per_account_data_add_filed].append(data[self.per_account_data_add_filed])
         return data
 
 

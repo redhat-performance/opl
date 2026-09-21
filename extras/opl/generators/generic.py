@@ -43,7 +43,7 @@ class GenericGenerator:
         )
         self.template = self.env.get_template(self.template_file)
 
-        logging.info('Created %s', self)
+        logging.info("Created %s", self)
 
     def __repr__(self):
         return f"<GenricGenerator({self.count}, {self.template_file}, {self.dump_message})>"
@@ -126,20 +126,14 @@ class GenericGenerator:
         return rfc_time
 
     def _get_tommorow_iso(self):
-        return (
-            opl.date.get_now() + datetime.timedelta(days=1)
-        ).isoformat()
+        return (opl.date.get_now() + datetime.timedelta(days=1)).isoformat()
 
     def _get_tommorow_iso_z(self):
         return self._get_tommorow_iso().replace("+00:00", "Z")
 
     def _get_tommorow_rfc(self):
-        rfc_time_tommorow = (
-            opl.date.get_now() + datetime.timedelta(days=1)
-        ).isoformat()
-        rfc_time_tommorow = (rfc_time_tommorow.replace("T", " "))[
-            : len(rfc_time_tommorow) - 3
-        ]
+        rfc_time_tommorow = (opl.date.get_now() + datetime.timedelta(days=1)).isoformat()
+        rfc_time_tommorow = (rfc_time_tommorow.replace("T", " "))[: len(rfc_time_tommorow) - 3]
         return rfc_time_tommorow
 
     def _get_ips_macs(self, count):
@@ -163,9 +157,7 @@ class GenericGenerator:
         return jinja2.meta.find_undeclared_variables(ast)
 
     def _get_b64_identity(self, account, orgid):
-        return opl.gen.get_auth_header(
-            account=account, user=opl.gen.gen_safe_string(), org_id=orgid
-        ).decode()
+        return opl.gen.get_auth_header(account=account, user=opl.gen.gen_safe_string(), org_id=orgid).decode()
 
     def _get_disk_devices(self):
         device = ["/dev/fdd2", "/dev/fdd0", "/dev/fdd1"]

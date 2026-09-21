@@ -28,12 +28,12 @@ def disable_insecure_request_warnings(disable_it):
 
 def req(method, url, **kwargs):
     """Do an HTTP request, log it, and return parsed JSON."""
-    logging.debug('Going to do %s request to %s with %s', method, url, kwargs)
+    logging.debug("Going to do %s request to %s with %s", method, url, kwargs)
     response = method(url, **kwargs)
     if not response.ok:
-        logging.error('Request failed: %s', response.text)
+        logging.error("Request failed: %s", response.text)
     response.raise_for_status()
-    logging.debug('Request returned %s', response.json())
+    logging.debug("Request returned %s", response.json())
     return response.json()
 
 

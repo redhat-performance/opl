@@ -17,6 +17,8 @@ def load(fp, columns):
         for col, values in out.items():
             values.append(float(row[col]))
 
-    logging.info('Loaded file %s and parsed %s columns with %s rows', fp.name, len(out.keys()), len(next(iter(out.values()))))
+    logging.info(
+        "Loaded file %s and parsed %s columns with %s rows", fp.name, len(out.keys()), len(next(iter(out.values())))
+    )
 
     return out

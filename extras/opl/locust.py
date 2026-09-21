@@ -10,9 +10,7 @@ import tabulate
 from locust import env as l_env  # pylint: disable=no-name-in-module,import-self
 
 
-def run_locust(
-    args, status_data, test_set, new_stats=False, summary_only=False, sort_stats=False
-):
+def run_locust(args, status_data, test_set, new_stats=False, summary_only=False, sort_stats=False):
     """Run a Locust test (local, master or worker runner) and collect stats."""
     # Local runner is True by default, bot overwrite it if we have selected
     # master or worker runner
@@ -64,13 +62,15 @@ def run_locust(
             while True:
                 num_requests = env.stats.num_requests
                 if num_requests >= args.test_requests:
-                    logging.debug('Finished %s requests while requested number was %s', num_requests, args.test_requests)
+                    logging.debug(
+                        "Finished %s requests while requested number was %s", num_requests, args.test_requests
+                    )
                     break
-                logging.debug('Still waiting for test requests count (%s out of %s)', num_requests, args.test_requests)
+                logging.debug("Still waiting for test requests count (%s out of %s)", num_requests, args.test_requests)
                 time.sleep(1)
         else:
             time.sleep(args.test_duration)
-            logging.debug('Waited for %s seconds', args.test_duration)
+            logging.debug("Waited for %s seconds", args.test_duration)
         gevent.spawn(env.runner.quit)
 
         # Wait for the greenlets to finish
@@ -78,9 +78,7 @@ def run_locust(
         status_data.set_now("results.end")
         logging.info("Local Locust run finished")
 
-        return show_locust_stats(
-            env.stats, status_data, new_stats, summary_only, sort_stats
-        )
+        return show_locust_stats(env.stats, status_data, new_stats, summary_only, sort_stats)
 
     if args.locust_master_runner:
         env.create_master_runner(
@@ -121,9 +119,7 @@ def run_locust(
         status_data.set_now("results.end")
         logging.info("Master Locust run finished")
 
-        return show_locust_stats(
-            env.stats, status_data, new_stats, summary_only, sort_stats
-        )
+        return show_locust_stats(env.stats, status_data, new_stats, summary_only, sort_stats)
 
     if args.locust_worker_runner:
         env.create_worker_runner(
@@ -147,9 +143,7 @@ def run_locust(
     raise ValueError("No runner specified")
 
 
-def show_locust_stats(
-    locust_stats, status_data, new_stats, summary_only, sort_stats=False
-):
+def show_locust_stats(locust_stats, status_data, new_stats, summary_only, sort_stats=False):
     """
     Print Locust stats obejct and format nice table of it.
     Also add values to status data object.
@@ -175,11 +169,7 @@ def show_locust_stats(
     sum_total_response_time = 0.0
     sum_total_content_length = 0
     sum_total_rps = 0.0
-    entries = (
-        sorted(locust_stats.entries.items())
-        if sort_stats
-        else locust_stats.entries.items()
-    )
+    entries = sorted(locust_stats.entries.items()) if sort_stats else locust_stats.entries.items()
     for name, value in entries:
         sum_count += value.num_requests
         sum_failures += value.num_failures
@@ -193,9 +183,7 @@ def show_locust_stats(
         data["count"].append(value.num_requests)
         data["fail ratio"].append(value.fail_ratio)
         data["med resp time"].append(value.median_response_time)
-        data["avg content lenght"].append(
-            value.total_content_length / value.num_requests
-        )
+        data["avg content lenght"].append(value.total_content_length / value.num_requests)
         data["total RPS"].append(value.total_rps)
 
         name_safe = re.sub("[^a-zA-Z0-9-]+", "_", f"{name[1]} {name[0]}")
@@ -228,9 +216,7 @@ def show_locust_stats(
         data["fail ratio"].append(sum_failures / sum_count)
         data_new["SUMMARY"]["fail_ratio"] = sum_failures / sum_count
         data["med resp time"].append(sum_total_response_time / sum_count)
-        data_new["SUMMARY"]["median_response_time"] = (
-            sum_total_response_time / sum_count
-        )
+        data_new["SUMMARY"]["median_response_time"] = sum_total_response_time / sum_count
         data["avg content lenght"].append(sum_total_content_length / sum_count)
         data_new["SUMMARY"]["avg_content_length"] = sum_total_content_length / sum_count
     else:
@@ -252,9 +238,7 @@ def show_locust_stats(
     if len(errors) == 0:
         print("Good, no errors.")
     else:
-        errors_table = [
-            e.update({"error": e["error"][:100]}) or e for e in copy.deepcopy(errors)
-        ]
+        errors_table = [e.update({"error": e["error"][:100]}) or e for e in copy.deepcopy(errors)]
         table = tabulate.tabulate(errors_table, headers="keys")
         print(table)
     if status_data is not None:
@@ -269,9 +253,7 @@ def show_locust_stats(
             r_status = "OK" if data["fail ratio"][i] == 0.0 else "EE"
             r = f"[{r_status}] {r_req}"
             if r in transposed:
-                logging.error(
-                    "Second same key? That is strange. We are loosing data in status data file."
-                )
+                logging.error("Second same key? That is strange. We are loosing data in status data file.")
             transposed[r] = {}
             for f in ["count", "fail ratio", "med resp time", "total RPS"]:
                 transposed[r][f] = data[f][i]
@@ -283,7 +265,7 @@ def show_locust_stats(
             sd_data = data_new
 
     if status_data is not None:
-        logging.debug('Adding %s style results to status data file', 'new' if new_stats else 'old')
+        logging.debug("Adding %s style results to status data file", "new" if new_stats else "old")
         status_data.set("results.requests", sd_data)
 
     return sum_failures

@@ -26,7 +26,7 @@ class StatusData:
         self.filename = filename
         if filename.startswith("http://") or filename.startswith("https://"):
             tmp = tempfile.mktemp()
-            logging.info('Downloading %s to %s and will work with that file from now on', filename, tmp)
+            logging.info("Downloading %s to %s and will work with that file from now on", filename, tmp)
             r = requests.get(filename, verify=False, timeout=60)
             with open(tmp, "wb") as fp:
                 fp.write(r.content)
@@ -50,17 +50,17 @@ class StatusData:
             self._filename_mtime = os.path.getmtime(self._filename)
             with open(self._filename, "r", encoding="utf-8") as fp:
                 self._data = json.load(fp)
-            logging.debug('Loaded status data from %s', self._filename)
+            logging.debug("Loaded status data from %s", self._filename)
         except FileNotFoundError:
             self.clear()
-            logging.info('Opening empty status data file %s', self._filename)
+            logging.info("Opening empty status data file %s", self._filename)
 
     def __getitem__(self, key):
-        logging.debug('Getting item %s from %s', key, self._filename)
+        logging.debug("Getting item %s from %s", key, self._filename)
         return self._data.get(key, None)
 
     def __setitem__(self, key, value):
-        logging.debug('Setting item %s from %s', key, self._filename)
+        logging.debug("Setting item %s from %s", key, self._filename)
         self._data[key] = value
 
     def __repr__(self):
@@ -70,7 +70,7 @@ class StatusData:
         return self._data == other._data
 
     def __gt__(self, other):
-        logging.info('Comparing %s to %s', self, other)
+        logging.info("Comparing %s to %s", self, other)
         return self.get_date("started") > other.get_date("started")
 
     def _split_mutlikey(self, multikey):
@@ -88,9 +88,7 @@ class StatusData:
             return data
 
         if not isinstance(data, dict):
-            logging.warning(
-                "Attempted to dive into non-dict. Falling back to return None"
-            )
+            logging.warning("Attempted to dive into non-dict. Falling back to return None")
             return None
 
         try:
@@ -119,14 +117,14 @@ class StatusData:
         the way), return None.
         """
         split_key = self._split_mutlikey(multikey)
-        logging.debug('Getting %s from %s', split_key, self._filename)
+        logging.debug("Getting %s from %s", split_key, self._filename)
         return self._get(self._data, split_key)
 
     def get_date(self, multikey):
         """Return value at multikey parsed as datetime, or None."""
         i = self.get(multikey)
         if i is None:
-            logging.warning('Field %s is None, so can not convert to datetime', multikey)
+            logging.warning("Field %s is None, so can not convert to datetime", multikey)
             return None
         return date.my_fromisoformat(i)
 
@@ -140,14 +138,12 @@ class StatusData:
 
         # Check that array key is only used if this is last sub-key
         if array_key:
-            assert (
-                last_key
-            ), "Arrays can only be last in the multi keys (i.e. 'aaa.bbb[]', but not 'aaa[]'.bbb)"
+            assert last_key, "Arrays can only be last in the multi keys (i.e. 'aaa.bbb[]', but not 'aaa[]'.bbb)"
 
         # Check that we are not attempting to change type of already existing key
         if array_key and not missing_key:
-            assert (
-                isinstance(data[current_key], list)
+            assert isinstance(
+                data[current_key], list
             ), "You are trying to change type (e.g. 'aaa' was string and now you are trying to add to 'aaa[]')"
 
         if missing_key:
@@ -165,9 +161,7 @@ class StatusData:
             else:
                 data[current_key] = value
             return None  # This was last key, we are done
-        return self._set(
-            data[current_key], split_key[1:], value
-        )  # This is not last key, so no need to check for array
+        return self._set(data[current_key], split_key[1:], value)  # This is not last key, so no need to check for array
 
     def set(self, multikey, value):
         """
@@ -193,7 +187,7 @@ class StatusData:
             self._data['a']['b'] = [1, 2]
         """
         split_key = self._split_mutlikey(multikey)
-        logging.debug('Setting %s in %s to %s', '.'.join(split_key), self._filename, value)
+        logging.debug("Setting %s in %s to %s", ".".join(split_key), self._filename, value)
         if isinstance(value, datetime.datetime):
             value = value.isoformat()  # make it a string with propper format
         self._set(self._data, split_key, copy.deepcopy(value))
@@ -215,9 +209,7 @@ class StatusData:
             elif file_path.endswith(".yaml"):
                 data = yaml.load(fp, Loader=yaml.SafeLoader)
             else:
-                raise ValueError(
-                    f"Unrecognized extension of file to import: {file_path}"
-                )
+                raise ValueError(f"Unrecognized extension of file to import: {file_path}")
         return self.set(multikey, data)
 
     def _remove(self, data, split_key):
@@ -236,7 +228,7 @@ class StatusData:
         Remove given multikey (and it's content) from status data file
         """
         split_key = self._split_mutlikey(multikey)
-        logging.debug('Removing %s from %s', split_key, self._filename)
+        logging.debug("Removing %s from %s", split_key, self._filename)
         self._remove(self._data, split_key)
 
     def list(self, multikey):
@@ -245,7 +237,7 @@ class StatusData:
         """
         out = []
         split_key = self._split_mutlikey(multikey)
-        logging.debug('Listing %s', split_key)
+        logging.debug("Listing %s", split_key)
         for k, v in self._get(self._data, split_key).items():
             key = ".".join(list(split_key) + [k])
             if isinstance(v, dict):
@@ -308,7 +300,7 @@ class StatusData:
             json.dump(self.dump(), fp, sort_keys=True, indent=4)
         if filename == self._filename:
             self._filename_mtime = os.path.getmtime(filename)
-        logging.debug('Saved status data to %s', filename)
+        logging.debug("Saved status data to %s", filename)
 
 
 def doit_set(status_data, set_this):
@@ -339,7 +331,7 @@ def doit_set(status_data, set_this):
                 except ValueError:
                     pass
 
-        logging.debug('Setting %s = %s (%s)', key, value, type(value))
+        logging.debug("Setting %s = %s (%s)", key, value, type(value))
         status_data.set(key, value)
 
 
@@ -363,7 +355,7 @@ def doit_set_subtree_json(status_data, set_this):
 
         key, value = item.split("=", 1)
 
-        logging.debug('Setting %s = %s (JSON file)', key, value)
+        logging.debug("Setting %s = %s (JSON file)", key, value)
         status_data.set_subtree_json(key, value)
 
 
@@ -399,9 +391,7 @@ def doit_additional(status_data, additional, monitoring_start, monitoring_end, a
             status_data.set(k, v)
             counter_ok += 1
 
-    print(
-        f"Gathered {counter_ok} `ok` data points. Not gathered {counter_bad} `bad` data points"
-    )
+    print(f"Gathered {counter_ok} `ok` data points. Not gathered {counter_bad} `bad` data points")
 
 
 def doit_info(status_data):
@@ -421,18 +411,14 @@ def main():
         default=[],
         help='Set key=value data. If value is "%%NOW%%", current date&time is added',
     )
-    parser.add_argument(
-        "--set-now", nargs="*", default=[], help="Set key to current date&time"
-    )
+    parser.add_argument("--set-now", nargs="*", default=[], help="Set key to current date&time")
     parser.add_argument(
         "--set-subtree-json",
         nargs="*",
         default=[],
         help="Set key to structure from json or yaml formated file (detected by *.json or *.yaml file extension)",
     )
-    parser.add_argument(
-        "--get", nargs="*", default=[], help="Print value for given key(s)"
-    )
+    parser.add_argument("--get", nargs="*", default=[], help="Print value for given key(s)")
     parser.add_argument("--remove", nargs="*", default=[], help="Remove given key(s)")
     parser.add_argument(
         "--additional",
@@ -459,9 +445,7 @@ def main():
         action="store_true",
         help='"started" is set when the status data file is created, "ended" is set when this is used',
     )
-    parser.add_argument(
-        "--info", action="store_true", help="Show basic info from status data file"
-    )
+    parser.add_argument("--info", action="store_true", help="Show basic info from status data file")
     parser.add_argument(
         "--decimal-rounding",
         action="store_true",
@@ -483,9 +467,7 @@ def main():
         if len(args.set_subtree_json) > 0:
             doit_set_subtree_json(status_data, args.set_subtree_json)
         if len(args.get) > 0:
-            doit_print_oneline(
-                status_data, args.get, args.decimal_rounding, args.delimiter
-            )
+            doit_print_oneline(status_data, args.get, args.decimal_rounding, args.delimiter)
         if len(args.remove) > 0:
             doit_remove(status_data, args.remove)
         if args.additional:
@@ -517,15 +499,13 @@ def main_diff():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug('Args: %s', args)
+    logging.debug("Args: %s", args)
 
     first = StatusData(args.first[0])
     second = StatusData(args.second[0])
 
     # pylint: disable=protected-access  # deliberate: comparing internals
-    diff = deepdiff.DeepDiff(
-        first._data, second._data, view="tree"
-    )
+    diff = deepdiff.DeepDiff(first._data, second._data, view="tree")
     # pylint: enable=protected-access
     if args.report:
         print(f"Keys: {', '.join(diff.keys())}")
@@ -557,11 +537,7 @@ def main_diff():
                 except (ValueError, ZeroDivisionError):
                     pass
                 table.append([i.path(), i.t1, i.t2, d])
-            print(
-                tabulate.tabulate(
-                    table, headers=["path", "first", "second", "change [%]"]
-                )
-            )
+            print(tabulate.tabulate(table, headers=["path", "first", "second", "change [%]"]))
         if "type_changes" in diff:
             print("\nTypes changed:\n")
             table = []
@@ -586,12 +562,10 @@ def main_report():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug('Args: %s', args)
+    logging.debug("Args: %s", args)
 
     # Load Jinja2 template
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(os.path.dirname(args.template))
-    )
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(args.template)))
     template = env.get_template(os.path.basename(args.template))
 
     # Load status data document

@@ -66,9 +66,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return instance
 
     def _remove_control_characters(self, s):
-        return "".join(
-            ch for ch in s if unicodedata.category(ch)[0] != "C" or ch == "\n"
-        )
+        return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C" or ch == "\n")
 
     def trim_string_fn(self, data, trim_length):
         """Trim long string, keeping first trim_length words."""
@@ -99,7 +97,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     case.system_out += self._remove_control_characters(f.read())
                     case.system_out += "\n"
                 except ValueError as e:
-                    logging.error('Failed to load %s file: %s', new['system-out'].name, e)
+                    logging.error("Failed to load %s file: %s", new["system-out"].name, e)
         case.system_err = ""
         if new["system-err"]:
             for f in new["system-err"]:
@@ -107,7 +105,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     case.system_err += self._remove_control_characters(f.read())
                     case.system_err += "\n"
                 except ValueError as e:
-                    logging.error('Failed to load %s file: %s', new['system-err'].name, e)
+                    logging.error("Failed to load %s file: %s", new["system-err"].name, e)
 
         case.system_out = self.trim_string_fn(case.system_out, 1000)
         duration = (new["end"] - new["start"]).total_seconds()
@@ -118,7 +116,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
 
         for suite in self:
             if suite.name == suite_name:
-                logging.debug('Suite %s found, going to add into it', suite_name)
+                logging.debug("Suite %s found, going to add into it", suite_name)
                 suite.add_testcase(case)
                 break
         else:
@@ -126,7 +124,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
             # junitparser versions deepcopy the suite on add_testsuite(),
             # so the tree would keep a copy made before the testcase existed
             # and any case added afterwards would silently be lost.
-            logging.debug('Suite %s not found, creating new one', suite_name)
+            logging.debug("Suite %s not found, creating new one", suite_name)
             suite = junitparser.TestSuite(suite_name)
             suite.add_testcase(case)
             self.add_testsuite(suite)
@@ -165,13 +163,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     elif isinstance(r, junitparser.junitparser.Skipped):
                         result = max(result, 1)
                     else:
-                        raise ValueError(
-                            f"No idea how to handle this result type: {r} - {type(r)}"
-                        )
+                        raise ValueError(f"No idea how to handle this result type: {r} - {type(r)}")
                 else:
-                    raise ValueError(
-                        f"No idea how to handle this case result: {case.result}"
-                    )
+                    raise ValueError(f"No idea how to handle this case result: {case.result}")
         return RESULTS[result]
 
     def delete(self):
@@ -222,13 +216,14 @@ class JUnitXmlPlus(junitparser.JUnitXml):
 
     def upload(self, host, verify, project, token, launch, properties):
         """Upload the JUnit file (via Ibutsu) to the RP launch."""
+
         def req(method, url, data):
-            logging.debug('Going to do %s request to %s with %s', method, url, data)
+            logging.debug("Going to do %s request to %s with %s", method, url, data)
             response = method(url, json=data, headers=headers, verify=verify)
             if not response.ok:
-                logging.error('Request failed: %s', response.text)
+                logging.error("Request failed: %s", response.text)
             response.raise_for_status()
-            logging.debug('Request returned %s', response.json())
+            logging.debug("Request returned %s", response.json())
             return response.json()
 
         def times(ts):
@@ -419,9 +414,7 @@ def main():
     subparsers.add_parser("print", help="Print content of the file")
 
     # Create the parser for the "result" command
-    subparsers.add_parser(
-        "result", help="Print overall result from the file"
-    )
+    subparsers.add_parser("result", help="Print overall result from the file")
 
     # create the parser for the "add" command
     parser_add = subparsers.add_parser("add", help="Add testcase into the file")
@@ -432,9 +425,7 @@ def main():
         choices=["PASS", "FAIL", "ERROR"],
         help="Result of the testcase",
     )
-    parser_add.add_argument(
-        "--suite", required=True, help="Testsuite this testcase should be in"
-    )
+    parser_add.add_argument("--suite", required=True, help="Testsuite this testcase should be in")
     parser_add.add_argument(
         "--out",
         type=argparse.FileType("r"),
@@ -464,9 +455,7 @@ def main():
     )
 
     # create the parser for the "ibutsu" command
-    parser_ibutsu = subparsers.add_parser(
-        "ibutsu-import", help="Import the file to Ibutsu"
-    )
+    parser_ibutsu = subparsers.add_parser("ibutsu-import", help="Import the file to Ibutsu")
     parser_ibutsu.add_argument("--host", required=True, help="Ibutsu host")
     parser_ibutsu.add_argument("--token", required=True, help="Ibutsu token")
     parser_ibutsu.add_argument("--project", required=True, help="Ibutsu project")
@@ -491,9 +480,7 @@ def main():
     )
     parser_add.add_argument("--project", required=True, help="ReportPortal project")
     parser_add.add_argument("--token", required=True, help="ReportPortal token")
-    parser_add.add_argument(
-        "--launch", required=True, help="ReportPortal launch name to use when creating"
-    )
+    parser_add.add_argument("--launch", required=True, help="ReportPortal launch name to use when creating")
     parser_add.add_argument(
         "--properties",
         nargs="*",
@@ -505,7 +492,7 @@ def main():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug('Args: %s', args)
+    logging.debug("Args: %s", args)
 
     junit = JUnitXmlPlus.fromfile_or_new(args.file)
 
