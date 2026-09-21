@@ -139,7 +139,7 @@ class pluginProw(pluginBase):
         # Generic Prow options
         parser.add_argument(
             "--base-url",
-            default="https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/test-platform-results/logs/",
+            default="https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/test-platform-results-public/logs/",
             help="Base URL of Prow exporter",
         )
         parser.add_argument(
