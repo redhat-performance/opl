@@ -26,7 +26,7 @@ def _check_response(logger, response):
     try:
         response.raise_for_status()
     except Exception:
-        logger.error(f"Request failed with text: {response.text}")
+        logger.error('Request failed with text: %s', response.text)
         raise
 
 
@@ -118,7 +118,7 @@ class PluginProw(PluginBase):
             )
 
         from_url = f"{args.base_url}/{args.job_name}/{args.job_run_id}/artifacts/{args.run_name}/{args.artifact_path}"
-        logging.info(f"Downloading {from_url} to {args.output_path}")
+        logging.info('Downloading %s to %s', from_url, args.output_path)
         response = requests.get(from_url, timeout=60)
         _check_response(self.logger, response)
         response_content = response.content
@@ -192,21 +192,19 @@ class PluginOpenSearch(PluginBase):
 
     def upload(self, args):
         """Upload input file as an OpenSearch document."""
-        self.logger.info(f"Loading document {args.input_file}")
+        self.logger.info('Loading document %s', args.input_file)
         with open(args.input_file, "r", encoding="utf-8") as fp:
             values = json.load(fp)
 
         args.matcher_field = args.matcher_field.removeprefix(".")
-        self.logger.info(f"Looking for field {args.matcher_field}")
+        self.logger.info('Looking for field %s', args.matcher_field)
         matcher_value = _get_field_value(args.matcher_field, values)
         if matcher_value is None:
             raise Exception(
                 f"Failed to load {args.matcher_field} from {args.input_file}"
             )
 
-        self.logger.info(
-            f"Checking if document {args.matcher_field}={matcher_value} is already present"
-        )
+        self.logger.info('Checking if document %s=%s is already present', args.matcher_field, matcher_value)
         query = {"query": {"match": {f"{args.matcher_field}": matcher_value}}}
         headers = {"Content-Type": "application/json"}
 
@@ -304,7 +302,7 @@ class PluginHorreum(PluginBase):
         }
 
         if "test_name" in args:
-            self.logger.debug(f"Getting test id for {args.test_name}")
+            self.logger.debug('Getting test id for %s', args.test_name)
             response = self._session_get(
                 f"{args.base_url}/api/test/byName/{args.test_name}",
                 headers=self.headers,
@@ -315,7 +313,7 @@ class PluginHorreum(PluginBase):
 
     def upload(self, args):
         """Upload input file results to a Horreum launch."""
-        self.logger.debug(f"Loading file {args.input_file}")
+        self.logger.debug('Loading file %s', args.input_file)
         with open(args.input_file, "r", encoding="utf-8") as fd:
             self.input_file = json.load(fd)
 
@@ -330,16 +328,14 @@ class PluginHorreum(PluginBase):
 
         self._setup(args)
 
-        self.logger.info(f"Looking for field {args.matcher_field}")
+        self.logger.info('Looking for field %s', args.matcher_field)
         matcher_value = _get_field_value(args.matcher_field, self.input_file)
         if matcher_value is None:
             raise Exception(
                 f"Failed to load {args.matcher_field} from {args.input_file}"
             )
 
-        self.logger.debug(
-            f"Searching if result {args.matcher_label}={matcher_value} is already there"
-        )
+        self.logger.debug('Searching if result %s=%s is already there', args.matcher_label, matcher_value)
         filter_data = {args.matcher_label: matcher_value}
         response = self._session_get(
             f"{args.base_url}/api/dataset/list/byTest/{self.test_id}",
@@ -379,9 +375,7 @@ class PluginHorreum(PluginBase):
             trashed_runs = [run for run in runs if run["trashed"] is True]
 
             if trashed_runs:
-                self.logger.debug(
-                    f"Checking {len(trashed_runs)} trashed runs concurrently"
-                )
+                self.logger.debug('Checking %s trashed runs concurrently', len(trashed_runs))
 
                 def check_run_data(run):
                     """Check if a single run matches the matcher value."""
@@ -437,7 +431,7 @@ class PluginHorreum(PluginBase):
 
     def result(self, args):
         """Upload a single result to Horreum."""
-        self.logger.debug(f"Loading file {args.output_file}")
+        self.logger.debug('Loading file %s', args.output_file)
         with open(args.output_file, "r", encoding="utf-8") as fd:
             self.output_file = json.load(fd)
 
@@ -452,7 +446,7 @@ class PluginHorreum(PluginBase):
 
         self._setup(args)
 
-        self.logger.debug(f"Loading list of alerting variables for test {self.test_id}")
+        self.logger.debug('Loading list of alerting variables for test %s', self.test_id)
         response = self._session_get(
             f"{args.base_url}/api/alerting/variables",
             params={"test": self.test_id},
@@ -471,9 +465,7 @@ class PluginHorreum(PluginBase):
         if not alerting_variables:
             self.logger.info("No alerting variables configured for this test")
         else:
-            self.logger.debug(
-                f"Checking {len(alerting_variables)} alerting variables concurrently"
-            )
+            self.logger.debug('Checking %s alerting variables concurrently', len(alerting_variables))
 
             def check_alerting_variable(alerting_variable):
                 """Check a single alerting variable for changes."""
@@ -499,9 +491,7 @@ class PluginHorreum(PluginBase):
                         return (True, alerting_variable, changes)
                     return (False, alerting_variable, None)
                 except Exception as e:
-                    self.logger.warning(
-                        f"Error checking {alerting_variable.get('name', 'unknown')}: {e}"
-                    )
+                    self.logger.warning('Error checking %s: %s', alerting_variable.get('name', 'unknown'), e)
                     return (False, alerting_variable, None)
 
             # Check alerting variables concurrently with max 10 workers
@@ -515,13 +505,13 @@ class PluginHorreum(PluginBase):
                     has_change, var, changes = future.result()
 
                     if has_change:
-                        self.logger.info(f"For {var['name']} detected change {changes}")
+                        self.logger.info('For %s detected change %s', var['name'], changes)
                         change_detected = True
                         # Cancel remaining futures for early termination
                         for f in future_to_var:
                             f.cancel()
                         break
-                    self.logger.info(f"For {var['name']} all looks good")
+                    self.logger.info('For %s all looks good', var['name'])
 
         result = "FAIL" if change_detected else "PASS"
 
@@ -545,7 +535,7 @@ class PluginHorreum(PluginBase):
             "page": 1,
         }
 
-        self.logger.debug(f"Listing results for test {args.test_name}")
+        self.logger.debug('Listing results for test %s', args.test_name)
         while True:
             response = self._session_get(
                 f"{args.base_url}/api/run/list/{self.test_id}",
@@ -568,7 +558,7 @@ class PluginHorreum(PluginBase):
         """Get a Horreum launch."""
         self._setup(args)
 
-        self.logger.debug(f"Geting data for run {args.run_id}")
+        self.logger.debug('Geting data for run %s', args.run_id)
         response = self._session_get(
             f"{args.base_url}/api/run/{args.run_id}/data",
             headers=self.headers,
@@ -579,7 +569,7 @@ class PluginHorreum(PluginBase):
         print(json.dumps(data))
 
     def _schema_uri_to_id(self, base_url, schema_uri):
-        self.logger.debug(f"Geting schema ID for URI {schema_uri}")
+        self.logger.debug('Geting schema ID for URI %s', schema_uri)
         response = self._session_get(
             f"{base_url}/api/schema/idByUri/{schema_uri}",
             headers=self.headers,
@@ -587,14 +577,14 @@ class PluginHorreum(PluginBase):
         )
         _check_response(self.logger, response)
         schema_id = int(response.json())
-        self.logger.debug(f"Schema ID for URI {schema_uri} is {schema_id}")
+        self.logger.debug('Schema ID for URI %s is %s', schema_uri, schema_id)
         return schema_id
 
     def _sanitize_string(self, input_string):
         return re.sub(r"[^a-zA-Z0-9]", "_", input_string)
 
     def _schema_id_labels(self, args, schema_id):
-        self.logger.debug(f"Getting list of labels for schema ID {schema_id}")
+        self.logger.debug('Getting list of labels for schema ID %s', schema_id)
         response = self._session_get(
             f"{args.base_url}/api/schema/{schema_id}/labels",
             headers=self.headers,
@@ -602,7 +592,7 @@ class PluginHorreum(PluginBase):
         )
         _check_response(self.logger, response)
         data = response.json()
-        self.logger.debug(f"Obtained {len(data)} labels for schema ID {schema_id}")
+        self.logger.debug('Obtained %s labels for schema ID %s', len(data), schema_id)
 
         return data
 
@@ -652,7 +642,7 @@ class PluginHorreum(PluginBase):
             "schemaId": schema_id,
         }
 
-        self.logger.debug(f"Adding label to schema id {schema_id}: {new}")
+        self.logger.debug('Adding label to schema id %s: %s', schema_id, new)
         response = self._session_post(
             f"{args.base_url}/api/schema/{schema_id}/labels",
             headers=self.headers,
@@ -661,7 +651,7 @@ class PluginHorreum(PluginBase):
         )
         _check_response(self.logger, response)
         label_id = int(response.json())
-        self.logger.debug(f"Created label ID {label_id} in schema ID {schema_id}")
+        self.logger.debug('Created label ID %s in schema ID %s', label_id, schema_id)
 
     def schema_label_update(self, args):
         """Update a Horreum schema label."""
@@ -721,20 +711,16 @@ class PluginHorreum(PluginBase):
             else:
                 # Label not found, shall we fail now?
                 if args.add_if_missing:
-                    self.logger.warning(
-                        f"Label with name {new_name} not found, so adding new one with new ID"
-                    )
+                    self.logger.warning('Label with name %s not found, so adding new one with new ID', new_name)
                     return self.schema_label_add(args)
                 raise KeyError(f"Failed to find label with name {new_name}")
         else:
             raise Exception("Either --update-by-id or --update-by-name have to be used")
 
         if new == label:
-            self.logger.info(
-                f"Proposed and current label {label['id']} in schema ID {schema_id} are same, nothing to change"
-            )
+            self.logger.info('Proposed and current label %s in schema ID %s are same, nothing to change', label['id'], schema_id)
         else:
-            self.logger.debug(f"Updating label in schema id {schema_id}: {new}")
+            self.logger.debug('Updating label in schema id %s: %s', schema_id, new)
             response = self._session_put(
                 f"{args.base_url}/api/schema/{schema_id}/labels",
                 headers=self.headers,
@@ -743,7 +729,7 @@ class PluginHorreum(PluginBase):
             )
             _check_response(self.logger, response)
             label_id = int(response.json())
-            self.logger.info(f"Updated label ID {label_id} in schema ID {schema_id}")
+            self.logger.info('Updated label ID %s in schema ID %s', label_id, schema_id)
         return None
 
     def schema_label_delete(self, args):
@@ -752,14 +738,14 @@ class PluginHorreum(PluginBase):
 
         schema_id = self._schema_uri_to_id(args.base_url, args.schema_uri)
 
-        self.logger.debug(f"Deleting label ID {args.id} from schema ID {schema_id}")
+        self.logger.debug('Deleting label ID %s from schema ID %s', args.id, schema_id)
         response = self._session_delete(
             f"{args.base_url}/api/schema/{schema_id}/labels/{args.id}",
             headers=self.headers,
             verify=False,
         )
         _check_response(self.logger, response)
-        self.logger.debug(f"Deleted label ID {args.id} in schema ID {schema_id}")
+        self.logger.debug('Deleted label ID %s in schema ID %s', args.id, schema_id)
 
     def set_args(self, parser, subparsers):
         parser.add_argument(
@@ -1048,7 +1034,7 @@ class PluginResultsDashboard(PluginBase):
         """Upload results to the results dashboard."""
         self.input_file = None
         if args.input_file is not None:
-            self.logger.info(f"Loading input file {args.input_file}")
+            self.logger.info('Loading input file %s', args.input_file)
             with open(args.input_file, "r", encoding="utf-8") as fd:
                 self.input_file = json.load(fd)
 
@@ -1065,9 +1051,7 @@ class PluginResultsDashboard(PluginBase):
         args.test = _figure_out_option(args.test, self.input_file)
         args.version = _figure_out_option(args.version, self.input_file)
 
-        self.logger.info(
-            f"Checking if result with test={args.test} and result_id={args.result_id} is already there"
-        )
+        self.logger.info('Checking if result with test=%s and result_id=%s is already there', args.test, args.result_id)
         json_data = json.dumps(
             {
                 "query": {
@@ -1204,12 +1188,12 @@ class PluginHtml(PluginBase):
         #           makes it a non-greedy match so we do not consume href as well.
         href_regex = r'<a\s+(?:[^>]*?\s+)?href=["\']([^"\']*)["\']'
         matched_hrefs = re.findall(href_regex, doc.text, re.IGNORECASE)
-        self.logger.info(f"Found {len(matched_hrefs)} links")
+        self.logger.info('Found %s links', len(matched_hrefs))
 
         # Filter links down as per user provided expression
         compiled_regex = re.compile(args.regexp)
         filtered_hrefs = [href for href in matched_hrefs if compiled_regex.match(href)]
-        self.logger.info(f"Filtered links down to {len(filtered_hrefs)} links")
+        self.logger.info('Filtered links down to %s links', len(filtered_hrefs))
 
         # Make all the links absolute to initial user provided URL.
         # If there is already absolute link like 'http://www.example.com',

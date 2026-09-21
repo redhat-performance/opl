@@ -69,7 +69,7 @@ class GetKafkaTimes:
         cursor.execute(sql)
         self.remaining_count = int(cursor.fetchone()[0])
         cursor.close()
-        logging.debug(f"Remains to get {self.remaining_count} items")
+        logging.debug('Remains to get %s items', self.remaining_count)
 
     def dt_now(self):
         """Return current datetime as string."""
@@ -101,9 +101,7 @@ class GetKafkaTimes:
         try:
             updated = cursor.fetchall()
         except psycopg2.ProgrammingError as e:
-            logging.warning(
-                f"Hit psycopg2.ProgrammingError when fetching number of updated items: {e}"
-            )
+            logging.warning('Hit psycopg2.ProgrammingError when fetching number of updated items: %s', e)
             updated = []
         self.connection.commit()
         cursor.close()
@@ -117,7 +115,7 @@ class GetKafkaTimes:
             self.stored_counter += updated
             self.last_stored_at = self.dt_now()
             self.update_remaining_count()
-        logging.debug(f"Updated {updated} items")
+        logging.debug('Updated %s items', updated)
 
         return updated
 
@@ -156,9 +154,7 @@ class GetKafkaTimes:
                             else None
                         )
                         value = json.loads(message.value.decode("utf-8"))
-                        logging.debug(
-                            f"Received {message.timestamp} {topic.topic} {topic.partition} {message.offset} {str(value)[:100]}..."
-                        )
+                        logging.debug('Received %s %s %s %s %s...', message.timestamp, topic.topic, topic.partition, message.offset, str(value)[:100])
 
                         if self.custom_methods["message_validation"](value):
                             if self.show_processed_messages:
@@ -179,7 +175,7 @@ class GetKafkaTimes:
 
                 # Quit if we have all the data in the DB
                 if self.remaining_count == 0:
-                    logging.info(f"All {self.stored_counter} messages received")
+                    logging.info('All %s messages received', self.stored_counter)
                     break
 
                 # Quit if we have not got enough useful data for too long
@@ -187,13 +183,9 @@ class GetKafkaTimes:
                 if quiet_period > self.max_quiet_period:
                     updated = self.store_now()
                     if updated > 0:
-                        logging.warning(
-                            f"It was quiet for {quiet_period}, but we have saved {updated} items so lets wait some more."
-                        )
+                        logging.warning('It was quiet for %s, but we have saved %s items so lets wait some more.', quiet_period, updated)
                         continue
-                    logging.warning(
-                        f"It was quiet here for {quiet_period}. Skipping remaining items as they are not coming."
-                    )
+                    logging.warning('It was quiet here for %s. Skipping remaining items as they are not coming.', quiet_period)
                     break
 
         self.store_now()

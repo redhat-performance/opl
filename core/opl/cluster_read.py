@@ -26,9 +26,7 @@ def execute(command):
     if p.returncode != 0 or len(p.stderr) != 0:
         stderr = p.stderr.decode().strip().replace("\n", "\t")
         stdout = p.stdout.decode().strip().replace("\n", "\t")
-        logging.error(
-            f"Failed to execute command '{command}' - returned stdout '{stdout}', stderr '{stderr}' and returncode '{p.returncode}'"
-        )
+        logging.error("Failed to execute command '%s' - returned stdout '%s', stderr '%s' and returncode '%s'", command, stdout, stderr, p.returncode)
         result = None
     else:
         result = p.stdout.decode().strip()
@@ -98,7 +96,7 @@ class BasePlugin:
         file_name = re.sub("[^a-zA-Z0-9-]+", "_", name) + ".csv"
         file_path = os.path.join(self.args.monitoring_raw_data_dir, file_name)
 
-        logging.debug(f"Dumping raw data ({len(mydata)} rows) to {file_path}")
+        logging.debug('Dumping raw data (%s rows) to %s', len(mydata), file_path)
         with open(file_path, "w", encoding="utf-8", newline="") as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["timestamp", name])
@@ -120,9 +118,7 @@ class PrometheusMeasurementsPlugin(BasePlugin):
         return self.args.prometheus_token
 
     def measure(self, ri, name, monitoring_query, monitoring_step):
-        logging.debug(
-            f"/Getting data for {name} using Prometheus query {monitoring_query} and step {monitoring_step}"
-        )
+        logging.debug('/Getting data for %s using Prometheus query %s and step %s', name, monitoring_query, monitoring_step)
 
         assert (
             ri.start is not None and ri.end is not None
@@ -317,7 +313,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
                 stats = self._apply_item_extras(data.data_stats([]), item)
             results.append((item["name"], stats))
 
-        logging.debug(f"Batched {len(results)} Grafana targets in one request")
+        logging.debug('Batched %s Grafana targets in one request', len(results))
         return results
 
     def measure_many(self, ri, config_items):
@@ -333,16 +329,13 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         try:
             return self._measure_batched(ri, config_items)
         except Exception as e:
-            logging.warning(
-                f"Batch request failed ({e}), falling back to "
-                f"individual queries for {len(config_items)} targets"
-            )
+            logging.warning('Batch request failed (%s), falling back to individual queries for %s targets', e, len(config_items))
             results = []
             for item in config_items:
                 try:
                     results.append(self.measure(ri, **item))
                 except Exception as e2:
-                    logging.exception(f"Failed to measure {item['name']}: {e2}")
+                    logging.exception('Failed to measure %s: %s', item['name'], e2)
                     results.append((None, None))
             return results
 
@@ -396,9 +389,7 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         return [{"Metric": metric_query}]
 
     def measure(self, requested_info, name, identifier, metric_query, metric_step):
-        logging.debug(
-            f"/Getting data for {identifier} using PI query {metric_query} with monitoring interval {metric_step}"
-        )
+        logging.debug('/Getting data for %s using PI query %s with monitoring interval %s', identifier, metric_query, metric_step)
 
         assert (
             requested_info.start is not None and requested_info.end is not None
@@ -426,7 +417,7 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
         )
 
         # Check that what we got back seems OK
-        logging.debug(f"Response: {response}")
+        logging.debug('Response: %s', response)
         assert len(response["MetricList"]) > 0, "'MetricList' should not be empty"
         assert (
             response["MetricList"][0]["Key"]["Metric"] == metric_query
@@ -441,9 +432,7 @@ class PerformanceInsightsMeasurementPlugin(BasePlugin):
             if "Value" in data_point
         ]
         if len(points) < len(response["MetricList"][0]["DataPoints"]):
-            logging.info(
-                f"Value is missing in the AWS PI datapoints, total data points: {len(response['MetricList'][0]['DataPoints'])}, available values: {len(points)}"
-            )
+            logging.info('Value is missing in the AWS PI datapoints, total data points: %s, available values: %s', len(response['MetricList'][0]['DataPoints']), len(points))
         stats = data.data_stats(points)
         return name, stats
 
@@ -658,7 +647,7 @@ class RequestedInfo:
             try:
                 self.register_measurement_plugin(name, plugin(args))
             except Exception as e:
-                logging.warning(f"Failed to register plugin {name}: {e}")
+                logging.warning('Failed to register plugin %s: %s', name, e)
 
     def register_measurement_plugin(self, key, instance):
         """Register a measurement plugin instance under a config key."""
@@ -726,10 +715,10 @@ class RequestedInfo:
             else:
                 output = instance.measure(self, **self.config[i])
         except NoDataException as e:
-            logging.warning(f"Failed to measure {self.config[i]['name']}: {e}")
+            logging.warning('Failed to measure %s: %s', self.config[i]['name'], e)
             output = (None, None)
         except Exception as e:
-            logging.exception(f"Failed to measure {self.config[i]['name']}: {e}")
+            logging.exception('Failed to measure %s: %s', self.config[i]['name'], e)
             output = (None, None)
         return output
 
@@ -823,7 +812,7 @@ def main():
         )
         return 1
 
-    logging.debug(f"Args: {args}")
+    logging.debug('Args: %s', args)
 
     doit(args)
     return None

@@ -49,9 +49,7 @@ class KafkaInit:
         }
 
         if args.kafka_username != "" and args.kafka_password != "":
-            logging.info(
-                f"Creating SASL password-protected producer to {bootstrap_servers}"
-            )
+            logging.info('Creating SASL password-protected producer to %s', bootstrap_servers)
             sasl_params = {
                 "security_protocol": "SASL_SSL",
                 "sasl_mechanism": "SCRAM-SHA-512",
@@ -60,7 +58,7 @@ class KafkaInit:
             }
             producer = KafkaProducer(**common_params, **sasl_params)
         else:
-            logging.info(f"Creating passwordless producer to {bootstrap_servers}")
+            logging.info('Creating passwordless producer to %s', bootstrap_servers)
             producer = KafkaProducer(**common_params)
 
         if status_data is not None:
@@ -95,9 +93,7 @@ class KafkaInit:
 
         # Kafka consumer creation: SASL or noauth
         if args.kafka_username != "" and args.kafka_password != "":
-            logging.info(
-                f"Creating SASL password-protected Kafka consumer for {bootstrap_servers} in group {common_params['group_id']} with timeout {common_params['session_timeout_ms']} ms"
-            )
+            logging.info('Creating SASL password-protected Kafka consumer for %s in group %s with timeout %s ms', bootstrap_servers, common_params['group_id'], common_params['session_timeout_ms'])
             sasl_params = {
                 "security_protocol": "SASL_SSL",
                 "sasl_mechanism": "SCRAM-SHA-512",
@@ -106,9 +102,7 @@ class KafkaInit:
             }
             consumer = KafkaConsumer(**common_params, **sasl_params)
         else:
-            logging.info(
-                f"Creating passwordless Kafka consumer for {bootstrap_servers} in group {common_params['group_id']} with timeout {common_params['session_timeout_ms']} ms"
-            )
+            logging.info('Creating passwordless Kafka consumer for %s in group %s with timeout %s ms', bootstrap_servers, common_params['group_id'], common_params['session_timeout_ms'])
             consumer = KafkaConsumer(**common_params)
 
         if status_data is not None:

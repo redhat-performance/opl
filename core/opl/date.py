@@ -13,7 +13,7 @@ def my_fromisoformat(string):
     if string[-1] == "Z":
         string = string[:-1] + "+00:00"
     if string[-6] != "+" and string[-5] != "+":
-        logging.warning(f"Date {string} do not have TZ info, assuming '+00:00'")
+        logging.warning("Date %s do not have TZ info, assuming '+00:00'", string)
         string += "+00:00"
     if string[-3] != ":":
         string = string[:-2] + ":" + string[-2:]

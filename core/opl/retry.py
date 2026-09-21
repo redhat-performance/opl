@@ -35,9 +35,7 @@ def retry_on_traceback(max_attempts=10, wait_seconds=1):
                         raise  # Reraise the exception after all retries are exhausted
 
                     attempt += 1
-                    logging.debug(
-                        f"Retrying in {wait_seconds} seconds. Attempt {attempt}/{max_attempts} failed with: {e}"
-                    )
+                    logging.debug('Retrying in %s seconds. Attempt %s/%s failed with: %s', wait_seconds, attempt, max_attempts, e)
                     time.sleep(wait_seconds)
 
         return wrapper

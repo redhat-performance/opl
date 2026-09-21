@@ -26,9 +26,7 @@ class StatusData:
         self.filename = filename
         if filename.startswith("http://") or filename.startswith("https://"):
             tmp = tempfile.mktemp()
-            logging.info(
-                f"Downloading {filename} to {tmp} and will work with that file from now on"
-            )
+            logging.info('Downloading %s to %s and will work with that file from now on', filename, tmp)
             r = requests.get(filename, verify=False, timeout=60)
             with open(tmp, "wb") as fp:
                 fp.write(r.content)
@@ -52,17 +50,17 @@ class StatusData:
             self._filename_mtime = os.path.getmtime(self._filename)
             with open(self._filename, "r", encoding="utf-8") as fp:
                 self._data = json.load(fp)
-            logging.debug(f"Loaded status data from {self._filename}")
+            logging.debug('Loaded status data from %s', self._filename)
         except FileNotFoundError:
             self.clear()
-            logging.info(f"Opening empty status data file {self._filename}")
+            logging.info('Opening empty status data file %s', self._filename)
 
     def __getitem__(self, key):
-        logging.debug(f"Getting item {key} from {self._filename}")
+        logging.debug('Getting item %s from %s', key, self._filename)
         return self._data.get(key, None)
 
     def __setitem__(self, key, value):
-        logging.debug(f"Setting item {key} from {self._filename}")
+        logging.debug('Setting item %s from %s', key, self._filename)
         self._data[key] = value
 
     def __repr__(self):
@@ -72,7 +70,7 @@ class StatusData:
         return self._data == other._data
 
     def __gt__(self, other):
-        logging.info(f"Comparing {self} to {other}")
+        logging.info('Comparing %s to %s', self, other)
         return self.get_date("started") > other.get_date("started")
 
     def _split_mutlikey(self, multikey):
@@ -121,14 +119,14 @@ class StatusData:
         the way), return None.
         """
         split_key = self._split_mutlikey(multikey)
-        logging.debug(f"Getting {split_key} from {self._filename}")
+        logging.debug('Getting %s from %s', split_key, self._filename)
         return self._get(self._data, split_key)
 
     def get_date(self, multikey):
         """Return value at multikey parsed as datetime, or None."""
         i = self.get(multikey)
         if i is None:
-            logging.warning(f"Field {multikey} is None, so can not convert to datetime")
+            logging.warning('Field %s is None, so can not convert to datetime', multikey)
             return None
         return date.my_fromisoformat(i)
 
@@ -195,7 +193,7 @@ class StatusData:
             self._data['a']['b'] = [1, 2]
         """
         split_key = self._split_mutlikey(multikey)
-        logging.debug(f"Setting {'.'.join(split_key)} in {self._filename} to {value}")
+        logging.debug('Setting %s in %s to %s', '.'.join(split_key), self._filename, value)
         if isinstance(value, datetime.datetime):
             value = value.isoformat()  # make it a string with propper format
         self._set(self._data, split_key, copy.deepcopy(value))
@@ -238,7 +236,7 @@ class StatusData:
         Remove given multikey (and it's content) from status data file
         """
         split_key = self._split_mutlikey(multikey)
-        logging.debug(f"Removing {split_key} from {self._filename}")
+        logging.debug('Removing %s from %s', split_key, self._filename)
         self._remove(self._data, split_key)
 
     def list(self, multikey):
@@ -247,7 +245,7 @@ class StatusData:
         """
         out = []
         split_key = self._split_mutlikey(multikey)
-        logging.debug(f"Listing {split_key}")
+        logging.debug('Listing %s', split_key)
         for k, v in self._get(self._data, split_key).items():
             key = ".".join(list(split_key) + [k])
             if isinstance(v, dict):
@@ -310,7 +308,7 @@ class StatusData:
             json.dump(self.dump(), fp, sort_keys=True, indent=4)
         if filename == self._filename:
             self._filename_mtime = os.path.getmtime(filename)
-        logging.debug(f"Saved status data to {filename}")
+        logging.debug('Saved status data to %s', filename)
 
 
 def doit_set(status_data, set_this):
@@ -341,7 +339,7 @@ def doit_set(status_data, set_this):
                 except ValueError:
                     pass
 
-        logging.debug(f"Setting {key} = {value} ({type(value)})")
+        logging.debug('Setting %s = %s (%s)', key, value, type(value))
         status_data.set(key, value)
 
 
@@ -365,7 +363,7 @@ def doit_set_subtree_json(status_data, set_this):
 
         key, value = item.split("=", 1)
 
-        logging.debug(f"Setting {key} = {value} (JSON file)")
+        logging.debug('Setting %s = %s (JSON file)', key, value)
         status_data.set_subtree_json(key, value)
 
 
@@ -519,7 +517,7 @@ def main_diff():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug(f"Args: {args}")
+    logging.debug('Args: %s', args)
 
     first = StatusData(args.first[0])
     second = StatusData(args.second[0])
@@ -588,7 +586,7 @@ def main_report():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug(f"Args: {args}")
+    logging.debug('Args: %s', args)
 
     # Load Jinja2 template
     env = jinja2.Environment(

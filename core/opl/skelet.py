@@ -80,7 +80,7 @@ def test_setup(parser, logger_name="root", args=None):
     else:
         logger = setup_logger(logger_name, logging.WARNING)
 
-    logger.debug(f"Args: {parsed_args}")
+    logger.debug('Args: %s', parsed_args)
 
     sdata = status_data.StatusData(parsed_args.status_data_file)
 

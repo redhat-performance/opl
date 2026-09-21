@@ -29,10 +29,10 @@ def _get_all_items(args):
         )
         items += response["content"]
         if len(response["content"]) == 0:
-            logging.debug(f"Page {params['page.page']} was last page of results")
+            logging.debug('Page %s was last page of results', params['page.page'])
             break
         params["page.page"] += 1
-        logging.debug(f"Going to query for page {params['page.page']} of results")
+        logging.debug('Going to query for page %s of results', params['page.page'])
 
     return items
 
@@ -155,7 +155,7 @@ def main():
 
     opl.http.disable_insecure_request_warnings(args.rp_noverify)
 
-    logging.debug(f"Args: {args}")
+    logging.debug('Args: %s', args)
 
     if args.action == "list_tests":
         return doit_list_tests(args)

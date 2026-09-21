@@ -27,9 +27,7 @@ def store(server, index, decisions, **kwargs):
 
         # for k, v in decision.items():
         #    print(f">>> {k} = {v} ({type(v)})")
-        logging.info(
-            f"Storing decision to ES url={url}, headers={headers} and json={json.dumps(decision)}"
-        )
+        logging.info('Storing decision to ES url=%s, headers=%s and json=%s', url, headers, json.dumps(decision))
 
         if es_server_user and decisions_es_server_pass_env_var:
             # fetch the password from Jenkins credentials
@@ -45,4 +43,4 @@ def store(server, index, decisions, **kwargs):
             response = requests.post(url, headers=headers, json=decision, timeout=60)
 
         if not response.ok:
-            logging.warning(f"Failed to store decision to ES: {response.text}")
+            logging.warning('Failed to store decision to ES: %s', response.text)

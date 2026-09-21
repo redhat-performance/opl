@@ -38,14 +38,14 @@ class WaitForDataAndSave:
 
     def _check_these(self, batch):
         count = 0
-        logging.debug(f"Checking these: {','.join(batch[:3])}... ({len(batch)} total)")
+        logging.debug('Checking these: %s... (%s total)', ','.join(batch[:3]), len(batch))
         if len(batch) == 0:
             return 0
         data_cursor = self.data_db.cursor()
         sql = self.queries["read_these"]
         data_cursor.execute(sql, (batch,))
         for row in data_cursor.fetchall():
-            logging.debug(f"Saving row {row}")
+            logging.debug('Saving row %s', row)
             self.save_here.add(row)
             count += 1
         return count
@@ -75,23 +75,21 @@ class WaitForDataAndSave:
             # Finally, there was a change
 
             if count == 0:
-                logging.info(
-                    f"Finally, count is {count} (was {count_old}), so we can go on"
-                )
+                logging.info('Finally, count is %s (was %s), so we can go on', count, count_old)
                 break
 
             if count != count_old:
-                logging.info(f"Finally, count {count_old} changed to {count}")
+                logging.info('Finally, count %s changed to %s', count_old, count)
                 break
 
             # Wait some more
-            logging.debug(f"Count is still only {count}, waiting")
+            logging.debug('Count is still only %s, waiting', count)
             count_old = count
             time.sleep(10)
 
     def process(self):
         """Wait until expected count of rows appears, saving them in batches."""
-        logging.debug(f"Going to process {self.expected_count} items")
+        logging.debug('Going to process %s items', self.expected_count)
         iteration = 0
         iteration_wait = 10
         batch_wait = 0.1
@@ -104,18 +102,14 @@ class WaitForDataAndSave:
             found_in_iteration = 0
             remaining = self._get_remaining_count()
             batches_count = int(remaining / self.batch_size) + 1
-            logging.debug(
-                f"Iteration {iteration} running with {batches_count} batches for {remaining} remaining items"
-            )
+            logging.debug('Iteration %s running with %s batches for %s remaining items', iteration, batches_count, remaining)
 
             # Go through all remaining values (from storage DB) in batches
             # and attempt to get dates from data DB
             for batch_number in range(batches_count):
                 batch = self._get_remaining(batch_number)
                 found_count = self._check_these(batch)
-                logging.debug(
-                    f"In iteration {iteration} batch {batch_number} we have found {found_count} new items"
-                )
+                logging.debug('In iteration %s batch %s we have found %s new items', iteration, batch_number, found_count)
                 found_in_iteration += found_count
                 time.sleep(batch_wait)
 
@@ -130,9 +124,7 @@ class WaitForDataAndSave:
 
             # Are we done?
             if remaining == found_in_iteration:
-                logging.info(
-                    f"We are done in iteration {iteration} with all {self.expected_count} items"
-                )
+                logging.info('We are done in iteration %s with all %s items', iteration, self.expected_count)
                 found_in_total += found_in_iteration
                 break
 
@@ -209,9 +201,7 @@ def data_stats(data):
     data = [i for i in data if isinstance(i, datetime.datetime) or math.isfinite(i)]
     count_strange = data_len_before - len(data)
     if count_strange > 0:
-        logging.warning(
-            f"There were {count_strange} NaN/Inf values in the data. Filtered them out."
-        )
+        logging.warning('There were %s NaN/Inf values in the data. Filtered them out.', count_strange)
 
     non_zero_data = [i for i in data if i != 0]
 

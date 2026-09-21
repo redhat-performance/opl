@@ -99,7 +99,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     case.system_out += self._remove_control_characters(f.read())
                     case.system_out += "\n"
                 except ValueError as e:
-                    logging.error(f"Failed to load {new['system-out'].name} file: {e}")
+                    logging.error('Failed to load %s file: %s', new['system-out'].name, e)
         case.system_err = ""
         if new["system-err"]:
             for f in new["system-err"]:
@@ -107,7 +107,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     case.system_err += self._remove_control_characters(f.read())
                     case.system_err += "\n"
                 except ValueError as e:
-                    logging.error(f"Failed to load {new['system-err'].name} file: {e}")
+                    logging.error('Failed to load %s file: %s', new['system-err'].name, e)
 
         case.system_out = self.trim_string_fn(case.system_out, 1000)
         duration = (new["end"] - new["start"]).total_seconds()
@@ -118,7 +118,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
 
         for suite in self:
             if suite.name == suite_name:
-                logging.debug(f"Suite {suite_name} found, going to add into it")
+                logging.debug('Suite %s found, going to add into it', suite_name)
                 suite.add_testcase(case)
                 break
         else:
@@ -126,7 +126,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
             # junitparser versions deepcopy the suite on add_testsuite(),
             # so the tree would keep a copy made before the testcase existed
             # and any case added afterwards would silently be lost.
-            logging.debug(f"Suite {suite_name} not found, creating new one")
+            logging.debug('Suite %s not found, creating new one', suite_name)
             suite = junitparser.TestSuite(suite_name)
             suite.add_testcase(case)
             self.add_testsuite(suite)
@@ -223,12 +223,12 @@ class JUnitXmlPlus(junitparser.JUnitXml):
     def upload(self, host, verify, project, token, launch, properties):
         """Upload the JUnit file (via Ibutsu) to the RP launch."""
         def req(method, url, data):
-            logging.debug(f"Going to do {method} request to {url} with {data}")
+            logging.debug('Going to do %s request to %s with %s', method, url, data)
             response = method(url, json=data, headers=headers, verify=verify)
             if not response.ok:
-                logging.error(f"Request failed: {response.text}")
+                logging.error('Request failed: %s', response.text)
             response.raise_for_status()
-            logging.debug(f"Request returned {response.json()}")
+            logging.debug('Request returned %s', response.json())
             return response.json()
 
         def times(ts):
@@ -505,7 +505,7 @@ def main():
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug(f"Args: {args}")
+    logging.debug('Args: %s', args)
 
     junit = JUnitXmlPlus.fromfile_or_new(args.file)
 
