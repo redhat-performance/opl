@@ -51,11 +51,13 @@ def _debug_response(r):
     Print various info about the requests response. Should be called when
     request failed
     """
-    logging.error("URL = %s" % r.url)
-    logging.error("Request headers = %s" % redact_sensitive_headers(r.request.headers))
-    logging.error("Response headers = %s" % redact_sensitive_headers(r.headers))
-    logging.error("Response status code = %s" % r.status_code)
-    logging.error("Response content = %s" % r.content[:500])
+    logging.error("URL = %s", r.url)
+    logging.error(
+        "Request headers = %s", redact_sensitive_headers(r.request.headers)
+    )
+    logging.error("Response headers = %s", redact_sensitive_headers(r.headers))
+    logging.error("Response status code = %s", r.status_code)
+    logging.error("Response content = %s", r.content[:500])
     raise Exception("Request failed")
 
 
@@ -139,7 +141,7 @@ class PrometheusMeasurementsPlugin(BasePlugin):
 
         # Check that what we got back seems OK
         json_response = response.json()
-        logging.debug("Response: %s" % json_response)
+        logging.debug("Response: %s", json_response)
         assert json_response["status"] == "success", "'status' needs to be 'success'"
         assert "data" in json_response, "'data' needs to be in response"
         assert (
@@ -213,7 +215,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
         """Fetch one or more targets in a single Graphite render request."""
         headers = {"Accept": "application/json, text/plain, */*"}
         if self.args.grafana_token is not None:
-            headers["Authorization"] = "Bearer %s" % self.args.grafana_token
+            headers["Authorization"] = f"Bearer {self.args.grafana_token}"
         params = {
             "target": targets,
             "from": int(ri.start.timestamp()),
@@ -252,7 +254,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             return name, None
 
         response = self._fetch_targets(ri, [self._sanitize_target(grafana_target)])
-        logging.debug("Response: %s" % response)
+        logging.debug("Response: %s", response)
 
         points = [float(i[0]) for i in response[0]["datapoints"] if i[0] is not None]
         item = {

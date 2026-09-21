@@ -81,7 +81,7 @@ def _figure_out_option(option, data):
     return option
 
 
-class pluginBase:
+class PluginBase:
     def __init__(self):
         self.logger = logging.getLogger(str(self.__class__))
 
@@ -89,7 +89,7 @@ class pluginBase:
         pass
 
 
-class pluginProw(pluginBase):
+class PluginProw(PluginBase):
     def list(self, args):
         response = requests.get(f"{args.base_url}/{args.job_name}")
         _check_response(self.logger, response)
@@ -179,7 +179,7 @@ class pluginProw(pluginBase):
         )
 
 
-class pluginOpenSearch(pluginBase):
+class PluginOpenSearch(PluginBase):
     def upload(self, args):
         self.logger.info(f"Loading document {args.input_file}")
         with open(args.input_file, "r") as fp:
@@ -250,7 +250,7 @@ class pluginOpenSearch(pluginBase):
         )
 
 
-class pluginHorreum(pluginBase):
+class PluginHorreum(PluginBase):
     def __init__(self):
         super().__init__()
         self.session = requests.Session()
@@ -1009,7 +1009,7 @@ class pluginHorreum(pluginBase):
         )
 
 
-class pluginResultsDashboard(pluginBase):
+class PluginResultsDashboard(PluginBase):
     def upload(self, args):
         self.input_file = None
         if args.input_file is not None:
@@ -1151,7 +1151,7 @@ class pluginResultsDashboard(pluginBase):
         )
 
 
-class pluginHtml(pluginBase):
+class PluginHtml(PluginBase):
     def links(self, args):
         self.logger.info("Downloading {args.url}")
         doc = requests.get(args.url)
@@ -1204,11 +1204,11 @@ class pluginHtml(pluginBase):
 
 
 PLUGINS = {
-    "prow": pluginProw(),
-    "opensearch": pluginOpenSearch(),
-    "horreum": pluginHorreum(),
-    "resultsdashboard": pluginResultsDashboard(),
-    "html": pluginHtml(),
+    "prow": PluginProw(),
+    "opensearch": PluginOpenSearch(),
+    "horreum": PluginHorreum(),
+    "resultsdashboard": PluginResultsDashboard(),
+    "html": PluginHtml(),
 }
 
 

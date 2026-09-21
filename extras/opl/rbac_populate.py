@@ -10,14 +10,15 @@ import sys
 import time
 import uuid
 
+import psycopg2
+import requests
+import urllib3
+
 import opl.args
 import opl.db
 import opl.gen
 import opl.rbac_utils
 import opl.skelet
-import psycopg2
-import requests
-import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -25,7 +26,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 APPLICATIONS = []
 PERMISSIONS = []
 
-errors_counter = 0
+ERRORS_COUNTER = 0
 
 
 def _get_user():
@@ -61,7 +62,7 @@ def _get_role():
 
 
 def _run_request(func, *args, **kwargs):
-    global errors_counter
+    global ERRORS_COUNTER
     max_attempts = 30
     sleep = 10
     attempt = 0
@@ -76,7 +77,7 @@ def _run_request(func, *args, **kwargs):
                 )
                 time.sleep(sleep)
                 attempt += 1
-                errors_counter += 1
+                ERRORS_COUNTER += 1
                 continue
             else:
                 raise
@@ -200,7 +201,7 @@ def add_principal_to_group(cursor, user_id, group_uuid):
 def doit(rbac_test_data, args, status_data):
     url_base = f"{args.rbac_host}{args.rbac_url_suffix}"
 
-    global errors_counter
+    global ERRORS_COUNTER
 
     tenant_counter = 0
     group_counter = 0
@@ -286,7 +287,7 @@ def doit(rbac_test_data, args, status_data):
     print(f"Groups created: {group_counter}")
     print(f"Roles created: {role_counter}")
     print(f"Principals created: {principal_counter}")
-    print(f"Errors encountered: {errors_counter}")
+    print(f"Errors encountered: {ERRORS_COUNTER}")
 
     status_data.set("parameters.test.data_created.end", population_end)
     status_data.set("parameters.test.data_created.start", population_start)
@@ -294,7 +295,7 @@ def doit(rbac_test_data, args, status_data):
     status_data.set("parameters.test.data_created.group_counter", group_counter)
     status_data.set("parameters.test.data_created.role_counter", role_counter)
     status_data.set("parameters.test.data_created.principal_counter", principal_counter)
-    status_data.set("parameters.test.data_created.errors_counter", errors_counter)
+    status_data.set("parameters.test.data_created.errors_counter", ERRORS_COUNTER)
 
     return rbac_test_data
 

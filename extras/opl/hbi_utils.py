@@ -4,12 +4,13 @@ import logging
 import threading
 import time
 
+import psycopg2
+
 import opl.args
 import opl.db
 import opl.generators.inventory_ingress
 import opl.skelet
-import psycopg2
-from opl.kafka_init import kafka_init
+from opl.kafka_init import KafkaInit
 
 
 # collect_info could be None
@@ -76,7 +77,7 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
                 this_second += 1
                 in_second = 0
         else:
-            if args.rate != 0 and args.rate != in_second:
+            if args.rate not in (0, in_second):
                 logging.warning(
                     f"In second {this_second} sent {in_second} messages (but wanted to send {args.rate})"
                 )
@@ -197,7 +198,7 @@ def gen_send_verify(args, status_data):
     # This oneliner below overrides args.py's default of 0 retries to 3.
     args.kafka_retries = 3 if args.kafka_retries == 0 else args.kafka_retries
 
-    producer = kafka_init.get_producer(args)
+    producer = KafkaInit.get_producer(args)
 
     logging.info("Creating data structure to store list of accounts and so")
     collect_info = {"accounts": {}}  # simplified info about hosts

@@ -6,8 +6,9 @@ import time
 
 import psycopg2
 import yaml
-from opl import args, db, skelet
 from psycopg2.errors import UndefinedTable  # pylint: disable=no-name-in-module
+
+from opl import args, db, skelet
 
 
 def execute_query(connection, query):

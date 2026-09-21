@@ -170,7 +170,7 @@ class BatchProcessor:
             self.commit()
 
 
-def BatchReader(db, sql, limit=100):
+def batch_reader(db, sql, limit=100):
     """
     Creates named server side cursor (so not all results are fetched to
     the client when query is executed):

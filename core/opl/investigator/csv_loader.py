@@ -11,8 +11,8 @@ def load(fp, columns):
     reader = csv.DictReader(fp)
 
     for row in reader:
-        for col in out:
-            out[col].append(float(row[col]))
+        for col, values in out.items():
+            values.append(float(row[col]))
 
     logging.info(
         f"Loaded file {fp.name} and parsed {len(out.keys())} columns with {len(next(iter(out.values())))} rows"

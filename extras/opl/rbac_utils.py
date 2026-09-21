@@ -30,10 +30,10 @@ class RbacTestData:
         return {
             "accounts_count": len(self.get_accounts()),
             "users_count": sum(
-                [len(self.get_users_for_account(a)) for a in self.get_accounts()]
+                len(self.get_users_for_account(a)) for a in self.get_accounts()
             ),
             "applications_count": sum(
-                [len(self.get_applications_for_account(a)) for a in self.get_accounts()]
+                len(self.get_applications_for_account(a)) for a in self.get_accounts()
             ),
         }
 

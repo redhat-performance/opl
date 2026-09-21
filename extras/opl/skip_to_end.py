@@ -6,7 +6,7 @@ import os
 import time
 
 from opl import args, skelet
-from opl.kafka_init import kafka_init
+from opl.kafka_init import KafkaInit
 
 
 def doit_seek_to_end(args):
@@ -20,7 +20,7 @@ def doit_seek_to_end(args):
     """
 
     args.kafka_enable_auto_commit = True
-    consumer = kafka_init.get_consumer(args)
+    consumer = KafkaInit.get_consumer(args)
 
     # Seek to end
     # Partition assignment happens asynchronously during poll(), so a single

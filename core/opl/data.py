@@ -30,7 +30,7 @@ class WaitForDataAndSave:
         cursor = self.storage_db.cursor()
         sql = self.queries["get_remaining"]
         cursor.execute(sql, (self.batch_size, batch_number * self.batch_size))
-        return tuple([row[0] for row in cursor.fetchall()])
+        return tuple(row[0] for row in cursor.fetchall())
 
     def _check_these(self, batch):
         count = 0

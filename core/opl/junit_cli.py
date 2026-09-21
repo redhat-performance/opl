@@ -138,7 +138,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return "\n".join(out)
 
     def get_result(self):
-        RESULTS = ["PASSED", "SKIPPED", "FAILED", "ERROR"]
+        RESULTS = ["PASSED", "SKIPPED", "FAILED", "ERROR"]  # pylint: disable=invalid-name
         result = 0
         for suite in self:
             for case in suite:

@@ -4,7 +4,7 @@ import logging
 import time
 
 from kafka import TopicPartition
-from opl.kafka_init import kafka_init
+from opl.kafka_init import KafkaInit
 
 
 class ConsumerLag:
@@ -26,7 +26,7 @@ class ConsumerLag:
         self.args.kafka_heartbeat_interval_ms = 10000
         self.args.kafka_timeout = 100000
 
-        return kafka_init.get_consumer(self.args)
+        return KafkaInit.get_consumer(self.args)
 
     def store_offset_records(self):
         consumer = self._getconsumer()
