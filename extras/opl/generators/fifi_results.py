@@ -25,7 +25,7 @@ class PlaybookRunMessageGenerator:
         self.objects = {
             "runs": [],
         }
-        for run_id in range(runs):
+        for _run_id in range(runs):
             run = {
                 "playbook_run_id": opl.gen.gen_uuid(),
                 "account": "1212729",
@@ -33,13 +33,13 @@ class PlaybookRunMessageGenerator:
                 "started": False,
                 "nodes": [],
             }
-            for node_id in range(nodes):
+            for _node_id in range(nodes):
                 node = {
                     "in_response_to": opl.gen.gen_uuid(),
                     "sender": opl.gen.gen_uuid(),
                     "hosts": [],
                 }
-                for host_id in range(hosts):
+                for _host_id in range(hosts):
                     host = {
                         "host": opl.gen.gen_hostname(),
                         "sequence": 0,

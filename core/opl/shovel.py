@@ -101,7 +101,7 @@ class pluginProw(pluginBase):
         numbers = re.findall(r"\b[0-9]{19}\b", response.text)
 
         # Sort the numbers in numerical order and get the last 10 unique numbers
-        sorted_numbers = sorted(set(numbers), key=lambda x: int(x))
+        sorted_numbers = sorted(set(numbers), key=int)
         last_10_numbers = sorted_numbers[-10:]
         for n in last_10_numbers:
             print(n)
@@ -1240,7 +1240,7 @@ def main():
         )
         plugin.set_args(parser_plugin, subparsers_plugin)
 
-    with skelet.test_setup(parser) as (args, status_data):
+    with skelet.test_setup(parser) as (args, _status_data):
         args.func(args)
 
 

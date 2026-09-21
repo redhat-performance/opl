@@ -155,7 +155,7 @@ def percentile(data, percent):
     return d0 + d1
 
 
-def create_bins(data, precision, bins_number=10):
+def create_bins(data, precision, bins_number=10):  # pylint: disable=unused-argument
     bins = []
     borders = []
     min_data = min(data)

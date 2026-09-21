@@ -28,7 +28,7 @@ def doit_seek_to_end(args):
     # before we call seek_to_end(). Older kafka-python raises AssertionError
     # for this, newer versions raise ValueError — catch both so the retry
     # loop actually retries instead of crashing on the first race.
-    for attempt in range(10):
+    for _attempt in range(10):
         try:
             consumer.poll(timeout_ms=5000)
             consumer.seek_to_end()

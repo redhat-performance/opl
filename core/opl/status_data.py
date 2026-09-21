@@ -465,7 +465,7 @@ def main():
         default="\t",
         help='When returning more "--get" fields, delimit them with this (default is tab)',
     )
-    for name, plugin in cluster_read.PLUGINS.items():
+    for _name, plugin in cluster_read.PLUGINS.items():
         plugin.add_args(parser)
 
     with skelet.test_setup(parser) as (args, status_data):
