@@ -27,7 +27,7 @@ class RbacTestData:
                 logging.warning('File %s already exists. Overwriting it.', filename)
             self.filename = filename
         if self.filename is None:
-            raise Exception("Where should I save to?")
+            raise ValueError("Where should I save to?")
         with open(self.filename, "w", encoding="utf-8") as fd:
             json.dump(self.data, fd)
 

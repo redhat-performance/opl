@@ -161,4 +161,4 @@ def main():
         return doit_list_tests(args)
     if args.action == "change_defects":
         return doit_change_defects(args)
-    raise Exception(f"Unknown action '{args.action}'")
+    raise ValueError(f"Unknown action '{args.action}'")

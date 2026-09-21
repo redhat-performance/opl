@@ -46,12 +46,12 @@ def wait_for_count(connection, query, expected, timeout, progress):
             count_change_at = time.perf_counter()
 
         if (now - start) >= timeout:
-            raise Exception(
+            raise TimeoutError(
                 f"Timeout {now - start}/{timeout} reached when waiting for {count}/{expected} result from {query}"
             )
 
         if (now - count_change_at) >= progress:
-            raise Exception(
+            raise TimeoutError(
                 f"No change for too long {now - count_change_at}/{progress} reached when waiting for {count}/{expected} result from {query}"
             )
 

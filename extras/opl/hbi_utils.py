@@ -101,11 +101,11 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     status_data.set_now("parameters.payload_generator.ended_at")
 
     if data_stats["failures"] > 0:
-        raise Exception(
+        raise RuntimeError(
             f"Failed to send {data_stats['failures']} messages out of totally requested {args.count}"
         )
     if sum(data_stats.values()) != args.count:
-        raise Exception(
+        raise RuntimeError(
             f"Not all messages sent {data_stats['successes']} + {data_stats['failures']} != {args.count}"
         )
 
@@ -143,7 +143,7 @@ def verify(args, previous_records, status_data, inventory, collect_info):  # pyl
         # Are we out of attempts?
         attempt += 1
         if attempt > attempts_max:
-            raise Exception(
+            raise RuntimeError(
                 f"After {attempt} attempts, we only have {existing_ids - previous_records} out of {args.count}"
             )
 

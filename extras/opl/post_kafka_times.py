@@ -306,7 +306,7 @@ def post_kafka_times(config):
             for future in concurrent.futures.as_completed(my_threads):
                 try:
                     future.result()
-                except Exception as exc:
+                except Exception as exc:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     logging.info('Thread %s caused exception: %s', future, exc)
                     logging.exception(exc)
                 else:

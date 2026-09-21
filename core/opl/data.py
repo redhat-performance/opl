@@ -118,7 +118,7 @@ class WaitForDataAndSave:
             while len(found_recently) > found_recently_size:
                 found_recently.pop(0)
             if sum(found_recently) == 0:
-                raise Exception(
+                raise TimeoutError(
                     f"Nothing found in last {len(found_recently)} iterations, giving up"
                 )
 
@@ -243,7 +243,7 @@ def data_stats(data):
             "mean": (max(data) - min(data)) / len(data),
             "range": max(data) - min(data),
         }
-    raise Exception(f"Do not know how to get stats for list of {type(data[0])}")
+    raise TypeError(f"Do not know how to get stats for list of {type(data[0])}")
 
 
 def get_hist(data):

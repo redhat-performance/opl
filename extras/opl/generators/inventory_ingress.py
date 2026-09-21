@@ -194,7 +194,7 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 if account_data["account"] == data["account"]:
                     break
             else:
-                raise Exception(
+                raise ValueError(
                     f"Failed to find account data for account {data['account']} in per_account_data file"
                 )
             if self.per_account_data_add_filed not in account_data:

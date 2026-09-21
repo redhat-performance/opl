@@ -67,7 +67,7 @@ def doit(args):
     if args.current_type == "status_data":
         current_sd = opl.investigator.status_data_loader.load(args.current_file)
     else:
-        raise Exception("Not supported data source type for current data")
+        raise ValueError("Not supported data source type for current data")
 
     # Render what needs to be rendered to finish config loading
     opl.investigator.config.load_config_finish(args, current_sd)
@@ -79,7 +79,7 @@ def doit(args):
 
     total = len([v for v in current.values() if v is not None and v != ""])
     if total == 0:
-        raise Exception(
+        raise ValueError(
             f"No data available in current result (tried to load {', '.join(sets_list)} but nothing)!"
         )
 
@@ -125,7 +125,7 @@ def doit(args):
             sets_list,
         )
     else:
-        raise Exception("Not supported data source type for historical data")
+        raise ValueError("Not supported data source type for historical data")
 
     total = sum(len(v) for v in history.values())
     if total == 0:
@@ -144,7 +144,7 @@ def doit(args):
             results, info = opl.investigator.check.check(
                 methods, history[var], current[var], description=var
             )
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logging.exception('Check on %s failed with: %s', var, e)
             info_all.append({"result": "ERROR", "exception": str(e)})
             summary_this = collections.OrderedDict(

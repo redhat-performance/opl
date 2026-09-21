@@ -144,7 +144,7 @@ def run_locust(
         logging.info("Worker Locust run finished")
         return None
 
-    raise Exception("No runner specified")
+    raise ValueError("No runner specified")
 
 
 def show_locust_stats(

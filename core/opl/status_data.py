@@ -215,7 +215,7 @@ class StatusData:
             elif file_path.endswith(".yaml"):
                 data = yaml.load(fp, Loader=yaml.SafeLoader)
             else:
-                raise Exception(
+                raise ValueError(
                     f"Unrecognized extension of file to import: {file_path}"
                 )
         return self.set(multikey, data)
@@ -294,7 +294,7 @@ class StatusData:
                 if self._filename_mtime != current_mtime:
                     tmp = tempfile.mktemp()
                     self._save(tmp)
-                    raise Exception(
+                    raise FileExistsError(
                         f"Status data file {self._filename} was modified since we loaded it so I do not want to overwrite it. Instead, saved to {tmp}"
                     )
         else:

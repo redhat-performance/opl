@@ -30,7 +30,7 @@ def retry_on_traceback(max_attempts=10, wait_seconds=1):
             while True:
                 try:
                     return func(*args, **kwargs)
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     if attempt >= max_attempts:
                         raise  # Reraise the exception after all retries are exhausted
 
