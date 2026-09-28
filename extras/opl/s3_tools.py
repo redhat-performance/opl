@@ -1,5 +1,7 @@
 """S3 (AWS) helpers for uploading test artifacts."""
 
+from __future__ import annotations
+
 import logging
 
 import boto3
