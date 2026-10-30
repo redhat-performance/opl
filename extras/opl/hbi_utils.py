@@ -346,6 +346,31 @@ def cleanup(args, status_data):
 
     inventory_cursor = inventory.cursor()
 
+    # Perf tests own this database, so sessions wedged mid-transaction are
+    # leftover test residue. They hold row locks on hbi.hosts and would make
+    # the TRUNCATE below queue forever behind them (observed as multi-hour
+    # pipeline hangs when the app under test leaks transactions).
+    inventory_cursor.execute(
+        """
+        SELECT pg_terminate_backend(pid)
+        FROM pg_stat_activity
+        WHERE state = 'idle in transaction'
+          AND xact_start < now() - interval '10 minutes'
+          AND pid <> pg_backend_pid()
+        """
+    )
+    terminated = inventory_cursor.fetchall()
+    if terminated:
+        logging.info(
+            "Terminated %d stale idle-in-transaction session(s)",
+            len(terminated),
+        )
+    inventory.commit()
+
+    # Fail fast instead of hanging behind any lock holder that is not an
+    # idle-in-transaction session (lock_timeout raises instead of queueing).
+    inventory_cursor.execute("SET lock_timeout = '60s'")
+
     logging.info("Truncating Inventory DB 'hosts' table")
     inventory_cursor.execute("TRUNCATE hbi.hosts CASCADE")
     inventory.commit()
