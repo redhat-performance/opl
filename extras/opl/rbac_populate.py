@@ -177,8 +177,7 @@ def get_tenant(cursor, account):
     instead of inserting a NULL tenant_id.
     """
     cursor.execute(
-        "SELECT id, tenant_name FROM public.api_tenant "
-        "WHERE tenant_name IN (%s, %s, %s)",
+        "SELECT id, tenant_name FROM public.api_tenant " "WHERE tenant_name IN (%s, %s, %s)",
         (f"acct{account}", f"org{account}", account),
     )
     row = cursor.fetchone()
