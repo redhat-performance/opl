@@ -189,8 +189,7 @@ def get_tenant(cursor, account):
         )
     if len(rows) > 1:
         raise RuntimeError(
-            f"Multiple tenants found in public.api_tenant for account {account}: "
-            f"{[row[1] for row in rows]}"
+            f"Multiple tenants found in public.api_tenant for account {account}: " f"{[row[1] for row in rows]}"
         )
     return rows[0]
 
