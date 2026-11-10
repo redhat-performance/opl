@@ -174,27 +174,32 @@ def get_tenant(cursor, account):
 
     Older RBAC versions named tenants 'acctNNNNNNN', newer ones 'orgNNNNNNN',
     so match any of the known formats and fail loudly when nothing is found
-    instead of inserting a NULL tenant_id.
+    instead of inserting a NULL tenant_id. Ambiguous matches (more than one
+    tenant for the same account) are an error as well.
     """
     cursor.execute(
         "SELECT id, tenant_name FROM public.api_tenant " "WHERE tenant_name IN (%s, %s, %s)",
         (f"acct{account}", f"org{account}", account),
     )
-    row = cursor.fetchone()
-    if row is None:
+    rows = cursor.fetchall()
+    if not rows:
         raise RuntimeError(
             f"Tenant for account {account} not found in public.api_tenant - "
             "was it actually created by create_tenant()?"
         )
-    return row
+    if len(rows) > 1:
+        raise RuntimeError(
+            f"Multiple tenants found in public.api_tenant for account {account}: "
+            f"{[row[1] for row in rows]}"
+        )
+    return rows[0]
 
 
-def create_principal(cursor, account):
-    """Create a user (principal) in the DB for the account."""
+def create_principal(cursor, tenant_id, tenant_name):
+    """Create a user (principal) in the DB for the given tenant."""
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     user_type = "user"
-    tenant_id, tenant_name = get_tenant(cursor, account)
     logging.info("Creating principal username = %s in tenant %s", user_name, tenant_name)
     cursor.execute(
         "INSERT INTO public.management_principal (uuid, username, tenant_id, type) VALUES (%s, %s, %s, %s) RETURNING id",
@@ -277,13 +282,13 @@ def doit(rbac_test_data, args, status_data):
         logging.info("Connecting to DB: %s", rbac_db_conf)
         connection = psycopg2.connect(**rbac_db_conf)
         cursor = connection.cursor()
-        _, tenant_schema = get_tenant(cursor, account)
+        tenant_id, tenant_schema = get_tenant(cursor, account)
         logging.info("Using tenant schema %s", tenant_schema)
         cursor.execute(f'SET search_path TO "{tenant_schema}"')
 
         # Create users   (via SQL for now because of https://projects.engineering.redhat.com/browse/RHIOPS-557)
         for _ in range(args.principals_number):
-            user_name, user_id = create_principal(cursor, account)
+            user_name, user_id = create_principal(cursor, tenant_id, tenant_schema)
             for group_uuid in group_list:
                 add_principal_to_group(cursor, user_id, group_uuid)
 
