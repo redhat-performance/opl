@@ -69,9 +69,13 @@ class InventoryIngressGenerator(opl.generators.generic.GenericGenerator):
                 for i in self.per_account_data  # because per_account_data is a list not dictionary
             ]
         # Distinct account/org_id per relative; HBI RHSM path keeps them equal.
+        if relatives > 9_000_000:
+            raise ValueError("relatives must not exceed the 7-digit account space")
+        accounts = set()
+        while len(accounts) < relatives:
+            accounts.add(self._get_account())
         relatives_list = []
-        for _ in range(relatives):
-            acc_orgid = self._get_account()
+        for acc_orgid in accounts:
             relatives_list.append(
                 {
                     "account": acc_orgid,
