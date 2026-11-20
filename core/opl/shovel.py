@@ -18,18 +18,16 @@ from opl import retry, skelet
 @retry.retry_on_traceback(max_attempts=10, wait_seconds=10)
 def _requests_get_with_retry(*args, **kwargs):
     kwargs.setdefault("timeout", 60)
-    return requests.get(
+    return requests.get(  # pylint: disable=missing-timeout  # timeout defaulted above
         *args, **kwargs
-    )  # pylint: disable=missing-timeout  # timeout defaulted above
+    )
 
 
 def _check_response(logger, response):
     """Check if requests response is OKish and if not, log useful data and raise exception."""
     try:
         response.raise_for_status()
-    except (
-        Exception
-    ):  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+    except Exception:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
         logger.error("Request failed with text: %s", response.text)
         raise
 
@@ -403,9 +401,7 @@ class PluginHorreum(PluginBase):
                         run_data = response.json()
                         marker = _get_field_value(args.matcher_field, run_data)
                         return marker == matcher_value
-                    except (
-                        Exception
-                    ):  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    except Exception:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                         # If matcher was not found or request failed, assume not a duplicate
                         return False
 
@@ -510,9 +506,7 @@ class PluginHorreum(PluginBase):
                     if len(changes) > 0:
                         return (True, alerting_variable, changes)
                     return (False, alerting_variable, None)
-                except (
-                    Exception
-                ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     self.logger.warning(
                         "Error checking %s: %s",
                         alerting_variable.get("name", "unknown"),

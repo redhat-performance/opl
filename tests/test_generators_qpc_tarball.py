@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Tests for the opl.generators.qpc_tarball module."""
 
 import os
 import unittest
@@ -22,6 +23,7 @@ class TestPayloadGenerator(unittest.TestCase):
     }
 
     def test_counting(self):
+        """Generator must expose the requested tarball count."""
         pg = opl.generators.qpc_tarball.QPCTarballGenerator(
             count=2, tarball_conf=self.tarball_conf
         )
@@ -29,6 +31,7 @@ class TestPayloadGenerator(unittest.TestCase):
         self.assertEqual(pg.counter, 0)
 
     def test_count(self):
+        """Generator must produce the requested number of tarballs then stop."""
         pg = opl.generators.qpc_tarball.QPCTarballGenerator(
             count=2, tarball_conf=self.tarball_conf
         )
@@ -39,6 +42,7 @@ class TestPayloadGenerator(unittest.TestCase):
             tarball = next(pg)
 
     def test_count_slices(self):
+        """Tarball must yield the configured number of slices then stop."""
         pg = opl.generators.qpc_tarball.QPCTarballGenerator(
             count=2, tarball_conf=self.tarball_conf
         )
@@ -51,6 +55,7 @@ class TestPayloadGenerator(unittest.TestCase):
             tarball_slice = next(tarball)
 
     def test_add_hosts(self):
+        """add_host() must increase the slice host count."""
         pg = opl.generators.qpc_tarball.QPCTarballGenerator(
             count=2, tarball_conf=self.tarball_conf
         )
@@ -61,6 +66,7 @@ class TestPayloadGenerator(unittest.TestCase):
         self.assertEqual(tarball_slice.get_host_count(), 4)
 
     def test_slice_after_dump(self):
+        """Dumped slice must keep host count; cleanup must remove files."""
         pg = opl.generators.qpc_tarball.QPCTarballGenerator(
             count=2, tarball_conf=self.tarball_conf
         )

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""Shared test context: make opl packages importable and smoke-test them."""
+
+# pylint: disable=wrong-import-position,unused-import  # imports double as module smoke tests; sys.path tweak must come first
 
 import os
 import sys

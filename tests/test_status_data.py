@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""Tests for the opl.status_data module."""
+
+# pylint: disable=protected-access  # tests verify internal data structures directly
 
 import datetime
 import json
@@ -20,17 +23,21 @@ class TestStatusData(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tmpfile = tempfile.NamedTemporaryFile().name
+        """Prepare StatusData object backed by a temp file."""
+        self.tmpfile = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
         self.status_data = opl.status_data.StatusData(self.tmpfile)
 
-    def tierDown(self):
+    def tierDown(self):  # pylint: disable=invalid-name  # intentionally not unittest's tearDown: cleanup runs via del below
+        """Drop the StatusData object and remove the temp file."""
         del self.status_data
         os.remove(self.tmpfile)
 
     def test_filename(self):
+        """StatusData must remember the file it was created with."""
         self.assertEqual(self.status_data._filename, self.tmpfile)
 
     def test_defaults(self):
+        """New StatusData must contain default metadata keys."""
         self.assertIn("name", self.status_data._data)
         self.assertIn("owner", self.status_data._data)
         self.assertIn("started", self.status_data._data)
@@ -38,24 +45,29 @@ class TestStatusData(unittest.TestCase):
         self.assertIn("result", self.status_data._data)
 
     def test_simple_set(self):
+        """set() must store a top-level value."""
         self.status_data.set("aaa", 123)
         self.assertEqual(self.status_data._data["aaa"], 123)
 
     def test_nested_set(self):
+        """set() must create nested dicts for dotted paths."""
         self.status_data.set("aaa.bbb", 123)
         self.assertEqual(self.status_data._data["aaa"]["bbb"], 123)
 
     def test_simple_update(self):
+        """set() must overwrite an existing top-level value."""
         self.status_data.set("aaa", 123)
         self.status_data.set("aaa", 456)
         self.assertEqual(self.status_data._data["aaa"], 456)
 
     def test_nested_update(self):
+        """set() must overwrite an existing nested value."""
         self.status_data.set("aaa.bbb", 123)
         self.status_data.set("aaa.bbb", 456)
         self.assertEqual(self.status_data._data["aaa"]["bbb"], 456)
 
     def test_additional_set(self):
+        """set() must add to existing data without touching it."""
         self.status_data.set("aaa.bbb", 123)
         self.assertEqual(self.status_data._data["aaa"]["bbb"], 123)
         self.status_data.set("aaa.ccc", 456)
@@ -63,6 +75,7 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data._data["aaa"]["ccc"], 456)
 
     def test_set_with_leading_dot(self):
+        """set() must ignore a leading dot in the path."""
         self.status_data.set(".aaa", 123)
         self.assertEqual(self.status_data._data["aaa"], 123)
         self.status_data.set(".bbb.ccc", 456)
@@ -71,15 +84,18 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data._data[""]["zzz"], 789)
 
     def test_simple_get(self):
+        """get() must return a top-level value."""
         self.status_data._data["aaa"] = 123
         self.assertEqual(self.status_data.get("aaa"), 123)
 
     def test_nested_get(self):
+        """get() must return a nested value via dotted path."""
         self.status_data._data["aaa"] = {}
         self.status_data._data["aaa"]["bbb"] = 123
         self.assertEqual(self.status_data.get("aaa.bbb"), 123)
 
     def test_get_with_leading_dot(self):
+        """get() must ignore a leading dot in the path."""
         self.status_data._data["aaa"] = 123
         self.status_data._data["bbb"] = {}
         self.status_data._data["bbb"]["ccc"] = 456
@@ -91,11 +107,13 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get(".zzz"), None)
 
     def test_none_get(self):
+        """get() must return None for a path inside a None value."""
         self.assertIsNone(self.status_data.get("aaa"))
         self.assertIsNone(self.status_data.get("aaa.bbb"))
         self.assertIsNone(self.status_data.get("aaa.bbb.ccc"))
 
     def test_datetime(self):
+        """Datetime values must survive a save/load round-trip."""
         now_plus2 = datetime.datetime.now(
             tz=datetime.timezone(datetime.timedelta(hours=2))
         )
@@ -108,6 +126,7 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get_date("bbb"), now_utc)
 
     def test_datetime_format(self):
+        """Saved datetime values must use a parseable format."""
         refference = datetime.datetime(
             2020,
             12,
@@ -137,6 +156,7 @@ class TestStatusData(unittest.TestCase):
             self.assertEqual(self.status_data.get_date("aaa"), refference)
 
     def test_set_now(self):
+        """set_now() must store the current timestamp."""
         before = datetime.datetime.now(tz=datetime.timezone.utc)
         self.status_data.set_now("aaa")
         after = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -145,6 +165,7 @@ class TestStatusData(unittest.TestCase):
         self.assertGreaterEqual(after, aaa)
 
     def test_list(self):
+        """get() must return a list value stored under a key."""
         self.status_data._data["aaa"] = {
             "bbb": "ccc",
             "ddd": {
@@ -156,9 +177,11 @@ class TestStatusData(unittest.TestCase):
         self.assertCountEqual(self.status_data.list("aaa"), exp)
 
     def test_list_results(self):
+        """Data with a 'results' list must be handled."""
         self.assertCountEqual(self.status_data.list("results"), [])
 
     def test_info(self):
+        """info() must render data without excluded keys."""
         self.status_data.set("aaa", 123)
         self.status_data.set("bbb.ccc", 456)
         self.assertIn("Filename:", self.status_data.info())
@@ -168,7 +191,8 @@ class TestStatusData(unittest.TestCase):
         self.assertNotIn("456", self.status_data.info())
 
     def test_data(self):
-        f = tempfile.NamedTemporaryFile().name
+        """StatusData must accept initial data and serve it via get()."""
+        f = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
         data = {
             "aaa": 123,
             "bbb": {
@@ -184,7 +208,8 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd.get("bbb.ccc"), 456)
 
     def test_long_missing_path(self):
-        f = tempfile.NamedTemporaryFile().name
+        """get() must return None for missing nested paths."""
+        f = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
         data = {
             "aaa": {
                 "bbb": {},
@@ -202,7 +227,8 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd.get("aaa.bbb.ddd.eee"), None)
 
     def test_missing_path_in_none(self):
-        f = tempfile.NamedTemporaryFile().name
+        """get() must return None when a parent value is None."""
+        f = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
         data = {
             "aaa": None,
             "name": "",
@@ -216,6 +242,7 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd.get("aaa.bbb.ccc"), None)
 
     def test_copy_original_object(self):
+        """Constructor must not share data with the passed object."""
         something = {
             "foo": 1,
             "bar": 2,
@@ -228,6 +255,7 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get("results.something.baz"), None)
 
     def test_set_subtree_json(self):
+        """doit_set_subtree_json() must merge a JSON subtree."""
         with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as f:
             f_name = f.name
             f.write(b'{"hello":"world","foo":42,"bar":{"baz":1}}')
@@ -238,6 +266,7 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get("results.xxx_json.bar.baz"), 1)
 
     def test_set_subtree_yaml(self):
+        """doit_set_subtree_yaml() must merge a YAML subtree."""
         with tempfile.NamedTemporaryFile(delete=False, suffix=".yaml") as f:
             f_name = f.name
             f.write(b"hello: world\nfoo: 42\nbar:\n  baz: 1")
@@ -248,23 +277,27 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data.get("results.xxx_yaml.bar.baz"), 1)
 
     def test_remove_simple(self):
+        """remove() must delete an existing key."""
         self.status_data.set("results.xxx", "should not be here")
         self.assertEqual(self.status_data.get("results.xxx"), "should not be here")
         self.status_data.remove("results.xxx")
         self.assertIsNone(self.status_data.get("results.xxx"))
 
     def test_remove_missing(self):
+        """remove() must pass on a missing key."""
         self.assertIsNone(self.status_data.get("results.missing"))
         self.status_data.remove("results.missing")
         self.assertIsNone(self.status_data.get("results.missing"))
 
     def test_file_on_http(self):
+        """StatusData must support loading data from an URL."""
         with self.assertRaises(requests.exceptions.ConnectionError):
             _ = opl.status_data.StatusData(
                 "http://does.not.exist/status-data-file.json"
             )
 
     def test_comment(self):
+        """add_comment() must append and persist a comment."""
         comment = {
             "author": "Foo Bar",
             "date": opl.date.get_now_str(),
@@ -279,8 +312,9 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd_new.get("comments")[0], comment)
 
     def test_save(self):
+        """save() must persist changes to the file."""
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write(
                 '{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}'
             )
@@ -298,11 +332,12 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd_new.get("results.number_new"), -3.14)
 
     def test_load(self):
+        """load() must re-read changed data from the file."""
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42,"number_new":-3.14}}')
         self.assertEqual(sd.get("name"), "test")
         self.assertEqual(sd.get("results.number"), 42)
@@ -313,8 +348,9 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd.get("results.number_new"), -3.14)
 
     def test_override(self):
+        """save() must refuse to overwrite a file changed on disk."""
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
@@ -322,7 +358,7 @@ class TestStatusData(unittest.TestCase):
         time.sleep(
             0.001
         )  # workaround, see https://stackoverflow.com/a/77913929/2229885
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write(
                 '{"name":"test","results":{"number":42,"foo":"bar"}}'
             )  # file on the disk changed
@@ -330,10 +366,10 @@ class TestStatusData(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             sd.save()  # file changed since last load so this will raise exception
 
-        tmp_new = str(context.exception).split(" ")[
+        tmp_new = str(context.exception).rsplit(" ", maxsplit=1)[
             -1
         ]  # exception message contains emergency file with current object data
-        with open(tmp_new, "r") as fd:
+        with open(tmp_new, "r", encoding="utf-8") as fd:
             tmp_new_data = json.load(fd)
             self.assertEqual(
                 tmp_new_data["results"]["number_new"], -3.14
@@ -352,8 +388,9 @@ class TestStatusData(unittest.TestCase):
         sd.save()  # save should work now as file did not changed since last load
 
     def test_force_save(self):
+        """save(path) must force saving to a changed file."""
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
@@ -361,7 +398,7 @@ class TestStatusData(unittest.TestCase):
         time.sleep(
             0.001
         )  # workaround, see https://stackoverflow.com/a/77913929/2229885
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write(
                 '{"name":"test","results":{"number":42,"foo":"bar"}}'
             )  # file on the disk changed
@@ -376,6 +413,7 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(sd.get("results.foo"), None)
 
     def test_simple_set_to_list(self):
+        """set() with '[]' must append to a top-level list."""
         self.status_data.set("aaa[]", 123)
         self.assertEqual(self.status_data._data["aaa"], [123])
         self.status_data.set("aaa[]", 456)
@@ -384,12 +422,14 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data._data["aaa"], [123, 456, "Hello"])
 
     def test_nested_set_to_list(self):
+        """set() with '[]' must append to a nested list."""
         self.status_data.set("aaa.bbb.ccc[]", 123)
         self.assertEqual(self.status_data._data["aaa"]["bbb"]["ccc"], [123])
         self.status_data.set("aaa.bbb.ccc[]", 456)
         self.assertEqual(self.status_data._data["aaa"]["bbb"]["ccc"], [123, 456])
 
     def test_dicts_set_to_list(self):
+        """set() with '[]' must append dicts to a list."""
         d1 = {"id": 42, "name": "Universe"}
         d2 = {"id": 0, "name": "Sun"}
         self.status_data.set("aaa[]", d1)
@@ -397,15 +437,18 @@ class TestStatusData(unittest.TestCase):
         self.assertEqual(self.status_data._data["aaa"], [d1, d2])
 
     def test_not_last_set_to_list(self):
+        """set() with '[]' not at path end must raise."""
         with self.assertRaises(AssertionError):
             self.status_data.set("aaa[].bbb", 123)
 
     def test_type_missmatch_set_to_list(self):
+        """set() with '[]' on a non-list must raise."""
         self.status_data.set("aaa", 123)
         with self.assertRaises(AssertionError):
             self.status_data.set("aaa[]", 123)
 
     def test_invalid_set_argument(self):
+        """doit_set*() must raise on malformed arguments."""
         with self.assertRaises(ValueError):
             opl.status_data.doit_set(self.status_data, ["=somevalue"])
         with self.assertRaises(ValueError):
@@ -416,5 +459,6 @@ class TestStatusData(unittest.TestCase):
             opl.status_data.doit_set_subtree_json(self.status_data, ["no_equals_sign"])
 
     def test_valid_empty_value_set_argument(self):
+        """doit_set() must accept an empty value."""
         opl.status_data.doit_set(self.status_data, ["mykey="])
         self.assertEqual(self.status_data.get("mykey"), "")

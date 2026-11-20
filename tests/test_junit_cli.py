@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Tests for the opl.junit_cli module."""
 
 import tempfile
 import unittest
@@ -16,24 +17,34 @@ class TestJUnitXmlPlus(unittest.TestCase):
     """
 
     def setUp(self):
-        tmpfile = tempfile.NamedTemporaryFile(delete=True).name
+        """Prepare fresh JUnitXmlPlus object backed by a temp file path."""
+        tmpfile = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with  # only the unique name is needed
+            delete=True
+        ).name
         self.junit = opl.junit_cli.JUnitXmlPlus()
         self.junit.filepath = tmpfile
 
-    def tierDown(self):
+    def tierDown(self):  # pylint: disable=invalid-name  # intentionally not unittest's tearDown: delete() would fail on never-written files
+        """Remove the JUnit file from disk."""
         self.junit.delete()
 
     def test_fromfile_or_new(self):
-        tmpfile = tempfile.NamedTemporaryFile(delete=True).name
+        """fromfile_or_new() must load an existing file or create a new one."""
+        tmpfile = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with  # only the unique name is needed
+            delete=True
+        ).name
         self.junit.write(tmpfile)
         junit = opl.junit_cli.JUnitXmlPlus.fromfile_or_new(tmpfile)
         self.assertEqual(junit.filepath, tmpfile)
 
-        tmpfile = tempfile.NamedTemporaryFile(delete=True).name
+        tmpfile = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with  # only the unique name is needed
+            delete=True
+        ).name
         junit = opl.junit_cli.JUnitXmlPlus.fromfile_or_new(tmpfile)
         self.assertEqual(junit.filepath, tmpfile)
 
     def test_add_to_suite(self):
+        """add_to_suite() must add test cases to the given suite."""
         tc1 = {
             "name": "bbb",
             "result": "PASS",

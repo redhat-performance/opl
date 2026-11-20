@@ -153,12 +153,12 @@ class JUnitXmlPlus(junitparser.JUnitXml):
 
     def get_result(self):
         """Compute overall result (PASSED/SKIPPED/FAILED/ERROR)."""
-        RESULTS = [
+        result_names = [
             "PASSED",
             "SKIPPED",
             "FAILED",
             "ERROR",
-        ]  # pylint: disable=invalid-name
+        ]
         result = 0
         for suite in self:
             for case in suite:
@@ -181,7 +181,7 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     raise ValueError(
                         f"No idea how to handle this case result: {case.result}"
                     )
-        return RESULTS[result]
+        return result_names[result]
 
     def delete(self):
         """Remove the JUnit file from disk."""

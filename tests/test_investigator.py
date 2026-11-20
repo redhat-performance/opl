@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+"""Tests for the opl.investigator and opl.pass_or_fail modules."""
 
 import argparse
 import unittest
@@ -65,23 +66,28 @@ decisions:
 
 
 class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
+    """End-to-end investigator tests on a fake filesystem."""
 
     def setUp(self):
+        """Set up the fake filesystem."""
         self.setUpPyfakefs()
 
     def test_happy(self):
+        """Full run with a valid config must pass and record decisions."""
         files = {
             "/tmp/status-data.json": SD_NORMAL,
             "/tmp/history.csv": HISTORY_NORMAL,
             "/tmp/investigator_conf.yaml": CONFIG_NORMAL,
         }
         for f, c in files.items():
-            with open(f, "w") as fd:
+            with open(f, "w", encoding="utf-8") as fd:
                 fd.write(c.strip())
 
         args = argparse.Namespace()
         args.current_file = None
-        args.config = open("/tmp/investigator_conf.yaml", "r")
+        args.config = open(  # pylint: disable=consider-using-with  # ownership handed to the code under test
+            "/tmp/investigator_conf.yaml", "r", encoding="utf-8"
+        )
         args.detailed_decisions = False
         args.stats = False
         args.dry_run = False
@@ -105,7 +111,7 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         self.assertEqual(args.decisions_type, "csv")
 
         # Check recorded decisions
-        with open("/tmp/decisions.csv", "r") as fd:
+        with open("/tmp/decisions.csv", "r", encoding="utf-8") as fd:
             decisions = fd.readlines()
         self.assertTrue(
             decisions[1].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,")
@@ -117,18 +123,21 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         )
 
     def test_happy_methods_partial(self):
+        """Run with methods applying only to some metrics must still pass."""
         files = {
             "/tmp/status-data.json": SD_NORMAL,
             "/tmp/history.csv": HISTORY_NORMAL,
             "/tmp/investigator_conf.yaml": CONFIG_METHODS_PARTIAL,
         }
         for f, c in files.items():
-            with open(f, "w") as fd:
+            with open(f, "w", encoding="utf-8") as fd:
                 fd.write(c.strip())
 
         args = argparse.Namespace()
         args.current_file = None
-        args.config = open("/tmp/investigator_conf.yaml", "r")
+        args.config = open(  # pylint: disable=consider-using-with  # ownership handed to the code under test
+            "/tmp/investigator_conf.yaml", "r", encoding="utf-8"
+        )
         args.detailed_decisions = False
         args.stats = False
         args.dry_run = False
@@ -158,7 +167,7 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         self.assertEqual(args.decisions_type, "csv")
 
         # Check recorded decisions
-        with open("/tmp/decisions.csv", "r") as fd:
+        with open("/tmp/decisions.csv", "r", encoding="utf-8") as fd:
             decisions = fd.readlines()
         self.assertTrue(
             decisions[1].startswith(
@@ -176,16 +185,21 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
 
 
 class TestCheckIsZero(unittest.TestCase):
+    """Tests for the check_is_zero() method."""
+
     def test_pass_when_zero(self):
+        """check_is_zero() must pass for zero."""
         result, info = opl.investigator.check.check_is_zero([], 0)
         self.assertTrue(result)
         self.assertEqual(info["lower_boundary"], 0)
         self.assertEqual(info["upper_boundary"], 0)
 
     def test_fail_when_positive(self):
+        """check_is_zero() must fail for a positive value."""
         result, _ = opl.investigator.check.check_is_zero([], 1)
         self.assertFalse(result)
 
     def test_fail_when_negative(self):
+        """check_is_zero() must fail for a negative value."""
         result, _ = opl.investigator.check.check_is_zero([], -1)
         self.assertFalse(result)

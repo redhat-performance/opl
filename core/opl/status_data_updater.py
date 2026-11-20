@@ -299,9 +299,9 @@ def _create_sd_from_es_response(response):
         response["_id"],
         response["_source"]["id"] if "id" in response["_source"] else None,
     )
-    tmpfile = tempfile.NamedTemporaryFile(
+    tmpfile = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with  # file must outlive this scope
         prefix=response["_id"], delete=False
-    ).name  # pylint: disable=consider-using-with  # file must outlive this scope
+    ).name
     return opl.status_data.StatusData(tmpfile, data=response["_source"])
 
 
@@ -424,9 +424,7 @@ def doit_rp_to_es(args):
                 sd, es_type, es_id = _get_es_result_for_rp_result(
                     session, args, run_id, result
                 )
-            except (
-                Exception
-            ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logging.warning(
                     "Something went wrong when getting data for %s/%s: %s",
                     run_id,
