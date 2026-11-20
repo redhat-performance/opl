@@ -73,7 +73,9 @@ def render_sets(args, template_data):
         finalize_sets(args)
         return
 
-    logging.debug("Rendering Jinja2 template sets %s with data %s", args.sets, template_data)
+    logging.debug(
+        "Rendering Jinja2 template sets %s with data %s", args.sets, template_data
+    )
     env = jinja2.Environment(loader=jinja2.DictLoader({"sets": args.sets}))
     template = env.get_template("sets")
     rendered = template.render(template_data)
@@ -84,7 +86,11 @@ def render_sets(args, template_data):
 
 def render_query(args, template_data):
     """Render a query string with template data."""
-    logging.debug("Rendering Jinja2 template query %s with data %s", args.history_es_query, template_data)
+    logging.debug(
+        "Rendering Jinja2 template query %s with data %s",
+        args.history_es_query,
+        template_data,
+    )
     env = jinja2.Environment(loader=jinja2.DictLoader({"query": args.history_es_query}))
     template = env.get_template("query")
     rendered = template.render(template_data)
@@ -94,7 +100,11 @@ def render_query(args, template_data):
 
 def render_pg_query(args, template_data):
     """Render a PostgreSQL query with template data."""
-    logging.debug("Rendering Jinja2 template pg_query %s with data %s", args.history_pg_query, template_data)
+    logging.debug(
+        "Rendering Jinja2 template pg_query %s with data %s",
+        args.history_pg_query,
+        template_data,
+    )
     env = jinja2.Environment(loader=jinja2.DictLoader({"query": args.history_pg_query}))
     template = env.get_template("query")
     rendered = template.render(template_data)
@@ -104,8 +114,14 @@ def render_pg_query(args, template_data):
 
 def render_matchers(args, template_data):
     """Render data matchers with template data."""
-    logging.debug("Rendering Jinja2 template matchers %s with data %s", args.history_matchers, template_data)
-    env = jinja2.Environment(loader=jinja2.DictLoader({"matchers": args.history_matchers}))
+    logging.debug(
+        "Rendering Jinja2 template matchers %s with data %s",
+        args.history_matchers,
+        template_data,
+    )
+    env = jinja2.Environment(
+        loader=jinja2.DictLoader({"matchers": args.history_matchers})
+    )
     template = env.get_template("matchers")
     rendered = template.render(template_data)
     logging.debug("Rendered Jinja2 template matchers %s", rendered)
@@ -149,12 +165,16 @@ def load_config(conf, fp):
         conf.history_es_query = data["history"]["es_query"]
         if "es_server_user" in data["history"]:
             conf.history_es_server_user = data["history"]["es_server_user"]
-            conf.history_es_server_pass_env_var = data["history"]["es_server_pass_env_var"]
+            conf.history_es_server_pass_env_var = data["history"][
+                "es_server_pass_env_var"
+            ]
         if "es_server_verify" in data["history"]:
             conf.history_es_server_verify = data["history"]["es_server_verify"]
         else:
             conf.history_es_server_verify = True
-        conf.history_es_skip_metadata_assert = data["history"].get("skip_metadata_assert", False)
+        conf.history_es_skip_metadata_assert = data["history"].get(
+            "skip_metadata_assert", False
+        )
 
     if conf.history_type == "postgresql":
         conf.history_pg_host = data["history"]["pg_host"]
@@ -182,7 +202,9 @@ def load_config(conf, fp):
         conf.decisions_es_index = data["decisions"]["es_index"]
         if "es_server_user" in data["decisions"]:
             conf.decisions_es_server_user = data["decisions"]["es_server_user"]
-            conf.decisions_es_server_pass_env_var = data["decisions"]["es_server_pass_env_var"]
+            conf.decisions_es_server_pass_env_var = data["decisions"][
+                "es_server_pass_env_var"
+            ]
         if "es_server_verify" in data["decisions"]:
             conf.decisions_es_server_verify = data["decisions"]["es_server_verify"]
         else:
@@ -196,7 +218,11 @@ def load_config(conf, fp):
         if "pg_user" in data["decisions"]:
             conf.decisions_pg_user = data["decisions"]["pg_user"]
         if "pg_password_env_var" in data["decisions"]:
-            conf.decisions_pg_password_env_var = data["decisions"]["pg_password_env_var"]
+            conf.decisions_pg_password_env_var = data["decisions"][
+                "pg_password_env_var"
+            ]
 
     if conf.decisions_type == "csv":
-        conf.decisions_filename = data["decisions"].get("file", data["decisions"].get("filename"))
+        conf.decisions_filename = data["decisions"].get(
+            "file", data["decisions"].get("filename")
+        )

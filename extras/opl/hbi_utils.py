@@ -65,8 +65,12 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
             handle_send_success(data_stats=data_stats, data_lock=data_lock)
         else:
             future = producer.send(args.kafka_topic, value=value)
-            future.add_callback(handle_send_success, data_stats=data_stats, data_lock=data_lock)
-            future.add_errback(handle_send_failure, data_stats=data_stats, data_lock=data_lock)
+            future.add_callback(
+                handle_send_success, data_stats=data_stats, data_lock=data_lock
+            )
+            future.add_errback(
+                handle_send_failure, data_stats=data_stats, data_lock=data_lock
+            )
 
         # Limit producing rate to given value
         if int(time.perf_counter()) == this_second:
@@ -79,7 +83,10 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
         else:
             if args.rate not in (0, in_second):
                 logging.warning(
-                    "In second %s sent %s messages (but wanted to send %s)", this_second, in_second, args.rate
+                    "In second %s sent %s messages (but wanted to send %s)",
+                    this_second,
+                    in_second,
+                    args.rate,
                 )
                 this_second = int(time.perf_counter())
                 in_second = 0
@@ -94,7 +101,10 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
             logging.info("Sent all %s messages, great", args.count)
             break
         logging.debug(
-            "Sent %s&%s out of %s messages, waiting", data_stats["successes"], data_stats["failures"], args.count
+            "Sent %s&%s out of %s messages, waiting",
+            data_stats["successes"],
+            data_stats["failures"],
+            args.count,
         )
         time.sleep(1)
 
@@ -102,7 +112,9 @@ def gen_and_send(args, status_data, payload_generator, producer, collect_info):
     status_data.set_now("parameters.payload_generator.ended_at")
 
     if data_stats["failures"] > 0:
-        raise RuntimeError(f"Failed to send {data_stats['failures']} messages out of totally requested {args.count}")
+        raise RuntimeError(
+            f"Failed to send {data_stats['failures']} messages out of totally requested {args.count}"
+        )
     if sum(data_stats.values()) != args.count:
         raise RuntimeError(
             f"Not all messages sent {data_stats['successes']} + {data_stats['failures']} != {args.count}"
@@ -119,7 +131,9 @@ def fetch_records_count(inventory):
     return existing_records
 
 
-def verify(args, previous_records, status_data, inventory, collect_info):  # pylint: disable=unused-argument
+def verify(
+    args, previous_records, status_data, inventory, collect_info
+):  # pylint: disable=unused-argument
     """Wait until all generated hosts appear in the inventory DB."""
     # Generatate set of IDs to check in the DB
     inventory_cursor = inventory.cursor()
@@ -191,7 +205,9 @@ def gen_send_verify(args, status_data):
         exist_records_in_db = 0
     else:
         inventory = psycopg2.connect(**inventory_db_conf)
-        exist_records_in_db = fetch_records_count(inventory)  # fetch existing records count
+        exist_records_in_db = fetch_records_count(
+            inventory
+        )  # fetch existing records count
 
     logging.info("Creating producer to %s", args.kafka_host)
 
@@ -239,11 +255,16 @@ def parse_os_override(args):
         os_override_dict = json.loads(args.os_override)
         assert isinstance(os_override_dict, dict), (
             "Invalid os-override parameter, should be a dict, maybe something like this: "
-            '{"major": 7, "minor": 6, "name": "RHEL"}, but we have this: ' + str(os_override_dict)
+            '{"major": 7, "minor": 6, "name": "RHEL"}, but we have this: '
+            + str(os_override_dict)
         )
         assert (
-            "major" in os_override_dict and "minor" in os_override_dict and "name" in os_override_dict
-        ), "Missing required keys major, minor, name in os_override! Got this: " + str(os_override_dict)
+            "major" in os_override_dict
+            and "minor" in os_override_dict
+            and "name" in os_override_dict
+        ), "Missing required keys major, minor, name in os_override! Got this: " + str(
+            os_override_dict
+        )
         args.os_override = os_override_dict
 
 
@@ -253,7 +274,9 @@ def populate_main():
         description="Generate host-ingress messages, produce them to ingress topic and make sure they appear in DB",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--count", default=100, type=int, help="How many messages to prepare")
+    parser.add_argument(
+        "--count", default=100, type=int, help="How many messages to prepare"
+    )
     parser.add_argument(
         "--relatives",
         default=100,
@@ -350,15 +373,13 @@ def cleanup(args, status_data):
     # leftover test residue. They hold row locks on hbi.hosts and would make
     # the TRUNCATE below queue forever behind them (observed as multi-hour
     # pipeline hangs when the app under test leaks transactions).
-    inventory_cursor.execute(
-        """
+    inventory_cursor.execute("""
         SELECT pg_terminate_backend(pid)
         FROM pg_stat_activity
         WHERE state = 'idle in transaction'
           AND xact_start < now() - interval '10 minutes'
           AND pid <> pg_backend_pid()
-        """
-    )
+        """)
     terminated = inventory_cursor.fetchall()
     if terminated:
         logging.info(

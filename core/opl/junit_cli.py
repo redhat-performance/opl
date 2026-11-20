@@ -66,7 +66,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
         return instance
 
     def _remove_control_characters(self, s):
-        return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C" or ch == "\n")
+        return "".join(
+            ch for ch in s if unicodedata.category(ch)[0] != "C" or ch == "\n"
+        )
 
     def trim_string_fn(self, data, trim_length):
         """Trim long string, keeping first trim_length words."""
@@ -97,7 +99,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     case.system_out += self._remove_control_characters(f.read())
                     case.system_out += "\n"
                 except ValueError as e:
-                    logging.error("Failed to load %s file: %s", new["system-out"].name, e)
+                    logging.error(
+                        "Failed to load %s file: %s", new["system-out"].name, e
+                    )
         case.system_err = ""
         if new["system-err"]:
             for f in new["system-err"]:
@@ -105,7 +109,9 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     case.system_err += self._remove_control_characters(f.read())
                     case.system_err += "\n"
                 except ValueError as e:
-                    logging.error("Failed to load %s file: %s", new["system-err"].name, e)
+                    logging.error(
+                        "Failed to load %s file: %s", new["system-err"].name, e
+                    )
 
         case.system_out = self.trim_string_fn(case.system_out, 1000)
         duration = (new["end"] - new["start"]).total_seconds()
@@ -147,7 +153,12 @@ class JUnitXmlPlus(junitparser.JUnitXml):
 
     def get_result(self):
         """Compute overall result (PASSED/SKIPPED/FAILED/ERROR)."""
-        RESULTS = ["PASSED", "SKIPPED", "FAILED", "ERROR"]  # pylint: disable=invalid-name
+        RESULTS = [
+            "PASSED",
+            "SKIPPED",
+            "FAILED",
+            "ERROR",
+        ]  # pylint: disable=invalid-name
         result = 0
         for suite in self:
             for case in suite:
@@ -163,9 +174,13 @@ class JUnitXmlPlus(junitparser.JUnitXml):
                     elif isinstance(r, junitparser.junitparser.Skipped):
                         result = max(result, 1)
                     else:
-                        raise ValueError(f"No idea how to handle this result type: {r} - {type(r)}")
+                        raise ValueError(
+                            f"No idea how to handle this result type: {r} - {type(r)}"
+                        )
                 else:
-                    raise ValueError(f"No idea how to handle this case result: {case.result}")
+                    raise ValueError(
+                        f"No idea how to handle this case result: {case.result}"
+                    )
         return RESULTS[result]
 
     def delete(self):
@@ -425,7 +440,9 @@ def main():
         choices=["PASS", "FAIL", "ERROR"],
         help="Result of the testcase",
     )
-    parser_add.add_argument("--suite", required=True, help="Testsuite this testcase should be in")
+    parser_add.add_argument(
+        "--suite", required=True, help="Testsuite this testcase should be in"
+    )
     parser_add.add_argument(
         "--out",
         type=argparse.FileType("r"),
@@ -455,7 +472,9 @@ def main():
     )
 
     # create the parser for the "ibutsu" command
-    parser_ibutsu = subparsers.add_parser("ibutsu-import", help="Import the file to Ibutsu")
+    parser_ibutsu = subparsers.add_parser(
+        "ibutsu-import", help="Import the file to Ibutsu"
+    )
     parser_ibutsu.add_argument("--host", required=True, help="Ibutsu host")
     parser_ibutsu.add_argument("--token", required=True, help="Ibutsu token")
     parser_ibutsu.add_argument("--project", required=True, help="Ibutsu project")
@@ -480,7 +499,9 @@ def main():
     )
     parser_add.add_argument("--project", required=True, help="ReportPortal project")
     parser_add.add_argument("--token", required=True, help="ReportPortal token")
-    parser_add.add_argument("--launch", required=True, help="ReportPortal launch name to use when creating")
+    parser_add.add_argument(
+        "--launch", required=True, help="ReportPortal launch name to use when creating"
+    )
     parser_add.add_argument(
         "--properties",
         nargs="*",

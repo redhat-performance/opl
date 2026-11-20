@@ -27,7 +27,9 @@ class PlaybookRunMessageGenerator:
             diff_mode,
         )
 
-        self.index = -runs  # what message are we sending? (-number means start messages)
+        self.index = (
+            -runs
+        )  # what message are we sending? (-number means start messages)
 
         self.objects = {
             "runs": [],
@@ -157,13 +159,21 @@ class PlaybookRunMessageGenerator:
         account = self.objects["runs"][run_id]["account"]
         started = self.objects["runs"][run_id]["started"]
         serial = self.objects["runs"][run_id]["serial"]
-        in_response_to = self.objects["runs"][run_id]["nodes"][node_id]["in_response_to"]
+        in_response_to = self.objects["runs"][run_id]["nodes"][node_id][
+            "in_response_to"
+        ]
         sender = self.objects["runs"][run_id]["nodes"][node_id]["sender"]
         host = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["host"]
-        sequence = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["sequence"]
+        sequence = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+            "sequence"
+        ]
         size = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["size"]
-        duration = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["duration"]
-        finished = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["finished"]
+        duration = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+            "duration"
+        ]
+        finished = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+            "finished"
+        ]
 
         logging.debug(
             "Generating message index = %s; run_id = %s; node_id = %s; host_id = %s; serial = %s; sequence = %s; duration = %s; started = %s; finished = %s",
@@ -204,12 +214,20 @@ class PlaybookRunMessageGenerator:
         if sequence == duration and not finished:
             # This is final message
             logging.debug(
-                "FINAL message %s for run_id = %s; node_id = %s; host_id = %s", self.index, run_id, node_id, host_id
+                "FINAL message %s for run_id = %s; node_id = %s; host_id = %s",
+                self.index,
+                run_id,
+                node_id,
+                host_id,
             )
             self.index += 1
             self.objects["runs"][run_id]["serial"] += 1
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["sequence"] += 1
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["finished"] = True
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+                "sequence"
+            ] += 1
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+                "finished"
+            ] = True
             return {
                 "account": account,
                 "code": 0,
@@ -231,22 +249,30 @@ class PlaybookRunMessageGenerator:
             return None
         # This is normal progress message
         logging.debug(
-            "Normal message %s for run_id = %s; node_id = %s; host_id = %s", self.index, run_id, node_id, host_id
+            "Normal message %s for run_id = %s; node_id = %s; host_id = %s",
+            self.index,
+            run_id,
+            node_id,
+            host_id,
         )
         self.index += 1
         self.objects["runs"][run_id]["serial"] += 1
-        self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["sequence"] += 1
+        self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+            "sequence"
+        ] += 1
 
         # Determine console content
         if self.diff_mode:
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["console"] = (
-                opl.gen.gen_string(size=size - 1) + "\n"
-            )
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+                "console"
+            ] = (opl.gen.gen_string(size=size - 1) + "\n")
         else:
-            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["console"] += (
-                opl.gen.gen_string(size=size - 1) + "\n"
-            )
-        console = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id]["console"]
+            self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+                "console"
+            ] += (opl.gen.gen_string(size=size - 1) + "\n")
+        console = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
+            "console"
+        ]
 
         return {
             "account": account,

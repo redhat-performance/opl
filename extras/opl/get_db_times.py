@@ -108,13 +108,17 @@ class GetDbTimes:
         self.app_db = psycopg2.connect(**app_db_conf)
 
         # Load queries
-        self.queries_definition = yaml.load(args.tables_definition, Loader=yaml.SafeLoader)["queries"]
+        self.queries_definition = yaml.load(
+            args.tables_definition, Loader=yaml.SafeLoader
+        )["queries"]
 
         # Create object to make it easy to add timestamps to storage DB
         sql = self.queries_definition[self.config["query_storage_update_timestamp"]]
         logging.info("Creating storage DB batch inserter with %s", sql)
         data_lock = threading.Lock()
-        self.save_here = opl.db.BatchProcessor(self.storage_db, sql, batch=100, lock=data_lock)
+        self.save_here = opl.db.BatchProcessor(
+            self.storage_db, sql, batch=100, lock=data_lock
+        )
 
         # When was the last host added to storage DB - initializing to now
         self.last_added = self.dt_now()
@@ -132,7 +136,9 @@ class GetDbTimes:
         Count hosts in storage DB that have empty target timestamp column.
         """
         cursor = self.storage_db.cursor()
-        sql = self.queries_definition[self.config["query_storage_count_applicable_hosts"]]
+        sql = self.queries_definition[
+            self.config["query_storage_count_applicable_hosts"]
+        ]
         cursor.execute(sql)
         count = int(cursor.fetchone()[0])
         cursor.close()
@@ -187,7 +193,9 @@ class GetDbTimes:
 
             # Process (by batches) all hosts
             for batch_counter in range(batch_count):
-                batch_hosts = self._storage_get_applicable_hosts(batch_counter, batch_size)
+                batch_hosts = self._storage_get_applicable_hosts(
+                    batch_counter, batch_size
+                )
 
                 timestamps = self._app_get_hosts(batch_hosts)
 
@@ -198,8 +206,12 @@ class GetDbTimes:
                 delay = self.dt_now() - self.last_added
                 if delay.total_seconds() > self.activity_timeout:
                     self.save_here.commit()
-                    print(f"Unable to process {self._storage_count_applicable_hosts()} hosts")
-                    raise TimeoutError(f"No new host added for too long ({delay}), giving up")
+                    print(
+                        f"Unable to process {self._storage_count_applicable_hosts()} hosts"
+                    )
+                    raise TimeoutError(
+                        f"No new host added for too long ({delay}), giving up"
+                    )
 
             self.save_here.commit()
             if self._storage_count_applicable_hosts() == 0:

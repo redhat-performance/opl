@@ -1,2 +1,3 @@
 [tool.black]
-line-length = 120
+# Match super-linter PYTHON_BLACK, which uses black defaults
+line-length = 88

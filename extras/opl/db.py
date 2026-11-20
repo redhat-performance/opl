@@ -24,7 +24,9 @@ def get_query_result(db_conf, sql):
         connection.commit()
         cursor.close()
         return data
-    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+    except (
+        Exception
+    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
         logging.error("failed to execute query as %s", e)
         return False
 
@@ -41,7 +43,9 @@ def execute_query(db_conf, sql):
         connection.commit()
         cursor.close()
         return True
-    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+    except (
+        Exception
+    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
         logging.error("failed to execute query as %s", e)
         return False
 
@@ -54,7 +58,9 @@ def connect_with_retry(db_conf, cattempt=1, cmax=100, csleep=5):
         except psycopg2.OperationalError as e:
             if cattempt >= cmax:
                 raise
-            logging.warning("Failed to connect to the DB in attempt %s of %s: %s", cattempt, cmax, e)
+            logging.warning(
+                "Failed to connect to the DB in attempt %s of %s: %s", cattempt, cmax, e
+            )
             time.sleep(random.random() * csleep)
             cattempt += 1
 
@@ -112,9 +118,14 @@ def get_timedelta_between_columns(connection, columns, table="items"):
     return [i[0] for i in cursor.fetchall()]
 
 
-def get_timedelta_between_timestamp_n_dbcolumn(start_time, connection, column, table="items"):
+def get_timedelta_between_timestamp_n_dbcolumn(
+    start_time, connection, column, table="items"
+):
     """Time difference in seconds between a timestamp and a DB column."""
-    timedelta = [(i - start_time).total_seconds() for i in get_column(connection, column, table=table)]
+    timedelta = [
+        (i - start_time).total_seconds()
+        for i in get_column(connection, column, table=table)
+    ]
     return timedelta
 
 
@@ -144,7 +155,9 @@ class BatchProcessor:
         if self.lock is not None:
             self.lock.acquire(True)
 
-        psycopg2.extras.execute_values(cursor, self.sql, self.data, template=None, page_size=100)
+        psycopg2.extras.execute_values(
+            cursor, self.sql, self.data, template=None, page_size=100
+        )
         self.db.commit()
         cursor.close()
 
