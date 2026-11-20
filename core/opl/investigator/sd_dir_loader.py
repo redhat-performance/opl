@@ -9,7 +9,9 @@ import opl.status_data
 def _matches(sd, matchers):
     for key, val in matchers.items():
         if sd.get(key) != val:
-            logging.debug("File %s key %s does not match %s != %s", sd, key, val, sd.get(key))
+            logging.debug(
+                "File %s key %s does not match %s != %s", sd, key, val, sd.get(key)
+            )
             return False
 
     logging.debug("File %s matches with matchers %s", sd, matchers)

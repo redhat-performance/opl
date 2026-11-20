@@ -14,7 +14,14 @@ def _count_deviation(value, lower_boundary, upper_boundary):
         frac = dist / abs(upper_boundary - lower_boundary)
     except ZeroDivisionError:
         frac = 1
-    logging.debug("_count_deviation(%s, %s, %s): dist=%s frac=%s", value, lower_boundary, upper_boundary, dist, frac)
+    logging.debug(
+        "_count_deviation(%s, %s, %s): dist=%s frac=%s",
+        value,
+        lower_boundary,
+        upper_boundary,
+        dist,
+        frac,
+    )
     return frac
 
 
@@ -210,7 +217,9 @@ def check_is_zero(_, value):
     return value == 0, info
 
 
-def check(methods, data, value, description="N/A", verbose=True):  # pylint: disable=unused-argument
+def check(
+    methods, data, value, description="N/A", verbose=True
+):  # pylint: disable=unused-argument
     """Run all given check methods and return results and info."""
     assert value is not None, "Value to check should not be None"
 
@@ -236,7 +245,9 @@ def check(methods, data, value, description="N/A", verbose=True):  # pylint: dis
         info_full["description"] = description
         info_full["result"] = "PASS" if result else "FAIL"
         info_full.update(info)
-        info_full["deviation"] = _count_deviation(value, info["lower_boundary"], info["upper_boundary"])
+        info_full["deviation"] = _count_deviation(
+            value, info["lower_boundary"], info["upper_boundary"]
+        )
         for k, v in info_full.items():
             if isinstance(v, float) and v in (float("inf"), float("-inf")):
                 info_full[k] = None

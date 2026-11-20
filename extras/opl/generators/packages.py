@@ -64,7 +64,9 @@ class EnabledServicesGenerator:
 
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        with open(os.path.join(data_dirname, "enabled_services.txt"), encoding="utf-8") as fp:
+        with open(
+            os.path.join(data_dirname, "enabled_services.txt"), encoding="utf-8"
+        ) as fp:
             self.data = list(fp.read().split("\n"))
 
     def count(self):
@@ -81,7 +83,9 @@ class InstalledServicesGenerator:
 
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        with open(os.path.join(data_dirname, "installed_services.txt"), encoding="utf-8") as fp:
+        with open(
+            os.path.join(data_dirname, "installed_services.txt"), encoding="utf-8"
+        ) as fp:
             self.data = list(fp.read().split("\n"))
 
     def count(self):
@@ -98,7 +102,9 @@ class RunningProcessesGenerator:
 
     def __init__(self) -> None:
         data_dirname = os.path.dirname(__file__)
-        with open(os.path.join(data_dirname, "running_processes.txt"), encoding="utf-8") as fp:
+        with open(
+            os.path.join(data_dirname, "running_processes.txt"), encoding="utf-8"
+        ) as fp:
             self.data = list(fp.read().split("\n"))
 
     def count(self):

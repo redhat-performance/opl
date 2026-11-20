@@ -137,7 +137,9 @@ def doit(args, status_data):  # pylint: disable=redefined-outer-name
                 args.wait_for_count_timeout,
                 args.wait_for_count_progress,
             )
-            print(f"Table {table} reached {count} rows (goal was {args.wait_for_count})")
+            print(
+                f"Table {table} reached {count} rows (goal was {args.wait_for_count})"
+            )
         if args.wait_for_result:
             query = tables_definition["queries"][args.wait_for_result_query]
             count = wait_for_count(
@@ -159,7 +161,9 @@ def doit(args, status_data):  # pylint: disable=redefined-outer-name
             print(f"Table {table} dropped and created")
         if args.null_column:
             null_column(connection, table, args.null_column)
-            status_data.set_now(f"parameters.storage.{table}.columnt_{args.null_column}_nulled_at")
+            status_data.set_now(
+                f"parameters.storage.{table}.columnt_{args.null_column}_nulled_at"
+            )
             print(f"Column {table}.{args.null_column} nulled")
 
 
@@ -169,7 +173,9 @@ def main():
         description="Script to maintain tables in storage DB",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--count", action="store_true", help="Count rows in the table(s)")
+    parser.add_argument(
+        "--count", action="store_true", help="Count rows in the table(s)"
+    )
     parser.add_argument(
         "--wait-for-count",
         type=int,
@@ -197,8 +203,12 @@ def main():
         help="What query from tables.yaml to use for --wait-for-result function",
     )
     parser.add_argument("--truncate", action="store_true", help="Truncate the table(s)")
-    parser.add_argument("--recreate", action="store_true", help="Just drop and create the table(s)")
-    parser.add_argument("--null-column", help="Put NULL to column in table specified by tables")
+    parser.add_argument(
+        "--recreate", action="store_true", help="Just drop and create the table(s)"
+    )
+    parser.add_argument(
+        "--null-column", help="Put NULL to column in table specified by tables"
+    )
     parser.add_argument(
         "tables",
         nargs="*",

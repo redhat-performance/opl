@@ -56,11 +56,17 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
     def _data(self):
         if self.per_account_data == []:
             account = self._get_account()
-            os_tree_commit = "ec3c003da4eafaa971b528b3383d8caff688a110e53af71a85e666cf60b4ed20"
+            os_tree_commit = (
+                "ec3c003da4eafaa971b528b3383d8caff688a110e53af71a85e666cf60b4ed20"
+            )
         else:
             account = random.choice([i["account"] for i in self.per_account_data])
             os_tree_commit = random.choice(
-                [i["os_tree_commits"] for i in self.per_account_data if i["account"] == account][0]
+                [
+                    i["os_tree_commits"]
+                    for i in self.per_account_data
+                    if i["account"] == account
+                ][0]
             )
         return {
             "inventory_id": self._get_uuid(),
@@ -70,7 +76,8 @@ class EgressHostsGenerator(opl.generators.generic.GenericGenerator):
             "os_tree_commit": os_tree_commit,
             "fqdn": self._get_hostname(),
             "installed_packages": self.pg.generate(self.n_packages),
-            "yum_repos": self.data["ENABLED_REPOS"] + random.sample(self.data["AVAILABLE_REPOS"], 10),  # noqa: W503
+            "yum_repos": self.data["ENABLED_REPOS"]
+            + random.sample(self.data["AVAILABLE_REPOS"], 10),  # noqa: W503
             "b64_identity": self._get_b64_identity(account, account),
             "msg_type": self.msg_type,
             "machine_id": self._get_rhel_machine_id(),

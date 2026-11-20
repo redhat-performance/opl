@@ -53,7 +53,9 @@ def get_stats(checks, key):
 
     print(
         f"\nStats by {key}:\n\n",
-        tabulate.tabulate(per_key_tabulate, headers="keys", tablefmt="simple", floatfmt=".3f"),
+        tabulate.tabulate(
+            per_key_tabulate, headers="keys", tablefmt="simple", floatfmt=".3f"
+        ),
     )
 
 
@@ -77,13 +79,18 @@ def doit(args):
 
     total = len([v for v in current.values() if v is not None and v != ""])
     if total == 0:
-        raise ValueError(f"No data available in current result (tried to load {', '.join(sets_list)} but nothing)!")
+        raise ValueError(
+            f"No data available in current result (tried to load {', '.join(sets_list)} but nothing)!"
+        )
 
     # Load historical data
     if args.history_type == "csv":
         history = opl.investigator.csv_loader.load(args.history_file, sets_list)
     elif args.history_type == "elasticsearch":
-        if hasattr(args, "history_es_server_verify") and not args.history_es_server_verify:
+        if (
+            hasattr(args, "history_es_server_verify")
+            and not args.history_es_server_verify
+        ):
             # SSL verification is disabled by default
             opl.http.insecure()
         history = opl.investigator.elasticsearch_loader.load(
@@ -92,8 +99,12 @@ def doit(args):
             args.history_es_query,
             sets_list,
             es_server_user=getattr(args, "history_es_server_user", None),
-            es_server_pass_env_var=getattr(args, "history_es_server_pass_env_var", None),
-            skip_metadata_assert=getattr(args, "history_es_skip_metadata_assert", False),
+            es_server_pass_env_var=getattr(
+                args, "history_es_server_pass_env_var", None
+            ),
+            skip_metadata_assert=getattr(
+                args, "history_es_skip_metadata_assert", False
+            ),
         )
 
     elif args.history_type == "postgresql":
@@ -130,11 +141,17 @@ def doit(args):
         var = s["name"]
         methods = s["methods"]
         try:
-            results, info = opl.investigator.check.check(methods, history[var], current[var], description=var)
-        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            results, info = opl.investigator.check.check(
+                methods, history[var], current[var], description=var
+            )
+        except (
+            Exception
+        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logging.exception("Check on %s failed with: %s", var, e)
             info_all.append({"result": "ERROR", "exception": str(e)})
-            summary_this = collections.OrderedDict([("data set", var), ("exception", str(e))])
+            summary_this = collections.OrderedDict(
+                [("data set", var), ("exception", str(e))]
+            )
             exit_code = 2
         else:
             info_all += info
@@ -173,7 +190,9 @@ def doit(args):
 
     print(
         "\n",
-        tabulate.tabulate(info_all, headers=info_headers_tabulate, tablefmt="simple", floatfmt=".3f"),
+        tabulate.tabulate(
+            info_all, headers=info_headers_tabulate, tablefmt="simple", floatfmt=".3f"
+        ),
     )
     print("\n", tabulate.tabulate(summary, headers="keys", tablefmt="simple"))
     print(f"\nOverall status: {STATUSES[exit_code]}")
@@ -192,7 +211,9 @@ def doit(args):
                 args.decisions_es_index,
                 info_all,
                 es_server_user=getattr(args, "decisions_es_server_user", None),
-                es_server_pass_env_var=getattr(args, "decisions_es_server_pass_env_var", None),
+                es_server_pass_env_var=getattr(
+                    args, "decisions_es_server_pass_env_var", None
+                ),
             )
         if args.decisions_type == "csv":
             opl.investigator.csv_decisions.store(args.decisions_filename, info_all)
@@ -204,7 +225,9 @@ def doit(args):
                 args.decisions_pg_table,
                 info_all,
                 pg_user=getattr(args, "decisions_pg_user", None),
-                pg_password_env_var=getattr(args, "decisions_pg_password_env_var", None),
+                pg_password_env_var=getattr(
+                    args, "decisions_pg_password_env_var", None
+                ),
             )
 
     if not args.dry_run:

@@ -27,7 +27,12 @@ def store(server, index, decisions, **kwargs):
 
         # for k, v in decision.items():
         #    print(f">>> {k} = {v} ({type(v)})")
-        logging.info("Storing decision to ES url=%s, headers=%s and json=%s", url, headers, json.dumps(decision))
+        logging.info(
+            "Storing decision to ES url=%s, headers=%s and json=%s",
+            url,
+            headers,
+            json.dumps(decision),
+        )
 
         if es_server_user and decisions_es_server_pass_env_var:
             # fetch the password from Jenkins credentials

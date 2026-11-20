@@ -22,12 +22,16 @@ class TestPayloadGenerator(unittest.TestCase):
     }
 
     def test_counting(self):
-        pg = opl.generators.qpc_tarball.QPCTarballGenerator(count=2, tarball_conf=self.tarball_conf)
+        pg = opl.generators.qpc_tarball.QPCTarballGenerator(
+            count=2, tarball_conf=self.tarball_conf
+        )
         self.assertEqual(pg.count, 2)
         self.assertEqual(pg.counter, 0)
 
     def test_count(self):
-        pg = opl.generators.qpc_tarball.QPCTarballGenerator(count=2, tarball_conf=self.tarball_conf)
+        pg = opl.generators.qpc_tarball.QPCTarballGenerator(
+            count=2, tarball_conf=self.tarball_conf
+        )
         tarball = next(pg)
         self.assertIsInstance(tarball, opl.generators.qpc_tarball.QPCTarball)
         tarball = next(pg)
@@ -35,7 +39,9 @@ class TestPayloadGenerator(unittest.TestCase):
             tarball = next(pg)
 
     def test_count_slices(self):
-        pg = opl.generators.qpc_tarball.QPCTarballGenerator(count=2, tarball_conf=self.tarball_conf)
+        pg = opl.generators.qpc_tarball.QPCTarballGenerator(
+            count=2, tarball_conf=self.tarball_conf
+        )
         tarball = next(pg)
         tarball_slice = next(tarball)
         self.assertIsInstance(tarball_slice, opl.generators.qpc_tarball.QPCTarballSlice)
@@ -45,7 +51,9 @@ class TestPayloadGenerator(unittest.TestCase):
             tarball_slice = next(tarball)
 
     def test_add_hosts(self):
-        pg = opl.generators.qpc_tarball.QPCTarballGenerator(count=2, tarball_conf=self.tarball_conf)
+        pg = opl.generators.qpc_tarball.QPCTarballGenerator(
+            count=2, tarball_conf=self.tarball_conf
+        )
         tarball = next(pg)
         tarball_slice = next(tarball)
         for i in range(4):
@@ -53,7 +61,9 @@ class TestPayloadGenerator(unittest.TestCase):
         self.assertEqual(tarball_slice.get_host_count(), 4)
 
     def test_slice_after_dump(self):
-        pg = opl.generators.qpc_tarball.QPCTarballGenerator(count=2, tarball_conf=self.tarball_conf)
+        pg = opl.generators.qpc_tarball.QPCTarballGenerator(
+            count=2, tarball_conf=self.tarball_conf
+        )
         tarball = next(pg)
         tarball_dirname = tarball.dirname
         tarball_slice = next(tarball)

@@ -73,7 +73,9 @@ def _run_request(func, *args, **kwargs):
             _check_response(response)
         except requests.exceptions.HTTPError:
             if attempt <= max_attempts:
-                logging.warning("Waiting to try again, attempt %s of %s", attempt, max_attempts)
+                logging.warning(
+                    "Waiting to try again, attempt %s of %s", attempt, max_attempts
+                )
                 time.sleep(sleep)
                 attempt += 1
                 ERRORS_COUNTER += 1
@@ -88,7 +90,9 @@ def _check_response(response):
     response.raise_for_status()
 
 
-def load_apps_and_perms(url_base, x_rh_identity, application=[]):  # pylint: disable=dangerous-default-value
+def load_apps_and_perms(
+    url_base, x_rh_identity, application=[]
+):  # pylint: disable=dangerous-default-value
     """Load applications and permissions from the RBAC API."""
     global APPLICATIONS  # pylint: disable=global-statement
 
@@ -101,7 +105,9 @@ def load_apps_and_perms(url_base, x_rh_identity, application=[]):  # pylint: dis
     params = {
         "limit": 1000,
     }
-    logging.info("Loading applications and permissions with identity header %s", x_rh_identity)
+    logging.info(
+        "Loading applications and permissions with identity header %s", x_rh_identity
+    )
     r = _run_request(requests.get, url, params=params, headers=headers, verify=False)
 
     for i in r.json()["data"]:
@@ -137,7 +143,9 @@ def create_group(url_base, x_rh_identity):
     }
     data = _get_group()
     logging.info("Creating group name = %s", data["name"])
-    response = _run_request(requests.post, url, headers=headers, verify=False, json=data)
+    response = _run_request(
+        requests.post, url, headers=headers, verify=False, json=data
+    )
     return response.json()["uuid"]
 
 
@@ -151,7 +159,9 @@ def create_role(url_base, x_rh_identity):
     }
     data = _get_role()
     logging.info("Creating role name = %s", data["name"])
-    response = _run_request(requests.post, url, headers=headers, verify=False, json=data)
+    response = _run_request(
+        requests.post, url, headers=headers, verify=False, json=data
+    )
     return response.json()["uuid"]
 
 
@@ -177,7 +187,8 @@ def get_tenant(cursor, account):
     tenant for the same account) are an error as well.
     """
     cursor.execute(
-        "SELECT id, tenant_name FROM public.api_tenant " "WHERE tenant_name IN (%s, %s, %s)",
+        "SELECT id, tenant_name FROM public.api_tenant "
+        "WHERE tenant_name IN (%s, %s, %s)",
         (f"acct{account}", f"org{account}", account),
     )
     rows = cursor.fetchall()
@@ -188,7 +199,8 @@ def get_tenant(cursor, account):
         )
     if len(rows) > 1:
         raise RuntimeError(
-            f"Multiple tenants found in public.api_tenant for account {account}: " f"{[row[1] for row in rows]}"
+            f"Multiple tenants found in public.api_tenant for account {account}: "
+            f"{[row[1] for row in rows]}"
         )
     return rows[0]
 
@@ -198,7 +210,9 @@ def create_principal(cursor, tenant_id, tenant_name):
     user_uuid = str(uuid.uuid4())
     user_name = "user-" + user_uuid
     user_type = "user"
-    logging.info("Creating principal username = %s in tenant %s", user_name, tenant_name)
+    logging.info(
+        "Creating principal username = %s in tenant %s", user_name, tenant_name
+    )
     cursor.execute(
         "INSERT INTO public.management_principal (uuid, username, tenant_id, type) VALUES (%s, %s, %s, %s) RETURNING id",
         (user_uuid, user_name, tenant_id, user_type),
@@ -210,7 +224,9 @@ def create_principal(cursor, tenant_id, tenant_name):
 def add_principal_to_group(cursor, user_id, group_uuid):
     """Add a user to a group in the DB."""
     logging.info("Adding principal %s to group %s", user_id, group_uuid)
-    cursor.execute("SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,))
+    cursor.execute(
+        "SELECT id FROM public.management_group WHERE uuid = %s", (group_uuid,)
+    )
     group_id = cursor.fetchone()[0]
     cursor.execute(
         "INSERT INTO public.management_group_principals (group_id, principal_id) VALUES (%s, %s)",
@@ -301,7 +317,9 @@ def doit(rbac_test_data, args, status_data):
 
     # rbac_test_data.save()
 
-    print(f"DB population finished in {(population_end - population_start).total_seconds()} seconds")
+    print(
+        f"DB population finished in {(population_end - population_start).total_seconds()} seconds"
+    )
     print(f"Tenants created: {tenant_counter}")
     print(f"Groups created: {group_counter}")
     print(f"Roles created: {role_counter}")
@@ -333,7 +351,9 @@ def main():
         help="application permissions to be considered",
     )
 
-    parser.add_argument("--tenants-number", type=int, default=1, help="Number of tenants to create")
+    parser.add_argument(
+        "--tenants-number", type=int, default=1, help="Number of tenants to create"
+    )
 
     parser.add_argument(
         "--groups-number",
