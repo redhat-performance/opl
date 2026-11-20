@@ -4,37 +4,36 @@
 #
 # Copy this entire member block and customize for your technology stack
 
-- id: [unique_identifier]  # lowercase with underscores, e.g., javascript_expert
-  name: "[Full Name]"  # Display name, e.g., "Alex Rivera"
-  title: "[Role Title]"  # Professional title, e.g., "JavaScript Expert"
+- id: [unique_identifier] # lowercase with underscores, e.g., javascript_expert
+  name: "[Full Name]" # Display name, e.g., "Alex Rivera"
+  title: "[Role Title]" # Professional title, e.g., "JavaScript Expert"
 
   # Specialties: Main areas of expertise (3-5 items)
   specialties:
-    - "[Specialty 1]"  # e.g., "Modern JavaScript/TypeScript"
-    - "[Specialty 2]"  # e.g., "Frontend architecture"
-    - "[Specialty 3]"  # e.g., "Build tools"
+    - "[Specialty 1]" # e.g., "Modern JavaScript/TypeScript"
+    - "[Specialty 2]" # e.g., "Frontend architecture"
+    - "[Specialty 3]" # e.g., "Build tools"
 
   # Disciplines: Professional disciplines and practices (3-5 items)
   disciplines:
-    - "[Discipline 1]"  # e.g., "Clean code"
-    - "[Discipline 2]"  # e.g., "Performance optimization"
-    - "[Discipline 3]"  # e.g., "Test-driven development"
+    - "[Discipline 1]" # e.g., "Clean code"
+    - "[Discipline 2]" # e.g., "Performance optimization"
+    - "[Discipline 3]" # e.g., "Test-driven development"
 
   # Skillsets: Specific technical skills (3-5 items)
   skillsets:
-    - "[Skill 1]"  # e.g., "ES6+"
-    - "[Skill 2]"  # e.g., "Async programming"
-    - "[Skill 3]"  # e.g., "Module systems"
+    - "[Skill 1]" # e.g., "ES6+"
+    - "[Skill 2]" # e.g., "Async programming"
+    - "[Skill 3]" # e.g., "Module systems"
 
   # Domains: Application domains and contexts (3-5 items)
   domains:
-    - "[Domain 1]"  # e.g., "Web applications"
-    - "[Domain 2]"  # e.g., "API services"
-    - "[Domain 3]"  # e.g., "Cloud infrastructure"
+    - "[Domain 1]" # e.g., "Web applications"
+    - "[Domain 2]" # e.g., "API services"
+    - "[Domain 3]" # e.g., "Cloud infrastructure"
 
   # Perspective: Unique viewpoint in 1-2 sentences
   perspective: "[Description of how this member approaches architecture reviews and what lens they bring]"
-
 # ============================================================================
 # EXAMPLES BY TECHNOLOGY STACK
 # ============================================================================

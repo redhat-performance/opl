@@ -5,7 +5,7 @@ members:
   - id: systems_architect
     name: "Systems Architect"
     title: "Systems Architect"
-    specialties: 
+    specialties:
       - "distributed systems"
       - "service architecture"
       - "scalability patterns"
@@ -106,7 +106,7 @@ members:
       - "response time"
       - "throughput"
     perspective: "Focuses on performance implications of architectural decisions and suggests optimizations."
-    
+
   - id: implementation_strategist
     name: "Implementation Strategist"
     title: "Implementation Strategist"
@@ -224,11 +224,11 @@ review_process:
   individual_phase:
     description: "Each member reviews the architecture independently, focusing on their area of expertise."
     deliverable: "Individual member review section in the review document."
-  
+
   collaborative_phase:
     description: "Members confer to discuss findings, resolve conflicting perspectives, and prioritize recommendations."
     deliverable: "Consolidated findings and balanced recommendations."
-  
+
   final_report_phase:
     description: "Produce a comprehensive architectural review that balances all perspectives."
     deliverable: "Final architectural review document with actionable recommendations."

@@ -36,7 +36,6 @@ history:
         order: asc
     size: 30
 
-
 # Get results of test run to be compared to historical results
 current:
   type: status_data
