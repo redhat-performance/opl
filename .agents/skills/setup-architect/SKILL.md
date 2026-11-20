@@ -11,6 +11,7 @@ Sets up and customizes the AI Software Architect framework for a project.
 ## Overview
 
 This skill performs a complete framework installation:
+
 1. Verifies prerequisites (framework cloned, project root confirmed)
 2. Analyzes project (languages, frameworks, structure, patterns)
 3. Installs framework files and directory structure
@@ -26,6 +27,7 @@ This skill performs a complete framework installation:
 ### 1. Verify Prerequisites
 
 Check requirements before installation:
+
 - `.architecture/.architecture/` directory exists (cloned framework)
 - Currently in project root directory
 
@@ -34,6 +36,7 @@ Check requirements before installation:
 ### 2. Analyze Project
 
 Identify project characteristics:
+
 - **Languages**: JavaScript/TypeScript, Python, Ruby, Java, Go, Rust
 - **Frameworks**: React, Vue, Django, Rails, Spring, etc.
 - **Infrastructure**: Testing setup, CI/CD, package managers
@@ -44,6 +47,7 @@ Use `Glob` and `Grep` to detect technologies, `Read` to examine configs.
 ### 3. Install Framework
 
 Execute installation steps (see [references/installation-procedures.md](references/installation-procedures.md)):
+
 - Copy framework files to `.architecture/`
 - Remove clone directory
 - Create directory structure (decisions/adrs, reviews, recalibration, etc.)
@@ -55,6 +59,7 @@ Execute installation steps (see [references/installation-procedures.md](referenc
 ### 4. Customize Architecture Team
 
 Add technology-specific members to `.architecture/members.yml`:
+
 - **JavaScript/TypeScript**: JavaScript Expert, framework specialists (React/Vue/Angular)
 - **Python**: Python Expert, framework specialists (Django/Flask/FastAPI)
 - **Ruby**: Ruby Expert, Rails Architect
@@ -71,6 +76,7 @@ Use template from [assets/member-template.yml](assets/member-template.yml).
 ### 5. Customize Architectural Principles
 
 Add framework-specific principles to `.architecture/principles.md`:
+
 - **React**: Component composition, hooks, unidirectional data flow
 - **Rails**: Convention over configuration, DRY, RESTful design
 - **Django**: Explicit over implicit, reusable apps, use built-ins
@@ -80,6 +86,7 @@ Add framework-specific principles to `.architecture/principles.md`:
 ### 6. Update CLAUDE.md Integration
 
 If `CLAUDE.md` exists in project root, append framework usage section:
+
 - Available commands
 - Where to find documentation
 - How to invoke skills
@@ -89,14 +96,16 @@ If `CLAUDE.md` exists in project root, append framework usage section:
 ### 7. Cleanup
 
 Remove framework development files:
+
 - Framework documentation (README.md, USAGE*.md, INSTALL.md)
 - Template `.git/` directory (with **critical safety checks**)
 
-**⚠️  IMPORTANT**: Follow all safeguards in [references/installation-procedures.md § Cleanup](references/installation-procedures.md#cleanup-procedures).
+**⚠️ IMPORTANT**: Follow all safeguards in [references/installation-procedures.md § Cleanup](references/installation-procedures.md#cleanup-procedures).
 
 ### 8. Create Initial System Analysis
 
 Generate comprehensive initial analysis document:
+
 - Each member analyzes system from their perspective
 - System overview (stack, structure, patterns)
 - Strengths identified
@@ -138,6 +147,7 @@ Next Steps:
 ## Error Handling
 
 **Framework not cloned**:
+
 ```
 The framework must be cloned first. Please run:
 
@@ -147,6 +157,7 @@ Then run setup again.
 ```
 
 **Already set up**:
+
 ```
 Framework appears to be already set up.
 
@@ -155,6 +166,7 @@ To reconfigure: Manually edit .architecture/members.yml and .architecture/princi
 ```
 
 **Unclear project structure**:
+
 ```
 Could not clearly identify project type. Please describe:
 - Primary programming language(s)
@@ -167,11 +179,13 @@ I'll customize the framework accordingly.
 ## Related Skills
 
 **After Setup**:
+
 - `list-members` - View customized team
 - `architecture-status` - Verify setup completion
 - `create-adr` - Document first decision
 
 **Initial Work**:
+
 - Review `initial-system-analysis.md` findings
 - `specialist-review` - Deep-dive on specific concerns
 - `create-adr` - Document existing key decisions

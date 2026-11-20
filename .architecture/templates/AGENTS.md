@@ -27,6 +27,7 @@ INSTRUCTION CAPACITY GUIDANCE (ADR-005):
 **Technology Stack**: [PROJECT_TECH_STACK]
 
 The framework provides:
+
 - **Architecture Documentation**: Centralized repository of architectural decisions and reviews
 - **Multi-Perspective Reviews**: Specialized reviewers from different architectural domains
 - **Decision Records (ADRs)**: Structured documentation of architectural decisions
@@ -66,6 +67,7 @@ The framework provides:
 Architecture reviews provide multi-perspective analysis of architectural decisions.
 
 **Command patterns:**
+
 - "Start architecture review for version X.Y.Z"
 - "Start architecture review for [feature name]"
 - "Ask [Specialist] to review [component]"
@@ -79,6 +81,7 @@ Review documents created in `.architecture/reviews/`.
 ADRs document significant architectural decisions.
 
 **Command patterns:**
+
 - "Create ADR for [topic]"
 - "Document architectural decision for [topic]"
 
@@ -104,6 +107,7 @@ Configuration in `.architecture/config.yml` with three intensity modes: Strict, 
 Translate architecture review findings into actionable implementation plans.
 
 **Command patterns:**
+
 - "Start architecture recalibration for version X.Y.Z"
 - "Recalibrate architecture for [feature name]"
 
@@ -210,16 +214,19 @@ The framework works with any AI assistant that can read markdown files and follo
 ## Additional Resources
 
 ### Detailed Documentation
+
 - **Workflow Procedures**: `.architecture/agent_docs/workflows.md`
 - **Advanced Topics**: `.architecture/agent_docs/reference.md`
 - **Documentation Guide**: `.architecture/agent_docs/README.md`
 
 ### Framework Files
+
 - **Framework Principles**: `.architecture/principles.md`
 - **Architecture Members**: `.architecture/members.yml`
 - **Configuration**: `.architecture/config.yml`
 
 ### Templates & Examples
+
 - **ADR Template**: `.architecture/templates/adr-template.md`
 - **Review Template**: `.architecture/templates/review-template.md`
 - **Recalibration Template**: `.architecture/templates/recalibration_plan.md`

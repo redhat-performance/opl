@@ -22,16 +22,19 @@ Each member from `.architecture/members.yml` should review from their unique per
 **Perspective**: [Their unique viewpoint from members.yml]
 
 #### Key Observations
+
 - [Observation 1 - Specific finding about the system]
 - [Observation 2 - Another specific finding]
 - [Continue with notable observations]
 
 #### Strengths
+
 1. **[Strength Title]**: [Detailed description of what's working well and why it matters]
 2. **[Strength Title]**: [Description]
 3. [Continue with strengths - aim for 3-5 key strengths]
 
 #### Concerns
+
 1. **[Concern Title]** (Impact: High | Medium | Low)
    - **Issue**: [Clear description of what's wrong or could be improved]
    - **Why it matters**: [Impact on system, users, or development]
@@ -45,6 +48,7 @@ Each member from `.architecture/members.yml` should review from their unique per
 [Continue with concerns - prioritize by impact]
 
 #### Recommendations
+
 1. **[Recommendation Title]** (Priority: High/Medium/Low, Effort: Small/Medium/Large)
    - **What**: [What to do]
    - **Why**: [Benefit or risk addressed]
@@ -59,42 +63,49 @@ Each member from `.architecture/members.yml` should review from their unique per
 ### Member-Specific Guidance
 
 **Systems Architect**:
+
 - Focus on overall system coherence and architectural patterns
 - Evaluate component interactions and integration points
 - Assess alignment with architectural principles
 - Consider long-term evolvability
 
 **Domain Expert**:
+
 - Review how well architecture represents business domain
 - Evaluate bounded contexts and domain model accuracy
 - Check ubiquitous language usage
 - Assess semantic correctness
 
 **Security Specialist**:
+
 - Identify security vulnerabilities and threats
 - Evaluate authentication, authorization, encryption
 - Review data protection and privacy considerations
 - Assess security boundaries and attack surface
 
 **Performance Specialist**:
+
 - Identify performance bottlenecks
 - Evaluate scalability patterns
 - Review resource utilization
 - Assess caching, optimization opportunities
 
 **Maintainability Expert**:
+
 - Evaluate code organization and clarity
 - Assess technical debt
 - Review complexity and coupling
 - Consider developer experience
 
 **AI Engineer** (if applicable):
+
 - Review AI/ML integration patterns
 - Evaluate LLM application design
 - Assess agent orchestration
 - Review observability and evaluation
 
 **Pragmatic Enforcer** (if pragmatic mode enabled):
+
 - See [pragmatic-integration.md](./pragmatic-integration.md) for detailed process
 
 ---
@@ -119,6 +130,7 @@ After individual reviews, simulate a discussion between members to synthesize fi
 ### Common Ground
 
 Team members agree on:
+
 1. [Consensus point 1]
 2. [Consensus point 2]
 3. [Consensus point 3]
@@ -126,6 +138,7 @@ Team members agree on:
 ### Areas of Debate
 
 **Topic: [Topic Title]**
+
 - **[Member 1]**: [Their position]
 - **[Member 2]**: [Their position]
 - **Resolution**: [How team resolves or agrees to disagree]
@@ -135,14 +148,17 @@ Team members agree on:
 The team agrees on these priorities:
 
 **Critical (Address Immediately)**:
+
 1. [Critical priority]
 2. [Critical priority]
 
 **Important (Address Soon)**:
+
 1. [Important priority]
 2. [Important priority]
 
 **Nice-to-Have (Consider Later)**:
+
 1. [Nice-to-have]
 2. [Nice-to-have]
 ```
@@ -162,6 +178,7 @@ The team agrees on these priorities:
 ### Version Reviews
 
 **Focus on**:
+
 - Overall architecture health at this milestone
 - Components and their interactions
 - Patterns and consistency
@@ -170,6 +187,7 @@ The team agrees on these priorities:
 - Alignment with original architecture vision
 
 **Key Questions**:
+
 - Is the architecture still coherent as system has evolved?
 - What technical debt needs addressing before next version?
 - Are architectural principles being followed?
@@ -178,6 +196,7 @@ The team agrees on these priorities:
 ### Feature Reviews
 
 **Focus on**:
+
 - Feature implementation approach
 - Integration with existing architecture
 - Data flow and state management
@@ -186,6 +205,7 @@ The team agrees on these priorities:
 - Test coverage
 
 **Key Questions**:
+
 - Does this feature fit the existing architecture?
 - Are there better architectural approaches?
 - What are the integration risks?
@@ -194,6 +214,7 @@ The team agrees on these priorities:
 ### Component Reviews
 
 **Focus on**:
+
 - Component architecture and structure
 - Dependencies and coupling
 - Boundaries and interfaces
@@ -201,6 +222,7 @@ The team agrees on these priorities:
 - Testability
 
 **Key Questions**:
+
 - Is component well-designed and focused?
 - Are boundaries clear and appropriate?
 - Is it properly decoupled?
@@ -211,23 +233,28 @@ The team agrees on these priorities:
 ## Tips for High-Quality Reviews
 
 ### Be Specific
+
 - ❌ "The code is messy"
 - ✅ "The `UserService` class has 15 methods mixing authentication, authorization, and profile management - violates single responsibility"
 
 ### Provide Context
+
 - ❌ "Add caching"
 - ✅ "Add Redis caching for user profile queries - currently hitting DB 50+ times per page load causing 200ms delays"
 
 ### Suggest Solutions
+
 - ❌ "Performance is bad"
 - ✅ "Batch database queries in `OrderProcessor.process()` to reduce N+1 queries - should improve processing time by 70%"
 
 ### Balance Positive and Negative
+
 - Don't just list problems
 - Recognize what's working well
 - Explain why good patterns should be sustained
 
 ### Be Actionable
+
 - Every concern should have a recommendation
 - Recommendations should be concrete and implementable
 - Estimate effort (Small/Medium/Large) and priority (High/Medium/Low)

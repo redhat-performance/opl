@@ -37,6 +37,7 @@ All skills MUST declare tool permissions via `allowed-tools` in YAML frontmatter
 **Principle of Least Privilege**: Only grant tools actually required for skill operation.
 
 **Bash Scoping**: Use wildcards to restrict bash commands:
+
 - `Bash(git:*)` - Only git commands
 - `Bash(ls:*,grep:*)` - Only ls and grep
 - `Bash(npm:*,node:*)` - Only npm and node
@@ -45,51 +46,58 @@ All skills MUST declare tool permissions via `allowed-tools` in YAML frontmatter
 ### Permission Levels by Skill Type
 
 **Read-Only Skills** (listing, status checks):
+
 ```yaml
 allowed-tools: Read
 ```
 
 **Search & Analysis Skills** (scanning, reporting):
+
 ```yaml
 allowed-tools: Read,Glob,Grep
 ```
 
 **Document Creation Skills** (ADRs, reviews):
+
 ```yaml
 allowed-tools: Read,Write,Bash(ls:*,grep:*)
 ```
 
 **Document Modification Skills** (updates, edits):
+
 ```yaml
 allowed-tools: Read,Write,Edit,Glob,Grep
 ```
 
 **Review & Analysis Skills** (comprehensive reviews):
+
 ```yaml
 allowed-tools: Read,Write,Glob,Grep,Bash(git:*)
 ```
 
 **Configuration Skills** (mode toggles):
+
 ```yaml
 allowed-tools: Read,Edit
 ```
 
 **Setup & Installation Skills** (framework setup):
+
 ```yaml
 allowed-tools: Read,Write,Edit,Glob,Grep,Bash
 ```
 
 ### Current Skill Permissions
 
-| Skill | Tools | Rationale |
-|-------|-------|-----------|
-| `list-members` | `Read` | Only reads members.yml |
-| `architecture-status` | `Read,Glob,Grep` | Scans files and searches |
-| `create-adr` | `Read,Write,Bash(ls:*,grep:*)` | Creates ADRs, scans for numbering |
-| `specialist-review` | `Read,Write,Glob,Grep` | Reviews code, writes reports |
-| `architecture-review` | `Read,Write,Glob,Grep,Bash(git:*)` | Full reviews + git status |
-| `pragmatic-guard` | `Read,Edit` | Reads/modifies config |
-| `setup-architect` | `Read,Write,Edit,Glob,Grep,Bash` | Full installation access |
+| Skill                 | Tools                              | Rationale                         |
+| --------------------- | ---------------------------------- | --------------------------------- |
+| `list-members`        | `Read`                             | Only reads members.yml            |
+| `architecture-status` | `Read,Glob,Grep`                   | Scans files and searches          |
+| `create-adr`          | `Read,Write,Bash(ls:*,grep:*)`     | Creates ADRs, scans for numbering |
+| `specialist-review`   | `Read,Write,Glob,Grep`             | Reviews code, writes reports      |
+| `architecture-review` | `Read,Write,Glob,Grep,Bash(git:*)` | Full reviews + git status         |
+| `pragmatic-guard`     | `Read,Edit`                        | Reads/modifies config             |
+| `setup-architect`     | `Read,Write,Edit,Glob,Grep,Bash`   | Full installation access          |
 
 ### Adding Permissions to New Skills
 
@@ -109,6 +117,7 @@ When creating a new skill, determine required tools:
    - Scope Bash to specific command families
 
 3. **Add to frontmatter**:
+
    ```yaml
    ---
    name: skill-name
@@ -135,16 +144,19 @@ When creating a new skill, determine required tools:
 ### Troubleshooting Permission Errors
 
 **Error: "Tool X not allowed"**
+
 - Check skill's `allowed-tools` frontmatter
 - Add required tool if operation is legitimate
 - Consider if operation can be done with allowed tools
 
 **Error: "Bash command not allowed"**
+
 - If using `Bash(scoped:*)`, ensure command matches scope
 - Consider broadening scope: `Bash(git:*,npm:*)`
 - As last resort, use full `Bash` access (document why)
 
 **Permission Too Broad?**
+
 - Review actual tool usage in skill
 - Remove unused tools from `allowed-tools`
 - Narrow Bash scoping if possible
@@ -161,6 +173,7 @@ Organize complex skills into modular structure: high-level workflow + detailed r
 ### When to Use Progressive Disclosure
 
 **Apply pattern when:**
+
 - Skill has distinct workflow vs detailed guidance sections
 - Skill >2K words or contains extensive procedural detail
 - Skill includes templates that could be extracted
@@ -168,6 +181,7 @@ Organize complex skills into modular structure: high-level workflow + detailed r
 - Clear separation would improve navigability
 
 **Keep as flat file when:**
+
 - Skill <2K words with homogeneous content
 - Simple reporting or trivial operation
 - No clear workflow vs detail separation
@@ -190,6 +204,7 @@ skill-name/
 **Purpose**: High-level workflow that's always injected into context
 
 **Content**:
+
 - YAML frontmatter (name, description, allowed-tools)
 - Overview of skill purpose
 - High-level workflow steps (numbered)
@@ -199,6 +214,7 @@ skill-name/
 **Size Target**: Keep concise - aim for 500-1000 words
 
 **Example Structure**:
+
 ```markdown
 ---
 name: skill-name
@@ -220,18 +236,22 @@ High-level summary (3-5 bullets)
 ## High-Level Workflow
 
 ### 1. [Step Name]
+
 Brief description
+
 - Key action
 - Key action
 
 **Detailed procedures**: See [references/detailed-process.md § Step 1]
 
 ### 2. [Step Name]
+
 Brief description
 
 [Continue with high-level steps]
 
 ## Related Skills
+
 [References to before/after skills]
 ```
 
@@ -240,6 +260,7 @@ Brief description
 **Purpose**: Comprehensive guidance loaded only when needed
 
 **Content Types**:
+
 - **Process details**: Step-by-step procedures with verification
 - **Integration guides**: Configuration options and customization
 - **Specialist guidance**: Expert perspectives and checklists
@@ -247,12 +268,14 @@ Brief description
 - **Examples**: Code samples, scenarios, use cases
 
 **Organization**:
+
 - 1-3 focused reference files per skill
 - Each file covers a distinct aspect
 - Clear section headers for easy navigation
 - Cross-reference to templates when relevant
 
 **Example references/detailed-process.md**:
+
 ```markdown
 # Detailed Process: [Skill Name]
 
@@ -265,11 +288,13 @@ Brief description
 **Purpose**: [Why this step]
 
 **Procedure**:
+
 1. [Action]
 2. [Action with bash example if needed]
 3. [Verification step]
 
 **Common Issues**:
+
 - [Issue]: [Solution]
 
 **Example**:
@@ -283,17 +308,20 @@ Brief description
 **Purpose**: Ready-to-use templates and static files
 
 **Content Types**:
+
 - Document templates (ADRs, reviews, reports)
 - Configuration templates (YAML, JSON)
 - Code snippets or boilerplate
 
 **Format**:
+
 - Complete, fillable templates
 - Include placeholder text in [brackets]
 - Add comments explaining each section
 - Provide examples where helpful
 
 **Example assets/template.md**:
+
 ```markdown
 # [Template Title]
 
@@ -314,11 +342,13 @@ Brief description
 **Skills Refactored**: 3 (architecture-review, setup-architect, specialist-review)
 
 **Token Efficiency**:
+
 - Variable by starting optimization: 0-34% base reduction
 - Average: 13% base reduction across 3 skills
 - Annual savings: ~18,380 tokens/year (estimated)
 
 **Content Expansion**:
+
 - Consistent 300%+ increase per skill
 - architecture-review: +375% (791 → 3,757 words)
 - setup-architect: +494% (813 → 4,837 words)
@@ -326,6 +356,7 @@ Brief description
 - Average: +400% content expansion
 
 **Maintainability**:
+
 - 9 new reference and asset files created
 - Clear separation: workflow vs procedures vs templates
 - Isolated updates without affecting core workflow
@@ -336,34 +367,40 @@ Brief description
 ### Implementation Guidelines
 
 **1. Analyze Current Skill**:
+
 - Identify workflow steps (high-level)
 - Identify detailed procedures (low-level)
 - Identify templates embedded inline
 - Determine natural separation points
 
 **2. Create Directory Structure**:
+
 ```bash
 mkdir -p .claude/skills/skill-name/references
 mkdir -p .claude/skills/skill-name/assets
 ```
 
 **3. Extract Content**:
+
 - **To SKILL.md**: Keep workflow, overview, high-level steps
 - **To references/**: Move detailed procedures, comprehensive guides
 - **To assets/**: Extract templates, configurations
 
 **4. Add References**:
+
 - Link from SKILL.md to references with relative paths
 - Use descriptive section anchors: `references/file.md § Section`
 - Keep references concise and navigable
 
 **5. Test Loading**:
+
 - Verify all reference links work
 - Test skill execution with minimal loading
 - Test skill execution with full reference loading
 - Confirm templates are accessible
 
 **6. Measure Results**:
+
 - Count words: before vs after (base and total)
 - Estimate token savings
 - Assess maintainability improvement
@@ -387,14 +424,16 @@ mkdir -p .claude/skills/skill-name/assets
 ### Best Practices
 
 **Do**:
+
 - Keep SKILL.md focused on workflow
-- Make references/  comprehensive and detailed
+- Make references/ comprehensive and detailed
 - Extract templates to assets/ for reusability
 - Use clear, descriptive file names
 - Cross-reference between files appropriately
 - Test all links after refactoring
 
 **Don't**:
+
 - Duplicate content between SKILL.md and references/
 - Over-fragment (too many small reference files)
 - Break mid-workflow (keep logical steps together)
@@ -497,6 +536,7 @@ The AI Software Architect framework is not set up yet.
 To get started: "Setup ai-software-architect"
 
 Once set up, you'll have:
+
 - Architectural Decision Records (ADRs)
 - Architecture reviews with specialized perspectives
 - Team of architecture specialists
@@ -511,6 +551,7 @@ Use when required files are missing:
 Could not find [file/directory name].
 
 This usually means:
+
 1. Framework may not be set up: "Setup ai-software-architect"
 2. File was moved or deleted
 3. Wrong directory
@@ -526,6 +567,7 @@ Use for file system permission issues:
 Permission denied accessing [file/path].
 
 Please check:
+
 1. File permissions: chmod +r [file]
 2. Directory permissions: chmod +rx [directory]
 3. You have access to this project directory
@@ -539,6 +581,7 @@ Use when YAML parsing fails:
 Error reading [file]: YAML syntax error
 
 Common issues:
+
 - Incorrect indentation (use spaces, not tabs)
 - Missing quotes around special characters
 - Unclosed strings or brackets
@@ -613,16 +656,19 @@ Location: [file path]
 [Key metric]: [value]
 
 Key Points:
+
 - [Point 1]
 - [Point 2]
 - [Point 3]
 
 Next Steps:
+
 - [Action 1]
 - [Action 2]
 ```
 
 **Example**:
+
 ```markdown
 ADR Created: Use PostgreSQL Database
 
@@ -630,11 +676,13 @@ Location: .architecture/decisions/adrs/ADR-005-use-postgresql.md
 Status: Accepted
 
 Key Points:
+
 - Decision: PostgreSQL over MySQL for JSONB support
 - Main benefit: Better performance for semi-structured data
 - Trade-off: Team needs PostgreSQL expertise
 
 Next Steps:
+
 - Review with Performance Specialist
 - Update deployment documentation
 - Plan migration timeline
@@ -653,6 +701,7 @@ Use for providing status/health information:
 ## Summary
 
 **Key Metrics**:
+
 - [Metric 1]: [value]
 - [Metric 2]: [value]
 - [Metric 3]: [value]
@@ -678,9 +727,11 @@ Use for architecture and specialist reviews:
 **Assessment**: Excellent | Good | Adequate | Needs Improvement | Critical Issues
 
 ## Executive Summary
+
 [2-3 sentences]
 
 **Key Findings**:
+
 - [Finding 1]
 - [Finding 2]
 
@@ -689,12 +740,15 @@ Use for architecture and specialist reviews:
 ## Recommendations
 
 ### Immediate (0-2 weeks)
+
 1. **[Action]**: [Details]
 
 ### Short-term (2-8 weeks)
+
 1. **[Action]**: [Details]
 
 ### Long-term (2-6 months)
+
 1. **[Action]**: [Details]
 ```
 
@@ -710,7 +764,7 @@ All skills should follow this structure:
 ---
 name: skill-name
 description: Clear description with trigger phrases. Use when... Do NOT use for...
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]  # Optional: restrict for security
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash] # Optional: restrict for security
 ---
 
 # Skill Title
@@ -720,45 +774,55 @@ One-line description of what this skill does.
 ## Process
 
 ### 1. [First Step]
+
 - Action item
 - Action item
 
 ### 2. [Second Step]
+
 - Action item
 - Action item
 
 [Continue with numbered steps]
 
 ### N. Report to User
+
 [Use appropriate reporting pattern]
 
 ## [Optional Sections]
 
 ### When to Use
+
 - Scenario 1
 - Scenario 2
 
 ### When NOT to Use
+
 - Scenario 1
 - Scenario 2
 
 ## Related Skills
 
 **Before This Skill**:
+
 - "[Related skill]" - [Why]
 
 **After This Skill**:
+
 - "[Related skill]" - [Why]
 
 **Workflow Examples**:
+
 1. [Skill chain example 1]
 2. [Skill chain example 2]
 
 ## Error Handling
+
 - [Error type]: [How to handle]
 - [Error type]: [How to handle]
 
 ## Notes
+
 - Implementation note
 - Best practice
 - Important consideration
@@ -770,7 +834,7 @@ One-line description of what this skill does.
 
 Use for operations that delete or modify files irreversibly:
 
-```
+````
 **CRITICAL SAFEGUARDS**:
 1. Verify current directory context
    - Check for project markers (package.json, .git, README.md, etc.)
@@ -821,7 +885,8 @@ fi
 
 # 4. Safe removal with absolute path
 rm -rf "$(pwd)/.architecture/.git"
-```
+````
+
 ```
 
 ---
@@ -831,7 +896,9 @@ rm -rf "$(pwd)/.architecture/.git"
 Use when skills need specific directory structures:
 
 ```
+
 **Directory Structure Check**:
+
 1. Check `.architecture/` exists
    - If missing: Suggest "Setup ai-software-architect"
 
@@ -854,7 +921,8 @@ Use when skills need specific directory structures:
    - Missing directories: Create them
    - Missing required files: Suggest setup or provide template
    - Permission issues: Report and suggest fixes
-```
+
+````
 
 ---
 
@@ -869,11 +937,12 @@ In skill files, reference patterns like this:
 See [Input Validation & Sanitization](#input-validation--sanitization) in _patterns.md.
 
 Apply filename sanitization pattern to user-provided title.
-```
+````
 
 ### When to Add New Patterns
 
 Add new patterns when:
+
 1. Same logic appears in 3+ skills
 2. Pattern solves a common problem
 3. Pattern improves security or reliability
@@ -882,6 +951,7 @@ Add new patterns when:
 ### When NOT to Extract Patterns
 
 Don't extract when:
+
 1. Logic is skill-specific
 2. Pattern would be more complex than inline code
 3. Pattern only used in 1-2 skills
@@ -892,6 +962,7 @@ Don't extract when:
 ## Version History
 
 **v1.2** (2025-12-04)
+
 - Added progressive disclosure pattern (ADR-008)
 - Documented modular skill structure (SKILL.md + /references/ + /assets/)
 - Included Phase 2 proven results and metrics
@@ -900,6 +971,7 @@ Don't extract when:
 - Added migration path for existing skills
 
 **v1.1** (2025-12-04)
+
 - Added tool permission pattern (ADR-007)
 - Documented `allowed-tools` frontmatter requirement
 - Added permission guidelines by skill type
@@ -908,6 +980,7 @@ Don't extract when:
 - Added troubleshooting guide for permission errors
 
 **v1.0** (2025-11-12)
+
 - Initial patterns document
 - Input validation patterns
 - Error handling patterns

@@ -11,6 +11,7 @@ Conducts focused reviews from a specific specialist's perspective.
 ## Overview
 
 This skill performs a deep-dive review from one specialist's expertise:
+
 1. Parses which specialist and what target to review
 2. Loads or creates the specialist in the team
 3. Analyzes the target from that specialist's unique lens
@@ -26,15 +27,18 @@ This skill performs a deep-dive review from one specialist's expertise:
 ### 1. Parse Request
 
 Extract from user request:
+
 - **Specialist role**: Which expert? (e.g., "Security Specialist", "Performance Expert")
 - **Target**: What to review? (e.g., "API authentication", "database queries")
 
 **Input validation**: Apply sanitization from `_patterns.md`:
+
 - Specialist role: Alphanumeric + spaces/hyphens only, convert to kebab-case for filename
 - Target: Remove dangerous characters, convert to kebab-case
 - Combined filename length: max 100 characters
 
 **Examples**:
+
 - "Security Specialist" + "API authentication" → `security-specialist-api-authentication.md`
 - "Ruby Expert" + "ActiveRecord models" → `ruby-expert-activerecord-models.md`
 
@@ -45,6 +49,7 @@ Check `.architecture/members.yml` for the requested specialist.
 **If exists**: Load their profile (specialties, disciplines, domains, perspective)
 
 **If doesn't exist**: Create new member and add to `members.yml`:
+
 ```yaml
 - id: [specialist_id]
   name: "[Person Name]"
@@ -63,11 +68,13 @@ Inform user: "I've added [Name] ([Title]) to your architecture team."
 ### 3. Analyze Target
 
 Use available tools to examine the target:
+
 - `Glob` to find relevant files
 - `Grep` to search for patterns
 - `Read` to examine code, configs, documentation
 
 **Understand**:
+
 - Current implementation
 - Dependencies and context
 - Related ADRs or documentation
@@ -78,12 +85,14 @@ Use available tools to examine the target:
 Adopt the specialist's persona and expertise. Apply their unique lens.
 
 **Review from specialist's perspective**:
+
 - Focus on their domain of expertise (security, performance, maintainability, etc.)
 - Provide expert-level insights, not surface-level comments
 - Reference specific files, line numbers, and code
 - Explain impact and provide actionable fixes
 
 **Review structure** (for each specialist):
+
 - Specialist perspective and focus
 - Executive summary with assessment
 - Current implementation description
@@ -102,6 +111,7 @@ Adopt the specialist's persona and expertise. Apply their unique lens.
 ### 5. Create Review Document
 
 Load the template:
+
 ```bash
 cat .claude/skills/specialist-review/assets/specialist-review-template.md
 ```
@@ -145,6 +155,7 @@ Next Steps:
 ## Specialist Quick Reference
 
 **Core Specialists** (see [references/specialist-perspectives.md](references/specialist-perspectives.md)):
+
 - **Security Specialist**: Authentication, authorization, vulnerabilities, OWASP
 - **Performance Specialist**: Query optimization, caching, bottlenecks, scalability
 - **Domain Expert**: Business logic, domain models, ubiquitous language
@@ -153,6 +164,7 @@ Next Steps:
 - **AI Engineer**: LLM integration, agent orchestration, evaluation
 
 **Technology Specialists**:
+
 - **JavaScript/Python/Ruby/Go/Rust Expert**: Language-specific best practices
 - **Framework Specialists**: React, Rails, Django, Spring, etc.
 
@@ -161,15 +173,18 @@ Next Steps:
 ## Related Skills
 
 **Before Specialist Review**:
+
 - `list-members` - See available specialists
 - `architecture-status` - Check if area previously reviewed
 
 **After Specialist Review**:
+
 - `create-adr` - Document decisions from findings
 - `architecture-review` - Include in comprehensive review
 - Request another specialist for different domain perspective
 
 **Workflow Examples**:
+
 1. Security review → Finds auth issue → Create ADR → Performance review
 2. Ruby Expert review → Rails-specific guidance → Implement → Follow-up review
 3. Full architecture review → Deep-dive with specialists on concerns
@@ -177,6 +192,7 @@ Next Steps:
 ## Quality Guidelines
 
 **Excellent specialist reviews**:
+
 - Stay laser-focused within domain
 - Provide expert-level, not generic, insights
 - Reference exact files and line numbers
@@ -187,6 +203,7 @@ Next Steps:
 - Estimate effort for each recommendation
 
 **Avoid**:
+
 - Straying outside specialist's domain
 - Vague or surface-level comments
 - Missing specific locations

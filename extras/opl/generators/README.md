@@ -23,12 +23,12 @@ messages (HBI output messages).
 Used to generate HBI input messages, but with correct template it
 can generate various things. Please check existing templates:
 
-* `opl/generators/inventory_ingress_InvGitUtilsPayload_template.json.j2` -
-template based on HBI git example file for usual HBI input message
-* `opl/generators/inventory_ingress_RHSM_template.json.j2` - template
-for RHSM Conduit messages
-* `opl/generators/inventory_ingress_yupana_template.json.j2` - template
-used in `QPCTarballGenerator` for yupana host records
+- `opl/generators/inventory_ingress_InvGitUtilsPayload_template.json.j2` -
+  template based on HBI git example file for usual HBI input message
+- `opl/generators/inventory_ingress_RHSM_template.json.j2` - template
+  for RHSM Conduit messages
+- `opl/generators/inventory_ingress_yupana_template.json.j2` - template
+  used in `QPCTarballGenerator` for yupana host records
 
 When you iterate through the generator, it return's `count` of touples
 with random `subscription_manager_id` and dict with full message.
@@ -39,7 +39,7 @@ Example usage:
     >>> generator = opl.generators.inventory_ingress.InventoryIngressGenerator(count=3, template='inventory_ingress_RHSM_template.json.j2')
     >>> for msg_id, msg_struct in generator:
     ...   print(f"Message {msg_id}: {str(msg_struct)[:50]}")
-    ... 
+    ...
     Message 30eddf6c-9537-4501-8215-1a45f8ed4e73: {'operation': 'add_host', 'data': {'account': '025
     Message e29b590d-3f07-41fc-aaf2-4ce32d989f6f: {'operation': 'add_host', 'data': {'account': '012
     Message 2980c74a-4876-4ef5-b277-3bdca3655f48: {'operation': 'add_host', 'data': {'account': '064
@@ -83,18 +83,18 @@ Example usage:
         'hosts_template': args.hosts_template,
         'hosts_packages': args.hosts_packages,
     }
-    
+
     tarball_generator = opl.generators.qpc_tarball.QPCTarballGenerator(
         count=args.tarballs_count, tarball_conf=tarball_conf, s3_conf=s3_conf)
-    
+
     for tarball in tarball_generator:
         for tarball_slice in tarball:
             host_generator = opl.generators.inventory_ingress.InventoryIngressGenerator(...)
-            
+
             for host_id, host_data in host_generator:
                 host_data = host_data["data"]
                 tarball_slice.add_host(host_data)
-        
+
         tarball.upload()
 
 `chrome_notifications.py`: `ChromeNotificationsGenerator`

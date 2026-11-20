@@ -39,6 +39,7 @@ Add this analysis section immediately following each member's recommendations:
 ##### Recommendation: [Recommendation Title]
 
 **Necessity Assessment** (0-10):
+
 - **Current need**: [Is this addressing a current, concrete problem?]
 - **Future need**: [Likelihood and timeframe for actually needing this]
 - **Cost of waiting**: [What breaks if we defer? What's the cost of implementing later?]
@@ -46,6 +47,7 @@ Add this analysis section immediately following each member's recommendations:
 - **Score**: [X/10]
 
 **Complexity Assessment** (0-10):
+
 - **Added complexity**: [What complexity does this introduce?]
 - **Maintenance burden**: [Ongoing cost to maintain this]
 - **Learning curve**: [Impact on team understanding]
@@ -56,6 +58,7 @@ Add this analysis section immediately following each member's recommendations:
 [Propose a simpler approach that meets current actual requirements, or explain why this is already minimal]
 
 **Pragmatic Recommendation**:
+
 - ✅ **Implement now**: [Clear current need, appropriate complexity]
 - ⚠️ **Simplified version**: [Implement minimal version, defer bells and whistles]
 - ⏸️ **Defer**: [Wait for trigger conditions]
@@ -64,15 +67,18 @@ Add this analysis section immediately following each member's recommendations:
 **Justification**: [Clear reasoning for recommendation]
 
 **If Deferring**:
+
 - **Trigger conditions**: [What would trigger implementing this?]
 - **Minimal viable alternative**: [What's the simplest thing that could work now?]
 
 **Pragmatic Score**:
+
 - Necessity: [X/10]
 - Complexity: [X/10]
 - Ratio: [Complexity/Necessity = X.X]
 
 **Target Ratios by Mode**:
+
 - Strict: <1.0 (complexity should be less than necessity)
 - Balanced: <1.5 (moderate complexity acceptable for clear need)
 - Lenient: <2.0 (higher complexity tolerated for strategic value)
@@ -89,6 +95,7 @@ Add this analysis section immediately following each member's recommendations:
 **Philosophy**: Only implement what's absolutely necessary right now.
 
 **Approach**:
+
 - Challenge every abstraction
 - Defer anything speculative
 - Require concrete evidence of current need
@@ -102,6 +109,7 @@ Add this analysis section immediately following each member's recommendations:
 **Philosophy**: Implement current needs thoughtfully with reasonable future considerations.
 
 **Approach**:
+
 - Allow appropriate abstractions
 - Defer obvious speculation
 - Accept moderate complexity for clear benefits
@@ -115,6 +123,7 @@ Add this analysis section immediately following each member's recommendations:
 **Philosophy**: Allow strategic complexity for longer-term benefits.
 
 **Approach**:
+
 - Permit forward-looking designs
 - Accept abstractions for anticipated growth
 - Allow higher complexity for strategic value
@@ -134,6 +143,7 @@ Add this analysis section immediately following each member's recommendations:
 **Pragmatic Analysis**:
 
 **Necessity Assessment**: 7/10
+
 - Current need: Page load times are 500ms, target is <200ms
 - Future need: Traffic growing 20% monthly
 - Cost of waiting: User experience degrading, churn risk
@@ -141,6 +151,7 @@ Add this analysis section immediately following each member's recommendations:
 - Score: 7/10
 
 **Complexity Assessment**: 6/10
+
 - Added complexity: New Redis dependency, cache invalidation logic
 - Maintenance: Cache coherency, Redis ops, monitoring
 - Learning curve: Team familiar with Redis
@@ -155,6 +166,7 @@ Start with application-level caching (LRU cache in memory) for hot queries only.
 **Justification**: Current need is clear (7/10) but complexity is moderate (6/10). Start simpler with in-memory caching for most impactful queries. This delivers 80% of benefit with 30% of complexity. Upgrade to Redis when evidence shows memory caching is insufficient.
 
 **Pragmatic Score**:
+
 - Necessity: 7/10
 - Complexity: 6/10
 - Ratio: 0.86 (<1.5 threshold = acceptable if simplified)
@@ -170,6 +182,7 @@ Start with application-level caching (LRU cache in memory) for hot queries only.
 **Pragmatic Analysis**:
 
 **Necessity Assessment**: 3/10
+
 - Current need: Monolith works, no deployment bottlenecks
 - Future need: "Might scale better" - speculative
 - Cost of waiting: None - can extract services when bottlenecks emerge
@@ -177,6 +190,7 @@ Start with application-level caching (LRU cache in memory) for hot queries only.
 - Score: 3/10
 
 **Complexity Assessment**: 9/10
+
 - Added complexity: Service boundaries, inter-service communication, distributed tracing, API versioning
 - Maintenance: 12 services to deploy, monitor, debug
 - Learning curve: Team inexperienced with distributed systems
@@ -191,10 +205,12 @@ Keep monolith. Extract services only when you have concrete evidence of bottlene
 **Justification**: Massive complexity (9/10) with minimal current need (3/10). This is premature optimization and over-engineering. Wait for actual scaling problems before adding distributed systems complexity.
 
 **If Deferring**:
+
 - **Trigger conditions**: Deploy time >30 min, scaling bottlenecks measured, >5 developers working in same code
 - **Minimal alternative**: Keep monolith, use modules for internal boundaries
 
 **Pragmatic Score**:
+
 - Necessity: 3/10
 - Complexity: 9/10
 - Ratio: 3.0 (>> 1.5 threshold = over-engineering)
@@ -210,6 +226,7 @@ Keep monolith. Extract services only when you have concrete evidence of bottlene
 **Pragmatic Analysis**:
 
 **Necessity Assessment**: 10/10
+
 - Current need: Critical security vulnerability
 - Future need: N/A - needed now
 - Cost of waiting: Data breach, compliance violation
@@ -217,6 +234,7 @@ Keep monolith. Extract services only when you have concrete evidence of bottlene
 - Score: 10/10
 
 **Complexity Assessment**: 2/10
+
 - Added complexity: Use parameterized queries (standard practice)
 - Maintenance: Reduces maintenance risk
 - Learning curve: None - team knows parameterized queries
@@ -230,6 +248,7 @@ Keep monolith. Extract services only when you have concrete evidence of bottlene
 **Justification**: Critical necessity (10/10) with minimal complexity (2/10). No debate - implement immediately.
 
 **Pragmatic Score**:
+
 - Necessity: 10/10
 - Complexity: 2/10
 - Ratio: 0.2 (<< 1.5 threshold)
@@ -273,6 +292,7 @@ Certain recommendations should NOT be challenged by pragmatic mode:
 5. **Explicit User Request**: If user specifically asked for something, honor it
 
 **In config.yml**:
+
 ```yaml
 pragmatic_mode:
   exemptions:

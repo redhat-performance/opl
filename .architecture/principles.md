@@ -42,11 +42,13 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Developers spend most of their time working with existing code. A codebase should be comfortable to inhabit, maintain, and evolve over time.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "Is your code the kind of cluttered house you might find on a reality TV show? Or the kind of sleek, minimalist house you might find in an architectural magazine? Neither one sounds like a place you could comfortably live."  
 > — **Sarah Mei**
 
 **Application**:
+
 - Design for the day-to-day experience of developers working in the codebase
 - Balance technical purity with practical needs
 - Consider the cognitive load of navigating the system
@@ -59,11 +61,13 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Clear designs are easier to understand, maintain, extend, and debug. They reduce cognitive load and make onboarding new developers faster.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "I define architecture as a word we use when we want to talk about design but want to puff it up to make it sound important."  
 > — **Martin Fowler**
 
 **Application**:
+
 - Favor straightforward implementations over complex abstractions
 - Use established patterns over novel approaches when possible
 - Document the "why" behind design decisions, not just the "how"
@@ -75,11 +79,13 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Well-separated components can be developed, tested, and maintained independently, reducing cognitive load and simplifying changes.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "The Single Responsibility Principle. A Module should be responsible to one, and only one, actor."  
 > — **Robert C. Martin**
 
 **Application**:
+
 - Define clear boundaries between subsystems
 - Design components with single responsibilities
 - Avoid shared state and hidden dependencies
@@ -92,7 +98,8 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Requirements always change, and the ability to adapt is essential for long-term sustainability.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "Architecture represents the significant design decisions that shape a system, where significant is measured by cost of change."  
 > — **Grady Booch**
 
@@ -100,6 +107,7 @@ This document outlines the core architectural principles that guide all design d
 > — **Sandi Metz**
 
 **Application**:
+
 - Design for extensibility at key variation points
 - Create stable interfaces between components
 - Use abstraction layers to isolate changes
@@ -113,11 +121,13 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Effective monitoring, debugging, and performance optimization require visibility into system operation.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "Truth can only be found in one place: the code."  
 > — **Robert C. Martin**
 
 **Application**:
+
 - Build in logging, metrics, and tracing from the start
 - Make error states and edge cases explicit and observable
 - Design components to expose health and performance data
@@ -130,11 +140,13 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Retrofitting security is more expensive, less effective, and often leaves vulnerabilities.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "Code, without tests, is not clean. No matter how elegant it is, no matter how readable and accessible, if it hath not tests, it be unclean."  
 > — **Robert C. Martin**
 
 **Application**:
+
 - Implement proper authentication and authorization at all levels
 - Apply principle of least privilege
 - Design for secure defaults
@@ -147,11 +159,13 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: When the model and implementation are closely aligned with the business domain, the system is more likely to meet user needs and adapt to changes in requirements.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "A model is a selectively simplified and consciously structured form of knowledge."  
 > — **Eric Evans**
 
 **Application**:
+
 - Create a ubiquitous language shared by developers and domain experts
 - Model the domain, not just the data
 - Separate core domain from supporting subdomains
@@ -164,7 +178,8 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Theoretical purity often adds complexity without proportional benefit. Real systems must balance many competing concerns.
 
-**Wisdom**: 
+**Wisdom**:
+
 > "Theory and practice sometimes clash. And when that happens, theory loses. Every single time."  
 > — **Linus Torvalds**
 
@@ -172,6 +187,7 @@ This document outlines the core architectural principles that guide all design d
 > — **Sandi Metz**
 
 **Application**:
+
 - Value working software over comprehensive documentation
 - Make incremental improvements rather than seeking perfection
 - Question abstractions that don't demonstrably simplify the system
@@ -187,10 +203,12 @@ This document outlines the core architectural principles that guide all design d
 **Rationale**: Senior engineers instinctively evaluate these factors, but this "silent checklist" rarely gets documented. Making change impact explicit enables better decisions and knowledge sharing.
 
 **Wisdom**:
+
 > "The act of explanation does something important. It slows you down enough to notice when your instincts are off. It also makes your reasoning visible in a way that solo work rarely does."
 > — **Obie Fernandez**
 
 **Application**:
+
 - **Blast Radius**: Identify the scope of impact if a change fails or needs reversal. Which components, teams, and users are affected?
 - **Reversibility**: Design changes to be reversible when possible. Ask "If we're wrong, how hard is it to undo?" Prefer approaches that keep options open.
 - **Sequencing & Timing**: Consider whether the system and team are ready for a change. A technically correct change can still be wrong if introduced at the wrong time.
@@ -201,7 +219,8 @@ This document outlines the core architectural principles that guide all design d
 
 **Examples**:
 
-*Good - High Impact Awareness:*
+_Good - High Impact Awareness:_
+
 ```
 Decision: Introduce new authentication pattern
 Blast Radius: Affects 23 services, 4 teams, requires coordination
@@ -211,7 +230,8 @@ Social Cost: High learning curve, but improves long-term maintainability
 Decision: Proceed with phased rollout, Team B training first
 ```
 
-*Bad - Ignoring Impact:*
+_Bad - Ignoring Impact:_
+
 ```
 Decision: Introduce new authentication pattern
 Implementation: Changed all services in one release
@@ -225,6 +245,7 @@ Result: Outage across all services, no rollback plan, team confused
 **Rationale**: Idiomatic Python is more readable, maintainable, and performant. Fighting the language or importing idioms from other languages leads to friction.
 
 **Application**:
+
 - **Explicit Over Implicit**: Make behavior clear, avoid magic, prefer explicit configuration.
 - **Leverage the Standard Library**: Use built-in features (e.g., `collections`, `itertools`) before adding dependencies.
 - **Type Hints**: Use type hints (`typing`) to document interfaces and enable static analysis (e.g., `mypy`), especially for public APIs and complex data structures.
@@ -236,6 +257,7 @@ Result: Outage across all services, no rollback plan, team confused
 ### Documentation
 
 All significant architectural decisions should be documented in Architectural Decision Records (ADRs) that explain:
+
 - The context and problem being addressed
 - The decision that was made
 - The consequences (positive and negative)
@@ -244,6 +266,7 @@ All significant architectural decisions should be documented in Architectural De
 ### Review Process
 
 Architectural changes should be reviewed against these principles. Reviews should explicitly address:
+
 - How the change upholds or challenges each principle
 - Trade-offs made between principles when they conflict
 - Measures to mitigate any negative consequences
@@ -251,6 +274,7 @@ Architectural changes should be reviewed against these principles. Reviews shoul
 ### Exceptions
 
 Exceptions to these principles may be necessary in specific circumstances. When making exceptions:
+
 - Document the exception and its justification
 - Define the scope and boundaries of the exception
 - Create a plan to eliminate or reduce the exception over time if possible
@@ -259,6 +283,7 @@ Exceptions to these principles may be necessary in specific circumstances. When 
 ## Evolution of Principles
 
 These principles should be reviewed and potentially revised:
+
 - At the start of each major version development cycle
 - When consistently encountering situations where the principles seem inadequate
 - When new team members bring valuable alternative perspectives

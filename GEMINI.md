@@ -14,6 +14,7 @@ This project uses the AI Software Architect framework for architectural decision
 ### Documentation
 
 All architecture documentation is in `.architecture/`:
+
 - **ADRs**: `.architecture/decisions/adrs/`
 - **Reviews**: `.architecture/reviews/`
 - **Principles**: `.architecture/principles.md`

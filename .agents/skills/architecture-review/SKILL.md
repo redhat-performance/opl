@@ -25,6 +25,7 @@ Conducts comprehensive multi-perspective architecture reviews with all team memb
 ### 1. Determine Scope
 
 Identify review target and create filename:
+
 - **Version**: "version X.Y.Z" → `X-Y-Z.md`
 - **Feature**: "feature name" → `feature-kebab-case.md`
 - **Component**: "component name" → `component-kebab-case.md`
@@ -43,12 +44,14 @@ Include Pragmatic Enforcer if pragmatic mode enabled for reviews.
 ### 3. Analyze the Target
 
 Use available tools to examine the system:
+
 - `Read` - Code, configs, documentation
 - `Glob` - Find files by pattern
 - `Grep` - Search for specific patterns
 - `Bash(git:*)` - Git history and status
 
 Focus based on review type:
+
 - **Version**: Overall architecture, components, patterns, technical debt
 - **Feature**: Implementation, integration, security, performance
 - **Component**: Structure, dependencies, boundaries, interfaces
@@ -56,6 +59,7 @@ Focus based on review type:
 ### 4. Conduct Individual Member Reviews
 
 For each member in `members.yml`, write a review including:
+
 - Perspective statement
 - Key observations (3-5)
 - Strengths (3-5)
@@ -69,6 +73,7 @@ For each member in `members.yml`, write a review including:
 ### 5. Facilitate Collaborative Discussion
 
 Synthesize findings:
+
 - Identify common concerns
 - Discuss disagreements
 - Establish consensus
@@ -79,11 +84,13 @@ Synthesize findings:
 ### 6. Create Review Document
 
 Load template and fill in all sections:
+
 ```bash
 cat .claude/skills/architecture-review/assets/review-template.md
 ```
 
 Include:
+
 - Executive summary and overall assessment
 - Individual member reviews
 - Collaborative discussion

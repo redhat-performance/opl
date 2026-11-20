@@ -12,7 +12,7 @@ You can configure multiple things as of now:
 2. How to load new result (support just JSON file)
 3. What method to use to actually find if new result is out of safe bounds
    (we mostly use `if new result is bigger than max or smaller than min
-   of historical data, it is FAIL`, but it is easy to implement more)
+of historical data, it is FAIL`, but it is easy to implement more)
 4. What metrics from the JSONs to compare (e.g. `results.rps`,
    `monitoring.pod.cpu.mean` and `monitoring.pod.memory.mean`)
 5. Optionally you can also configure where to store metadata about
@@ -45,66 +45,66 @@ historical results.
 
 There are other plugins you can use to retrieve historical data:
 
-* `elasticsearch` - Retrieves historical data from ElasticSearch
+- `elasticsearch` - Retrieves historical data from ElasticSearch
   and is described above
 
   Optional settings (under `history:` when `type: elasticsearch`):
 
-  * `skip_metadata_assert` (boolean, default: `false`) - When loading
+  - `skip_metadata_assert` (boolean, default: `false`) - When loading
     historical hits from ElasticSearch, each document is normally required
     to contain the status data metadata fields `name`, `started`, `ended`,
     and `result`. Set to `true` when history documents use a different
     schema. Only the metric paths listed in `sets` are read for comparison.
 
-* `csv` - CSV file with rows being historical results and columns
-   individual data sets. Example of a CSV file:
+- `csv` - CSV file with rows being historical results and columns
+  individual data sets. Example of a CSV file:
 
-    id,name,results.duration
-    run-2022-01-07T20:57:40+00:00,Test XYZ,152
-    run-2022-01-08T03:01:07+00:00,Test XYZ,148
-    run-2022-01-08T22:16:30+00:00,Test XYZ,155
-    run-2022-01-09T04:20:04+00:00,Test XYZ,151
-    run-2022-01-11T01:16:47+00:00,Test XYZ,144
+  id,name,results.duration
+  run-2022-01-07T20:57:40+00:00,Test XYZ,152
+  run-2022-01-08T03:01:07+00:00,Test XYZ,148
+  run-2022-01-08T22:16:30+00:00,Test XYZ,155
+  run-2022-01-09T04:20:04+00:00,Test XYZ,151
+  run-2022-01-11T01:16:47+00:00,Test XYZ,144
 
-* `postgresql` - Retrieves historical data from a PostgreSQL database.
-   The SQL query should return rows where the first column is a JSON/JSONB
-   document (a status data document). The query is Jinja2 template-able
-   just like `es_query`. Example:
+- `postgresql` - Retrieves historical data from a PostgreSQL database.
+  The SQL query should return rows where the first column is a JSON/JSONB
+  document (a status data document). The query is Jinja2 template-able
+  just like `es_query`. Example:
 
-    type: postgresql
-    pg_host: db.example.com
-    pg_port: 5432
-    pg_database: perf_results
-    pg_user: reader
-    pg_password_env_var: OPL_DB_PASSWORD
-    pg_query: |
-      SELECT data FROM results
-      WHERE data->>'name' = '{{ current.get("name") }}'
-      ORDER BY (data->>'started')::timestamptz DESC
-      LIMIT 30
+  type: postgresql
+  pg_host: db.example.com
+  pg_port: 5432
+  pg_database: perf_results
+  pg_user: reader
+  pg_password_env_var: OPL_DB_PASSWORD
+  pg_query: |
+  SELECT data FROM results
+  WHERE data->>'name' = '{{ current.get("name") }}'
+  ORDER BY (data->>'started')::timestamptz DESC
+  LIMIT 30
 
-   Requires the optional PostgreSQL dependency (not installed with core by default).
-   Install one of:
+  Requires the optional PostgreSQL dependency (not installed with core by default).
+  Install one of:
 
    <!-- markdownlint-disable MD034 -->
 
-    pip install psycopg2-binary
-    pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
-    pip install "git+https://github.com/redhat-performance/opl.git"  # full install (includes extras)
+  pip install psycopg2-binary
+  pip install "opl-rhcloud-perf-team-core[postgresql] @ ..." # core-only install
+  pip install "git+https://github.com/redhat-performance/opl.git" # full install (includes extras)
 
    <!-- markdownlint-enable MD034 -->
 
-   Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
+  Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
 
-* `sd_dir` - directory with status data files from past experiments
-   which allows filtering by matching various fields before loading data.
-   Below is example where we load data from SD files whose `name` matches
-   `name` value from current result. `matchers` is Jinja2 template again:
+- `sd_dir` - directory with status data files from past experiments
+  which allows filtering by matching various fields before loading data.
+  Below is example where we load data from SD files whose `name` matches
+  `name` value from current result. `matchers` is Jinja2 template again:
 
-    type: sd_dir
-    dir: /tmp/historical_sd_storage/
-    matchers: |
-      name: "{{ current.get('name') }}"
+  type: sd_dir
+  dir: /tmp/historical_sd_storage/
+  matchers: |
+  name: "{{ current.get('name') }}"
 
 `current:`
 ----------
@@ -148,7 +148,7 @@ be used.
 `sets:`
 -------
 
-This list status data paths (with *numerical* values) where it makes sense
+This list status data paths (with _numerical_ values) where it makes sense
 to evaluate for PASS/FAIL. E.g. you definitely want to include something
 like `results.rps` or `measurements.cpu.mean`, but adding
 `parameters.test_started.timestamp` might not be useful (because it does
@@ -195,33 +195,33 @@ result) into system defined here.
 
 As of now you can use these decisions storage plugins:
 
-* `elasticsearch` - stores decisions to ElasticSearch index. Then in
+- `elasticsearch` - stores decisions to ElasticSearch index. Then in
   Kibana you can have investigation of decision trends dashboards or so.
-* `csv` - stores all the decisions for current test in a CSV file
+- `csv` - stores all the decisions for current test in a CSV file
   (overwritten every time the tool is invoked)
-* `postgresql` - stores each decision as a JSON document in a PostgreSQL
-   table. The table should have a `data` column of type `JSON` or `JSONB`.
-   Example:
+- `postgresql` - stores each decision as a JSON document in a PostgreSQL
+  table. The table should have a `data` column of type `JSON` or `JSONB`.
+  Example:
 
-    type: postgresql
-    pg_host: db.example.com
-    pg_port: 5432
-    pg_database: perf_results
-    pg_table: decisions
-    pg_user: writer
-    pg_password_env_var: OPL_DB_PASSWORD
+  type: postgresql
+  pg_host: db.example.com
+  pg_port: 5432
+  pg_database: perf_results
+  pg_table: decisions
+  pg_user: writer
+  pg_password_env_var: OPL_DB_PASSWORD
 
-   Requires the optional PostgreSQL dependency (not installed with core by default).
-   Install one of:
+  Requires the optional PostgreSQL dependency (not installed with core by default).
+  Install one of:
 
    <!-- markdownlint-disable MD034 -->
 
-    pip install psycopg2-binary
-    pip install "opl-rhcloud-perf-team-core[postgresql] @ ..."   # core-only install
-    pip install "git+https://github.com/redhat-performance/opl.git"  # full install (includes extras)
+  pip install psycopg2-binary
+  pip install "opl-rhcloud-perf-team-core[postgresql] @ ..." # core-only install
+  pip install "git+https://github.com/redhat-performance/opl.git" # full install (includes extras)
 
    <!-- markdownlint-enable MD034 -->
 
-   Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
+  Without the optional dependency installed, using the PostgreSQL plugin raises `ModuleNotFoundError` at runtime.
 
 This can be turned off with `--dry-run` command-line option.
