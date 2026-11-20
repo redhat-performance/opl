@@ -146,7 +146,9 @@ def doit(args):
             )
         except Exception as e:
             logging.exception("Check on %s failed with: %s", var, e)
-            info_all.append({"result": "ERROR", "exception": str(e)})
+            info_all.append(
+                {"description": var, "result": "ERROR", "exception": str(e)}
+            )
             summary_this = collections.OrderedDict(
                 [("data set", var), ("exception", str(e))]
             )
@@ -179,7 +181,8 @@ def doit(args):
         ]
         for i in info_all:
             for k in list(i.keys()):
-                if k not in info_headers:
+                # Keep why a check could not run; only ERROR rows have it
+                if k not in info_headers and k != "exception":
                     del i[k]
 
     info_headers_tabulate = dict(
