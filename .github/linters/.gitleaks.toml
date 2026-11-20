@@ -1,0 +1,13 @@
+# Custom gitleaks configuration for super-linter.
+# Extends the default ruleset and excludes generated RPM package data
+# files that trigger generic-api-key false positives.
+# See: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignore generated RPM package data (generic-api-key false positives)"
+paths = [
+    '''extras/opl/generators/[^/]+\.json''',
+]
