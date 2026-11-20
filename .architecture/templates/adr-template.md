@@ -215,7 +215,7 @@ If superseded, link to the new ADR: [New ADR Link]
 **Note**: *This section only appears when pragmatic_mode is enabled in `.architecture/config.yml`*
 
 **Overall Decision Complexity Assessment**:
-[High-level assessment of whether this decision maintains appropriate simplicity or shows signs of over-engineering. Consider: Is this solving a current problem or a future possibility? Are we adding complexity for speculative needs?]
+[High-level assessment of whether this decision maintains appropriate simplicity or shows signs of overengineering. Consider: Is this solving a current problem or a future possibility? Are we adding complexity for speculative needs?]
 
 **Decision Challenge**:
 
@@ -262,7 +262,7 @@ If superseded, link to the new ADR: [New ADR Link]
 - **Ratio**: [Complexity/Necessity = X.X] *(Target: <1.5 for balanced mode)*
 
 **Overall Assessment**:
-[Summary judgment: Does this decision represent appropriate engineering for current needs, or potential over-engineering for future possibilities?]
+[Summary judgment: Does this decision represent appropriate engineering for current needs, or potential overengineering for future possibilities?]
 
 ## Validation
 

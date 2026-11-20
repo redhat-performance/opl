@@ -65,7 +65,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 #### Key Observations
 - The domain is split strictly on technical dependency footprint (core vs. extras) rather than by business capability.
-- The end-user installation and interaction experience remains explicitly preserved.
+- The end user installation and interaction experience remains explicitly preserved.
 
 #### Strengths
 1. **Preserved User Experience**: Consumers do not need to alter their established `pip install` workflows or import statements.
@@ -80,7 +80,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 1. **Module Placement Guidelines** (Priority: Medium, Effort: Small)
    - **What**: Add clear guidelines in developer documentation.
    - **Why**: To help developers decide if a module goes to `core` or `extras` without confusion.
-   - **How**: Update the repository README or CONTRIBUTING guide.
+   - **How**: Update the repository readme or CONTRIBUTING guide.
 
 ### Security Specialist - Security Specialist
 
@@ -96,7 +96,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 1. **Meta-package Local References** (Impact: Low)
    - **Issue**: The root `setup.py` pulls from local paths.
    - **Why it matters**: While standard in monorepos, local file references in packaging need to be tightly controlled in CI environments to prevent path traversal or injection.
-   - **Recommendation**: Ensure standard, secure git clone practices are used in CI.
+   - **Recommendation**: Ensure standard, secure Git clone practices are used in CI.
 
 #### Recommendations
 1. **Dependency Scanning Boundary** (Priority: Medium, Effort: Small)
@@ -113,7 +113,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 - Introduces a slight increase in complexity for local development workflows.
 
 #### Strengths
-1. **DRY Principle**: Resolves the worst kind of technical debt by ensuring bug fixes only need to happen in one place.
+1. **DRY Principle**: Resolves the worst kind of technical debt by ensuring bugfixes only need to happen in one place.
 2. **Clear Constraints**: The physical separation prevents dependency creep into the core modules.
 
 #### Concerns
@@ -126,7 +126,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 1. **Developer Onboarding Docs** (Priority: High, Effort: Small)
    - **What**: Update local development documentation.
    - **Why**: To explain the split directory structure and new test execution commands to contributors.
-   - **How**: Add a section in the README detailing the workspace layout.
+   - **How**: Add a section in the readme detailing the workspace layout.
 
 ### Performance Specialist - Performance Specialist
 
@@ -136,7 +136,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 - Eliminates the need to parse and load heavy dependencies for core scripts.
 
 #### Strengths
-1. **Consistent Core Execution**: By structurally guaranteeing that core tools don't import heavy dependencies, the cold start time and memory footprint for these CLI tools remains optimal.
+1. **Consistent Core Execution**: By structurally guaranteeing that core tools don't import heavy dependencies, the cold start time and memory footprint for these command-line tools remains optimal.
 
 #### Concerns
 1. **Namespace Import Overhead** (Impact: Low)
@@ -158,7 +158,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 - The implementation strategy in the ADR is exceptionally well-thought-out, explicitly phasing structure preparation, code migration, and packaging updates.
 
 #### Strengths
-1. **High Reversibility**: If the namespace package approach fails in production, a simple git revert completely undoes the architectural change.
+1. **High Reversibility**: If the namespace package approach fails in production, a simple Git revert completely undoes the architectural change.
 2. **Clear Blast Radius**: The ADR accurately identifies precisely who and what is affected.
 
 #### Concerns
@@ -216,7 +216,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 1. **Enforce Namespace Package Rules** (Priority: High, Effort: Small)
    - **What**: Implement a CI linter rule that explicitly fails if an `__init__.py` file exists in the namespace roots.
    - **Why**: To prevent accidental breakage of the architecture.
-   - **How**: A simple bash script in CI: `[ ! -f "core/opl/__init__.py" ] && [ ! -f "extras/opl/__init__.py" ]`.
+   - **How**: A simple Bash script in CI: `[ ! -f "core/opl/__init__.py" ] && [ ! -f "extras/opl/__init__.py" ]`.
 
 ---
 
@@ -237,7 +237,7 @@ The proposed architecture provides a clean, modern Python approach to the proble
 The team unanimously agrees on:
 1. The architectural change is necessary and the PEP 420 approach is the most Pythonic and correct method.
 2. Code duplication must be eliminated as a primary objective.
-3. The end-user installation commands must remain unchanged.
+3. The end user installation commands must remain unchanged.
 
 ### Areas of Debate
 
@@ -256,7 +256,7 @@ The team unanimously agrees on:
 1. Add a CI check to prevent `__init__.py` creation in the namespace directories.
 2. Update developer onboarding documentation to reflect the new structure.
 
-**Nice-to-Have (Consider Later)**:
+**Nice to have (Consider Later)**:
 1. Update `GEMINI.md` to inform AI coding assistants about the namespace package structure.
 
 ---
@@ -282,7 +282,7 @@ The team unanimously agrees on:
 2. **Contributor Documentation**:
    - **Current state**: No documentation on the split layout.
    - **Desired state**: Clear guidance on module placement.
-   - **Gap**: Missing README updates.
+   - **Gap**: Missing readme updates.
    - **Priority**: Medium
    - **Impact**: Smooth developer onboarding.
 
@@ -340,7 +340,7 @@ The team unanimously agrees on:
 
 2. **Update Developer Docs**
    - **Why**: Guide future contributions and explain the new layout.
-   - **How**: Update the README with the new structure and guidelines for module placement.
+   - **How**: Update the readme with the new structure and guidelines for module placement.
    - **Owner**: Maintainability Expert
    - **Success Criteria**: Documentation clearly explains the difference between `core` and `extras`.
    - **Estimated Effort**: Small

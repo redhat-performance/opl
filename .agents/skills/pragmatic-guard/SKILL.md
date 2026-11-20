@@ -6,7 +6,7 @@ allowed-tools: Read,Edit
 
 # Pragmatic Guard Mode
 
-Enables and configures the Pragmatic Guard Mode to actively challenge over-engineering.
+Enables and configures the Pragmatic Guard Mode to actively challenge overengineering.
 
 ## Process
 
@@ -133,7 +133,7 @@ Next Steps:
 
 **Enable for**:
 - New projects or MVPs
-- Teams prone to over-engineering
+- Teams prone to overengineering
 - Resource-constrained environments
 - Learning environments (teaching YAGNI)
 - Projects with tight deadlines

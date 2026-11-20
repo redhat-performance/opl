@@ -91,10 +91,10 @@ The system is a collection of utilities rather than a single monolithic applicat
 **Perspective**: Overall system coherence and architectural patterns.
 
 #### Current State Assessment
-The system operates more as a "toolbox" than a unified application. While `opl/` is the core package, the high number of console scripts indicates that it is primarily consumed as a set of CLI tools. The presence of a `core/` directory suggests an attempt at tiered layering, but the relationship between root `opl/` and `core/` needs clarification.
+The system operates more as a "toolbox" than a unified application. While `opl/` is the core package, the high number of console scripts indicates that it is primarily consumed as a set of command-line tools. The presence of a `core/` directory suggests an attempt at tiered layering, but the relationship between root `opl/` and `core/` needs clarification.
 
 #### Strengths Identified
-1. **Clear Entry Points**: `setup.py` defines a comprehensive list of CLI tools, making the library's capabilities discoverable for power users.
+1. **Clear Entry Points**: `setup.py` defines a comprehensive list of command-line tools, making the library's capabilities discoverable for power users.
 2. **Modular Generators**: Data generation is well-encapsulated in `opl/generators/`.
 
 #### Concerns Raised
@@ -160,7 +160,7 @@ The toolset is designed for performance engineers. It uses efficient libraries l
 2. **Document `core/` vs `opl/`**: Create an ADR explaining the relationship between these two components.
 
 ### Short-Term Actions (2-8 Weeks)
-1. **Standardize Logging**: Ensure all CLI tools use a unified logging configuration from `opl/`.
+1. **Standardize Logging**: Ensure all command-line tools use a unified logging configuration from `opl/`.
 2. **Expand Test Coverage**: Focus on `opl/investigator` which seems less covered by current tests.
 
 ---

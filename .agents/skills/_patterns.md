@@ -30,17 +30,17 @@ All skills MUST declare tool permissions via `allowed-tools` in YAML frontmatter
 - **Edit**: Modify existing files
 - **Glob**: Pattern-based file searching
 - **Grep**: Content searching within files
-- **Bash**: Execute bash commands (can be scoped)
+- **Bash**: Execute Bash commands (can be scoped)
 
 ### Permission Guidelines
 
 **Principle of Least Privilege**: Only grant tools actually required for skill operation.
 
-**Bash Scoping**: Use wildcards to restrict bash commands:
-- `Bash(git:*)` - Only git commands
+**Bash Scoping**: Use wildcards to restrict Bash commands:
+- `Bash(git:*)` - Only Git commands
 - `Bash(ls:*,grep:*)` - Only ls and grep
 - `Bash(npm:*,node:*)` - Only npm and node
-- `Bash` - Full bash access (use sparingly)
+- `Bash` - Full Bash access (use sparingly)
 
 ### Permission Levels by Skill Type
 
@@ -87,7 +87,7 @@ allowed-tools: Read,Write,Edit,Glob,Grep,Bash
 | `architecture-status` | `Read,Glob,Grep` | Scans files and searches |
 | `create-adr` | `Read,Write,Bash(ls:*,grep:*)` | Creates ADRs, scans for numbering |
 | `specialist-review` | `Read,Write,Glob,Grep` | Reviews code, writes reports |
-| `architecture-review` | `Read,Write,Glob,Grep,Bash(git:*)` | Full reviews + git status |
+| `architecture-review` | `Read,Write,Glob,Grep,Bash(git:*)` | Full reviews + Git status |
 | `pragmatic-guard` | `Read,Edit` | Reads/modifies config |
 | `setup-architect` | `Read,Write,Edit,Glob,Grep,Bash` | Full installation access |
 
@@ -101,7 +101,7 @@ When creating a new skill, determine required tools:
    - Need to modify files? → `Edit`
    - Need to search by pattern? → `Glob`
    - Need to search content? → `Grep`
-   - Need bash commands? → `Bash(scoped:*)` or `Bash`
+   - Need Bash commands? → `Bash(scoped:*)` or `Bash`
 
 2. **Apply minimum necessary set**:
    - Start with minimal permissions
@@ -390,7 +390,7 @@ mkdir -p .claude/skills/skill-name/assets
 - Keep SKILL.md focused on workflow
 - Make references/  comprehensive and detailed
 - Extract templates to assets/ for reusability
-- Use clear, descriptive file names
+- Use clear, descriptive filenames
 - Cross-reference between files appropriately
 - Test all links after refactoring
 

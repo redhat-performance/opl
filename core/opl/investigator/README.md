@@ -7,7 +7,7 @@ the same test and decide if new test result is PASS or FAIL.
 
 You can configure multiple things as of now:
 
-1. How to get historical results of the test (supports ElasticSearch,
+1. How to get historical results of the test (supports Elasticsearch,
    PostgreSQL, CSV and directory of JSON files)
 2. How to load new result (support just JSON file)
 3. What method to use to actually find if new result is out of safe bounds
@@ -17,7 +17,7 @@ You can configure multiple things as of now:
    `monitoring.pod.cpu.mean` and `monitoring.pod.memory.mean`)
 5. Optionally you can also configure where to store metadata about
    decision the script done. This is useful to keep track about trends
-   (supports ElasticSearch, PostgreSQL and CSV)
+   (supports Elasticsearch, PostgreSQL and CSV)
 
 See `sample_config.yaml` for example configuration. This is what each
 section is for:
@@ -26,8 +26,8 @@ section is for:
 ----------
 
 This specifies from where we should get historical data. Sample config
-uses ElasticSearch plugin to retrieve it. Most important part here is
-`es_query` which is described in ElasticSearch docs:
+uses Elasticsearch plugin to retrieve it. Most important part here is
+`es_query` which is described in Elasticsearch docs:
 
     https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
 
@@ -45,13 +45,13 @@ historical results.
 
 There are other plugins you can use to retrieve historical data:
 
-* `elasticsearch` - Retrieves historical data from ElasticSearch
+* `elasticsearch` - Retrieves historical data from Elasticsearch
   and is described above
 
   Optional settings (under `history:` when `type: elasticsearch`):
 
   * `skip_metadata_assert` (boolean, default: `false`) - When loading
-    historical hits from ElasticSearch, each document is normally required
+    historical hits from Elasticsearch, each document is normally required
     to contain the status data metadata fields `name`, `started`, `ended`,
     and `result`. Set to `true` when history documents use a different
     schema. Only the metric paths listed in `sets` are read for comparison.
@@ -71,7 +71,7 @@ There are other plugins you can use to retrieve historical data:
    document (a status data document). The query is Jinja2 template-able
    just like `es_query`. Example:
 
-    type: postgresql
+    type: PostgreSQL
     pg_host: db.example.com
     pg_port: 5432
     pg_database: perf_results
@@ -195,7 +195,7 @@ result) into system defined here.
 
 As of now you can use these decisions storage plugins:
 
-* `elasticsearch` - stores decisions to ElasticSearch index. Then in
+* `elasticsearch` - stores decisions to Elasticsearch index. Then in
   Kibana you can have investigation of decision trends dashboards or so.
 * `csv` - stores all the decisions for current test in a CSV file
   (overwritten every time the tool is invoked)
@@ -203,7 +203,7 @@ As of now you can use these decisions storage plugins:
    table. The table should have a `data` column of type `JSON` or `JSONB`.
    Example:
 
-    type: postgresql
+    type: PostgreSQL
     pg_host: db.example.com
     pg_port: 5432
     pg_database: perf_results

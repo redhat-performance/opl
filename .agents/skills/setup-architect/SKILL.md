@@ -101,7 +101,7 @@ Generate comprehensive initial analysis document:
 - System overview (stack, structure, patterns)
 - Strengths identified
 - Concerns raised (with impact levels)
-- Recommendations prioritized (Critical/Important/Nice-to-Have)
+- Recommendations prioritized (Critical/Important/nice to have)
 - Collaborative synthesis of findings
 
 Save to `.architecture/reviews/initial-system-analysis.md`.

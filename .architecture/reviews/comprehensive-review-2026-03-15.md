@@ -40,7 +40,7 @@ However, the architecture reflects an organic growth pattern typical of utility 
 **Perspective**: Focuses on how components work together as a cohesive system and analyzes big-picture architectural concerns.
 
 #### Key Observations
-- The system is fundamentally a collection of CLI tools packaged together, heavily driven by the `console_scripts` entry points in `setup.py`.
+- The system is fundamentally a collection of command-line tools packaged together, heavily driven by the `console_scripts` entry points in `setup.py`.
 - There appears to be an aborted or partial attempt to extract a "core" library, evidenced by the `core/` directory containing its own `setup.py` and `venv`.
 
 #### Strengths
@@ -101,7 +101,7 @@ However, the architecture reflects an organic growth pattern typical of utility 
 #### Concerns
 1. **Transient File Pollution** (Impact: Medium)
    - **Issue**: Data generators and tests appear to be leaving temporary files (`tmp*`) in the source tree instead of using the OS temp directory or a dedicated `build/` or `out/` folder.
-   - **Why it matters**: Clutters the git status, risks accidental commits, and makes local development messy.
+   - **Why it matters**: Clutters the Git status, risks accidental commits, and makes local development messy.
    - **Recommendation**: Update file generation logic to use Python's `tempfile` module or write to an explicitly git-ignored output directory.
 
 #### Recommendations
@@ -149,7 +149,7 @@ However, the architecture reflects an organic growth pattern typical of utility 
 1. **Highly Functional**: The tools clearly solve immediate problems for the performance team without unnecessary abstract layers.
 
 #### Concerns
-1. **Over-engineered Repository Split** (Impact: Medium)
+1. **Overengineered Repository Split** (Impact: Medium)
    - **Issue**: The `core/` directory attempts to create a boundary that the team is failing to maintain (requiring manual sync commits).
    - **Why it matters**: It adds overhead without providing clear value.
    - **Recommendation**: YAGNI - You aren't going to need a separate core repository if you can't maintain it. Merge it back and rely on Python module namespaces (`opl.core` if necessary) within a single repository.
@@ -171,7 +171,7 @@ However, the architecture reflects an organic growth pattern typical of utility 
 
 **[Maintainability Expert]**: "While we are moving things, we absolutely must address the temporary file spillage. `git status` should be clean after a test run. The generators dropping `tmp*` files into the source tree is unacceptable technical debt."
 
-**[Performance Specialist]**: "From a performance and usage perspective, the monolithic `setup.py` is okay for now, but as the tool grows, downloading `psycopg2` just to run a local log parser is wasteful. We should keep modular dependencies in mind as a nice-to-have."
+**[Performance Specialist]**: "From a performance and usage perspective, the monolithic `setup.py` is okay for now, but as the tool grows, downloading `psycopg2` just to run a local log parser is wasteful. We should keep modular dependencies in mind as a nice to have."
 
 ### Common Ground
 The team unanimously agrees that repository structure cleanup is the highest priority. The current state is organic but messy, leading to confusion and potential errors (like missed syncs to `core/`).
@@ -185,7 +185,7 @@ The team unanimously agrees that repository structure cleanup is the highest pri
 **Important (Address Soon)**:
 1. Fix generator logic to use proper temporary directories to stop polluting the working tree.
 
-**Nice-to-Have (Consider Later)**:
+**Nice to have (Consider Later)**:
 1. Refactor `setup.py` to use `extras_require` for domain-specific dependencies (AWS, DB).
 
 ---
@@ -253,7 +253,7 @@ The team unanimously agrees that repository structure cleanup is the highest pri
 ### Short-term (2-8 weeks)
 
 1. **Fix Temporary File Handling**
-   - **Why**: Stop polluting the git working tree.
+   - **Why**: Stop polluting the Git working tree.
    - **How**: Audit `opl/generators/` and `tests/` to replace hardcoded temporary file creation with Python's `tempfile` module.
    - **Owner**: Any developer
    - **Success Criteria**: Running the full test suite and standard generators leaves `git status` clean.

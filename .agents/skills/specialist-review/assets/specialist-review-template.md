@@ -134,7 +134,7 @@
    - **Why**: [Strategic value]
    - **How**: [High-level approach]
    - **Effort**: Medium | Large
-   - **Priority**: Low | Nice-to-Have
+   - **Priority**: Low | nice to have
 
 2. **[Recommendation]**
    - [Details]

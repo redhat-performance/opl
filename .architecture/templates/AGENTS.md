@@ -31,7 +31,7 @@ The framework provides:
 - **Multi-Perspective Reviews**: Specialized reviewers from different architectural domains
 - **Decision Records (ADRs)**: Structured documentation of architectural decisions
 - **Recalibration Process**: Translating architectural reviews into implementation plans
-- **Pragmatic Mode**: Optional YAGNI enforcement to prevent over-engineering
+- **Pragmatic Mode**: Optional YAGNI enforcement to prevent overengineering
 - **Progressive Disclosure**: Detailed procedures in `.architecture/agent_docs/` directory
 
 ## Framework Setup
@@ -88,7 +88,7 @@ ADRs stored in `.architecture/decisions/adrs/` with sequential numbering.
 
 ### Enabling Pragmatic Mode
 
-Pragmatic mode adds YAGNI enforcement to prevent over-engineering.
+Pragmatic mode adds YAGNI enforcement to prevent overengineering.
 
 **Command patterns:**
 
@@ -199,7 +199,7 @@ Copilot users can access framework features via:
 
 ### Other AI Assistants
 
-The framework works with any AI assistant that can read markdown files and follow structured instructions. Key entry points:
+The framework works with any AI assistant that can read Markdown files and follow structured instructions. Key entry points:
 
 - **This file (AGENTS.md)**: Cross-platform instructions
 - **.architecture/**: All framework artifacts and templates

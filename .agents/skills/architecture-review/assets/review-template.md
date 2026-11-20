@@ -102,9 +102,9 @@ The team agrees on:
 1. [Important priority]
 2. [Important priority]
 
-**Nice-to-Have (Consider Later)**:
-1. [Nice-to-have improvement]
-2. [Nice-to-have improvement]
+**Nice to have (Consider Later)**:
+1. [nice to have improvement]
+2. [nice to have improvement]
 
 ---
 

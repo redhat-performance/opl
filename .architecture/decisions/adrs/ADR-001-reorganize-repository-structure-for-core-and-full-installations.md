@@ -8,7 +8,7 @@ Proposed
 
 The `opl` library has grown to include many tools and modules, some of which require heavy or environment-specific dependencies (e.g., `psycopg2-binary`, `kafka-python`, `locust`). However, many consumers of this repository only need a small "core" subset of tools (e.g., `junit_cli.py`, `cluster_read.py`) that run with a minimal dependency footprint. 
 
-Historically, this was solved by maintaining a separate copy of the core Python modules inside the `core/opl/` directory, with its own `core/setup.py`. This leads to code duplication, increased maintenance burden, and the risk of the core and full modules drifting out of sync. We need a way to maintain a single source of truth for the codebase while continuing to support both a full installation and a lightweight core installation directly from the git repository using `pip`.
+Historically, this was solved by maintaining a separate copy of the core Python modules inside the `core/opl/` directory, with its own `core/setup.py`. This leads to code duplication, increased maintenance burden, and the risk of the core and full modules drifting out of sync. We need a way to maintain a single source of truth for the codebase while continuing to support both a full installation and a lightweight core installation directly from the Git repository using `pip`.
 
 An initial proposal involved pointing `core/setup.py` back to the root `opl/` directory to share files. However, this relies on non-standard packaging paths (`../`) and fails to enforce a hard boundary preventing developers from accidentally adding heavy dependencies to core modules.
 
@@ -38,7 +38,7 @@ This architecture completely eliminates duplication while physically isolating c
 
 ### Positive
 
-* Single source of truth for all code: bug fixes and features only need to be implemented once.
+* Single source of truth for all code: bugfixes and features only need to be implemented once.
 * Hard physical boundaries: It is impossible to accidentally import a heavy dependency into a core module.
 * Clean Packaging: `core/setup.py` doesn't need to use any `../` hacks.
 * True Modularity: Aligns perfectly with modern Python workspace/monorepo patterns.
@@ -69,7 +69,7 @@ This architecture completely eliminates duplication while physically isolating c
 **Affected Teams**:
 - All teams consuming the `opl` repository via pip.
 
-**User Impact**: Users installing via pip from the git URL should experience no change in functionality, but the core installation will now correctly reflect the unified code. Imports like `from opl.module import foo` will continue working exactly as before thanks to namespace packaging.
+**User Impact**: Users installing via pip from the Git URL should experience no change in functionality, but the core installation will now correctly reflect the unified code. Imports like `from opl.module import foo` will continue working exactly as before thanks to namespace packaging.
 
 **Risk Mitigation**:
 - Exhaustively test `pip install` commands locally and in a clean container before merging.
@@ -81,7 +81,7 @@ This architecture completely eliminates duplication while physically isolating c
 **Reversibility Level**: High
 
 **Rollback Feasibility**:
-- Very easy to rollback by simply reverting the git commit if issues are discovered post-merge.
+- Very easy to rollback by simply reverting the Git commit if issues are discovered post-merge.
 
 **Migration Paths**:
 - **Forward Migration**: Split the `opl/` files into `core/opl/` and `extras/opl/`. Setup the meta-package `setup.py` in the root. Verify installation and tests.

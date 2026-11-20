@@ -123,7 +123,7 @@ These specialists are part of the framework's core team.
 **Role**: Optimizes system performance, scalability, and resource utilization.
 
 **Focus Areas**:
-- **Query Optimization**: Database query efficiency, indexes, N+1 queries
+- **Query Optimization**: Database query efficiency, indices, N+1 queries
 - **Caching**: Cache strategies, TTL, invalidation, cache hits
 - **Resource Utilization**: CPU, memory, disk I/O, network
 - **Bottlenecks**: Profiling, hotspots, performance critical paths
@@ -240,8 +240,8 @@ These specialists are part of the framework's core team.
 
 **Focus Areas**:
 - **Code Quality**: Readability, clarity, simplicity
-- **Technical Debt**: Code smells, anti-patterns, cruft
-- **Documentation**: Comments, READMEs, inline docs
+- **Technical Debt**: Code smells, antipatterns, cruft
+- **Documentation**: Comments, readmes, inline docs
 - **Testability**: Unit tests, test coverage, mocking
 - **Complexity**: Cyclomatic complexity, coupling, cohesion
 - **Refactoring**: Opportunities to improve structure

@@ -156,7 +156,7 @@ When implementing:
 Full integration test suite with contract tests and property-based tests
 
 **Original Proposal**:
-Maintainability Expert recommended comprehensive testing: unit tests, integration tests, contract tests, E2E tests, and property-based tests for all business logic.
+Maintainability Expert recommended comprehensive testing: unit tests, integration tests, contract tests, end-to-end tests, and property-based tests for all business logic.
 
 **Rationale for Deferring**:
 - Current need score: 6/10 (tests needed but not all types)
@@ -171,7 +171,7 @@ Focused unit tests for business logic core and smoke tests for critical user flo
 
 **Trigger Conditions** (Implement when):
 - [ ] Integration failures between services (→ add integration tests)
-- [ ] User-reported bugs in E2E flows (→ add E2E tests)
+- [ ] User-reported bugs in end-to-end flows (→ add end-to-end tests)
 - [ ] Edge case bugs in business logic (→ add property tests)
 - [ ] Contract breaking changes between teams (→ add contract tests)
 
@@ -179,7 +179,7 @@ Focused unit tests for business logic core and smoke tests for critical user flo
 When implementing:
 - Add test types incrementally based on actual failures
 - Integration tests: Start with most critical integration points
-- E2E tests: Cover top 5 user journeys first
+- End-to-end tests: Cover top 5 user journeys first
 - Property tests: Focus on business logic with complex invariants
 - Track which test types provide most value
 

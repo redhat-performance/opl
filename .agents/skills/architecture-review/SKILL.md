@@ -12,7 +12,7 @@ Conducts comprehensive multi-perspective architecture reviews with all team memb
 
 1. **Determine Scope** - Identify what to review (version, feature, or component)
 2. **Load Team** - Read members from `.architecture/members.yml` and check pragmatic mode
-3. **Analyze System** - Examine architecture using Read, Glob, Grep, and git tools
+3. **Analyze System** - Examine architecture using Read, Glob, Grep, and Git tools
 4. **Individual Reviews** - Each member reviews from their specialized perspective
 5. **Collaborative Discussion** - Synthesize findings and establish priorities
 6. **Create Document** - Generate comprehensive review using template
@@ -72,7 +72,7 @@ Synthesize findings:
 - Identify common concerns
 - Discuss disagreements
 - Establish consensus
-- Prioritize: Critical (0-2 weeks) | Important (2-8 weeks) | Nice-to-Have (2-6 months)
+- Prioritize: Critical (0-2 weeks) | Important (2-8 weeks) | nice to have (2-6 months)
 
 **Discussion format**: [references/review-process.md § Collaborative Discussion](references/review-process.md#collaborative-discussion-process)
 

@@ -180,7 +180,7 @@ Create three core documentation files:
 - agent_docs/: Task-specific details loaded as needed
 - Keep workflows procedural and actionable
 - Reference should be comprehensive but organized
-- README should help users navigate effectively
+- Readme should help users navigate effectively
 
 ---
 
@@ -230,7 +230,7 @@ fi
 echo "⚠️  Found .architecture/.git - proceeding with verification"
 ```
 
-#### Safeguard 3: Verify It's the Template Repo
+#### Safeguard 3: Verify It's the Template repository
 
 ```bash
 # Verify .git/config contains template repository URL
@@ -348,7 +348,7 @@ fi
 
 **Issue**: ".git removal verification failed"
 - **Cause**: Safety check detected unexpected repository
-- **Solution**: Manually verify `.architecture/.git/config` contains template repo URL
+- **Solution**: Manually verify `.architecture/.git/config` contains template repository URL
 - **Never**: Override safety checks without understanding why they failed
 
 **Issue**: "No project markers found"

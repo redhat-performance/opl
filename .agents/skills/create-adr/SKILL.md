@@ -59,7 +59,7 @@ Use the template from `.architecture/templates/adr-template.md`:
 - Simpler Alternative Proposal: Concrete proposal for simpler approach
 - Recommendation: Approve / Approve with simplifications / Defer / Recommend against
 - Pragmatic Score: Necessity, Complexity, Ratio (target <1.5)
-- Overall Assessment: Appropriate engineering vs over-engineering
+- Overall Assessment: Appropriate engineering vs overengineering
 
 **If deferrals enabled**: Track deferred decisions in `.architecture/deferrals.md`
 

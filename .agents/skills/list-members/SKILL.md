@@ -19,7 +19,7 @@ To get started: "Setup ai-software-architect"
 ```
 
 ### 2. Load Members
-Read `.architecture/members.yml` and parse all members (id, name, title, specialties, disciplines, skillsets, domains, perspective).
+Read `.architecture/members.yml` and parse all members (ID, name, title, specialties, disciplines, skillsets, domains, perspective).
 
 ### 3. Display Team Roster
 ```markdown

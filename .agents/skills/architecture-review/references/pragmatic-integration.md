@@ -188,7 +188,7 @@ Keep monolith. Extract services only when you have concrete evidence of bottlene
 
 **Pragmatic Recommendation**: ❌ **Skip**
 
-**Justification**: Massive complexity (9/10) with minimal current need (3/10). This is premature optimization and over-engineering. Wait for actual scaling problems before adding distributed systems complexity.
+**Justification**: Massive complexity (9/10) with minimal current need (3/10). This is premature optimization and overengineering. Wait for actual scaling problems before adding distributed systems complexity.
 
 **If Deferring**:
 - **Trigger conditions**: Deploy time >30 min, scaling bottlenecks measured, >5 developers working in same code
@@ -197,9 +197,9 @@ Keep monolith. Extract services only when you have concrete evidence of bottlene
 **Pragmatic Score**:
 - Necessity: 3/10
 - Complexity: 9/10
-- Ratio: 3.0 (>> 1.5 threshold = over-engineering)
+- Ratio: 3.0 (>> 1.5 threshold = overengineering)
 
-**Assessment**: Over-engineering - defer
+**Assessment**: overengineering - defer
 
 ---
 
@@ -288,7 +288,7 @@ pragmatic_mode:
 
 Pragmatic mode adds a critical YAGNI perspective to architecture reviews:
 
-- ✅ Prevents over-engineering
+- ✅ Prevents overengineering
 - ✅ Focuses team on current actual needs
 - ✅ Identifies simpler alternatives
 - ✅ Provides evidence-based decision framework
