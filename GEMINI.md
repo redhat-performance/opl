@@ -1,8 +1,8 @@
-## AI Software Architect Framework
+# AI Software Architect Framework
 
 This project uses the AI Software Architect framework for architectural decision tracking and reviews.
 
-### Available Commands
+## Available Commands
 
 - **Create ADR**: "Create ADR for [decision]"
 - **Architecture Review**: "Start architecture review for version X.Y.Z"
@@ -11,7 +11,7 @@ This project uses the AI Software Architect framework for architectural decision
 - **List Members**: "List architecture members"
 - **Status**: "What's our architecture status?"
 
-### Documentation
+## Documentation
 
 All architecture documentation is in `.architecture/`:
 - **ADRs**: `.architecture/decisions/adrs/`

@@ -99,7 +99,7 @@ If `behavior.track_deferrals` is true:
 - Track when deferrals are implemented or remain deferred
 
 ### 8. Report to User
-```
+```text
 Pragmatic Guard Mode: [Enabled | Disabled]
 
 Configuration:

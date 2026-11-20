@@ -6,9 +6,10 @@ Proposed
 
 ## Context
 
-The `opl` library has grown to include many tools and modules, some of which require heavy or environment-specific dependencies (e.g., `psycopg2-binary`, `kafka-python`, `locust`). However, many consumers of this repository only need a small "core" subset of tools (e.g., `junit_cli.py`, `cluster_read.py`) that run with a minimal dependency footprint. 
+The `opl` library has grown to include many tools and modules, some of which require heavy or environment-specific dependencies (e.g., `psycopg2-binary`, `kafka-python`, `locust`). However, many consumers of this repository only need a small "core" subset of tools (e.g., `junit_cli.py`, `cluster_read.py`) that run with a minimal dependency footprint.
 
-Historically, this was solved by maintaining a separate copy of the core Python modules inside the `core/opl/` directory, with its own `core/setup.py`. This leads to code duplication, increased maintenance burden, and the risk of the core and full modules drifting out of sync. We need a way to maintain a single source of truth for the codebase while continuing to support both a full installation and a lightweight core installation directly from the git repository using `pip`.
+Historically, this was solved by maintaining a separate copy of the core Python modules inside the `core/opl/` directory, with its own `core/setup.py`. This leads to code duplication, increased maintenance burden, and the risk of the core and full modules drifting out of sync. We need a way to maintain a single source of truth for the codebase while
+continuing to support both a full installation and a lightweight core installation directly from the git repository using `pip`.
 
 An initial proposal involved pointing `core/setup.py` back to the root `opl/` directory to share files. However, this relies on non-standard packaging paths (`../`) and fails to enforce a hard boundary preventing developers from accidentally adding heavy dependencies to core modules.
 
@@ -28,9 +29,9 @@ We will reorganize the repository structure into a **Split Directories** pattern
 * **Directory Structure:** The existing `opl/` directory will be split into two physically separate directories: `core/opl/` and `extras/opl/`.
 * **Namespace Packaging:** `opl/__init__.py` files will be removed or converted to namespace packages to allow `import opl.*` to resolve across both physical directories seamlessly.
 * **Packaging Configuration:**
-    * `core/setup.py`: Standard setup file specifying only minimal dependencies.
-    * `extras/setup.py`: Standard setup file specifying heavy dependencies.
-    * Root `setup.py`: Acts as a "meta-package" that installs both `core` and `extras` via local file references (`install_requires=[f"opl-core @ file://{os.path.abspath('core')}", ...]`).
+  * `core/setup.py`: Standard setup file specifying only minimal dependencies.
+  * `extras/setup.py`: Standard setup file specifying heavy dependencies.
+  * Root `setup.py`: Acts as a "meta-package" that installs both `core` and `extras` via local file references (`install_requires=[f"opl-core @ file://{os.path.abspath('core')}", ...]`).
 
 This architecture completely eliminates duplication while physically isolating core modules from heavy dependencies.
 

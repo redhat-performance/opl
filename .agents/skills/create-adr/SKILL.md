@@ -67,7 +67,7 @@ Use the template from `.architecture/templates/adr-template.md`:
 Write to: `.architecture/decisions/adrs/ADR-XXX-title.md`
 
 ### 8. Report to User
-```
+```text
 Created ADR-XXX: [Title]
 
 Location: .architecture/decisions/adrs/ADR-XXX-title.md

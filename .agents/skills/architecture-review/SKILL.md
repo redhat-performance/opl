@@ -97,7 +97,7 @@ Save to `.architecture/reviews/[filename].md`
 
 ### 7. Report to User
 
-```
+```text
 Architecture Review Complete: [Target]
 
 Location: .architecture/reviews/[filename].md

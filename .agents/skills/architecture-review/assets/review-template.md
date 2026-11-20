@@ -45,7 +45,7 @@
 - [Observation 1]
 - [Observation 2]
 
-#### Strengths
+#### [Member Name] - [Title]: Strengths
 1. **[Strength]**: [Description]
 
 #### Concerns
@@ -54,7 +54,7 @@
    - **Why it matters**: [Impact]
    - **Recommendation**: [What to do]
 
-#### Recommendations
+#### [Member Name] - [Title]: Recommendations
 1. **[Recommendation]** (Priority: High/Medium/Low, Effort: Small/Medium/Large)
    - **What**: [Action]
    - **Why**: [Benefit]
@@ -237,7 +237,7 @@ Define measurable criteria to track improvement:
 
 **Recalibration**:
 After implementing recommendations, conduct architecture recalibration to assess progress:
-```
+```text
 "Start architecture recalibration for [target]"
 ```
 

@@ -175,7 +175,7 @@ Organize complex skills into modular structure: high-level workflow + detailed r
 
 ### Pattern Structure
 
-```
+```text
 skill-name/
 ├── SKILL.md                    # High-level workflow (always loaded)
 ├── references/                 # Detailed docs (loaded on-demand)
@@ -431,7 +431,7 @@ mkdir -p .claude/skills/skill-name/assets
 
 Use when converting user input to filenames:
 
-```
+```text
 **Validate and Sanitize Input**:
 - Remove path traversal: `..`, `/`, `\`
 - Remove dangerous characters: null bytes, control characters
@@ -452,7 +452,7 @@ Use when converting user input to filenames:
 
 Use for semantic version numbers:
 
-```
+```text
 **Version Validation**:
 - Format: X.Y.Z (e.g., 1.2.3)
 - Allow only: digits (0-9) and dots (.)
@@ -470,7 +470,7 @@ Use for semantic version numbers:
 
 Use for specialist role names:
 
-```
+```text
 **Role Validation**:
 - Allow: letters, numbers, spaces, hyphens
 - Convert to title case for display
@@ -555,7 +555,7 @@ Please check file syntax or restore from template:
 
 Use for loading config.yml:
 
-```
+```text
 1. Check if `.architecture/config.yml` exists
 2. If missing: Use default configuration (pragmatic_mode: disabled)
 3. If exists: Parse YAML
@@ -570,7 +570,7 @@ Use for loading config.yml:
 
 Use for loading members.yml:
 
-```
+```text
 1. Check if `.architecture/members.yml` exists
 2. If missing: Offer framework setup
 3. If exists: Parse YAML
@@ -586,7 +586,7 @@ Use for loading members.yml:
 
 Use for scanning ADR directory:
 
-```
+```text
 1. Check `.architecture/decisions/adrs/` exists
 2. List files matching: ADR-[0-9]+-*.md
 3. Extract ADR numbers and titles from filenames
@@ -770,7 +770,7 @@ One-line description of what this skill does.
 
 Use for operations that delete or modify files irreversibly:
 
-```
+```text
 **CRITICAL SAFEGUARDS**:
 1. Verify current directory context
    - Check for project markers (package.json, .git, README.md, etc.)
@@ -822,7 +822,7 @@ fi
 # 4. Safe removal with absolute path
 rm -rf "$(pwd)/.architecture/.git"
 ```
-```
+```text
 
 ---
 
@@ -854,7 +854,7 @@ Use when skills need specific directory structures:
    - Missing directories: Create them
    - Missing required files: Suggest setup or provide template
    - Permission issues: Report and suggest fixes
-```
+```text
 
 ---
 

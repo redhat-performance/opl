@@ -112,7 +112,7 @@ Save to `.architecture/reviews/initial-system-analysis.md`.
 
 Provide setup summary:
 
-```
+```text
 AI Software Architect Framework Setup Complete
 
 Customizations:
@@ -138,7 +138,7 @@ Next Steps:
 ## Error Handling
 
 **Framework not cloned**:
-```
+```text
 The framework must be cloned first. Please run:
 
 git clone https://github.com/codenamev/ai-software-architect .architecture/.architecture
@@ -147,7 +147,7 @@ Then run setup again.
 ```
 
 **Already set up**:
-```
+```text
 Framework appears to be already set up.
 
 To verify: "What's our architecture status?"
@@ -155,7 +155,7 @@ To reconfigure: Manually edit .architecture/members.yml and .architecture/princi
 ```
 
 **Unclear project structure**:
-```
+```text
 Could not clearly identify project type. Please describe:
 - Primary programming language(s)
 - Framework(s) used

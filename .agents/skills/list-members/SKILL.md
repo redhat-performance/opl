@@ -12,7 +12,7 @@ Displays all architecture team members and their expertise areas.
 
 ### 1. Check Setup
 If `.architecture/members.yml` doesn't exist:
-```
+```text
 The AI Software Architect framework hasn't been set up yet.
 
 To get started: "Setup ai-software-architect"
@@ -110,25 +110,25 @@ Or manually edit `.architecture/members.yml` and add:
 ## Using the Team
 
 **For focused reviews** (specific expertise):
-```
+```text
 Ask [Specialist] to review [target]
 ```
 Fast turnaround, targeted insights
 
 **For comprehensive reviews** (all perspectives):
-```
+```text
 Start architecture review for [version/feature]
 ```
 All members review, collaborative discussion
 
 **For decisions**:
-```
+```text
 Create ADR for [decision topic]
 ```
 Document decisions with team input
 
 ---
-```
+```text
 
 ### 4. Provide Context
 After listing:
@@ -145,7 +145,7 @@ Ready to use your architecture team:
 - Request reviews: "Ask [specialist] to review [target]"
 - Add new specialists: Just ask for them by name
 - Full review: "Start architecture review for [scope]"
-```
+```text
 
 ## Error Handling
 - No `.architecture/`: Offer setup instructions

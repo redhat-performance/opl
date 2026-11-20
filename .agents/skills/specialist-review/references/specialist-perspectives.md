@@ -93,7 +93,7 @@ These specialists are part of the framework's core team.
 - **Low**: Security improvement opportunity
 
 **Example Concerns**:
-```
+```text
 1. **SQL Injection Vulnerability** (Severity: Critical)
    - **Issue**: User input directly interpolated into SQL query
    - **Location**: `src/db/users.js:23`
@@ -150,7 +150,7 @@ These specialists are part of the framework's core team.
 - CPU utilization
 
 **Example Concerns**:
-```
+```text
 1. **N+1 Query Problem** (Severity: High)
    - **Issue**: Loading users in loop triggers 1000+ database queries
    - **Location**: `src/controllers/orders.js:45-52`
@@ -195,7 +195,7 @@ These specialists are part of the framework's core team.
 - [ ] Domain invariants protected
 
 **Example Concerns**:
-```
+```text
 1. **Anemic Domain Model** (Severity: Medium)
    - **Issue**: `Order` class is data container with no business logic
    - **Location**: `src/models/Order.js`
@@ -265,7 +265,7 @@ These specialists are part of the framework's core team.
 - Feature envy
 
 **Example Concerns**:
-```
+```text
 1. **God Class Anti-pattern** (Severity: Medium)
    - **Issue**: `UserService` has 45 methods handling auth, profile, notifications, billing
    - **Location**: `src/services/UserService.js` (1,200 lines)

@@ -8,7 +8,7 @@
 
 The OPL (Our Performance Library) repository serves as a critical toolkit for the Red Hat Cloud Performance team. It provides a vast array of utilities for cluster data collection, load generation, performance testing, and results parsing. The repository is highly functional and actively maintained, as evidenced by recent commits adding new statistical metrics (percentile95) and fixing label creation.
 
-However, the architecture reflects an organic growth pattern typical of utility scripts evolving into a larger library. While the core `opl/` package exists, the root directory is cluttered with loose scripts, transient data files, and duplicated directories (`core/` vs `opl/`). This fragmentation hinders discoverability, increases onboarding friction, and risks architectural drift. 
+However, the architecture reflects an organic growth pattern typical of utility scripts evolving into a larger library. While the core `opl/` package exists, the root directory is cluttered with loose scripts, transient data files, and duplicated directories (`core/` vs `opl/`). This fragmentation hinders discoverability, increases onboarding friction, and risks architectural drift.
 
 **Overall Assessment**: Adequate (with significant room for structural improvement)
 
@@ -19,7 +19,7 @@ However, the architecture reflects an organic growth pattern typical of utility 
 
 **Critical Actions**:
 - **Consolidate Project Layout**: Implement a standard Python project layout (e.g., `src/opl`) and aggressively move or archive root-level scripts and data files.
-- **Clarify Core vs. Scripts**: Clearly delineate library code intended for import from CLI scripts intended for execution. 
+- **Clarify Core vs. Scripts**: Clearly delineate library code intended for import from CLI scripts intended for execution.
 
 ---
 
@@ -39,21 +39,21 @@ However, the architecture reflects an organic growth pattern typical of utility 
 
 **Perspective**: Focuses on how components work together as a cohesive system and analyzes big-picture architectural concerns.
 
-#### Key Observations
+#### Systems Architect: Key Observations
 - The system is fundamentally a collection of CLI tools packaged together, heavily driven by the `console_scripts` entry points in `setup.py`.
 - There appears to be an aborted or partial attempt to extract a "core" library, evidenced by the `core/` directory containing its own `setup.py` and `venv`.
 
-#### Strengths
+#### Systems Architect: Strengths
 1. **Clear Execution Model**: The reliance on `console_scripts` entry points provides a standard way for users to discover and run the various tools.
 2. **Centralized Configuration**: `setup.py` effectively tracks all dependencies and entry points in one place.
 
-#### Concerns
+#### Systems Architect: Concerns
 1. **Structural Ambiguity** (Impact: High)
    - **Issue**: The presence of both `opl/` and `core/opl/` creates confusion about where the source of truth lies. Recent commits ("Propagate forgotten changes to core") highlight the danger of this split.
    - **Why it matters**: It leads to duplicated effort, fragmented history, and potential for bugs when changes are not synchronized.
    - **Recommendation**: Resolve the `core/` vs root repository dichotomy. Either fully extract `core` into a separate repository/submodule or merge it back completely.
 
-#### Recommendations
+#### Systems Architect: Recommendations
 1. **Resolve Core Repository Split** (Priority: High, Effort: Medium)
    - **What**: Decide on a single source of truth for the codebase.
    - **Why**: Eliminates synchronization overhead and confusion.
@@ -65,21 +65,21 @@ However, the architecture reflects an organic growth pattern typical of utility 
 
 **Perspective**: Advocates for clean, Pythonic solutions following PEP guidelines.
 
-#### Key Observations
+#### Python Expert - Dr. Sarah Chen: Key Observations
 - The repository contains ~50 Python files in the core package and ~200 functions, indicating a moderately sized codebase.
 - The root directory contains numerous unmanaged Python scripts (`aaa.py`, `bbb.py`, `test.py`, `test2.py`, etc.).
 
-#### Strengths
+#### Python Expert - Dr. Sarah Chen: Strengths
 1. **Standard Packaging**: Utilizes `setuptools` which is the established standard for Python packaging.
 2. **Linting Configuration**: Presence of `.flake8` indicates an intent to maintain code style standards.
 
-#### Concerns
+#### Python Expert - Dr. Sarah Chen: Concerns
 1. **PEP 8 and Project Layout Violations** (Impact: High)
    - **Issue**: The root directory is extremely cluttered with `.py` files and `.json` data dumps.
    - **Why it matters**: It violates standard Python project layouts, makes the repository intimidating to new contributors, and risks accidental commits of sensitive or transient data.
    - **Recommendation**: Adopt a `src/` layout (e.g., `src/opl/`) and move all "playground" scripts to a dedicated, explicitly ignored directory.
 
-#### Recommendations
+#### Python Expert - Dr. Sarah Chen: Recommendations
 1. **Implement Standard Python Layout** (Priority: High, Effort: Small)
    - **What**: Reorganize the repository to separate source code, tests, and transient scripts.
    - **Why**: Improves discoverability and aligns with Python ecosystem expectations.
@@ -91,20 +91,20 @@ However, the architecture reflects an organic growth pattern typical of utility 
 
 **Perspective**: Evaluates how well the architecture facilitates long-term maintenance, evolution, and developer understanding.
 
-#### Key Observations
+#### Maintainability Expert: Key Observations
 - Untracked files (`git status` output) show a large number of temporary generator files (`tmp*`) and JSON dumps accumulating in the working directory.
 - The `tests/` directory contains 15 files, suggesting reasonable but potentially incomplete coverage for a 50-file library.
 
-#### Strengths
+#### Maintainability Expert: Strengths
 1. **Automated Testing**: The presence of a `tests/` directory and `.pytest_cache` indicates an active testing culture.
 
-#### Concerns
+#### Maintainability Expert: Concerns
 1. **Transient File Pollution** (Impact: Medium)
    - **Issue**: Data generators and tests appear to be leaving temporary files (`tmp*`) in the source tree instead of using the OS temp directory or a dedicated `build/` or `out/` folder.
    - **Why it matters**: Clutters the git status, risks accidental commits, and makes local development messy.
    - **Recommendation**: Update file generation logic to use Python's `tempfile` module or write to an explicitly git-ignored output directory.
 
-#### Recommendations
+#### Maintainability Expert: Recommendations
 1. **Clean Up Temporary File Handling** (Priority: Medium, Effort: Small)
    - **What**: Ensure all generators and tests clean up after themselves or write to `/tmp`.
    - **Why**: Keeps the working directory clean.
@@ -116,20 +116,20 @@ However, the architecture reflects an organic growth pattern typical of utility 
 
 **Perspective**: Focuses on performance implications of architectural decisions and suggests optimizations.
 
-#### Key Observations
+#### Performance Specialist: Key Observations
 - The library is designed to handle performance data, including parsing large logs and generating significant load.
 - Dependencies include `numpy` and `locust`, which are appropriate choices for performance-focused tooling.
 
-#### Strengths
+#### Performance Specialist: Strengths
 1. **Appropriate Tooling**: Leveraging `numpy` for data stats (like the recently added percentile95) is exactly the right architectural choice for performance data processing.
 
-#### Concerns
+#### Performance Specialist: Concerns
 1. **Monolithic Dependency Tree** (Impact: Low)
    - **Issue**: `setup.py` requires all dependencies (boto3, psycopg2, locust) even if a user only wants to use a specific offline script (like `junit_cli.py`).
    - **Why it matters**: Increases installation time and surface area for conflicts.
    - **Recommendation**: Consider using `extras_require` for heavy dependencies (e.g., `pip install opl[aws]`).
 
-#### Recommendations
+#### Performance Specialist: Recommendations
 1. **Modularize Dependencies** (Priority: Low, Effort: Medium)
    - **What**: Move domain-specific heavy dependencies to optional extras.
    - **Why**: Speeds up installation for CI jobs that only need a subset of the tools.
@@ -141,20 +141,20 @@ However, the architecture reflects an organic growth pattern typical of utility 
 
 **Perspective**: Rigorously questions whether proposed solutions, abstractions, and features are actually needed right now, pushing for the simplest approach.
 
-#### Key Observations
+#### Pragmatic Enforcer: Key Observations
 - The repository seems to have grown organically by adding scripts as needed, which is very pragmatic.
 - However, the attempted split into a `core/` repository seems like an architectural overreach that wasn't fully committed to.
 
-#### Strengths
+#### Pragmatic Enforcer: Strengths
 1. **Highly Functional**: The tools clearly solve immediate problems for the performance team without unnecessary abstract layers.
 
-#### Concerns
+#### Pragmatic Enforcer: Concerns
 1. **Over-engineered Repository Split** (Impact: Medium)
    - **Issue**: The `core/` directory attempts to create a boundary that the team is failing to maintain (requiring manual sync commits).
    - **Why it matters**: It adds overhead without providing clear value.
    - **Recommendation**: YAGNI - You aren't going to need a separate core repository if you can't maintain it. Merge it back and rely on Python module namespaces (`opl.core` if necessary) within a single repository.
 
-#### Recommendations
+#### Pragmatic Enforcer: Recommendations
 1. **Eliminate `core/` Directory** (Priority: High, Effort: Small)
    - **What**: Remove the separate `core/` setup and integrate its unique changes into the main `opl/` package.
    - **Why**: Simplifies the mental model of the repository.
@@ -290,12 +290,12 @@ The team unanimously agrees that repository structure cleanup is the highest pri
 
 **Next Review**: 2026-06-15
 
-**Tracking**: 
+**Tracking**:
 - Create GitHub issues for immediate actions (Core resolution, Root cleanup).
 
 **Recalibration**:
 After implementing the root cleanup:
-```
+```text
 "Start architecture recalibration for OPL project structure"
 ```
 

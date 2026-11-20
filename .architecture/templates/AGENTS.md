@@ -38,7 +38,7 @@ The framework provides:
 
 ### Directory Structure
 
-```
+```text
 .architecture/
 ├── members.yml              # Architecture review team members
 ├── principles.md            # Core architectural principles

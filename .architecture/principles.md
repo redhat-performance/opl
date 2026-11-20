@@ -6,31 +6,31 @@ This document outlines the core architectural principles that guide all design d
 
 > "Any fool can write code that a computer can understand. Good programmers write code that humans can understand."  
 > — **Martin Fowler**
-
+>
 > "Bad programmers worry about the code. Good programmers worry about data structures and their relationships."  
 > — **Linus Torvalds**
-
+>
 > "The heart of software is its ability to solve domain-related problems for its user."  
 > — **Eric Evans**
-
+>
 > "I'm not a great programmer; I'm just a good programmer with great habits."  
 > — **Kent Beck**
-
+>
 > "Adding manpower to a late software project makes it later."  
 > — **Fred Brooks**
-
+>
 > "Clean code is simple and direct. Clean code reads like well-written prose."  
 > — **Robert C. Martin**
-
+>
 > "Do The Simplest Thing That Could Possibly Work"  
 > — **Kent Beck**
-
+>
 > "You don't send messages because you have objects, you have objects because you send messages."  
 > — **Sandi Metz**
-
+>
 > "Your application needs to work right now just once; it must be easy to change forever."  
 > — **Sandi Metz**
-
+>
 > "The modern practice of software isn't much like architecture or construction. The buildings are largely built. These days, we make a pre-built space work for whoever lives there."  
 > — **Sarah Mei**
 
@@ -42,7 +42,7 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Developers spend most of their time working with existing code. A codebase should be comfortable to inhabit, maintain, and evolve over time.
 
-**Wisdom**: 
+**Wisdom**:
 > "Is your code the kind of cluttered house you might find on a reality TV show? Or the kind of sleek, minimalist house you might find in an architectural magazine? Neither one sounds like a place you could comfortably live."  
 > — **Sarah Mei**
 
@@ -59,7 +59,7 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Clear designs are easier to understand, maintain, extend, and debug. They reduce cognitive load and make onboarding new developers faster.
 
-**Wisdom**: 
+**Wisdom**:
 > "I define architecture as a word we use when we want to talk about design but want to puff it up to make it sound important."  
 > — **Martin Fowler**
 
@@ -75,7 +75,7 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Well-separated components can be developed, tested, and maintained independently, reducing cognitive load and simplifying changes.
 
-**Wisdom**: 
+**Wisdom**:
 > "The Single Responsibility Principle. A Module should be responsible to one, and only one, actor."  
 > — **Robert C. Martin**
 
@@ -92,10 +92,10 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Requirements always change, and the ability to adapt is essential for long-term sustainability.
 
-**Wisdom**: 
+**Wisdom**:
 > "Architecture represents the significant design decisions that shape a system, where significant is measured by cost of change."  
 > — **Grady Booch**
-
+>
 > "The future is uncertain and you will never know less than you know right now."  
 > — **Sandi Metz**
 
@@ -113,7 +113,7 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Effective monitoring, debugging, and performance optimization require visibility into system operation.
 
-**Wisdom**: 
+**Wisdom**:
 > "Truth can only be found in one place: the code."  
 > — **Robert C. Martin**
 
@@ -130,7 +130,7 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Retrofitting security is more expensive, less effective, and often leaves vulnerabilities.
 
-**Wisdom**: 
+**Wisdom**:
 > "Code, without tests, is not clean. No matter how elegant it is, no matter how readable and accessible, if it hath not tests, it be unclean."  
 > — **Robert C. Martin**
 
@@ -147,7 +147,7 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: When the model and implementation are closely aligned with the business domain, the system is more likely to meet user needs and adapt to changes in requirements.
 
-**Wisdom**: 
+**Wisdom**:
 > "A model is a selectively simplified and consciously structured form of knowledge."  
 > — **Eric Evans**
 
@@ -164,10 +164,10 @@ This document outlines the core architectural principles that guide all design d
 
 **Rationale**: Theoretical purity often adds complexity without proportional benefit. Real systems must balance many competing concerns.
 
-**Wisdom**: 
+**Wisdom**:
 > "Theory and practice sometimes clash. And when that happens, theory loses. Every single time."  
 > — **Linus Torvalds**
-
+>
 > "Instead of deciding on a class and then figuring out its responsibilities, you are now deciding on a message and figuring out where to send it. This transition from class-based design to message-based design is a turning point in your design career."  
 > — **Sandi Metz**
 
@@ -202,7 +202,7 @@ This document outlines the core architectural principles that guide all design d
 **Examples**:
 
 *Good - High Impact Awareness:*
-```
+```text
 Decision: Introduce new authentication pattern
 Blast Radius: Affects 23 services, 4 teams, requires coordination
 Reversibility: Medium - can rollback but requires migration scripts
@@ -212,7 +212,7 @@ Decision: Proceed with phased rollout, Team B training first
 ```
 
 *Bad - Ignoring Impact:*
-```
+```text
 Decision: Introduce new authentication pattern
 Implementation: Changed all services in one release
 Result: Outage across all services, no rollback plan, team confused
@@ -267,9 +267,9 @@ Proposed changes to principles should be discussed by the entire architecture te
 
 > "I will contend that conceptual integrity is the most important consideration in system design."  
 > — **Fred Brooks**
-
+>
 > "Successful (working) but undesigned applications carry the seeds of their own destruction; they are easy to write, but gradually become impossible to change."  
 > — **Sandi Metz**
-
+>
 > "By reflecting on code that's been written, and 'code smells' that keep coming up, you can determine missing links in communication. You could continue to solve those code smells. You could refactor them all away - once per sprint even! However, that's only addressing the symptoms. The underlying problem is more likely to be one of communication."  
 > — **Sarah Mei**

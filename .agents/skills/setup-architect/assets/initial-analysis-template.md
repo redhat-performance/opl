@@ -66,7 +66,7 @@
 
 ### Project Structure
 
-```
+```text
 [Provide high-level directory structure]
 /
 ├── src/

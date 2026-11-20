@@ -17,7 +17,7 @@ This roadmap covers the following versions:
 
 **Overall Goal**: [Describe the high-level architectural goal for this area]
 
-#### Tasks for Version X.Y.Z
+#### [Area 1: e.g., Component Decomposition]: Tasks for Version X.Y.Z
 
 | Task ID | Description | Dependencies | Complexity | Owner | Tests Required |
 |---------|-------------|--------------|------------|-------|----------------|
@@ -45,7 +45,7 @@ This roadmap covers the following versions:
 
 **Overall Goal**: [Describe the high-level architectural goal for this area]
 
-#### Tasks for Version X.Y.Z
+#### [Area 2: e.g., Security Enhancements]: Tasks for Version X.Y.Z
 
 | Task ID | Description | Dependencies | Complexity | Owner | Tests Required |
 |---------|-------------|--------------|------------|-------|----------------|

@@ -39,21 +39,21 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Focuses on how components work together as a cohesive system and analyzes big-picture architectural concerns.
 
-#### Key Observations
+#### Systems Architect: Key Observations
 - Shifts the repository from a single standard package to a workspace-style layout with a meta-package.
 - Leverages PEP 420 namespace packaging to unite physically distinct directories into a single logical Python namespace.
 
-#### Strengths
+#### Systems Architect: Strengths
 1. **Single Source of Truth**: Eliminates code duplication, inherently reducing bugs and architectural drift.
 2. **Hard Physical Boundaries**: Structurally prevents the accidental import of heavy dependencies within core modules.
 
-#### Concerns
+#### Systems Architect: Concerns
 1. **Tooling Compatibility** (Impact: Medium)
    - **Issue**: Some static analysis tools or legacy test runners might struggle with PEP 420 implicit namespaces.
    - **Why it matters**: CI pipelines could fail or provide false negatives.
    - **Recommendation**: Ensure CI exhaustively covers linters and type checkers against the new layout.
 
-#### Recommendations
+#### Systems Architect: Recommendations
 1. **CI Pipeline Validation** (Priority: High, Effort: Small)
    - **What**: Update all CI checks to ensure they run correctly across the split structure.
    - **Why**: To prevent silent failures in test discovery.
@@ -63,20 +63,20 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Evaluates how well the architecture represents and serves the problem domain and business concepts.
 
-#### Key Observations
+#### Domain Expert: Key Observations
 - The domain is split strictly on technical dependency footprint (core vs. extras) rather than by business capability.
 - The end-user installation and interaction experience remains explicitly preserved.
 
-#### Strengths
+#### Domain Expert: Strengths
 1. **Preserved User Experience**: Consumers do not need to alter their established `pip install` workflows or import statements.
 
-#### Concerns
+#### Domain Expert: Concerns
 1. **Logical vs Physical Organization** (Impact: Low)
    - **Issue**: Grouping by dependency size rather than domain functionality could fragment related modules.
    - **Why it matters**: Developers might struggle to find related code if it's split across the boundary.
    - **Recommendation**: Clearly document guidelines for where new modules should be placed.
 
-#### Recommendations
+#### Domain Expert: Recommendations
 1. **Module Placement Guidelines** (Priority: Medium, Effort: Small)
    - **What**: Add clear guidelines in developer documentation.
    - **Why**: To help developers decide if a module goes to `core` or `extras` without confusion.
@@ -86,19 +86,19 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Reviews the architecture from a security-first perspective, identifying potential vulnerabilities and security implications.
 
-#### Key Observations
+#### Security Specialist: Key Observations
 - The architecture cleanly separates heavy dependencies from the core, which acts as a security boundary.
 
-#### Strengths
+#### Security Specialist: Strengths
 1. **Reduced Attack Surface**: Users of the "core" installation won't unnecessarily download and install large third-party packages, minimizing supply chain risks.
 
-#### Concerns
+#### Security Specialist: Concerns
 1. **Meta-package Local References** (Impact: Low)
    - **Issue**: The root `setup.py` pulls from local paths.
    - **Why it matters**: While standard in monorepos, local file references in packaging need to be tightly controlled in CI environments to prevent path traversal or injection.
    - **Recommendation**: Ensure standard, secure git clone practices are used in CI.
 
-#### Recommendations
+#### Security Specialist: Recommendations
 1. **Dependency Scanning Boundary** (Priority: Medium, Effort: Small)
    - **What**: Ensure dependency scanning tools accurately scan both `core/setup.py` and `extras/setup.py` independently.
    - **Why**: To maintain accurate vulnerability reports for both distribution modes.
@@ -108,21 +108,21 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Evaluates how well the architecture facilitates long-term maintenance, evolution, and developer understanding.
 
-#### Key Observations
+#### Maintainability Expert: Key Observations
 - Solves a major maintainability headache by eradicating duplicated code.
 - Introduces a slight increase in complexity for local development workflows.
 
-#### Strengths
+#### Maintainability Expert: Strengths
 1. **DRY Principle**: Resolves the worst kind of technical debt by ensuring bug fixes only need to happen in one place.
 2. **Clear Constraints**: The physical separation prevents dependency creep into the core modules.
 
-#### Concerns
+#### Maintainability Expert: Concerns
 1. **Test Discovery Complexity** (Impact: Medium)
    - **Issue**: `pytest` historically relies on `__init__.py` files for test discovery. Removing them might require configuration tweaks.
    - **Why it matters**: Developers might be confused if running `pytest` locally yields "no tests found".
    - **Recommendation**: Verify and document the exact test execution commands required.
 
-#### Recommendations
+#### Maintainability Expert: Recommendations
 1. **Developer Onboarding Docs** (Priority: High, Effort: Small)
    - **What**: Update local development documentation.
    - **Why**: To explain the split directory structure and new test execution commands to contributors.
@@ -132,19 +132,19 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Focuses on performance implications of architectural decisions and suggests optimizations.
 
-#### Key Observations
+#### Performance Specialist: Key Observations
 - Eliminates the need to parse and load heavy dependencies for core scripts.
 
-#### Strengths
+#### Performance Specialist: Strengths
 1. **Consistent Core Execution**: By structurally guaranteeing that core tools don't import heavy dependencies, the cold start time and memory footprint for these CLI tools remains optimal.
 
-#### Concerns
+#### Performance Specialist: Concerns
 1. **Namespace Import Overhead** (Impact: Low)
    - **Issue**: PEP 420 implicit namespaces involve slightly more disk stat calls during import resolution.
    - **Why it matters**: Could fractionally increase startup time.
    - **Recommendation**: This is generally negligible in modern Python, but should be noted.
 
-#### Recommendations
+#### Performance Specialist: Recommendations
 1. **Baseline Startup Time** (Priority: Low, Effort: Small)
    - **What**: Measure the startup time of key core scripts before and after the refactor.
    - **Why**: To quantitatively ensure no performance regression occurs.
@@ -154,20 +154,20 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Evaluates HOW and WHEN changes should be implemented, considering blast radius, reversibility, technical readiness, team capability, and timing.
 
-#### Key Observations
+#### Implementation Strategist: Key Observations
 - The implementation strategy in the ADR is exceptionally well-thought-out, explicitly phasing structure preparation, code migration, and packaging updates.
 
-#### Strengths
+#### Implementation Strategist: Strengths
 1. **High Reversibility**: If the namespace package approach fails in production, a simple git revert completely undoes the architectural change.
 2. **Clear Blast Radius**: The ADR accurately identifies precisely who and what is affected.
 
-#### Concerns
+#### Implementation Strategist: Concerns
 1. **Merge Conflicts** (Impact: High)
    - **Issue**: Moving virtually every file in the `opl/` directory will cause massive merge conflicts for any open feature branches.
    - **Why it matters**: It will disrupt other developers and require complex rebasing.
    - **Recommendation**: Coordinate the merge tightly with the team.
 
-#### Recommendations
+#### Implementation Strategist: Recommendations
 1. **Merge Coordination** (Priority: High, Effort: Small)
    - **What**: Announce a "code freeze" or coordinate the merge timeline.
    - **Why**: To minimize disruption to inflight pull requests.
@@ -177,19 +177,19 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Evaluates the architecture from an AI integration perspective, focusing on practical utility, system evaluation, observability, and agent interaction patterns.
 
-#### Key Observations
+#### AI Engineer: Key Observations
 - The split directory structure impacts how AI coding assistants parse and understand the repository context.
 
-#### Strengths
+#### AI Engineer: Strengths
 1. **Clear Context Boundaries**: AI agents will find it easier to understand the strict separation of concerns, reducing the context window needed when working specifically on core tools.
 
-#### Concerns
+#### AI Engineer: Concerns
 1. **Cross-directory Context** (Impact: Low)
    - **Issue**: Agents might struggle initially to understand that `core/opl/` and `extras/opl/` form a single logical Python package.
    - **Why it matters**: It could lead to incorrect import suggestions by LLMs.
    - **Recommendation**: Ensure repository AI instructions explicitly mention the PEP 420 namespace structure.
 
-#### Recommendations
+#### AI Engineer: Recommendations
 1. **Update Agent Prompts/Docs** (Priority: Low, Effort: Small)
    - **What**: Update AI assistant documentation (e.g., `GEMINI.md`).
    - **Why**: To help LLMs navigate the workspace.
@@ -199,20 +199,20 @@ The proposed architecture provides a clean, modern Python approach to the proble
 
 **Perspective**: Advocates for clean, Pythonic solutions following PEP guidelines
 
-#### Key Observations
+#### Python Expert - Dr. Sarah Chen: Key Observations
 - Fully embraces PEP 420 (Implicit Namespace Packages), which is the modern standard for splitting packages across directories.
 - Uses standard pip capabilities to preserve installation workflows without relying on hacky `package_dir={'': '..'}` references.
 
-#### Strengths
+#### Python Expert - Dr. Sarah Chen: Strengths
 1. **Idiomatic Python**: Solves the problem using the exact mechanisms designed by the Python Steering Council for this scenario.
 
-#### Concerns
+#### Python Expert - Dr. Sarah Chen: Concerns
 1. **`__init__.py` Remnants** (Impact: High)
    - **Issue**: If *any* `__init__.py` file is accidentally left in or added to `core/opl/` or `extras/opl/`, Python's import system will treat it as a regular package and break the cross-directory namespace import.
    - **Why it matters**: It causes catastrophic import failures.
    - **Recommendation**: Add a CI check that strictly enforces the absence of these files in the namespace directories.
 
-#### Recommendations
+#### Python Expert - Dr. Sarah Chen: Recommendations
 1. **Enforce Namespace Package Rules** (Priority: High, Effort: Small)
    - **What**: Implement a CI linter rule that explicitly fails if an `__init__.py` file exists in the namespace roots.
    - **Why**: To prevent accidental breakage of the architecture.

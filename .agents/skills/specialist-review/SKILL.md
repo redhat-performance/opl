@@ -116,7 +116,7 @@ Fill in all sections with detailed, specific findings.
 
 Provide concise summary:
 
-```
+```text
 [Specialist Title] Review Complete: [Target]
 
 Reviewer: [Specialist Name]

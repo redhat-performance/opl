@@ -12,7 +12,7 @@ Provides overview of architecture documentation state.
 
 ### 1. Check Framework Setup
 If `.architecture/` doesn't exist:
-```
+```text
 The AI Software Architect framework is not set up yet.
 
 To get started: "Setup ai-software-architect"
@@ -151,7 +151,7 @@ Collect from `.architecture/`:
 **Based on status**:
 
 **If well-maintained**:
-```
+```text
 ✅ Excellent documentation discipline!
 
 Keep momentum:
@@ -161,7 +161,7 @@ Keep momentum:
 ```
 
 **If partially used**:
-```
+```text
 ⚠️ Good foundations, room for improvement.
 
 Suggestions:
@@ -171,7 +171,7 @@ Suggestions:
 ```
 
 **If minimal usage**:
-```
+```text
 ❌ Framework underutilized.
 
 Get started:

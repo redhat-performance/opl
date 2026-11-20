@@ -31,12 +31,12 @@ This document provides a comprehensive comparison between version [Old Version] 
 ### [Component/Area 1]
 
 **Before:**
-```
+```text
 [Diagram or code snippet showing the component before changes]
 ```
 
 **After:**
-```
+```text
 [Diagram or code snippet showing the component after changes]
 ```
 
@@ -48,12 +48,12 @@ This document provides a comprehensive comparison between version [Old Version] 
 ### [Component/Area 2]
 
 **Before:**
-```
+```text
 [Diagram or code snippet showing the component before changes]
 ```
 
 **After:**
-```
+```text
 [Diagram or code snippet showing the component after changes]
 ```
 
@@ -132,12 +132,12 @@ This section documents where the implemented changes differed from the original 
 ### Code Examples
 
 **Before:**
-```
+```text
 [Code example before migration]
 ```
 
 **After:**
-```
+```text
 [Code example after migration]
 ```
 
