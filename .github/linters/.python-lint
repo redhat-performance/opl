@@ -12,6 +12,8 @@ disable=
     fixme,
     line-too-long,
     broad-exception-caught,
+    # super-linter container does not install project dependencies
+    import-error,
     attribute-defined-outside-init,
     missing-function-docstring,
     unused-argument,

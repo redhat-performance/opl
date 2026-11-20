@@ -373,13 +373,15 @@ def cleanup(args, status_data):
     # leftover test residue. They hold row locks on hbi.hosts and would make
     # the TRUNCATE below queue forever behind them (observed as multi-hour
     # pipeline hangs when the app under test leaks transactions).
-    inventory_cursor.execute("""
+    inventory_cursor.execute(
+        """
         SELECT pg_terminate_backend(pid)
         FROM pg_stat_activity
         WHERE state = 'idle in transaction'
           AND xact_start < now() - interval '10 minutes'
           AND pid <> pg_backend_pid()
-        """)
+        """
+    )
     terminated = inventory_cursor.fetchall()
     if terminated:
         logging.info(
