@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+"""Tests for opl.data."""
 
 import datetime
 import unittest
 
 from .context import opl
+
+# Test methods and classes are self-documenting via descriptive names.
+# pylint: disable=missing-function-docstring, missing-class-docstring
 
 
 class TestSkelet(unittest.TestCase):

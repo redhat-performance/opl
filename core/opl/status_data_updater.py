@@ -276,9 +276,9 @@ def _create_sd_from_es_response(response):
         response["_id"],
         response["_source"]["id"] if "id" in response["_source"] else None,
     )
-    tmpfile = tempfile.NamedTemporaryFile(
+    tmpfile = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with  # file must outlive this scope
         prefix=response["_id"], delete=False
-    ).name  # pylint: disable=consider-using-with  # file must outlive this scope
+    ).name
     return opl.status_data.StatusData(tmpfile, data=response["_source"])
 
 

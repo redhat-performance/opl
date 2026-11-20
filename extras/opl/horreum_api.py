@@ -1200,9 +1200,9 @@ def main():
                     try:
                         schema_id = api.create_schema(schema_def)
                         logger.info("Created schema with ID: %s", schema_id)
-                    except (
-                        Exception
-                    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    # Intentional log-and-degrade catch-all
+                    # pylint: disable-next=broad-exception-caught
+                    except Exception as e:
                         if "Name already used" in str(e) or "already exists" in str(e):
                             logger.info("Schema '%s' already exists (race condition)", schema_def["name"])
                             logger.info("Looking up existing schema...")
@@ -1214,7 +1214,7 @@ def main():
                                 logger.warning("Could not find existing schema by name")
                                 logger.error("This is unexpected since the creation failed due to name conflict.")
                                 logger.info(
-                                    "Please check your permissions or set " "HORREUM_SCHEMA_ID environment variable."
+                                    "Please check your permissions or set HORREUM_SCHEMA_ID environment variable."
                                 )
                                 sys.exit(1)
                         else:
@@ -1311,9 +1311,9 @@ def main():
                     try:
                         test = api.create_test(test_def)
                         logger.info("Created test: %s (ID: %s)", test["name"], test["id"])
-                    except (
-                        Exception
-                    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    # Intentional log-and-degrade catch-all
+                    # pylint: disable-next=broad-exception-caught
+                    except Exception as e:
                         if "409" in str(e) or "Conflict" in str(e) or "already exists" in str(e):
                             logger.info("Test '%s' already exists (race condition)", test_def["name"])
                             logger.info("Looking up existing test...")
@@ -1378,9 +1378,9 @@ def main():
                     label = api.create_label(schema_id, label_def)
                     created_labels.append(label)
                     logger.info("Created %s/%s: %s", i + 1, len(label_defs), label_name)
-                except (
-                    Exception
-                ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                # Intentional log-and-degrade catch-all
+                # pylint: disable-next=broad-exception-caught
+                except Exception as e:
                     failed_labels.append((label_name, str(e)))
                     logger.error("Failed %s/%s: %s - %s", i + 1, len(label_defs), label_name, e)
         else:
@@ -1579,9 +1579,9 @@ def main():
                         final_variables = api.get_test_variables(test["id"])
                         logger.info("Total variables now in system: %s", len(final_variables))
 
-                    except (
-                        Exception
-                    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    # Intentional log-and-degrade catch-all
+                    # pylint: disable-next=broad-exception-caught
+                    except Exception as e:
                         logger.error("Variable update failed: %s", e)
                         failed_variables = [(var["name"], str(e)) for var in new_variables]
                 else:

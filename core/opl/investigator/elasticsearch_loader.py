@@ -49,9 +49,9 @@ def load(server, index, query, paths, **kwargs):
             item["_source"].get("id"),
             params.get("run"),
         )
-        tmpfile = tempfile.NamedTemporaryFile(
+        tmpfile = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with  # file must outlive this scope
             prefix=item["_id"], delete=False
-        ).name  # pylint: disable=consider-using-with  # file must outlive this scope
+        ).name
         sd = opl.status_data.StatusData(tmpfile, data=item["_source"], skip_metadata_assert=skip_metadata_assert)
         for path in paths:
             tmp = sd.get(path)

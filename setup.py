@@ -1,8 +1,10 @@
+"""Meta package installing the core and extras opl namespace packages."""
+
 import os
 
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 core_path = os.path.abspath("core")

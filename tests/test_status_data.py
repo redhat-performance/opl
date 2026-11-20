@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Tests for opl.status_data."""
 
 import datetime
 import json
@@ -10,6 +11,11 @@ import unittest
 import requests.exceptions
 
 from .context import opl
+
+# Test methods are self-documenting via descriptive names. Tests verify
+# internals of StatusData (protected members) and intentionally keep temp
+# files alive beyond a single statement.
+# pylint: disable=missing-function-docstring, protected-access, consider-using-with
 
 
 class TestStatusData(unittest.TestCase):
@@ -23,9 +29,10 @@ class TestStatusData(unittest.TestCase):
         self.tmpfile = tempfile.NamedTemporaryFile().name
         self.status_data = opl.status_data.StatusData(self.tmpfile)
 
-    def tierDown(self):
+    def tearDown(self):
         del self.status_data
-        os.remove(self.tmpfile)
+        if os.path.exists(self.tmpfile):
+            os.remove(self.tmpfile)
 
     def test_filename(self):
         self.assertEqual(self.status_data._filename, self.tmpfile)
@@ -276,7 +283,7 @@ class TestStatusData(unittest.TestCase):
 
     def test_save(self):
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","started":"2024-01-31T12:19:42,794470088+00:00","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
         self.assertEqual(sd.get("name"), "test")
@@ -293,10 +300,10 @@ class TestStatusData(unittest.TestCase):
 
     def test_load(self):
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42,"number_new":-3.14}}')
         self.assertEqual(sd.get("name"), "test")
         self.assertEqual(sd.get("results.number"), 42)
@@ -308,22 +315,20 @@ class TestStatusData(unittest.TestCase):
 
     def test_override(self):
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
         time.sleep(0.001)  # workaround, see https://stackoverflow.com/a/77913929/2229885
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')  # file on the disk changed
 
         with self.assertRaises(Exception) as context:
             sd.save()  # file changed since last load so this will raise exception
 
-        tmp_new = str(context.exception).split(" ")[
-            -1
-        ]  # exception message contains emergency file with current object data
-        with open(tmp_new, "r") as fd:
+        tmp_new = str(context.exception).rsplit(" ", maxsplit=1)[-1]
+        with open(tmp_new, "r", encoding="utf-8") as fd:
             tmp_new_data = json.load(fd)
             self.assertEqual(
                 tmp_new_data["results"]["number_new"], -3.14
@@ -339,13 +344,13 @@ class TestStatusData(unittest.TestCase):
 
     def test_force_save(self):
         tmp = tempfile.mktemp()
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42}}')
         sd = opl.status_data.StatusData(tmp)
         sd.set("results.number_new", -3.14)
 
         time.sleep(0.001)  # workaround, see https://stackoverflow.com/a/77913929/2229885
-        with open(tmp, "w") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             fp.write('{"name":"test","results":{"number":42,"foo":"bar"}}')  # file on the disk changed
 
         with self.assertRaises(Exception) as _:

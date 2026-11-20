@@ -55,6 +55,11 @@ class TestCaseWithProp(junitparser.TestCase):
 class JUnitXmlPlus(junitparser.JUnitXml):
     """junitparser.JUnitXml with OPL extensions (trim, info, upload)."""
 
+    # junitparser element attributes (result, system_out, system_err, time,
+    # filepath) are created on assignment and must not be set in __init__:
+    # lxml-based elements built via fromelem()/fromfile() bypass __init__.
+    # pylint: disable=attribute-defined-outside-init
+
     @classmethod
     def fromfile_or_new(cls, filename):
         """Load JUnit file if it exists, return empty one otherwise."""

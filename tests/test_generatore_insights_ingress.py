@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
+"""Tests for opl.generators.inventory_ingress."""
 
 import unittest
 
 from .context import opl
+
+# Test methods and classes are self-documenting via descriptive names.
+# pylint: disable=missing-function-docstring, missing-class-docstring
 
 
 class TestPayloadGenerator(unittest.TestCase):
@@ -19,17 +23,17 @@ class TestPayloadGenerator(unittest.TestCase):
 
     def test_count(self):
         pg = opl.generators.inventory_ingress.PayloadRHSMGenerator(count=1)
-        mid, msg = next(pg)
+        _mid, msg = next(pg)
         self.assertIsInstance(msg, dict)
         with self.assertRaises(StopIteration):
-            mid, msg = next(pg)
+            next(pg)
 
     def test_templates(self):
         pg = opl.generators.inventory_ingress.PayloadRHSMGenerator(
             count=1, template="inventory_ingress_RHSM_template.json.j2"
         )
-        mid, msg = next(pg)
+        next(pg)
         pg = opl.generators.inventory_ingress.PayloadRHSMGenerator(
             count=1, template="inventory_ingress_yupana_template.json.j2"
         )
-        mid, msg = next(pg)
+        next(pg)

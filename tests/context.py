@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
+"""Test bootstrap: make the opl namespace package importable for tests."""
 
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+# Imports must come after the sys.path tweak above, and they intentionally
+# have no other use here: they preload the opl submodules so that tests doing
+# `from .context import opl` can access them as package attributes.
+# pylint: disable=wrong-import-position, unused-import
 import opl.generators.qpc_tarball  # noqa: E402
 import opl.generators.inventory_ingress  # noqa: E402
 import opl.generators.inventory_egress  # noqa: E402

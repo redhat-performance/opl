@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+"""Tests for opl.generators."""
 
 import os
 import tempfile
 import unittest
 
 from .context import opl
+
+# Test methods and classes are self-documenting via descriptive names.
+# pylint: disable=missing-function-docstring, missing-class-docstring
 
 
 class TestGenericGenerator(unittest.TestCase):
@@ -13,7 +17,7 @@ class TestGenericGenerator(unittest.TestCase):
         _, template = tempfile.mkstemp(dir=os.path.dirname(opl.generators.generic.__file__), text=True)
 
         try:
-            with open(template, "w") as fd:
+            with open(template, "w", encoding="utf-8") as fd:
                 fd.write('{"foo": "bar"}')
 
             gg = opl.generators.generic.GenericGenerator(3, os.path.basename(template))
@@ -31,7 +35,7 @@ class TestGenericGenerator(unittest.TestCase):
         _, template = tempfile.mkstemp(dir=os.path.dirname(opl.generators.generic.__file__), text=True)
 
         try:
-            with open(template, "w") as fd:
+            with open(template, "w", encoding="utf-8") as fd:
                 fd.write('{"x": "{{ opl_gen.gen_uuid() }}"}')
 
             gg = opl.generators.generic.GenericGenerator(3, os.path.basename(template))

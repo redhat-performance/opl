@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+"""Tests for opl.investigator."""
 
 import argparse
 import unittest
@@ -7,6 +8,10 @@ import unittest
 import pyfakefs.fake_filesystem_unittest
 
 from .context import opl
+
+# Test methods and classes are self-documenting via descriptive names, and
+# config file handles must stay open for the code under test.
+# pylint: disable=missing-function-docstring, missing-class-docstring, consider-using-with
 
 SD_NORMAL = """
 {
@@ -76,12 +81,12 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
             "/tmp/investigator_conf.yaml": CONFIG_NORMAL,
         }
         for f, c in files.items():
-            with open(f, "w") as fd:
+            with open(f, "w", encoding="utf-8") as fd:
                 fd.write(c.strip())
 
         args = argparse.Namespace()
         args.current_file = None
-        args.config = open("/tmp/investigator_conf.yaml", "r")
+        args.config = open("/tmp/investigator_conf.yaml", "r", encoding="utf-8")
         args.detailed_decisions = False
         args.stats = False
         args.dry_run = False
@@ -105,7 +110,7 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         self.assertEqual(args.decisions_type, "csv")
 
         # Check recorded decisions
-        with open("/tmp/decisions.csv", "r") as fd:
+        with open("/tmp/decisions.csv", "r", encoding="utf-8") as fd:
             decisions = fd.readlines()
         self.assertTrue(decisions[1].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,"))
         self.assertTrue(decisions[2].startswith("metric2,PASS,check_by_min_max_0_1,1000,995.0,1005.0,,,,"))
@@ -117,12 +122,12 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
             "/tmp/investigator_conf.yaml": CONFIG_METHODS_PARTIAL,
         }
         for f, c in files.items():
-            with open(f, "w") as fd:
+            with open(f, "w", encoding="utf-8") as fd:
                 fd.write(c.strip())
 
         args = argparse.Namespace()
         args.current_file = None
-        args.config = open("/tmp/investigator_conf.yaml", "r")
+        args.config = open("/tmp/investigator_conf.yaml", "r", encoding="utf-8")
         args.detailed_decisions = False
         args.stats = False
         args.dry_run = False
@@ -152,7 +157,7 @@ class TestInvestigator(pyfakefs.fake_filesystem_unittest.TestCase):
         self.assertEqual(args.decisions_type, "csv")
 
         # Check recorded decisions
-        with open("/tmp/decisions.csv", "r") as fd:
+        with open("/tmp/decisions.csv", "r", encoding="utf-8") as fd:
             decisions = fd.readlines()
         self.assertTrue(decisions[1].startswith("metric1,PASS,check_by_provided_min_max,5,4.5,5.5,,,,"))
         self.assertTrue(decisions[2].startswith("metric1,PASS,check_by_min_max_0_1,5,4.0,6.0,,,,"))

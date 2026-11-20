@@ -177,7 +177,7 @@ def get_tenant(cursor, account):
     tenant for the same account) are an error as well.
     """
     cursor.execute(
-        "SELECT id, tenant_name FROM public.api_tenant " "WHERE tenant_name IN (%s, %s, %s)",
+        "SELECT id, tenant_name FROM public.api_tenant WHERE tenant_name IN (%s, %s, %s)",
         (f"acct{account}", f"org{account}", account),
     )
     rows = cursor.fetchall()

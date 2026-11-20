@@ -463,9 +463,9 @@ class PluginHorreum(PluginBase):
                     if len(changes) > 0:
                         return (True, alerting_variable, changes)
                     return (False, alerting_variable, None)
-                except (
-                    Exception
-                ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                # Intentional log-and-degrade catch-all
+                # pylint: disable-next=broad-exception-caught
+                except Exception as e:
                     self.logger.warning("Error checking %s: %s", alerting_variable.get("name", "unknown"), e)
                     return (False, alerting_variable, None)
 

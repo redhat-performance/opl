@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Tests for opl.cluster_read."""
 
 import argparse
 import datetime
@@ -11,6 +12,10 @@ import responses
 import yaml
 
 from .context import opl
+
+# Test methods and classes are self-documenting via descriptive names, and
+# temp file names are grabbed from NamedTemporaryFile on purpose.
+# pylint: disable=missing-function-docstring, missing-class-docstring, consider-using-with
 
 
 class TestRequestedInfo(unittest.TestCase):
@@ -84,9 +89,10 @@ class TestRequestedInfo(unittest.TestCase):
 
     def test_measurements(self):
         class TestMeasurementPlugin(opl.cluster_read.BasePlugin):
-            def measure(self, ri, name, test_measurement_query):
-                if test_measurement_query == "simple":
-                    return name, opl.data.data_stats([1, 2, 3])
+            def measure(self, ri, **args):
+                if args["test_measurement_query"] == "simple":
+                    return args["name"], opl.data.data_stats([1, 2, 3])
+                return (None, None)
 
         string = """
             - name: mymeasurement
@@ -108,10 +114,11 @@ class TestRequestedInfo(unittest.TestCase):
         k, v = next(ri)
         self.assertEqual(k, "mygreet")
         self.assertEqual(v, "hello")
-        tmp_file = tempfile.mkstemp()[1]
-        with open(tmp_file, "w") as fpw:
+        tmp_fd, tmp_file = tempfile.mkstemp()
+        os.close(tmp_fd)
+        with open(tmp_file, "w", encoding="utf-8") as fpw:
             fpw.write(string)
-        with open(tmp_file, "r") as fpr:
+        with open(tmp_file, "r", encoding="utf-8") as fpr:
             ri = opl.cluster_read.RequestedInfo(fpr)
             k, v = next(ri)
             self.assertEqual(k, "mygreet")

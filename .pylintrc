@@ -7,8 +7,16 @@ ignore=.git,__pycache__,venv,.venv,build,htmlcov
 # work items, not code issues.
 disable=
     fixme,
+    # Import resolution depends on the environment, not on the code: pylint
+    # runs in environments (e.g. super-linter) where project dependencies are
+    # not installed.
+    import-error,
     line-too-long,
     duplicate-code,
+    # opl.status_data, opl.cluster_read and opl.skelet intentionally import
+    # each other; the cycle is safe at runtime because the imports are only
+    # used inside functions.
+    cyclic-import,
     too-few-public-methods,
     too-many-lines,
     too-many-ancestors,

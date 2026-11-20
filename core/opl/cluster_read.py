@@ -314,9 +314,9 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             for item in config_items:
                 try:
                     results.append(self.measure(ri, **item))
-                except (
-                    Exception
-                ) as e2:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                # Intentional log-and-degrade catch-all
+                # pylint: disable-next=broad-exception-caught
+                except Exception as e2:
                     logging.exception("Failed to measure %s: %s", item["name"], e2)
                     results.append((None, None))
             return results
@@ -579,7 +579,8 @@ def config_stuff(config):
         def __init__(self, main_template):
             self.main_template = main_template
 
-        def get_source(self, environment, template):
+        def get_source(self, _environment, template):
+            """Return the template source, filename and reload callback."""
             if template == "main_template":
                 return self.main_template, None, lambda: True
 

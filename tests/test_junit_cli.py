@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
+"""Tests for opl.junit_cli."""
 
+import os
 import tempfile
 import unittest
 
 import junitparser
 
 from .context import opl
+
+# Test methods are self-documenting via descriptive names, and temp file
+# names are grabbed from NamedTemporaryFile on purpose.
+# pylint: disable=missing-function-docstring, consider-using-with
 
 
 class TestJUnitXmlPlus(unittest.TestCase):
@@ -20,8 +26,9 @@ class TestJUnitXmlPlus(unittest.TestCase):
         self.junit = opl.junit_cli.JUnitXmlPlus()
         self.junit.filepath = tmpfile
 
-    def tierDown(self):
-        self.junit.delete()
+    def tearDown(self):
+        if os.path.exists(self.junit.filepath):
+            self.junit.delete()
 
     def test_fromfile_or_new(self):
         tmpfile = tempfile.NamedTemporaryFile(delete=True).name
