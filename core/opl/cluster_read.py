@@ -339,9 +339,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
 
         try:
             return self._measure_batched(ri, config_items)
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logging.warning(
                 "Batch request failed (%s), falling back to individual queries for %s targets",
                 e,
@@ -351,9 +349,7 @@ class GrafanaMeasurementsPlugin(BasePlugin):
             for item in config_items:
                 try:
                     results.append(self.measure(ri, **item))
-                except (
-                    Exception
-                ) as e2:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                except Exception as e2:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     logging.exception("Failed to measure %s: %s", item["name"], e2)
                     results.append((None, None))
             return results
@@ -686,9 +682,7 @@ class RequestedInfo:
         for name, plugin in PLUGINS.items():
             try:
                 self.register_measurement_plugin(name, plugin(args))
-            except (
-                Exception
-            ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logging.warning("Failed to register plugin %s: %s", name, e)
 
     def register_measurement_plugin(self, key, instance):
@@ -759,9 +753,7 @@ class RequestedInfo:
         except NoDataException as e:
             logging.warning("Failed to measure %s: %s", self.config[i]["name"], e)
             output = (None, None)
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logging.exception("Failed to measure %s: %s", self.config[i]["name"], e)
             output = (None, None)
         return output

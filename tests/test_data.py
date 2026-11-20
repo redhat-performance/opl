@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Tests for the opl.data module."""
 
 import datetime
 import unittest
@@ -7,7 +8,10 @@ from .context import opl
 
 
 class TestSkelet(unittest.TestCase):
+    """Tests for data statistics and histogram helpers."""
+
     def test_data_stats(self):
+        """data_stats() must compute basic statistics of a sample."""
         stats = opl.data.data_stats([0, 1, 1, 2, 2, 1, 1, 0])
         self.assertEqual(stats["samples"], 8)
         self.assertEqual(stats["min"], 0)
@@ -20,16 +24,19 @@ class TestSkelet(unittest.TestCase):
         self.assertEqual(stats["iqr"], 0.5)
 
     def test_data_stats_empty(self):
+        """data_stats() of an empty sample must only report sample count."""
         stats = opl.data.data_stats([])
         self.assertEqual(stats["samples"], 0)
         self.assertEqual(len(stats), 1)
 
     def test_data_stats_short(self):
+        """data_stats() of a single-value sample must report zero stdev."""
         stats = opl.data.data_stats([1])
         self.assertEqual(stats["samples"], 1)
         self.assertEqual(stats["stdev"], 0.0)
 
     def test_data_stats_datetime(self):
+        """data_stats() must handle datetime samples."""
         data = [
             datetime.datetime.fromisoformat("2021-03-22T12:00:00.000000+00:00"),
             datetime.datetime.fromisoformat("2021-03-22T11:50:00.000000+00:00"),
@@ -49,6 +56,7 @@ class TestSkelet(unittest.TestCase):
         self.assertEqual(stats["range"].total_seconds(), 3600)
 
     def test_data_stats_strange(self):
+        """data_stats() must ignore NaN and infinite values."""
         data = [
             -1,
             0,
@@ -64,6 +72,7 @@ class TestSkelet(unittest.TestCase):
         self.assertEqual(stats["mean"], 0)
 
     def test_get_hist(self):
+        """get_hist() must bucket samples into a histogram."""
         hist = opl.data.get_hist([0, 1, 1, 2, 2, 1, 1, 0])
         self.assertEqual(
             hist,
@@ -82,6 +91,7 @@ class TestSkelet(unittest.TestCase):
         )
 
     def test_get_hist_empty(self):
+        """get_hist() of an empty sample must return a single empty bucket."""
         hist = opl.data.get_hist([])
         self.assertEqual(
             hist,
@@ -91,6 +101,7 @@ class TestSkelet(unittest.TestCase):
         )
 
     def test_get_rps(self):
+        """get_rps() must compute requests-per-second values."""
         rps_vals = opl.data.get_rps(
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bucket_size=10, granularity=1
         )

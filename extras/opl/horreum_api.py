@@ -226,9 +226,7 @@ class HorreumAPI:
             )
             logger.error("Response text: %s", e.response.text)
             return False
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logger.error("Error deleting label %s: %s", label_id, e)
             return False
 
@@ -267,9 +265,7 @@ class HorreumAPI:
                 if isinstance(schema, dict) and schema.get("name") == schema_name:
                     return schema
             return None
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logger.warning("Warning: Could not retrieve schemas: %s", e)
             return None
 
@@ -302,9 +298,7 @@ class HorreumAPI:
                 if isinstance(test, dict) and test.get("name") == test_name:
                     return test
             return None
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logger.warning("Warning: Could not retrieve tests: %s", e)
             return None
 
@@ -422,9 +416,7 @@ class HorreumAPI:
                 logger.error("   Status code: %s", e.response.status_code)
                 logger.error("   Response text: %s", e.response.text[:500])
             return False
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logger.error("Failed to update variables: %s", e)
             return False
 
@@ -453,9 +445,7 @@ class HorreumAPI:
             )
             logger.error("Response text: %s", e.response.text)
             return False
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logger.error("Error deleting variable %s: %s", variable_id, e)
             return False
 
@@ -1398,9 +1388,7 @@ def main():
                     try:
                         schema_id = api.create_schema(schema_def)
                         logger.info("Created schema with ID: %s", schema_id)
-                    except (
-                        Exception
-                    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                         if "Name already used" in str(e) or "already exists" in str(e):
                             logger.info(
                                 "Schema '%s' already exists (race condition)",
@@ -1473,9 +1461,7 @@ def main():
                     logger.warning(
                         "Could not retrieve full test details for fingerprint label check"
                     )
-            except (
-                Exception
-            ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 # Fallback to basic test object on error
                 test = {"id": test_id, "name": test_name}
                 logger.warning("Error retrieving test details: %s", e)
@@ -1539,9 +1525,7 @@ def main():
                         logger.info(
                             "Created test: %s (ID: %s)", test["name"], test["id"]
                         )
-                    except (
-                        Exception
-                    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                         if (
                             "409" in str(e)
                             or "Conflict" in str(e)
@@ -1586,9 +1570,7 @@ def main():
                 existing_labels = api.get_schema_labels(schema_id)
                 existing_label_names = {label.get("name") for label in existing_labels}
                 logger.info("Found %s existing labels in schema", len(existing_labels))
-            except (
-                Exception
-            ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logger.warning(
                     "Warning: Could not retrieve existing labels, will attempt to create all: %s",
                     e,
@@ -1633,9 +1615,7 @@ def main():
                     label = api.create_label(schema_id, label_def)
                     created_labels.append(label)
                     logger.info("Created %s/%s: %s", i + 1, len(label_defs), label_name)
-                except (
-                    Exception
-                ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                     failed_labels.append((label_name, str(e)))
                     logger.error(
                         "Failed %s/%s: %s - %s", i + 1, len(label_defs), label_name, e
@@ -1699,9 +1679,7 @@ def main():
                     action = "Would find" if dry_run else ""
                     logger.info("%s No obsolete labels found", action)
 
-            except (
-                Exception
-            ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logger.error("Label cleanup failed: %s", e)
         elif cleanup_labels:
             logger.warning(
@@ -1807,9 +1785,7 @@ def main():
                 logger.info(
                     "\nFound %s existing variables in Horreum", len(existing_variables)
                 )
-            except (
-                Exception
-            ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logger.warning(
                     "Warning: Could not retrieve existing variables, will attempt to create all: %s",
                     e,
@@ -1883,9 +1859,7 @@ def main():
                             "Total variables now in system: %s", len(final_variables)
                         )
 
-                    except (
-                        Exception
-                    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                         logger.error("Variable update failed: %s", e)
                         failed_variables = [
                             (var["name"], str(e)) for var in new_variables
@@ -1960,9 +1934,7 @@ def main():
                 for i, (name, error) in enumerate(failed_variables, 1):
                     logger.error("  %s. %s: %s", i, name, error)
 
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logger.error("Error creating change detection variables: %s", e)
             # Continue anyway - this is not critical to basic functionality
             created_variables = []
@@ -2029,9 +2001,7 @@ def main():
                     action = "Would find" if dry_run else ""
                     logger.info("%s No obsolete variables found", action)
 
-            except (
-                Exception
-            ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
                 logger.error("Variable cleanup failed: %s", e)
         else:
             logger.info(
@@ -2041,9 +2011,7 @@ def main():
         # Synchronize server variable change detection configs with YAML
         try:
             sync_change_detection_configs(api, test["id"], fields, config)
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logger.error("Sync of change detection configs failed: %s", e)
 
         # Save configuration for reference
@@ -2077,9 +2045,7 @@ def main():
 
         logger.info("\nConfiguration saved to horreum_config.json")
 
-    except (
-        Exception
-    ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
         logger.error("Error: %s", e)
         sys.exit(1)
 

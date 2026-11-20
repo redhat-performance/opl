@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Tests for the opl.retry module."""
 
 import datetime
 import unittest
@@ -7,7 +8,10 @@ from .context import opl
 
 
 class TestSkelet(unittest.TestCase):
+    """Tests for retry_on_traceback()."""
+
     def test_retry_on_traceback(self):
+        """retry_on_traceback() must wait between attempts and validate arguments."""
         wait_seconds = 0.1
 
         @opl.retry.retry_on_traceback(max_attempts=0, wait_seconds=wait_seconds)

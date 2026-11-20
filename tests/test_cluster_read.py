@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Tests for the opl.cluster_read module."""
 
 import argparse
 import datetime
@@ -21,6 +22,7 @@ class TestRequestedInfo(unittest.TestCase):
     """
 
     def test_date(self):
+        """Command output must be readable as requested data."""
         string = """
             - name: mydate
               command: date --utc +%Y
@@ -34,6 +36,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertGreaterEqual(after, int(v))
 
     def test_count(self):
+        """Log line counting must split counts by error and warning."""
         string = """
             - name: print.output
               log_source_command: echo -e "error line1\\ninfo line2\\nwarning line3\\nerror line4"
@@ -46,6 +49,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v, {"all": 4, "error": 2, "warning": 1})
 
     def test_count_large(self):
+        """Counting must support multiple named regexes."""
         string = """
             - name: print.output
               log_source_command: echo -e '{"level":"error", "logger":"ABC", "msg":"Oh no"}\\n{"level":"info", "logger":"XYZ", "msg":"Hello!"}\\n{"level":"error", "logger":"XYZ", "msg":"Oh no"}\\n{"level":"warning", "logger":"XYZ", "msg":"Beware"}',
@@ -59,6 +63,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v, {"all": 4, "error_abc": 1, "error_xyz": 1, "warning": 1})
 
     def test_json(self):
+        """Command output marked as json must be parsed."""
         string = """
             - name: myjson
               command: echo '{"aaa":123,"bbb":456}'
@@ -71,6 +76,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v["bbb"], 456)
 
     def test_yaml(self):
+        """Command output marked as yaml must be parsed."""
         string = """
             - name: myyaml
               command: 'echo -e "aaa: 123\\nbbb: 456"'
@@ -83,10 +89,17 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v["bbb"], 456)
 
     def test_measurements(self):
+        """Registered measurement plugin must produce stats for its query."""
         class TestMeasurementPlugin(opl.cluster_read.BasePlugin):
-            def measure(self, ri, name, test_measurement_query):
+            """Minimal plugin returning stats for the 'simple' query."""
+
+            def measure(  # pylint: disable=arguments-differ  # plugin declares its own config kwargs
+                self, ri, name, test_measurement_query
+            ):
+                """Return simple stats for the 'simple' query."""
                 if test_measurement_query == "simple":
                     return name, opl.data.data_stats([1, 2, 3])
+                return None
 
         string = """
             - name: mymeasurement
@@ -102,6 +115,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v["mean"], 2)
 
     def test_config_type(self):
+        """Config must be accepted as both string and file object."""
         string = """
             - name: mygreet
               command: echo 'hello'
@@ -111,9 +125,9 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(k, "mygreet")
         self.assertEqual(v, "hello")
         tmp_file = tempfile.mkstemp()[1]
-        with open(tmp_file, "w") as fpw:
+        with open(tmp_file, "w", encoding="utf-8") as fpw:
             fpw.write(string)
-        with open(tmp_file, "r") as fpr:
+        with open(tmp_file, "r", encoding="utf-8") as fpr:
             ri = opl.cluster_read.RequestedInfo(fpr)
             k, v = next(ri)
             self.assertEqual(k, "mygreet")
@@ -121,6 +135,7 @@ class TestRequestedInfo(unittest.TestCase):
         os.remove(tmp_file)
 
     def test_jinja2_config(self):
+        """Config must be rendered as a Jinja2 template."""
         string = """
             {% for item in [1, 2] %}
             - name: myenv-{{ item }}
@@ -137,6 +152,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v, "foobarbaz-2")
 
     def test_get_config(self):
+        """get_config() must return the parsed config structure."""
         string = """
             - name: mygreet
               command: echo 'hello'
@@ -146,6 +162,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(orig, ri.get_config())
 
     def test_constant(self):
+        """Constant items must return their value as-is."""
         string = """
             - name: myconstant
               constant: Hello world
@@ -156,6 +173,7 @@ class TestRequestedInfo(unittest.TestCase):
         self.assertEqual(v, "Hello world")
 
     def test_copy_from(self):
+        """copy_from must copy an existing value and yield None when missing."""
         string = """
             - name: somevalue
               constant: Hello world
@@ -164,7 +182,7 @@ class TestRequestedInfo(unittest.TestCase):
             - name: mycopyfrom_missing
               copy_from: somevalue_that_does_not_exist
         """
-        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
+        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)  # pylint: disable=consider-using-with  # only the unique name is needed
         ri = opl.cluster_read.RequestedInfo(string, sd=sd)
         k, v = next(ri)
         self.assertEqual(k, "somevalue")
@@ -173,12 +191,13 @@ class TestRequestedInfo(unittest.TestCase):
         self._assert_copy_from_pair(ri)
 
     def test_copy_from_previous(self):
+        """copy_from must find values set in a previous run."""
         string = """
             - name: somevalue
               constant: Hello world
         """
         ri = opl.cluster_read.RequestedInfo(string)
-        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
+        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)  # pylint: disable=consider-using-with  # only the unique name is needed
         k, v = next(ri)
         sd.set(k, v)
 
@@ -192,6 +211,7 @@ class TestRequestedInfo(unittest.TestCase):
         self._assert_copy_from_pair(ri)
 
     def _assert_copy_from_pair(self, ri):
+        """Assert both copy_from variants from the shared config snippet."""
         k, v = next(ri)
         self.assertEqual(k, "mycopyfrom_exists")
         self.assertEqual(v, "Hello world")
@@ -212,6 +232,8 @@ class TestRequestedInfo(unittest.TestCase):
 
 
 class TestGrafanaPlugin(unittest.TestCase):
+    """Tests for the Grafana measurement plugin."""
+
     simple_grafana_string = """
         - name: measurement.load
           grafana_target: $Cloud.$Node.load.load.shortterm
@@ -263,6 +285,7 @@ class TestGrafanaPlugin(unittest.TestCase):
 
     @responses.activate
     def test_basic(self):
+        """Grafana plugin must return stats of the fetched data points."""
         v = self._get_simple_measurement()
         self.assertEqual(int(v["min"]), 5)
         self.assertEqual(int(v["mean"]), 10)
@@ -274,6 +297,7 @@ class TestGrafanaPlugin(unittest.TestCase):
 
     @responses.activate
     def test_added_variables(self):
+        """grafana_include_vars must add resolved variables to the result."""
         v = self._get_simple_measurement(self.simple_grafana_variables_string)
         self.assertEqual(int(v["mean"]), 10)
         self.assertEqual(v["variables"]["$Node"], "node001_example_com")
@@ -283,6 +307,7 @@ class TestGrafanaPlugin(unittest.TestCase):
 
     @responses.activate
     def test_added_enritchment(self):
+        """Enrichment data must be added to the result."""
         v = self._get_simple_measurement(self.simple_grafana_enritchment_string)
         self.assertEqual(int(v["mean"]), 10)
         self.assertEqual(v["enritchment"]["hello"], "world")
@@ -290,6 +315,7 @@ class TestGrafanaPlugin(unittest.TestCase):
         self.assertNotIn("variables", v)
 
     def _make_simple_requested_info(self, string=None):
+        """Build RequestedInfo with the simple Grafana mock registered."""
         responses.add(**self.mock_post_get_load_simple["mock"])
         return opl.cluster_read.RequestedInfo(
             string or self.simple_grafana_string,
@@ -299,6 +325,7 @@ class TestGrafanaPlugin(unittest.TestCase):
         )
 
     def _get_simple_measurement(self, string=None):
+        """Return the measured value of the single simple Grafana item."""
         ri = self._make_simple_requested_info(string)
         k, v = next(ri)
         self.assertEqual(k, "measurement.load")
@@ -357,6 +384,7 @@ class TestGrafanaPlugin(unittest.TestCase):
     """
 
     def _make_batch_requested_info(self, string=None, args=None):
+        """Build RequestedInfo with the batch Grafana mock registered."""
         return opl.cluster_read.RequestedInfo(
             string or self.batch_string,
             start=self.mock_post_get_batch["start"],
@@ -365,6 +393,7 @@ class TestGrafanaPlugin(unittest.TestCase):
         )
 
     def _assert_batch_results(self, results):
+        """Assert the expected batch measurement results."""
         self.assertEqual(len(results), 3)
         self.assertEqual(results[0][0], "measurement.load")
         self.assertEqual(int(results[0][1]["mean"]), 12)

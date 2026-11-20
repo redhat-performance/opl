@@ -144,9 +144,7 @@ def doit(args):
             results, info = opl.investigator.check.check(
                 methods, history[var], current[var], description=var
             )
-        except (
-            Exception
-        ) as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+        except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
             logging.exception("Check on %s failed with: %s", var, e)
             info_all.append({"result": "ERROR", "exception": str(e)})
             summary_this = collections.OrderedDict(
