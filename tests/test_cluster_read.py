@@ -90,6 +90,7 @@ class TestRequestedInfo(unittest.TestCase):
 
     def test_measurements(self):
         """Registered measurement plugin must produce stats for its query."""
+
         class TestMeasurementPlugin(opl.cluster_read.BasePlugin):
             """Minimal plugin returning stats for the 'simple' query."""
 
@@ -182,7 +183,9 @@ class TestRequestedInfo(unittest.TestCase):
             - name: mycopyfrom_missing
               copy_from: somevalue_that_does_not_exist
         """
-        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)  # pylint: disable=consider-using-with  # only the unique name is needed
+        # only the unique name is needed
+        # pylint: disable-next=consider-using-with
+        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
         ri = opl.cluster_read.RequestedInfo(string, sd=sd)
         k, v = next(ri)
         self.assertEqual(k, "somevalue")
@@ -197,7 +200,9 @@ class TestRequestedInfo(unittest.TestCase):
               constant: Hello world
         """
         ri = opl.cluster_read.RequestedInfo(string)
-        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)  # pylint: disable=consider-using-with  # only the unique name is needed
+        # only the unique name is needed
+        # pylint: disable-next=consider-using-with
+        sd = opl.status_data.StatusData(tempfile.NamedTemporaryFile().name)
         k, v = next(ri)
         sd.set(k, v)
 

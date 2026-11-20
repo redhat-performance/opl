@@ -1,0 +1,3 @@
+# DL3041: pinning dnf package versions is impractical for this test tooling image
+ignored:
+  - DL3041

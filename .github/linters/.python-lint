@@ -1,0 +1,38 @@
+[MAIN]
+# NOTE: keep .github/linters/.python-lint (super-linter copy) in sync with this file
+# Match .flake8 exclude list; also skip build/ (stale code copies) and htmlcov/.
+ignore=.git,__pycache__,venv,.venv,build,htmlcov
+# Structural / refactoring checks are tracked separately; keeping them here
+# would drown out actionable issues. Line length is deliberately not enforced,
+# matching .flake8 (which ignores E501). FIXME/TODO markers are tracked as
+# work items, not code issues. Broad catches are intentional in this
+# log-and-degrade codebase, so the pylint suppression is global instead of
+# per-line inline comments (which break black formatting).
+disable=
+    fixme,
+    line-too-long,
+    broad-exception-caught,
+    attribute-defined-outside-init,
+    missing-function-docstring,
+    unused-argument,
+    duplicate-code,
+    too-few-public-methods,
+    too-many-lines,
+    too-many-ancestors,
+    too-many-instance-attributes,
+    too-many-public-methods,
+    too-many-return-statements,
+    too-many-branches,
+    too-many-arguments,
+    too-many-locals,
+    too-many-statements,
+    too-many-boolean-expressions,
+    too-many-positional-arguments,
+    too-many-nested-blocks
+
+[BASIC]
+# setUp/tearDown are the standard unittest API names
+good-names=setUp,tearDown
+
+[REPORTS]
+score=y

@@ -24,7 +24,9 @@ class TestJUnitXmlPlus(unittest.TestCase):
         self.junit = opl.junit_cli.JUnitXmlPlus()
         self.junit.filepath = tmpfile
 
-    def tierDown(self):  # pylint: disable=invalid-name  # intentionally not unittest's tearDown: delete() would fail on never-written files
+    def tierDown(
+        self,
+    ):  # pylint: disable=invalid-name  # intentionally not unittest's tearDown: delete() would fail on never-written files
         """Remove the JUnit file from disk."""
         self.junit.delete()
 

@@ -24,7 +24,7 @@ def get_query_result(db_conf, sql):
         connection.commit()
         cursor.close()
         return data
-    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+    except Exception as e:
         logging.error("failed to execute query as %s", e)
         return False
 
@@ -41,7 +41,7 @@ def execute_query(db_conf, sql):
         connection.commit()
         cursor.close()
         return True
-    except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+    except Exception as e:
         logging.error("failed to execute query as %s", e)
         return False
 

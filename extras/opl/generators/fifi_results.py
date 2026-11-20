@@ -262,14 +262,15 @@ class PlaybookRunMessageGenerator:
         ] += 1
 
         # Determine console content
+        console = opl.gen.gen_string(size=size - 1) + "\n"
         if self.diff_mode:
             self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
                 "console"
-            ] = opl.gen.gen_string(size=size - 1) + "\n"
+            ] = console
         else:
             self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
                 "console"
-            ] = opl.gen.gen_string(size=size - 1) + "\n"
+            ] = console
         console = self.objects["runs"][run_id]["nodes"][node_id]["hosts"][host_id][
             "console"
         ]

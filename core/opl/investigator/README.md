@@ -1,5 +1,4 @@
-Results investigator
-====================
+# Results investigator
 
 This tool (see `../pass_or_fail.py` in one level up directory) is supposed
 to load historical results of given test, compare it with new result for
@@ -22,14 +21,15 @@ of historical data, it is FAIL`, but it is easy to implement more)
 See `sample_config.yaml` for example configuration. This is what each
 section is for:
 
-`history:`
-----------
+## `history:`
 
 This specifies from where we should get historical data. Sample config
 uses ElasticSearch plugin to retrieve it. Most important part here is
 `es_query` which is described in ElasticSearch docs:
 
-    https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+```text
+https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+```
 
 This query is used to only filter documents that are useful to us:
 we only want documents for same test (you can use status data field
@@ -37,8 +37,10 @@ we only want documents for same test (you can use status data field
 
 That query is Jinja2 template-able, so you can include:
 
-    - term:
-        parameters.cluster.pods.yupana.count: "{{ current.get('parameters.cluster.pods.yupana.count') }}"
+```yaml
+- term:
+    parameters.cluster.pods.yupana.count: "{{ current.get('parameters.cluster.pods.yupana.count') }}"
+```
 
 to dynamically obtain the value from new result and use it to filter for
 historical results.
@@ -108,8 +110,7 @@ There are other plugins you can use to retrieve historical data:
   matchers: |
   name: "{{ current.get('name') }}"
 
-`current:`
-----------
+## `current:`
 
 This specifies from where we should load new (`current`) test result
 we will be evaluating.
@@ -118,37 +119,37 @@ There is only one choice now that loads current result from status data file.
 
 This can be overwritten by `--current-file` command-line option.
 
-`methods:`
-----------
+## `methods:`
 
 Allows you to specify list of checks you want to use to check results.
 These checks are defined in `check.py`. Impractical example:
 
-    methods:
-      - check_by_stdev_1
-      - check_by_stdev_2
-      - check_by_stdev_3
-      - check_by_trim_stdev_1
-      - check_by_trim_stdev_2
-      - check_by_error_1
-      - check_by_error_2
-      - check_by_error_3
-      - check_by_error_4
-      - check_by_error_5
-      - check_by_perc_20
-      - check_by_perc_40
-      - check_by_perc_60
-      - check_by_perc_80
-      - check_by_perc_100
-      - check_by_min_max_7_1
-      - check_by_min_max_7_2
-      - check_by_min_max_7_3
+```yaml
+methods:
+  - check_by_stdev_1
+  - check_by_stdev_2
+  - check_by_stdev_3
+  - check_by_trim_stdev_1
+  - check_by_trim_stdev_2
+  - check_by_error_1
+  - check_by_error_2
+  - check_by_error_3
+  - check_by_error_4
+  - check_by_error_5
+  - check_by_perc_20
+  - check_by_perc_40
+  - check_by_perc_60
+  - check_by_perc_80
+  - check_by_perc_100
+  - check_by_min_max_7_1
+  - check_by_min_max_7_2
+  - check_by_min_max_7_3
+```
 
 This is optional and if not present or empty, default set of checks will
 be used.
 
-`sets:`
--------
+## `sets:`
 
 This list status data paths (with _numerical_ values) where it makes sense
 to evaluate for PASS/FAIL. E.g. you definitely want to include something
@@ -164,14 +165,16 @@ additional positional args if the check method needs them.
 
 Expected data structure looks like this:
 
-    sets:
-      - name: metric1
-        methods:
-          - name: check_by_provided_min_max
-            args:
-              - 4.5
-              - 5.5
-      - name: metric2
+```yaml
+sets:
+  - name: metric1
+    methods:
+      - name: check_by_provided_min_max
+        args:
+          - 4.5
+          - 5.5
+  - name: metric2
+```
 
 Default check methods from `methods:` is always added and if no method
 is specified, script default method is added.
@@ -179,16 +182,17 @@ is specified, script default method is added.
 If this is not a list but a string like in the example below, it is first
 rendered via Jinja2 and only then parsed as YAML to get the final list:
 
-    sets: |
-      {% if current.get('parameters.cli').startswith('experiment/reg-average.py ') %}
-      - name: results.items.avg_duration
-      {% else %}
-      - results.duration
-      {% endif %}
-      - name: measurements.satellite.swap.swap-used.mean
+```yaml
+sets: |
+  {% if current.get('parameters.cli').startswith('experiment/reg-average.py ') %}
+  - name: results.items.avg_duration
+  {% else %}
+  - results.duration
+  {% endif %}
+  - name: measurements.satellite.swap.swap-used.mean
+```
 
-`decisions:`
-------------
+## `decisions:`
 
 This is optional and serves to record internal stats about evaluation
 process. Every time we do some PASS/FAIL/ERROR decision on any metric

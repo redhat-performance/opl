@@ -27,7 +27,7 @@ def _check_response(logger, response):
     """Check if requests response is OKish and if not, log useful data and raise exception."""
     try:
         response.raise_for_status()
-    except Exception:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+    except Exception:
         logger.error("Request failed with text: %s", response.text)
         raise
 
@@ -401,7 +401,7 @@ class PluginHorreum(PluginBase):
                         run_data = response.json()
                         marker = _get_field_value(args.matcher_field, run_data)
                         return marker == matcher_value
-                    except Exception:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                    except Exception:
                         # If matcher was not found or request failed, assume not a duplicate
                         return False
 
@@ -506,7 +506,7 @@ class PluginHorreum(PluginBase):
                     if len(changes) > 0:
                         return (True, alerting_variable, changes)
                     return (False, alerting_variable, None)
-                except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+                except Exception as e:
                     self.logger.warning(
                         "Error checking %s: %s",
                         alerting_variable.get("name", "unknown"),

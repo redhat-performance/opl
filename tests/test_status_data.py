@@ -24,10 +24,14 @@ class TestStatusData(unittest.TestCase):
 
     def setUp(self):
         """Prepare StatusData object backed by a temp file."""
-        self.tmpfile = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
+        # only the unique name is needed
+        # pylint: disable-next=consider-using-with
+        self.tmpfile = tempfile.NamedTemporaryFile().name
         self.status_data = opl.status_data.StatusData(self.tmpfile)
 
-    def tierDown(self):  # pylint: disable=invalid-name  # intentionally not unittest's tearDown: cleanup runs via del below
+    def tierDown(
+        self,
+    ):  # pylint: disable=invalid-name  # intentionally not unittest's tearDown: cleanup runs via del below
         """Drop the StatusData object and remove the temp file."""
         del self.status_data
         os.remove(self.tmpfile)
@@ -192,7 +196,9 @@ class TestStatusData(unittest.TestCase):
 
     def test_data(self):
         """StatusData must accept initial data and serve it via get()."""
-        f = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
+        # only the unique name is needed
+        # pylint: disable-next=consider-using-with
+        f = tempfile.NamedTemporaryFile().name
         data = {
             "aaa": 123,
             "bbb": {
@@ -209,7 +215,9 @@ class TestStatusData(unittest.TestCase):
 
     def test_long_missing_path(self):
         """get() must return None for missing nested paths."""
-        f = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
+        # only the unique name is needed
+        # pylint: disable-next=consider-using-with
+        f = tempfile.NamedTemporaryFile().name
         data = {
             "aaa": {
                 "bbb": {},
@@ -228,7 +236,9 @@ class TestStatusData(unittest.TestCase):
 
     def test_missing_path_in_none(self):
         """get() must return None when a parent value is None."""
-        f = tempfile.NamedTemporaryFile().name  # pylint: disable=consider-using-with  # only the unique name is needed
+        # only the unique name is needed
+        # pylint: disable-next=consider-using-with
+        f = tempfile.NamedTemporaryFile().name
         data = {
             "aaa": None,
             "name": "",

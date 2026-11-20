@@ -424,7 +424,7 @@ def doit_rp_to_es(args):
                 sd, es_type, es_id = _get_es_result_for_rp_result(
                     session, args, run_id, result
                 )
-            except Exception as e:  # pylint: disable=broad-exception-caught  # intentional log-and-degrade catch-all
+            except Exception as e:
                 logging.warning(
                     "Something went wrong when getting data for %s/%s: %s",
                     run_id,
