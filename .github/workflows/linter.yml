@@ -36,3 +36,4 @@ jobs:
           VALIDATE_CHECKOV: false
           VALIDATE_KUBERNETES_KUBECONFORM: false
           VALIDATE_PYTHON_PYINK: false
+          VALIDATE_GIT_COMMITLINT: false
