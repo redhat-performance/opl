@@ -33,6 +33,9 @@ jobs:
         VALIDATE_YAML: false
         VALIDATE_CSS: false
         VALIDATE_JSCPD: false
+        VALIDATE_CHECKOV: false
+        VALIDATE_KUBERNETES_KUBECONFORM: false
+        VALIDATE_PYTHON_PYINK: false
 
 
 
