@@ -8,34 +8,31 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-        fetch-depth: 0
-    - name: Verify Namespace Packages
-      run: |
-        if [ -f "core/opl/__init__.py" ] || [ -f "extras/opl/__init__.py" ]; then
-          echo "Error: __init__.py found in namespace package root (core/opl or extras/opl)."
-          echo "This breaks PEP 420 implicit namespace packaging across split directories."
-          exit 1
-        fi
-    - name: Super-Linter
-      uses: github/super-linter@v7
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DEFAULT_BRANCH: main
-        OUTPUT_FOLDER: linter_reports # super linter dumps results in this directory
-        OUTPUT_DETAILS: detailed
-        DISABLE_ERRORS: false 
-        VALIDATE_PYTHON_ISORT: false
-        VALIDATE_PYTHON_MYPY: false
-        VALIDATE_ALL_CODEBASE: false #set this to true if you want the linter to always check the entire codebase instead of the committed changes. NOT CONVINIENT IF THERE IS A LOT OF CODE
-        VALIDATE_YAML: false
-        VALIDATE_CSS: false
-        VALIDATE_JSCPD: false
-        VALIDATE_CHECKOV: false
-        VALIDATE_KUBERNETES_KUBECONFORM: false
-        VALIDATE_PYTHON_PYINK: false
-
-
-
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Verify Namespace Packages
+        run: |
+          if [ -f "core/opl/__init__.py" ] || [ -f "extras/opl/__init__.py" ]; then
+            echo "Error: __init__.py found in namespace package root (core/opl or extras/opl)."
+            echo "This breaks PEP 420 implicit namespace packaging across split directories."
+            exit 1
+          fi
+      - name: Super-Linter
+        uses: github/super-linter@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
+          OUTPUT_FOLDER: linter_reports # super linter dumps results in this directory
+          OUTPUT_DETAILS: detailed
+          DISABLE_ERRORS: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_MYPY: false
+          VALIDATE_ALL_CODEBASE: false #set this to true if you want the linter to always check the entire codebase instead of the committed changes. NOT CONVINIENT IF THERE IS A LOT OF CODE
+          VALIDATE_YAML: false
+          VALIDATE_CSS: false
+          VALIDATE_JSCPD: false
+          VALIDATE_CHECKOV: false
+          VALIDATE_KUBERNETES_KUBECONFORM: false
+          VALIDATE_PYTHON_PYINK: false
