@@ -94,7 +94,7 @@ straight forward):
 
 **Local Development:**
 
-If you have cloned the git repository and want to develop locally, install the full package in editable mode:
+If you have cloned the Git repository and want to develop locally, install the full package in editable mode:
 
     python -m pip install -e .[dev]
 

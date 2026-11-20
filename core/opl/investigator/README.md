@@ -71,6 +71,7 @@ There are other plugins you can use to retrieve historical data:
   document (a status data document). The query is Jinja2 template-able
   just like `es_query`. Example:
 
+  ```yaml
   type: postgresql
   pg_host: db.example.com
   pg_port: 5432
@@ -82,6 +83,7 @@ There are other plugins you can use to retrieve historical data:
   WHERE data->>'name' = '{{ current.get("name") }}'
   ORDER BY (data->>'started')::timestamptz DESC
   LIMIT 30
+  ```
 
   Requires the optional PostgreSQL dependency (not installed with core by default).
   Install one of:
@@ -203,6 +205,7 @@ As of now you can use these decisions storage plugins:
   table. The table should have a `data` column of type `JSON` or `JSONB`.
   Example:
 
+  ```yaml
   type: postgresql
   pg_host: db.example.com
   pg_port: 5432
@@ -210,6 +213,7 @@ As of now you can use these decisions storage plugins:
   pg_table: decisions
   pg_user: writer
   pg_password_env_var: OPL_DB_PASSWORD
+  ```
 
   Requires the optional PostgreSQL dependency (not installed with core by default).
   Install one of:

@@ -24,7 +24,7 @@ Used to generate HBI input messages, but with correct template it
 can generate various things. Please check existing templates:
 
 - `opl/generators/inventory_ingress_InvGitUtilsPayload_template.json.j2` -
-  template based on HBI git example file for usual HBI input message
+  template based on HBI Git example file for usual HBI input message
 - `opl/generators/inventory_ingress_RHSM_template.json.j2` - template
   for RHSM Conduit messages
 - `opl/generators/inventory_ingress_yupana_template.json.j2` - template
