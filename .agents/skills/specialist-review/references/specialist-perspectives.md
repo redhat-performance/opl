@@ -18,11 +18,13 @@ All specialist reviews should follow these principles:
 ### Stay Focused
 
 **Do**:
+
 - Laser-focus on your domain of expertise
 - Deep-dive within your specialty
 - Provide expert-level insights
 
 **Don't**:
+
 - Stray into other specialists' domains
 - Provide surface-level general comments
 - Dilute expertise by being too broad
@@ -30,17 +32,20 @@ All specialist reviews should follow these principles:
 ### Be Specific
 
 **Always include**:
+
 - Exact file paths and line numbers
 - Concrete code examples
 - Specific recommendations
 
 **Example**:
+
 - ❌ "The authentication is insecure"
 - ✅ "The authentication in `src/auth/login.ts:45` uses MD5 hashing, which is cryptographically broken. Migrate to bcrypt with salt rounds ≥12."
 
 ### Provide Context
 
 **Explain**:
+
 - Why this matters (impact)
 - Industry standards or best practices
 - Trade-offs of recommendations
@@ -49,6 +54,7 @@ All specialist reviews should follow these principles:
 ### Be Actionable
 
 **Every concern should include**:
+
 - What's wrong
 - Where it is (file:line)
 - Impact if not fixed
@@ -66,6 +72,7 @@ These specialists are part of the framework's core team.
 **Role**: Identifies security vulnerabilities, threats, and risks.
 
 **Focus Areas**:
+
 - **Authentication**: Login mechanisms, password handling, session management
 - **Authorization**: Access control, permissions, role-based access
 - **Input Validation**: XSS, SQL injection, command injection prevention
@@ -76,6 +83,7 @@ These specialists are part of the framework's core team.
 - **Dependencies**: Known CVEs in libraries
 
 **Review Checklist**:
+
 - [ ] Authentication mechanism reviewed
 - [ ] Authorization boundaries checked
 - [ ] All user inputs validated
@@ -87,13 +95,15 @@ These specialists are part of the framework's core team.
 - [ ] Dependencies scanned for CVEs
 
 **Severity Levels**:
+
 - **Critical**: Exploitable vulnerability, immediate data breach risk
 - **High**: Security weakness requiring prompt attention
 - **Medium**: Security concern to address in near term
 - **Low**: Security improvement opportunity
 
 **Example Concerns**:
-```
+
+````
 1. **SQL Injection Vulnerability** (Severity: Critical)
    - **Issue**: User input directly interpolated into SQL query
    - **Location**: `src/db/users.js:23`
@@ -108,9 +118,10 @@ These specialists are part of the framework's core team.
      const query = 'SELECT * FROM users WHERE email = ?';
      db.query(query, [email]);
      ```
-```
+````
 
 **Best Practices to Reference**:
+
 - OWASP Secure Coding Practices
 - CWE (Common Weakness Enumeration)
 - NIST guidelines
@@ -123,6 +134,7 @@ These specialists are part of the framework's core team.
 **Role**: Optimizes system performance, scalability, and resource utilization.
 
 **Focus Areas**:
+
 - **Query Optimization**: Database query efficiency, indexes, N+1 queries
 - **Caching**: Cache strategies, TTL, invalidation, cache hits
 - **Resource Utilization**: CPU, memory, disk I/O, network
@@ -132,6 +144,7 @@ These specialists are part of the framework's core team.
 - **Frontend Performance**: Bundle size, lazy loading, rendering
 
 **Review Checklist**:
+
 - [ ] Database queries optimized
 - [ ] Proper indexing in place
 - [ ] N+1 query problems identified
@@ -142,6 +155,7 @@ These specialists are part of the framework's core team.
 - [ ] Frontend bundle size reasonable
 
 **Metrics to Measure**:
+
 - Response time (p50, p95, p99)
 - Throughput (requests/second)
 - Database query time
@@ -150,7 +164,8 @@ These specialists are part of the framework's core team.
 - CPU utilization
 
 **Example Concerns**:
-```
+
+````
 1. **N+1 Query Problem** (Severity: High)
    - **Issue**: Loading users in loop triggers 1000+ database queries
    - **Location**: `src/controllers/orders.js:45-52`
@@ -170,7 +185,7 @@ These specialists are part of the framework's core team.
      });
      ```
    - **Expected Improvement**: 15s → 0.3s (50x faster)
-```
+````
 
 ---
 
@@ -179,6 +194,7 @@ These specialists are part of the framework's core team.
 **Role**: Ensures architecture accurately represents business domain and concepts.
 
 **Focus Areas**:
+
 - **Domain Models**: Entities, value objects, aggregates
 - **Business Logic**: Rules, workflows, calculations
 - **Ubiquitous Language**: Consistent terminology
@@ -187,6 +203,7 @@ These specialists are part of the framework's core team.
 - **Semantic Accuracy**: Code reflects domain accurately
 
 **Review Checklist**:
+
 - [ ] Domain concepts clearly modeled
 - [ ] Business logic in domain layer (not scattered)
 - [ ] Ubiquitous language used consistently
@@ -195,7 +212,8 @@ These specialists are part of the framework's core team.
 - [ ] Domain invariants protected
 
 **Example Concerns**:
-```
+
+````
 1. **Anemic Domain Model** (Severity: Medium)
    - **Issue**: `Order` class is data container with no business logic
    - **Location**: `src/models/Order.js`
@@ -230,7 +248,7 @@ These specialists are part of the framework's core team.
        }
      }
      ```
-```
+````
 
 ---
 
@@ -239,6 +257,7 @@ These specialists are part of the framework's core team.
 **Role**: Ensures code is maintainable, evolvable, and understandable.
 
 **Focus Areas**:
+
 - **Code Quality**: Readability, clarity, simplicity
 - **Technical Debt**: Code smells, anti-patterns, cruft
 - **Documentation**: Comments, READMEs, inline docs
@@ -247,6 +266,7 @@ These specialists are part of the framework's core team.
 - **Refactoring**: Opportunities to improve structure
 
 **Review Checklist**:
+
 - [ ] Code is readable and clear
 - [ ] Functions/methods are focused
 - [ ] Complexity is reasonable
@@ -256,6 +276,7 @@ These specialists are part of the framework's core team.
 - [ ] Code smells flagged
 
 **Code Smells to Watch For**:
+
 - Long methods (>20-30 lines)
 - Large classes (>300 lines)
 - Deep nesting (>3 levels)
@@ -265,7 +286,8 @@ These specialists are part of the framework's core team.
 - Feature envy
 
 **Example Concerns**:
-```
+
+````
 1. **God Class Anti-pattern** (Severity: Medium)
    - **Issue**: `UserService` has 45 methods handling auth, profile, notifications, billing
    - **Location**: `src/services/UserService.js` (1,200 lines)
@@ -280,7 +302,7 @@ These specialists are part of the framework's core team.
      └── BillingService.js           (user billing)
      ```
    - **Benefit**: Each service <300 lines, single responsibility, easier testing
-```
+````
 
 ---
 
@@ -289,6 +311,7 @@ These specialists are part of the framework's core team.
 **Role**: Evaluates overall system coherence, patterns, and architectural decisions.
 
 **Focus Areas**:
+
 - **Architecture Patterns**: MVC, CQRS, Event Sourcing, Microservices
 - **Component Interaction**: How pieces fit together
 - **Separation of Concerns**: Proper layering and boundaries
@@ -297,6 +320,7 @@ These specialists are part of the framework's core team.
 - **Consistency**: Architectural principles applied consistently
 
 **Review Checklist**:
+
 - [ ] Architecture pattern appropriately applied
 - [ ] Components properly separated
 - [ ] Dependencies flow correctly
@@ -311,6 +335,7 @@ These specialists are part of the framework's core team.
 **Role**: Reviews AI/ML integration, LLM applications, and agent systems.
 
 **Focus Areas**:
+
 - **LLM Integration**: Prompt design, context management, token efficiency
 - **Agent Orchestration**: Multi-agent coordination, task decomposition
 - **Evaluation**: Metrics, benchmarks, quality assessment
@@ -319,6 +344,7 @@ These specialists are part of the framework's core team.
 - **Prompt Engineering**: Template design, chain-of-thought, few-shot
 
 **Review Checklist**:
+
 - [ ] Prompts are well-designed and tested
 - [ ] Context windows managed efficiently
 - [ ] Evaluation metrics defined
@@ -337,6 +363,7 @@ Add these when reviewing technology-specific code.
 **Focus**: Modern JavaScript/TypeScript, async patterns, ES6+, Node.js
 
 **Key Areas**:
+
 - Promises, async/await usage
 - Error handling patterns
 - Module system (ESM/CommonJS)
@@ -345,6 +372,7 @@ Add these when reviewing technology-specific code.
 - Event loop understanding
 
 **Common Issues**:
+
 - Unhandled promise rejections
 - Callback hell
 - Blocking the event loop
@@ -358,6 +386,7 @@ Add these when reviewing technology-specific code.
 **Focus**: Pythonic code, PEP compliance, async patterns
 
 **Key Areas**:
+
 - PEP 8 style compliance
 - Type hints (mypy)
 - Generator/iterator usage
@@ -366,6 +395,7 @@ Add these when reviewing technology-specific code.
 - Package structure
 
 **Common Issues**:
+
 - Non-Pythonic code
 - Mutable default arguments
 - Global state misuse
@@ -379,6 +409,7 @@ Add these when reviewing technology-specific code.
 **Focus**: Ruby idioms, Rails conventions, metaprogramming
 
 **Key Areas**:
+
 - Ruby idioms and patterns
 - Rails conventions
 - Metaprogramming (when/when not)
@@ -387,6 +418,7 @@ Add these when reviewing technology-specific code.
 - RuboCop compliance
 
 **Common Issues**:
+
 - Fighting Rails conventions
 - N+1 queries in ActiveRecord
 - Overuse of metaprogramming
@@ -400,6 +432,7 @@ Add these when reviewing technology-specific code.
 **Focus**: Idiomatic Go, concurrency, simplicity
 
 **Key Areas**:
+
 - Goroutines and channels
 - Error handling (not panic)
 - Interface design
@@ -408,6 +441,7 @@ Add these when reviewing technology-specific code.
 - Concurrency patterns
 
 **Common Issues**:
+
 - Goroutine leaks
 - Ignoring errors
 - Overuse of interfaces
@@ -421,6 +455,7 @@ Add these when reviewing technology-specific code.
 **Focus**: Ownership/borrowing, memory safety, zero-cost abstractions
 
 **Key Areas**:
+
 - Ownership rules
 - Lifetime annotations
 - Error handling (Result)
@@ -429,6 +464,7 @@ Add these when reviewing technology-specific code.
 - Zero-copy optimizations
 
 **Common Issues**:
+
 - Fighting the borrow checker
 - Unnecessary clones
 - Unsafe code without documentation
@@ -446,7 +482,7 @@ When a specialist doesn't exist in `.architecture/members.yml`:
 Create a new member entry:
 
 ```yaml
-- id: [specialist_id]  # e.g., graphql_specialist
+- id: [specialist_id] # e.g., graphql_specialist
   name: "[Person Name]"
   title: "[Specialist Title]"
   specialties:
@@ -468,6 +504,7 @@ Create a new member entry:
 ### Step 2: Define Their Focus
 
 Document what this specialist reviews:
+
 - Primary focus areas
 - Key concerns
 - Review checklist

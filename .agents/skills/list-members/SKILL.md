@@ -11,7 +11,9 @@ Displays all architecture team members and their expertise areas.
 ## Process
 
 ### 1. Check Setup
+
 If `.architecture/members.yml` doesn't exist:
+
 ```
 The AI Software Architect framework hasn't been set up yet.
 
@@ -19,10 +21,12 @@ To get started: "Setup ai-software-architect"
 ```
 
 ### 2. Load Members
+
 Read `.architecture/members.yml` and parse all members (id, name, title, specialties, disciplines, skillsets, domains, perspective).
 
 ### 3. Display Team Roster
-```markdown
+
+````markdown
 # Architecture Team Members
 
 Your AI Software Architect team consists of [count] specialized reviewers.
@@ -56,17 +60,21 @@ Total Members: [count]
 ## Quick Reference
 
 **Specialist reviews**:
+
 - `Ask [Specialist Title] to review [target]`
 
 **Examples**:
+
 - "Ask Security Specialist to review authentication"
 - "Ask Performance Specialist to review database queries"
 - "Ask [Your Specialist] to review [anything]"
 
 **Full architecture review**:
+
 - `Start architecture review for version X.Y.Z`
 
 **Other commands**:
+
 - `Create ADR for [decision topic]`
 - `What's our architecture status?`
 
@@ -88,12 +96,14 @@ Total Members: [count]
 ## Adding New Members
 
 Request a review from any specialist, even if they don't exist:
+
 - "Ask Ruby Expert to review my modules"
 - "Have Accessibility Expert review forms"
 
 I'll create the specialist and add them to your team automatically.
 
 Or manually edit `.architecture/members.yml` and add:
+
 ```yaml
 - id: your_specialist_id
   name: "[Name]"
@@ -104,30 +114,38 @@ Or manually edit `.architecture/members.yml` and add:
   domains: ["[Domain 1]", "[Domain 2]"]
   perspective: "[Brief description]"
 ```
+````
 
 ---
 
 ## Using the Team
 
 **For focused reviews** (specific expertise):
+
 ```
 Ask [Specialist] to review [target]
 ```
+
 Fast turnaround, targeted insights
 
 **For comprehensive reviews** (all perspectives):
+
 ```
 Start architecture review for [version/feature]
 ```
+
 All members review, collaborative discussion
 
 **For decisions**:
+
 ```
 Create ADR for [decision topic]
 ```
+
 Document decisions with team input
 
 ---
+
 ```
 
 ### 4. Provide Context
@@ -140,11 +158,14 @@ After listing:
 ## Example Output Summary
 After showing full roster, provide a concise summary:
 ```
+
 Ready to use your architecture team:
+
 - [N] specialists available
 - Request reviews: "Ask [specialist] to review [target]"
 - Add new specialists: Just ask for them by name
 - Full review: "Start architecture review for [scope]"
+
 ```
 
 ## Error Handling
@@ -173,3 +194,4 @@ Ready to use your architecture team:
 - Make it actionable with specific commands
 - Encourage exploration and usage
 - Explain that team can grow dynamically
+```

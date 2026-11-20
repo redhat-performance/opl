@@ -20,6 +20,7 @@ The framework uses a roster of specialized architecture reviewers in `.architect
 See [../assets/member-template.yml](../assets/member-template.yml) for the complete template.
 
 Each member includes:
+
 - `id`: Unique identifier (lowercase, underscores)
 - `name`: Display name
 - `title`: Role/title
@@ -59,6 +60,7 @@ Add specialists based on your detected technology stack:
 ```
 
 **Additional specialists to consider**:
+
 - React/Vue/Angular Specialist (if using these frameworks)
 - Node.js Expert (for backend projects)
 - TypeScript Specialist (for TypeScript-heavy projects)
@@ -89,6 +91,7 @@ Add specialists based on your detected technology stack:
 ```
 
 **Additional specialists**:
+
 - Django/Flask/FastAPI Specialist (based on framework)
 - Data Engineering Specialist (for data-heavy projects)
 - ML/AI Specialist (for ML projects)
@@ -119,6 +122,7 @@ Add specialists based on your detected technology stack:
 ```
 
 **Additional specialists**:
+
 - Rails Architect (for Rails projects)
 - Ruby Performance Specialist (for high-traffic applications)
 
@@ -148,6 +152,7 @@ Add specialists based on your detected technology stack:
 ```
 
 **Additional specialists**:
+
 - Spring Boot Specialist
 - Microservices Architect
 
@@ -177,6 +182,7 @@ Add specialists based on your detected technology stack:
 ```
 
 **Additional specialists**:
+
 - Microservices Architect
 - Cloud-Native Specialist
 
@@ -206,28 +212,33 @@ Add specialists based on your detected technology stack:
 ```
 
 **Additional specialists**:
+
 - Systems Programmer
 - Performance Specialist (Rust-specific)
 
 ### Editing Members
 
 **To add a member**:
+
 1. Copy the template from `assets/member-template.yml`
 2. Fill in all fields appropriately
 3. Add to `.architecture/members.yml` in the `members:` array
 4. Choose a unique `id` (use lowercase with underscores)
 
 **To remove a member**:
+
 1. Delete their entry from `.architecture/members.yml`
 2. They won't appear in future reviews
 
 **To modify a member**:
+
 1. Edit their entry in `.architecture/members.yml`
 2. Changes apply to all future reviews
 
 ### Core Members (Keep These)
 
 These core members should remain for all projects:
+
 - **Systems Architect**: Overall architecture coherence
 - **Domain Expert**: Business domain representation
 - **Security Specialist**: Security analysis
@@ -250,21 +261,25 @@ Add principles specific to your project's frameworks:
 #### React Projects
 
 **Component Composition**:
+
 - Favor composition over inheritance
 - Build reusable, focused components
 - Use children props for flexibility
 
 **State Management**:
+
 - Lift state only when necessary
 - Use context for cross-cutting concerns
 - Consider state management libraries for complex state
 
 **Hooks Best Practices**:
+
 - Follow Rules of Hooks
 - Custom hooks for reusable logic
 - useEffect dependencies matter
 
 **Props Down, Events Up**:
+
 - Data flows down via props
 - Changes flow up via callbacks
 - Unidirectional data flow
@@ -272,21 +287,25 @@ Add principles specific to your project's frameworks:
 #### Rails Projects
 
 **Convention Over Configuration**:
+
 - Follow Rails conventions
 - Don't fight the framework
 - Configure only when necessary
 
 **DRY (Don't Repeat Yourself)**:
+
 - Extract common code
 - Use concerns and modules
 - Avoid duplication across models/controllers
 
 **Fat Models, Skinny Controllers**:
+
 - Business logic in models
 - Controllers orchestrate only
 - Keep views logic-free
 
 **RESTful Design**:
+
 - Use resourceful routing
 - Standard CRUD patterns
 - Nested resources where appropriate
@@ -294,21 +313,25 @@ Add principles specific to your project's frameworks:
 #### Django Projects
 
 **Explicit Over Implicit**:
+
 - Make behavior clear
 - Avoid magic
 - Prefer explicit configuration
 
 **Reusable Apps**:
+
 - Design apps to be reusable
 - Clear boundaries and interfaces
 - Minimal coupling between apps
 
 **Use Built-In Features**:
+
 - Leverage Django's admin
 - Use ORM effectively
 - Don't reinvent wheels
 
 **Template Inheritance**:
+
 - Base templates for layouts
 - Block-based composition
 - DRY template code
@@ -316,17 +339,20 @@ Add principles specific to your project's frameworks:
 ### Adding Custom Principles
 
 **Format**:
+
 ```markdown
 ## [Principle Number]. [Principle Name]
 
 [Description of the principle and why it matters]
 
 **In Practice**:
+
 - [Specific application 1]
 - [Specific application 2]
 - [Specific application 3]
 
 **Anti-patterns to Avoid**:
+
 - [Anti-pattern 1]
 - [Anti-pattern 2]
 
@@ -335,6 +361,7 @@ Add principles specific to your project's frameworks:
 ```
 
 **Where to add**:
+
 - Append to `.architecture/principles.md`
 - After the core principles (Livable Code, Clarity over Cleverness, etc.)
 - Before any project-specific principles
@@ -366,6 +393,7 @@ This project uses the AI Software Architect framework for architectural decision
 ### Documentation
 
 All architecture documentation is in `.architecture/`:
+
 - **ADRs**: `.architecture/decisions/adrs/`
 - **Reviews**: `.architecture/reviews/`
 - **Principles**: `.architecture/principles.md`
@@ -375,11 +403,13 @@ All architecture documentation is in `.architecture/`:
 ### Important Notes
 
 **Do NOT include**:
+
 - Setup instructions (setup is one-time)
 - Framework internals
 - Implementation details
 
 **DO include**:
+
 - Usage commands
 - Where to find documentation
 - How to invoke skills
@@ -399,7 +429,7 @@ The framework's behavior is controlled via `.architecture/config.yml`.
 ```yaml
 pragmatic_mode:
   enabled: true
-  intensity: balanced  # strict | balanced | lenient
+  intensity: balanced # strict | balanced | lenient
   applies_to:
     - reviews
     - adrs
@@ -412,11 +442,13 @@ pragmatic_mode:
 ```
 
 **Intensity levels**:
+
 - `strict`: Ratio target <1.0 (complexity < necessity)
 - `balanced`: Ratio target <1.5 (moderate complexity acceptable)
 - `lenient`: Ratio target <2.0 (strategic complexity tolerated)
 
 **When to enable**:
+
 - **Strict**: MVP, tight timeline, small team
 - **Balanced**: Normal development, sustainable pace
 - **Lenient**: Platform building, long-term projects
@@ -426,7 +458,7 @@ pragmatic_mode:
 ```yaml
 implementation:
   enabled: true
-  methodology: TDD  # TDD | BDD | DDD | Test-Last | Exploratory
+  methodology: TDD # TDD | BDD | DDD | Test-Last | Exploratory
   influences:
     - "Kent Beck - TDD by Example"
     - "Sandi Metz - POODR"
@@ -474,6 +506,7 @@ After installation, customize:
 ## Best Practices
 
 **Do**:
+
 - Customize based on actual project needs
 - Add specialists for primary technologies
 - Keep core members (Systems, Domain, Security, etc.)
@@ -481,6 +514,7 @@ After installation, customize:
 - Enable pragmatic mode appropriately
 
 **Don't**:
+
 - Add every possible specialist (overwhelms reviews)
 - Remove core members (they provide essential perspectives)
 - Copy principles verbatim without customization

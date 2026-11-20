@@ -22,6 +22,7 @@
 **Overall Assessment**: Excellent | Good | Adequate | Needs Improvement | Critical Issues
 
 **Key Findings**:
+
 - [Most significant finding]
 - [Second most significant finding]
 - [Third most significant finding]
@@ -35,11 +36,13 @@
 [Describe what was reviewed with specific file references and context]
 
 **Scope Reviewed**:
+
 - [Component/feature 1]
 - [Component/feature 2]
 - [Component/feature 3]
 
 **Key Components**:
+
 - `[file.ext:line]`: [Brief description of component]
 - `[file.ext:line]`: [Brief description]
 - `[file.ext:line]`: [Brief description]
@@ -152,6 +155,7 @@
 3. **[Practice Title]**: [Description]
 
 **Industry Standards**: [Reference relevant standards, guidelines, or frameworks]
+
 - [Standard 1]: [How it applies]
 - [Standard 2]: [How it applies]
 
@@ -164,21 +168,25 @@
 ### Example 1: [Issue Title]
 
 **Current Implementation (Problematic)**:
+
 ```[language]
 [Code snippet showing the concern]
 ```
 
 **Issues**:
+
 - [Issue 1]
 - [Issue 2]
 - [Issue 3]
 
 **Recommended Improvement**:
+
 ```[language]
 [Code snippet showing the improved approach]
 ```
 
 **Benefits**:
+
 - [Benefit 1]
 - [Benefit 2]
 - [Benefit 3]
@@ -225,10 +233,11 @@
 3. **[Metric Name]**: Current → Target (Timeline)
 
 [Examples:
+
 - Test Coverage: 40% → 80% (6 weeks)
 - Response Time: 2s → 300ms (4 weeks)
 - Security Score: 6/10 → 9/10 (8 weeks)
-]
+  ]
 
 ---
 
@@ -237,19 +246,23 @@
 **Re-Review Recommended**: [When to conduct follow-up review]
 
 **Success Criteria for Closure**:
+
 - [ ] [Criterion 1]
 - [ ] [Criterion 2]
 - [ ] [Criterion 3]
 
 **Next Steps**:
+
 1. [Immediate next step]
 2. [Second next step]
 3. [Third next step]
 
 **Related Reviews**:
+
 - [Link to related reviews if any]
 
 **Related ADRs**:
+
 - [Link to relevant ADRs if decisions are needed]
 
 ---
@@ -259,17 +272,20 @@
 ### Review Scope
 
 **What Was Reviewed**:
+
 - [Scope item 1]
 - [Scope item 2]
 - [Scope item 3]
 
 **What Was Not Reviewed**:
+
 - [Out of scope item 1]
 - [Out of scope item 2]
 
 ### Methodology
 
 This review was conducted by analyzing:
+
 - Code structure and implementation
 - [Relevant documentation]
 - [Test coverage]
@@ -280,14 +296,17 @@ This review was conducted by analyzing:
 ### References
 
 **Documentation Reviewed**:
+
 - [Document 1]
 - [Document 2]
 
 **Standards Referenced**:
+
 - [Standard 1]
 - [Standard 2]
 
 **Tools Used**:
+
 - [Tool 1]
 - [Tool 2]
 

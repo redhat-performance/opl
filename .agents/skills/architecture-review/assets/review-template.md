@@ -11,11 +11,13 @@
 **Overall Assessment**: Strong | Adequate | Needs Improvement
 
 **Key Findings**:
+
 - [Finding 1 - Most significant discovery]
 - [Finding 2 - Second most significant]
 - [Finding 3 - Third most significant]
 
 **Critical Actions**:
+
 - [Action 1 - Most urgent action required]
 - [Action 2 - Second most urgent]
 
@@ -24,6 +26,7 @@
 ## System Overview
 
 [Provide context about what was reviewed. Include:
+
 - Version number or feature name
 - Scope of review (whole system, specific component, feature)
 - Key technologies and frameworks
@@ -42,19 +45,23 @@
 **Perspective**: [Their unique viewpoint]
 
 #### Key Observations
+
 - [Observation 1]
 - [Observation 2]
 
 #### Strengths
+
 1. **[Strength]**: [Description]
 
 #### Concerns
+
 1. **[Concern]** (Impact: High/Medium/Low)
    - **Issue**: [What's wrong]
    - **Why it matters**: [Impact]
    - **Recommendation**: [What to do]
 
 #### Recommendations
+
 1. **[Recommendation]** (Priority: High/Medium/Low, Effort: Small/Medium/Large)
    - **What**: [Action]
    - **Why**: [Benefit]
@@ -81,6 +88,7 @@
 ### Common Ground
 
 The team agrees on:
+
 1. [Consensus point 1]
 2. [Consensus point 2]
 3. [Consensus point 3]
@@ -88,6 +96,7 @@ The team agrees on:
 ### Areas of Debate
 
 **Topic: [Topic Title]**
+
 - **[Member 1]**: [Their position and reasoning]
 - **[Member 2]**: [Their position and reasoning]
 - **Resolution**: [How team reconciles different views]
@@ -95,14 +104,17 @@ The team agrees on:
 ### Priorities Established
 
 **Critical (Address Immediately)**:
+
 1. [Critical priority with brief justification]
 2. [Critical priority]
 
 **Important (Address Soon)**:
+
 1. [Important priority]
 2. [Important priority]
 
 **Nice-to-Have (Consider Later)**:
+
 1. [Nice-to-have improvement]
 2. [Nice-to-have improvement]
 
@@ -134,6 +146,7 @@ The team agrees on:
 ### Technical Debt
 
 **High Priority**:
+
 - **[Debt Item]**:
   - **Impact**: [How it affects development/operations]
   - **Resolution**: [What needs to be done]
@@ -141,25 +154,30 @@ The team agrees on:
   - **Recommended Timeline**: [When to address]
 
 **Medium Priority**:
+
 - **[Debt Item]**: [Details]
 
 **Low Priority**:
+
 - **[Debt Item]**: [Details]
 
 ### Risks
 
 **Technical Risks**:
+
 - **[Risk Title]** (Likelihood: High/Medium/Low, Impact: High/Medium/Low)
   - **Description**: [What could go wrong]
   - **Mitigation**: [How to reduce or eliminate risk]
   - **Owner**: [Who should monitor/address]
 
 **Business Risks**:
+
 - **[Risk Title]** (Likelihood: High/Medium/Low, Impact: High/Medium/Low)
   - **Description**: [Business impact]
   - **Mitigation**: [How to address]
 
 **Operational Risks**:
+
 - **[Risk Title]** (Likelihood: High/Medium/Low, Impact: High/Medium/Low)
   - **Description**: [Operations/reliability concern]
   - **Mitigation**: [How to address]
@@ -218,11 +236,12 @@ Define measurable criteria to track improvement:
 3. **[Metric Name]**: Current → Target (Timeline)
 
 [Examples:
+
 - Test Coverage: 45% → 75% (3 months)
 - Build Time: 15 min → 5 min (6 weeks)
 - P95 Response Time: 500ms → 200ms (2 months)
 - Code Review Time: 2 days → 4 hours (1 month)
-]
+  ]
 
 ---
 
@@ -231,17 +250,20 @@ Define measurable criteria to track improvement:
 **Next Review**: [Specific date or milestone]
 
 **Tracking**: [How recommendations will be tracked]
+
 - Create GitHub issues for immediate actions
 - Add to sprint backlog
 - Use architecture recalibration process (see below)
 
 **Recalibration**:
 After implementing recommendations, conduct architecture recalibration to assess progress:
+
 ```
 "Start architecture recalibration for [target]"
 ```
 
 **Accountability**:
+
 - [Who is responsible for tracking implementation]
 - [How often to check progress - weekly, bi-weekly, etc.]
 - [Where to document status updates]
@@ -251,13 +273,16 @@ After implementing recommendations, conduct architecture recalibration to assess
 ## Related Documentation
 
 **Architectural Decision Records**:
+
 - [ADR-XXX: Title](../decisions/adrs/ADR-XXX-title.md) - [How it relates to this review]
 - [ADR-YYY: Title](../decisions/adrs/ADR-YYY-title.md) - [Relationship]
 
 **Previous Reviews**:
+
 - [Previous review filename] - [Date] - [How architecture has evolved since then]
 
 **Referenced Documents**:
+
 - [Document title] - [Link] - [Relevance]
 
 ---
@@ -279,6 +304,7 @@ Each member reviewed independently, then collaborated to synthesize findings and
 
 [If pragmatic mode was enabled, note:]
 **Pragmatic Mode**: [Strict | Balanced | Lenient]
+
 - Complexity ratio target: [<1.0 | <1.5 | <2.0]
 - All recommendations evaluated through YAGNI lens
 

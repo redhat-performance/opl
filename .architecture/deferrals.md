@@ -13,7 +13,7 @@ This document tracks architectural features, patterns, and complexity that have 
 
 ## Deferred Decisions
 
-*(No deferred decisions currently tracked)*
+_(No deferred decisions currently tracked)_
 
 ---
 
@@ -22,23 +22,27 @@ This document tracks architectural features, patterns, and complexity that have 
 This document should be reviewed:
 
 **Monthly**: Check for triggered conditions
+
 - Review each deferred item
 - Check if any trigger conditions have been met
 - Update priority if context has changed
 
 **Quarterly**: Re-evaluate deferrals
+
 - Are deferred items still relevant?
 - Have requirements changed?
 - Should priority be adjusted?
 - Can any be cancelled?
 
 **During Architecture Reviews**: Reference deferrals
+
 - Check if new features relate to deferrals
 - Consider if triggered conditions met
 - Avoid re-proposing already-deferred items
 - Update relevant entries
 
 **When Triggers Met**:
+
 1. Update status to "Triggered"
 2. Create or update ADR for implementation
 3. Plan implementation in next sprint/release
@@ -49,15 +53,15 @@ This document should be reviewed:
 
 Track deferral outcomes to improve decision-making:
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Total deferrals | 0 | All-time count |
-| Active deferrals | 0 | Currently deferred |
-| Triggered awaiting implementation | 0 | Need to address |
-| Implemented | 0 | Were eventually needed |
-| Cancelled | 0 | Were never needed |
-| Average time before trigger | - | How long before we needed it |
-| Hit rate (implemented/total) | 0% | How often deferred things are needed |
+| Metric                            | Value | Notes                                |
+| --------------------------------- | ----- | ------------------------------------ |
+| Total deferrals                   | 0     | All-time count                       |
+| Active deferrals                  | 0     | Currently deferred                   |
+| Triggered awaiting implementation | 0     | Need to address                      |
+| Implemented                       | 0     | Were eventually needed               |
+| Cancelled                         | 0     | Were never needed                    |
+| Average time before trigger       | -     | How long before we needed it         |
+| Hit rate (implemented/total)      | 0%    | How often deferred things are needed |
 
 **Target**: < 40% hit rate (most deferred things remain unneeded, validating deferral decisions)
 
@@ -82,6 +86,7 @@ When adding a deferral, use this format:
 [What was originally suggested - can quote from review or ADR]
 
 **Rationale for Deferring**:
+
 - Current need score: [0-10]
 - Complexity score: [0-10]
 - Cost of waiting: [Low | Medium | High]
@@ -91,6 +96,7 @@ When adding a deferral, use this format:
 [What we're doing instead for now]
 
 **Trigger Conditions** (Implement when):
+
 - [ ] [Specific condition 1 - make this measurable]
 - [ ] [Specific condition 2]
 - [ ] [Specific condition 3]
@@ -99,6 +105,7 @@ When adding a deferral, use this format:
 [Notes for when this is implemented - gotchas, considerations, references]
 
 **Related Documents**:
+
 - [Link to ADR or review]
 - [Link to discussion]
 

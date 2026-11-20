@@ -113,6 +113,7 @@ fi
 ```
 
 **Verify installation**:
+
 ```bash
 # Check key directories exist
 test -d .architecture/decisions/adrs && \
@@ -156,6 +157,7 @@ fi
 Create three core documentation files:
 
 **1. workflows.md** - Procedural documentation:
+
 - Setup procedures (Claude Skills, Direct Clone, MCP)
 - Architecture review process
 - ADR creation workflow
@@ -163,6 +165,7 @@ Create three core documentation files:
 - Step-by-step instructions for common tasks
 
 **2. reference.md** - Reference documentation:
+
 - Pragmatic mode details and intensity levels
 - Recalibration process
 - Advanced configuration options
@@ -170,12 +173,14 @@ Create three core documentation files:
 - Configuration examples
 
 **3. README.md** - Navigation guide:
+
 - Progressive disclosure explanation
 - Quick navigation table (task → section)
 - How to find information
 - When to read which document
 
 **Content Guidelines**:
+
 - AGENTS.md: ~400 lines, always-relevant overview
 - agent_docs/: Task-specific details loaded as needed
 - Keep workflows procedural and actionable
@@ -201,7 +206,7 @@ echo "✅ Framework docs removed"
 
 ### Remove Framework Git Repository
 
-**⚠️  CRITICAL SAFEGUARDS - READ CAREFULLY**
+**⚠️ CRITICAL SAFEGUARDS - READ CAREFULLY**
 
 Removing `.git` directory is destructive. Follow these safeguards:
 
@@ -335,29 +340,35 @@ fi
 ### Common Issues
 
 **Issue**: "Framework not found at .architecture/.architecture"
+
 - **Cause**: Framework not cloned
 - **Solution**: `git clone https://github.com/codenamev/ai-software-architect .architecture/.architecture`
 
 **Issue**: "Permission denied" errors during copy
+
 - **Cause**: Insufficient file permissions
 - **Solution**: `chmod -R u+rw .architecture/`
 
 **Issue**: "Directory already exists" during mkdir
+
 - **Cause**: Framework already partially installed
 - **Solution**: Check if framework is already set up: `ls -la .architecture/`
 
 **Issue**: ".git removal verification failed"
+
 - **Cause**: Safety check detected unexpected repository
 - **Solution**: Manually verify `.architecture/.git/config` contains template repo URL
 - **Never**: Override safety checks without understanding why they failed
 
 **Issue**: "No project markers found"
+
 - **Cause**: May not be in project root
 - **Solution**: Verify you're in the correct directory, proceed with caution
 
 ### Verification Commands
 
 **Check installation completeness**:
+
 ```bash
 # Required directories
 test -d .architecture/decisions/adrs && echo "✅ ADRs directory" || echo "❌ Missing ADRs"
@@ -370,6 +381,7 @@ test -f .architecture/config.yml && echo "✅ Config file" || echo "❌ Missing 
 ```
 
 **Check for leftover framework files**:
+
 ```bash
 # These should NOT exist after cleanup
 test -f .architecture/README.md && echo "⚠️  Framework README still present"
@@ -380,11 +392,13 @@ test -d .architecture/.architecture && echo "⚠️  Clone directory still prese
 ### Recovery
 
 **If installation fails mid-process**:
+
 1. Remove partial installation: `rm -rf .architecture/` (if nothing important there yet)
 2. Re-clone framework: `git clone https://github.com/codenamev/ai-software-architect .architecture/.architecture`
 3. Start over from Step 1
 
 **If you accidentally removed the wrong .git**:
+
 - If it was your project's .git: **Restore from backup immediately**
 - If you don't have a backup: Recovery may not be possible
 - This is why the safeguards are critical

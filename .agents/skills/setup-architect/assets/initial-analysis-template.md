@@ -10,20 +10,23 @@
 ## Executive Summary
 
 [Write 2-3 paragraphs providing a high-level overview of the system being analyzed. Include:
+
 - What the system does (purpose and domain)
 - Primary technologies and stack
 - Current state and maturity level
 - Overall architectural health
-]
+  ]
 
 **Overall Assessment**: [Excellent | Good | Adequate | Needs Attention]
 
 **Key Findings**:
+
 - [Major finding 1]
 - [Major finding 2]
 - [Major finding 3]
 
 **Critical Recommendations**:
+
 - [Top priority recommendation]
 - [Second priority recommendation]
 
@@ -48,18 +51,22 @@
 ### Technology Stack
 
 **Frontend**:
+
 - [Technology 1]
 - [Technology 2]
 
 **Backend**:
+
 - [Technology 1]
 - [Technology 2]
 
 **Database**:
+
 - [Primary database]
 - [Cache layer if any]
 
 **Infrastructure**:
+
 - [Hosting/cloud provider]
 - [CI/CD tools]
 - [Monitoring/observability]
@@ -78,6 +85,7 @@
 ```
 
 **Key Observations**:
+
 - [Structure observation 1]
 - [Structure observation 2]
 
@@ -92,10 +100,11 @@
 #### Current State Assessment
 
 [Detailed analysis from this member's perspective. Include:
+
 - What they examined
 - How they evaluated it
 - What they discovered
-]
+  ]
 
 #### Strengths Identified
 
@@ -138,14 +147,17 @@
 ### Common Themes
 
 **Strengths** (What multiple members praised):
+
 1. [Common strength 1]
 2. [Common strength 2]
 
 **Concerns** (What multiple members flagged):
+
 1. [Common concern 1]
 2. [Common concern 2]
 
 **Disagreements** (Where members had different views):
+
 - **Topic**: [Topic of disagreement]
   - **[Member 1]**: [Their view]
   - **[Member 2]**: [Their view]
@@ -154,14 +166,17 @@
 ### Prioritized Findings
 
 **Critical (Address Immediately)**:
+
 1. **[Finding]**: [Why critical, impact if not addressed]
 2. **[Finding]**: [Details]
 
 **Important (Address in Near Term)**:
+
 1. **[Finding]**: [Why important]
 2. **[Finding]**: [Details]
 
 **Nice-to-Have (Consider for Future)**:
+
 1. **[Finding]**: [Why beneficial but not urgent]
 2. **[Finding]**: [Details]
 
@@ -174,11 +189,13 @@
 **Rating**: [1-10]
 
 **Observations**:
+
 - [Observation about code organization]
 - [Observation about code clarity]
 - [Observation about technical debt]
 
 **Key Issues**:
+
 - [Issue 1]
 - [Issue 2]
 
@@ -189,11 +206,13 @@
 **Rating**: [1-10]
 
 **Observations**:
+
 - [Test presence and quality]
 - [Test types (unit, integration, e2e)]
 - [Test infrastructure]
 
 **Gaps**:
+
 - [Gap 1]
 - [Gap 2]
 
@@ -202,12 +221,14 @@
 **Rating**: [1-10]
 
 **Observations**:
+
 - [README quality]
 - [API documentation]
 - [Architecture documentation]
 - [Code comments]
 
 **Missing**:
+
 - [What documentation is missing]
 
 ### Security
@@ -215,11 +236,13 @@
 **Rating**: [1-10]
 
 **Observations**:
+
 - [Authentication/authorization approach]
 - [Data protection measures]
 - [Known vulnerabilities]
 
 **Concerns**:
+
 - [Security concern 1]
 - [Security concern 2]
 
@@ -228,11 +251,13 @@
 **Rating**: [1-10]
 
 **Observations**:
+
 - [Performance characteristics]
 - [Scalability considerations]
 - [Known bottlenecks]
 
 **Concerns**:
+
 - [Performance concern 1]
 - [Performance concern 2]
 
@@ -241,11 +266,13 @@
 **Rating**: [1-10]
 
 **Observations**:
+
 - [How easy is it to change?]
 - [Developer onboarding experience]
 - [Build/deploy process]
 
 **Challenges**:
+
 - [Maintainability challenge 1]
 - [Maintainability challenge 2]
 
@@ -349,10 +376,11 @@ Define measurable targets to track improvement:
 3. **[Metric]**: Baseline → Target (Timeline)
 
 [Examples:
+
 - Test Coverage: 30% → 70% (3 months)
 - Build Time: 10 min → 3 min (6 weeks)
 - Documentation Score: 4/10 → 8/10 (2 months)
-]
+  ]
 
 ---
 
@@ -365,11 +393,13 @@ Based on this initial analysis:
 3. **[Step 3]**: [Next step]
 
 **Documentation**:
+
 - Create ADRs for key architectural decisions identified
 - Document existing patterns in ADRs
 - Schedule regular architecture reviews
 
 **Process**:
+
 - Establish review cadence (quarterly recommended)
 - Define ADR creation criteria
 - Set up architecture recalibration process
@@ -383,6 +413,7 @@ Based on this initial analysis:
 This analysis was conducted using the AI Software Architect framework. Each member analyzed the system from their specialized perspective, then collaborated to synthesize findings and prioritize recommendations.
 
 **Members Participating**:
+
 - [Member 1] - [Role]
 - [Member 2] - [Role]
 - [etc.]
